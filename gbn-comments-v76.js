@@ -6,7 +6,7 @@
 	var __getOwnPropNames = Object.getOwnPropertyNames;
 	var __getProtoOf = Object.getPrototypeOf;
 	var __hasOwnProp = Object.prototype.hasOwnProperty;
-	var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod), cb = null), mod.exports);
+	var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).exports, mod, mod.exports), cb = null), mod.exports);
 	var __exportAll = (all, no_symbols) => {
 		let target = {};
 		for (var name in all) __defProp(target, name, {
@@ -30,6 +30,564 @@
 		value: mod,
 		enumerable: true
 	}) : target, mod));
+	//#endregion
+	//#region src/constants/api.ts
+	var GBNID_API_BASE_URL = `https://api.gbnlab.com/gbnid/api/v1`;
+	var roomPath = (roomId) => `/comments/rooms/${encodeURIComponent(roomId)}`;
+	var messagePath = (roomId, messageId) => `${roomPath(roomId)}/messages/${encodeURIComponent(messageId)}`;
+	var COMMENTS_API = {
+		ROOM: roomPath,
+		MESSAGES: (roomId) => `${roomPath(roomId)}/messages`,
+		SUPERCHATS: (roomId) => `${roomPath(roomId)}/superchats`,
+		THREAD: (roomId, rootId) => `${roomPath(roomId)}/threads/${encodeURIComponent(rootId)}`,
+		MESSAGE: messagePath,
+		MESSAGE_REPORTS: (roomId, messageId) => `${messagePath(roomId, messageId)}/reports`,
+		MESSAGE_REACTION: (roomId, messageId, reaction) => `${messagePath(roomId, messageId)}/reactions/${reaction}`,
+		TICKETS: "/comments/tickets",
+		MY_ACTIVITY: "/comments/me/activity",
+		USER_MESSAGES: (userId) => `/comments/users/${encodeURIComponent(userId)}/messages`
+	};
+	var LIVE_API = { ROOM_SOCKET: (roomId) => `/v1/rooms/${encodeURIComponent(roomId)}/ws` };
+	var IDEMPOTENCY_HEADER = "idempotency-key";
+	var HTTP_STATUS = {
+		UNAUTHORIZED: 401,
+		CONFLICT: 409
+	};
+	var REQUEST_STATUS = {
+		IDLE: "idle",
+		LOADING: "loading",
+		SUCCEEDED: "succeeded",
+		FAILED: "failed"
+	};
+	var COMMENTS_SORT = "newest";
+	var MESSAGES_FROM_MEMBERS = "members";
+	var MESSAGE_STATUS = {
+		PENDING: "pending",
+		PUBLISHED: "published",
+		HELD: "held",
+		REMOVED: "removed"
+	};
+	var MESSAGE_KIND = {
+		NORMAL: "normal",
+		SUPERCHAT: "superchat"
+	};
+	var ROOM_MODE = {
+		OPEN: "open",
+		POST_STRICT: "post-strict",
+		PRE: "pre",
+		HUMAN_REVIEW: "human-review",
+		SLOW: "slow",
+		ESTABLISHED_ONLY: "established-only",
+		TRUSTED_ONLY: "trusted-only",
+		CLOSED: "closed"
+	};
+	var EDIT_MODE = {
+		OFF: "off",
+		WINDOW: "window"
+	};
+	var REPORT_REASONS = [
+		{
+			reason: "spam",
+			label: "Spam"
+		},
+		{
+			reason: "abuse",
+			label: "Abuse"
+		},
+		{
+			reason: "hate",
+			label: "Hate"
+		},
+		{
+			reason: "misinformation",
+			label: "Misinformation"
+		},
+		{
+			reason: "off_topic",
+			label: "Off topic"
+		},
+		{
+			reason: "other",
+			label: "Other"
+		}
+	];
+	var ERROR_MESSAGE = {
+		LOAD_COMMENTS: "Couldn't load comments.",
+		SEND_COMMENT: "Couldn't send your comment.",
+		SEND_SUPERCHAT: "Couldn't send your YourSay+.",
+		EDIT_MESSAGE: "Couldn't save your edit.",
+		LOAD_REPLIES: "Couldn't load replies.",
+		LOAD_USER_MESSAGES: "Couldn't load this user's comments.",
+		REPORT_MESSAGE: "Couldn't report, try again",
+		ALREADY_REPORTED: "Already reported"
+	};
+	var ACTIVITY_TYPE = {
+		COMMENT: "comment",
+		REPLY: "reply",
+		REACTION: "reaction"
+	};
+	var LIVE_FRAME_TYPE = {
+		MESSAGE_NEW: "message.new",
+		MESSAGE_UPDATE: "message.update",
+		MESSAGE_REMOVE: "message.remove",
+		MESSAGE_STATUS: "message.status",
+		REACTION_COUNT: "reaction.count",
+		ROOM_MODE: "room.mode"
+	};
+	var LIVE_MESSAGE_TYPE = {
+		HELLO: "hello",
+		FRAMES: "frames",
+		RESYNC: "resync",
+		GOAWAY: "goaway"
+	};
+	var LIVE_SOCKET_PARAM = {
+		TICKET: "ticket",
+		CURSOR: "cursor"
+	};
+	var LIVE_CHANNEL = {
+		ROOM: "room",
+		ME: "me"
+	};
+	var LIVE_BASE_RETRY_DELAY_MS = 1e3;
+	var LIVE_MAX_RETRY_DELAY_MS = 3e4;
+	//#endregion
+	//#region src/assets/angry.svg
+	var angry_default = "data:image/svg+xml,%3csvg%20width='40'%20height='40'%20viewBox='0%200%2040%2040'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient%20id='face'%20x1='0'%20y1='0'%20x2='0'%20y2='1'%3e%3cstop%20offset='0'%20stop-color='%23E8563A'/%3e%3cstop%20offset='1'%20stop-color='%23F5B52B'/%3e%3c/linearGradient%3e%3c/defs%3e%3ccircle%20cx='20'%20cy='20'%20r='20'%20fill='url(%23face)'/%3e%3cellipse%20cx='14'%20cy='19'%20rx='2.1'%20ry='2.7'%20fill='%234A2C12'/%3e%3cellipse%20cx='26'%20cy='19'%20rx='2.1'%20ry='2.7'%20fill='%234A2C12'/%3e%3cpath%20d='M10.5%2012%2017%2014.8M29.5%2012%2023%2014.8'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3cpath%20d='M15%2029q5-3.5%2010%200'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/close.svg
+	var close_default = "data:image/svg+xml,%3csvg%20width='10'%20height='10'%20viewBox='0%200%2010%2010'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M9.81286%201.12981C9.9343%201.00407%2010.0015%200.835672%209.99997%200.660874C9.99846%200.486076%209.92834%200.318868%209.80474%200.195262C9.68113%200.0716569%209.51392%200.00154415%209.33913%202.52016e-05C9.16433%20-0.00149374%208.99593%200.0657028%208.87019%200.187141L5.00819%204.04914L1.14619%200.187141C1.02046%200.0657028%200.852056%20-0.00149374%200.677258%202.52016e-05C0.50246%200.00154415%200.335252%200.0716569%200.211646%200.195262C0.088041%200.318868%200.0179282%200.486076%200.0164093%200.660874C0.0148903%200.835672%200.0820869%201.00407%200.203526%201.12981L4.06553%204.99181L0.203526%208.85381C0.139852%208.91531%200.0890639%208.98887%200.0541246%209.0702C0.0191852%209.15154%200.000794382%209.23902%202.51714e-05%209.32754C-0.000744039%209.41606%200.0161236%209.50385%200.0496442%209.58578C0.0831648%209.66771%200.132667%209.74214%200.195262%209.80474C0.257857%209.86733%200.332292%209.91683%200.414223%209.95036C0.496154%209.98388%200.58394%2010.0007%200.67246%209.99997C0.760979%209.99921%200.848459%209.98081%200.929795%209.94587C1.01113%209.91094%201.08469%209.86015%201.14619%209.79647L5.00819%205.93447L8.87019%209.79647C8.99593%209.91791%209.16433%209.98511%209.33913%209.98359C9.51392%209.98207%209.68113%209.91196%209.80474%209.78835C9.92834%209.66475%209.99846%209.49754%209.99997%209.32274C10.0015%209.14794%209.9343%208.97954%209.81286%208.85381L5.95086%204.99181L9.81286%201.12981Z'%20fill='%23EB0000'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/coin.svg
+	var coin_default = "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M17.9%2010C17.9%2014.363%2014.363%2017.9%2010%2017.9C5.63695%2017.9%202.1%2014.363%202.1%2010C2.1%205.63695%205.63695%202.1%2010%202.1C14.363%202.1%2017.9%205.63695%2017.9%2010Z'%20fill='url(%23paint0_linear_22385_21230)'%20stroke-width='0.2'%20stroke='url(%23paint1_linear_22385_21230)'/%3e%3cg%20filter='url(%23filter0_d_22385_21230)'%3e%3ccircle%20cx='10'%20cy='10'%20r='6'%20fill='url(%23paint2_linear_22385_21230)'/%3e%3ccircle%20cx='10'%20cy='10'%20r='5.5'%20stroke='url(%23paint3_linear_22385_21230)'/%3e%3c/g%3e%3cg%20filter='url(%23filter1_d_22385_21230)'%3e%3ccircle%20cx='10'%20cy='10'%20r='5'%20fill='url(%23paint4_linear_22385_21230)'/%3e%3ccircle%20cx='10'%20cy='10'%20r='4.95'%20stroke='url(%23paint5_linear_22385_21230)'%20stroke-width='0.1'/%3e%3c/g%3e%3cdefs%3e%3cfilter%20id='filter0_d_22385_21230'%20x='0'%20y='0'%20width='20'%20height='20'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset/%3e%3cfeGaussianBlur%20stdDeviation='2'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.25%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_22385_21230'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_22385_21230'%20result='shape'/%3e%3c/filter%3e%3cfilter%20id='filter1_d_22385_21230'%20x='1'%20y='1'%20width='18'%20height='18'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset/%3e%3cfeGaussianBlur%20stdDeviation='2'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.25%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_22385_21230'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_22385_21230'%20result='shape'/%3e%3c/filter%3e%3clinearGradient%20id='paint0_linear_22385_21230'%20x1='10'%20y1='2'%20x2='10'%20y2='18'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.283654'%20stop-color='%23FFB916'/%3e%3cstop%20offset='1'%20stop-color='%23FFD87C'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint1_linear_22385_21230'%20x1='10'%20y1='18'%20x2='10'%20y2='2'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23F5B728'/%3e%3cstop%20offset='1'%20stop-color='%23D7A531'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint2_linear_22385_21230'%20x1='4'%20y1='10'%20x2='16'%20y2='10'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23DB9D0D'/%3e%3cstop%20offset='1'%20stop-color='%23FFD269'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint3_linear_22385_21230'%20x1='10'%20y1='16'%20x2='10'%20y2='4'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.274038'%20stop-color='%23E2A006'/%3e%3cstop%20offset='1'%20stop-color='%23FFE175'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint4_linear_22385_21230'%20x1='5'%20y1='10'%20x2='15'%20y2='10'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23DB9D0D'/%3e%3cstop%20offset='1'%20stop-color='%23F8C346'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint5_linear_22385_21230'%20x1='10'%20y1='5'%20x2='10'%20y2='15'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.274038'%20stop-color='%23E2A006'/%3e%3cstop%20offset='1'%20stop-color='%23FCDD96'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/comment.svg
+	var comment_default = "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M3%204.5C3%203.67%203.67%203%204.5%203H15.5C16.33%203%2017%203.67%2017%204.5V12.5C17%2013.33%2016.33%2014%2015.5%2014H8L4.5%2017V14H4.5C3.67%2014%203%2013.33%203%2012.5V4.5Z'%20stroke='%23898989'%20stroke-width='1.5'%20stroke-linejoin='round'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/confused.svg
+	var confused_default = "data:image/svg+xml,%3csvg%20width='40'%20height='40'%20viewBox='0%200%2040%2040'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient%20id='face'%20x1='0'%20y1='0'%20x2='0'%20y2='1'%3e%3cstop%20offset='0'%20stop-color='%23FEDB52'/%3e%3cstop%20offset='1'%20stop-color='%23F5B52B'/%3e%3c/linearGradient%3e%3c/defs%3e%3ccircle%20cx='20'%20cy='20'%20r='20'%20fill='url(%23face)'/%3e%3cellipse%20cx='14'%20cy='19'%20rx='2.1'%20ry='2.7'%20fill='%234A2C12'/%3e%3cellipse%20cx='26'%20cy='19'%20rx='2.1'%20ry='2.7'%20fill='%234A2C12'/%3e%3cpath%20d='M10.5%2013.2h6M23.5%2012q3-2.6%206-.6'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3cpath%20d='M13.5%2027.5q3.25-2.6%206.5%200t6.5%200'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/edit.svg
+	var edit_default = "data:image/svg+xml,%3csvg%20width='14'%20height='14'%20viewBox='0%200%2014%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M13.5618%202.0213L12.0037%200.438164C11.7228%200.157594%2011.342%200%2010.945%200C10.548%200%2010.1672%200.157594%209.88625%200.438164L2.16051%208.1341C1.99727%208.30054%201.87428%208.50212%201.80094%208.72341C1.80094%208.72341%20-0.379385%2013.5036%200.0580301%2013.9423C0.495445%2014.3809%205.28177%2012.1993%205.28177%2012.1993C5.50062%2012.1239%205.70013%2012.0011%205.86607%2011.8397L13.5618%204.13881C13.8424%203.85789%2014%203.47709%2014%203.08005C14%202.68302%2013.8424%202.30222%2013.5618%202.0213ZM3.07441%208.65349L7.44418%204.28863L8.23323%205.0777L3.84849%209.44755L3.07441%208.65349ZM8.12836%203.57946L8.92241%202.79039L11.2097%205.0777L10.4206%205.87177L8.12836%203.57946ZM2.56503%209.5824L4.4228%2011.4352C4.4228%2011.4352%202.00977%2012.7292%201.64113%2012.3591C1.2725%2011.9891%202.56503%209.5824%202.56503%209.5824ZM5.34669%2010.9458L4.55264%2010.1517L8.92241%205.78687L9.71146%206.57594L5.34669%2010.9458ZM12.8377%203.45461L11.8988%204.39351L9.62656%202.08123L10.5654%201.14233C10.6121%201.09605%2010.6674%201.05943%2010.7283%201.03458C10.7891%201.00972%2010.8543%200.997125%2010.92%200.997505C10.9857%200.997125%2011.0509%201.00972%2011.1117%201.03458C11.1726%201.05943%2011.2279%201.09605%2011.2746%201.14233L12.8577%202.73046C12.95%202.82349%2013.002%202.94904%2013.0025%203.08005C13.0029%203.14578%2012.9903%203.21093%2012.9654%203.27178C12.9406%203.33263%2012.904%203.38797%2012.8577%203.43463L12.8377%203.45461Z'%20fill='%23000F55'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/guestAvatar.svg
+	var guestAvatar_default = "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%20fill='none'%3e%3ccircle%20cx='20'%20cy='20'%20r='20'%20fill='%23EDEDED'/%3e%3cpath%20d='M8%2036c1.2-6.6%206-10%2012-10s10.8%203.4%2012%2010a19.9%2019.9%200%200%201-24%200Z'%20fill='%23C2C2C2'/%3e%3cellipse%20cx='20'%20cy='15.5'%20rx='7'%20ry='8'%20fill='%23C2C2C2'/%3e%3cpath%20d='M17.6%2013.4a2.4%202.4%200%201%201%203.4%202.2c-.7.3-1%20.8-1%201.5v.6'%20stroke='%23FFFFFF'%20stroke-width='1.6'%20stroke-linecap='round'/%3e%3ccircle%20cx='20'%20cy='20.2'%20r='0.95'%20fill='%23FFFFFF'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/happy.svg
+	var happy_default = "data:image/svg+xml,%3csvg%20width='40'%20height='40'%20viewBox='0%200%2040%2040'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient%20id='face'%20x1='0'%20y1='0'%20x2='0'%20y2='1'%3e%3cstop%20offset='0'%20stop-color='%23FEDB52'/%3e%3cstop%20offset='1'%20stop-color='%23F5B52B'/%3e%3c/linearGradient%3e%3c/defs%3e%3ccircle%20cx='20'%20cy='20'%20r='20'%20fill='url(%23face)'/%3e%3cpath%20d='M11.5%2017.5q3-4%206%200M22.5%2017.5q3-4%206%200'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3cpath%20d='M12%2023.5q8%208.5%2016%200'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/heartFilled.svg
+	var heartFilled_default = "data:image/svg+xml,%3csvg%20width='16'%20height='14'%20viewBox='0%200%2016%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M7.99999%201.60047C9.61378%20-0.302475%2012.4986%20-0.55847%2014.4242%201.10192C16.4213%202.82419%2016.5355%205.87886%2014.6789%207.74656L8.78523%2013.6752C8.35455%2014.1083%207.64542%2014.1083%207.21475%2013.6752L1.3211%207.74656C-0.535492%205.87886%20-0.421305%202.82419%201.57576%201.10192C3.50133%20-0.558478%206.38622%20-0.302481%207.99999%201.60047Z'%20fill='%23EB0000'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/laugh.svg
+	var laugh_default = "data:image/svg+xml,%3csvg%20width='40'%20height='40'%20viewBox='0%200%2040%2040'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient%20id='face'%20x1='0'%20y1='0'%20x2='0'%20y2='1'%3e%3cstop%20offset='0'%20stop-color='%23FEDB52'/%3e%3cstop%20offset='1'%20stop-color='%23F5B52B'/%3e%3c/linearGradient%3e%3c/defs%3e%3ccircle%20cx='20'%20cy='20'%20r='20'%20fill='url(%23face)'/%3e%3cpath%20d='M11.5%2017.5q3-4%206%200M22.5%2017.5q3-4%206%200'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3cpath%20d='M10.5%2021.5h19c0%206-4.2%2010-9.5%2010s-9.5-4-9.5-10Z'%20fill='%234A2C12'/%3e%3cpath%20d='M11.4%2022.5h17.2q-.2%202-.8%202.8H12.2q-.6-.8-.8-2.8Z'%20fill='%23fff'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/more.svg
+	var more_default = "data:image/svg+xml,%3csvg%20width='20'%20height='4'%20viewBox='0%200%2020%204'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20cx='2'%20cy='2'%20r='2'%20fill='%23004BE3'/%3e%3ccircle%20cx='10'%20cy='2'%20r='2'%20fill='%23004BE3'/%3e%3ccircle%20cx='18'%20cy='2'%20r='2'%20fill='%23004BE3'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/moreWhite.svg
+	var moreWhite_default = "data:image/svg+xml,%3csvg%20width='20'%20height='4'%20viewBox='0%200%2020%204'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20cx='2'%20cy='2'%20r='2'%20fill='%23FFFFFF'/%3e%3ccircle%20cx='10'%20cy='2'%20r='2'%20fill='%23FFFFFF'/%3e%3ccircle%20cx='18'%20cy='2'%20r='2'%20fill='%23FFFFFF'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/reply.svg
+	var reply_default = "data:image/svg+xml,%3csvg%20width='13'%20height='9'%20viewBox='0%200%2013%209'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M4.94811%200.171914C5.17888%200.401132%205.17888%200.772778%204.94811%201.002L2.01749%203.91304H8.4697C9.22086%203.91304%2010.3344%204.13202%2011.2771%204.80623C12.2499%205.50205%2013%206.65656%2013%208.41304C13%208.7372%2012.7354%209%2012.4091%209C12.0828%209%2011.8182%208.7372%2011.8182%208.41304C11.8182%207.0391%2011.2551%206.23708%2010.5866%205.75898C9.88788%205.25929%209.03169%205.08696%208.4697%205.08696H2.01749L4.94811%207.99803C5.17888%208.22725%205.17888%208.59883%204.94811%208.82806C4.71738%209.05729%204.34323%209.05729%204.11247%208.82806L0.173071%204.91502C-0.0576905%204.68579%20-0.0576905%204.31421%200.173071%204.08498L4.11247%200.171914C4.34323%20-0.0573046%204.71738%20-0.0573046%204.94811%200.171914Z'%20fill='%23898989'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/report.svg
+	var report_default = "data:image/svg+xml,%3csvg%20width='12'%20height='14'%20viewBox='0%200%2012%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M9.23077%2010.2667C9.48567%2010.2667%209.69231%2010.4756%209.69231%2010.7333C9.69231%2010.9911%209.48567%2011.2%209.23077%2011.2H2.76923C2.51433%2011.2%202.30769%2010.9911%202.30769%2010.7333C2.30769%2010.4756%202.51433%2010.2667%202.76923%2010.2667H9.23077Z'%20fill='%23000F55'/%3e%3cpath%20d='M7.84615%207.93333C8.10106%207.93333%208.30769%208.14227%208.30769%208.4C8.30769%208.65773%208.10106%208.86667%207.84615%208.86667H2.76923C2.51433%208.86667%202.30769%208.65773%202.30769%208.4C2.30769%208.14227%202.51433%207.93333%202.76923%207.93333H7.84615Z'%20fill='%23000F55'/%3e%3cpath%20d='M6.46154%205.6C6.71644%205.6%206.92308%205.80893%206.92308%206.06667C6.92308%206.3244%206.71644%206.53333%206.46154%206.53333H2.76923C2.51433%206.53333%202.30769%206.3244%202.30769%206.06667C2.30769%205.80893%202.51433%205.6%202.76923%205.6H6.46154Z'%20fill='%23000F55'/%3e%3cpath%20d='M10.6866%200.00182292C11.4182%200.0393002%2012%200.650951%2012%201.4V12.6L11.9982%2012.672C11.9623%2013.3879%2011.3946%2013.9619%2010.6866%2013.9982L10.6154%2014H1.38462C0.643798%2014%200.0388682%2013.4117%200.00180288%2012.672L0%2012.6V1.4C1.78412e-07%200.626801%200.619914%203.75816e-09%201.38462%200H10.6154L10.6866%200.00182292ZM1.38462%200.933333C1.12972%200.933333%200.923077%201.14227%200.923077%201.4V12.6C0.923077%2012.8577%201.12971%2013.0667%201.38462%2013.0667H10.6154C10.8703%2013.0667%2011.0769%2012.8577%2011.0769%2012.6V1.4C11.0769%201.14227%2010.8703%200.933333%2010.6154%200.933333H1.38462Z'%20fill-rule='evenodd'%20clip-rule='evenodd'%20fill='%23000F55'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/sad.svg
+	var sad_default = "data:image/svg+xml,%3csvg%20width='40'%20height='40'%20viewBox='0%200%2040%2040'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient%20id='face'%20x1='0'%20y1='0'%20x2='0'%20y2='1'%3e%3cstop%20offset='0'%20stop-color='%23FEDB52'/%3e%3cstop%20offset='1'%20stop-color='%23F5B52B'/%3e%3c/linearGradient%3e%3c/defs%3e%3ccircle%20cx='20'%20cy='20'%20r='20'%20fill='url(%23face)'/%3e%3cellipse%20cx='14'%20cy='19'%20rx='2.1'%20ry='2.7'%20fill='%234A2C12'/%3e%3cellipse%20cx='26'%20cy='19'%20rx='2.1'%20ry='2.7'%20fill='%234A2C12'/%3e%3cpath%20d='M10.5%2013.5%2016%2011.2M29.5%2013.5%2024%2011.2'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3cpath%20d='M14%2030q6-5.5%2012%200'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3cpath%20d='M12.6%2023.5q-2.2%203.4%200%204.8%202.2-1.4%200-4.8Z'%20fill='%235AA9F0'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/send.svg
+	var send_default = "data:image/svg+xml,%3csvg%20width='20'%20height='21'%20viewBox='0%200%2020%2021'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M19.4118%209.06477C19.582%209.14935%2019.7263%209.27822%2019.8296%209.4378L19.8396%209.45344L19.8493%209.46932C19.9478%209.63387%2020%209.82223%2020%2010.0143C20%2010.2126%2019.9446%2010.4068%2019.8398%2010.575C19.736%2010.7418%2019.5879%2010.8763%2019.4122%2010.9635L1.5293%2019.9162L1.52768%2019.9171L1.52605%2019.9179C1.3457%2020.0069%201.14372%2020.0425%200.943813%2020.0207C0.743908%2019.9989%200.554327%2019.9204%200.397286%2019.7946C0.240236%2019.6688%200.122214%2019.5007%200.0570656%2019.3101C-0.00808261%2019.1196%20-0.017665%2018.9144%200.0294286%2018.7186L0.0327681%2018.7047L2.58384%209.8696L0.0358956%201.32443L0.0319178%201.30795C-0.0152533%201.11215%20-0.00575219%200.906945%200.0593183%200.716406C0.124391%200.525871%200.242348%200.357868%200.399343%200.232087L0.414164%200.220429C0.5682%200.101467%200.752137%200.0272698%200.94578%200.00619672L0.964531%200.00432713C1.15829%20-0.0132654%201.3533%200.022995%201.52805%200.10928L1.52967%200.110053L19.4118%209.06477ZM3.72149%2010.5076L1.39615%2018.5609L17.2115%2010.6433L3.72149%2010.5076ZM1.40387%201.46861L3.71984%209.23588L17.1853%209.37132L1.40387%201.46861Z'%20fill='white'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/share.svg
+	var share_default = "data:image/svg+xml,%3csvg%20width='12'%20height='14'%20viewBox='0%200%2012%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M9.63636%200C10.9417%200%2012%201.04466%2012%202.33332C12%203.62197%2010.9417%204.66665%209.63636%204.66665C8.87069%204.66665%208.19005%204.30722%207.75811%203.74997L4.50036%206.00119C4.64583%206.30395%204.72725%206.64254%204.72725%206.99991C4.72725%207.35728%204.64582%207.69587%204.50034%207.99864L7.75818%2010.2499C8.19012%209.6927%208.87074%209.33335%209.63636%209.33335C10.9417%209.33335%2012%2010.378%2012%2011.6667C12%2012.9553%2010.9417%2014%209.63636%2014C8.33098%2014%207.27275%2012.9553%207.27275%2011.6667C7.27275%2011.526%207.28535%2011.3882%207.30952%2011.2544L3.86906%208.87696C3.85155%208.86486%203.83501%208.85189%203.8194%208.83822C3.41811%209.14834%202.91275%209.33324%202.36362%209.33324C1.05823%209.33324%200%208.28855%200%206.99991C3.77889e-06%205.71126%201.05823%204.66659%202.36362%204.66659C2.91274%204.66659%203.41812%204.85146%203.8194%205.16157C3.83498%205.14793%203.8515%205.13501%203.86898%205.12293L7.3095%202.74545C7.28535%202.61167%207.27275%202.47395%207.27275%202.33332C7.27275%201.04466%208.33098%203.73e-06%209.63636%200ZM9.63636%2010.4103C8.93347%2010.4103%208.36365%2010.9728%208.36365%2011.6667C8.36365%2012.3605%208.93347%2012.9231%209.63636%2012.9231C10.3393%2012.9231%2010.9091%2012.3605%2010.9091%2011.6667C10.9091%2010.9728%2010.3393%2010.4103%209.63636%2010.4103ZM2.36362%205.74351C1.66072%205.74351%201.09091%206.30603%201.0909%206.99991C1.0909%207.69379%201.66072%208.25632%202.36362%208.25632C3.06652%208.25632%203.63635%207.69379%203.63635%206.99991C3.63635%206.30602%203.06652%205.74351%202.36362%205.74351ZM9.63636%201.07692C8.93347%201.07692%208.36365%201.63943%208.36365%202.33332C8.36365%203.0272%208.93347%203.58973%209.63636%203.58973C10.3393%203.58973%2010.9091%203.02721%2010.9091%202.33332C10.9091%201.63943%2010.3393%201.07692%209.63636%201.07692Z'%20fill-rule='evenodd'%20clip-rule='evenodd'%20fill='%23000F55'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/shield.svg
+	var shield_default = "data:image/svg+xml,%3csvg%20width='11'%20height='12'%20viewBox='0%200%2011%2012'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%201.42657L5.41729%200L11%201.42657C10.1316%2010.0699%209.92481%209.73427%205.41729%2012C1.1579%209.56643%200.909774%2010.1958%200%201.42657Z'%20fill='url(%23paint0_linear_20430_98552)'/%3e%3cdefs%3e%3clinearGradient%20id='paint0_linear_20430_98552'%20x1='5.5'%20y1='0'%20x2='5.5'%20y2='12'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23FCFCFC'/%3e%3cstop%20offset='1'%20stop-color='%23D0D0D0'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/sparkle.svg
+	var sparkle_default = "data:image/svg+xml,%3csvg%20width='38'%20height='27'%20viewBox='0%200%2038%2027'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0.666037%2013.6356C7.9018%2014.2966%208.44102%2014.828%209.10805%2022C9.77605%2014.828%2010.3158%2014.2963%2017.5547%2013.6356C10.3158%2012.9781%209.77605%2012.4394%209.10805%205.2708C8.44102%2012.4394%207.9018%2012.9781%200.666037%2013.6356Z'%20fill='url(%23paint0_linear_22288_61617)'/%3e%3cpath%20d='M12.0954%206.375C12.3503%203.64433%2012.5568%203.44033%2015.3125%203.18788C12.5568%202.93933%2012.3503%202.73046%2012.0954%20-0.0028863C11.8449%202.7307%2011.6385%202.93933%208.87935%203.18788C11.6385%203.44033%2011.8449%203.64433%2012.0954%206.375Z'%20fill='url(%23paint1_linear_22288_61617)'/%3e%3cpath%20d='M2.09635%207.43721C1.93032%209.21164%201.79595%209.34237%200.00422716%209.50986C1.7957%209.67296%201.93032%209.8032%202.09635%2011.5781C2.26091%209.8032%202.39578%209.67296%204.1875%209.50986C2.39578%209.34237%202.26091%209.21164%202.09635%207.43721Z'%20fill='url(%23paint2_linear_22288_61617)'/%3e%3cpath%20d='M33.7974%2026.9766V10.5966H37.3594V26.9766H33.7974Z'%20fill='url(%23paint3_linear_22288_61617)'/%3e%3cpath%20d='M22.1105%2020.6012H26.2705L25.5165%2018.4172C25.2738%2017.7412%2025.0485%2017.0652%2024.8405%2016.3892C24.6325%2015.6959%2024.4332%2015.0025%2024.2425%2014.3092H24.1905C23.9998%2014.9679%2023.7918%2015.6439%2023.5665%2016.3372C23.3412%2017.0132%2023.1072%2017.7065%2022.8645%2018.4172L22.1105%2020.6012ZM22.4225%2010.6172H26.1145L32.1725%2026.9972H28.4025L27.1285%2023.2272H21.3045L20.0305%2026.9972H16.3125L22.4225%2010.6172Z'%20fill='url(%23paint4_linear_22288_61617)'/%3e%3cdefs%3e%3clinearGradient%20id='paint0_linear_22288_61617'%20x1='9.32442'%20y1='11.3555'%20x2='9.19072'%20y2='22.001'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint1_linear_22288_61617'%20x1='12.1775'%20y1='2.31688'%20x2='12.1264'%20y2='6.37538'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint2_linear_22288_61617'%20x1='2.14889'%20y1='8.94334'%20x2='2.11581'%20y2='11.5784'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint3_linear_22288_61617'%20x1='35.6235'%20y1='16.5543'%20x2='35.0177'%20y2='26.9439'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint4_linear_22288_61617'%20x1='24.2425'%20y1='10.6172'%20x2='24.2425'%20y2='26.9972'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.403846'%20stop-color='%23F0F0F0'/%3e%3cstop%20offset='1'%20stop-color='%23969696'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/sparkleBlue.svg
+	var sparkleBlue_default = "data:image/svg+xml,%3csvg%20width='38'%20height='27'%20viewBox='0%200%2038%2027'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0.666037%2013.6435C7.9018%2014.3044%208.44102%2014.8358%209.10805%2022.0078C9.77605%2014.8358%2010.3158%2014.3042%2017.5547%2013.6435C10.3158%2012.9859%209.77605%2012.4472%209.10805%205.27861C8.44102%2012.4472%207.9018%2012.9859%200.666037%2013.6435Z'%20fill='url(%23paint0_linear_22288_62497)'/%3e%3cpath%20d='M12.0954%206.38281C12.3503%203.65215%2012.5568%203.44814%2015.3125%203.1957C12.5568%202.94714%2012.3503%202.73827%2012.0954%200.0049262C11.8449%202.73851%2011.6385%202.94714%208.87935%203.1957C11.6385%203.44814%2011.8449%203.65215%2012.0954%206.38281Z'%20fill='url(%23paint1_linear_22288_62497)'/%3e%3cpath%20d='M2.09635%207.44502C1.93032%209.21946%201.79595%209.35018%200.00422716%209.51767C1.7957%209.68078%201.93032%209.81102%202.09635%2011.5859C2.26091%209.81102%202.39578%209.68078%204.1875%209.51767C2.39578%209.35018%202.26091%209.21946%202.09635%207.44502Z'%20fill='url(%23paint2_linear_22288_62497)'/%3e%3cpath%20d='M33.7974%2026.9844V10.6044H37.3594V26.9844H33.7974Z'%20fill='url(%23paint3_linear_22288_62497)'/%3e%3cpath%20d='M22.1105%2020.609H26.2705L25.5165%2018.425C25.2738%2017.749%2025.0485%2017.073%2024.8405%2016.397C24.6325%2015.7037%2024.4332%2015.0103%2024.2425%2014.317H24.1905C23.9998%2014.9757%2023.7918%2015.6517%2023.5665%2016.345C23.3412%2017.021%2023.1072%2017.7143%2022.8645%2018.425L22.1105%2020.609ZM22.4225%2010.625H26.1145L32.1725%2027.005H28.4025L27.1285%2023.235H21.3045L20.0305%2027.005H16.3125L22.4225%2010.625Z'%20fill='url(%23paint4_linear_22288_62497)'/%3e%3cdefs%3e%3clinearGradient%20id='paint0_linear_22288_62497'%20x1='9.32442'%20y1='11.3634'%20x2='9.19072'%20y2='22.0088'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint1_linear_22288_62497'%20x1='12.1775'%20y1='2.32469'%20x2='12.1264'%20y2='6.3832'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint2_linear_22288_62497'%20x1='2.14889'%20y1='8.95116'%20x2='2.11581'%20y2='11.5862'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint3_linear_22288_62497'%20x1='35.6235'%20y1='16.5621'%20x2='35.0177'%20y2='26.9517'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint4_linear_22288_62497'%20x1='24.2425'%20y1='10.625'%20x2='24.2425'%20y2='27.005'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.403846'%20stop-color='%230132A9'/%3e%3cstop%20offset='1'%20stop-color='%23001443'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/star.svg
+	var star_default = "data:image/svg+xml,%3csvg%20width='12'%20height='11'%20viewBox='0%200%2012%2011'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M5.14361%200.346337C5.29329%20-0.114318%205.94499%20-0.114318%206.09467%200.346338L7.07848%203.3742C7.14542%203.58021%207.3374%203.71969%207.55401%203.71969H10.7377C11.2221%203.71969%2011.4234%204.3395%2011.0316%204.6242L8.45593%206.49553C8.28069%206.62285%208.20736%206.84853%208.2743%207.05454L9.25811%2010.0824C9.40779%2010.5431%208.88054%2010.9261%208.48869%2010.6414L5.91303%208.7701C5.73779%208.64278%205.50049%208.64278%205.32525%208.7701L2.74959%2010.6414C2.35774%2010.9261%201.8305%2010.5431%201.98017%2010.0824L2.96398%207.05454C3.03092%206.84853%202.95759%206.62285%202.78235%206.49553L0.206693%204.6242C-0.185163%204.3395%200.0162247%203.71969%200.500586%203.71969H3.68427C3.90088%203.71969%204.09286%203.58021%204.1598%203.3742L5.14361%200.346337Z'%20fill='white'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/trophy.svg
+	var trophy_default = "data:image/svg+xml,%3csvg%20width='12'%20height='12'%20viewBox='0%200%2012%2012'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M11.9875%202.3288L11.9584%202.07664H10.4987C10.5717%201.57231%2010.6155%201.05315%2010.6447%200.519159C10.6593%200.23733%2010.4404%200%2010.1922%200H1.82867C1.56594%200%201.36159%200.23733%201.37619%200.519159C1.39078%201.05315%201.44917%201.57231%201.52215%202.07664H0.0625407L0.0187525%202.3288C0.00415644%202.38813%20-0.156401%203.90111%200.806941%205.26576C1.43457%206.15575%202.41251%206.76391%203.68237%207.0754C4.09106%207.49073%204.54354%207.80223%205.02521%207.99506C4.96683%208.60321%204.89385%209.19654%204.82087%209.74537H4.35379C3.62399%209.74537%203.04014%2010.3387%203.04014%2011.0803V12H8.96616V11.0803C8.96616%2010.3387%208.38231%209.74537%207.65251%209.74537H7.20003C7.11245%209.18171%207.03947%208.60321%206.98109%207.99506C7.46276%207.81706%207.91524%207.50556%208.32393%207.0754C9.59379%206.76391%2010.5717%206.15575%2011.1994%205.26576C12.1627%203.90111%2011.9875%202.38813%2011.9875%202.3288ZM1.23023%204.89493C0.617192%204.03461%200.544212%203.10012%200.544212%202.65513H1.60973C1.88705%204.06428%202.38332%205.31026%203.01095%206.24475C2.25195%205.94808%201.65351%205.48826%201.23023%204.89493ZM10.7761%204.89493C10.3528%205.48826%209.75434%205.94808%208.99535%206.24475C9.63757%205.29543%2010.1192%204.06428%2010.3966%202.65513H11.4621C11.4621%203.10012%2011.3745%204.03461%2010.7761%204.89493Z'%20fill='white'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/constants/chat.ts
+	var CHAT_TAB = {
+		SUPER: "yoursay-plus",
+		FEATURED: "featured",
+		NORMAL: "normal"
+	};
+	var CHAT_TAB_QUERY_PARAM = "commentsTab";
+	var CHAT_TABS = [
+		{
+			id: CHAT_TAB.SUPER,
+			label: "YourSay+",
+			emptyText: "No YourSay+ yet. Be the first to send one!"
+		},
+		{
+			id: CHAT_TAB.FEATURED,
+			label: "Featured",
+			emptyText: "No member comments yet."
+		},
+		{
+			id: CHAT_TAB.NORMAL,
+			label: "All",
+			emptyText: "No messages yet. Say hello!"
+		}
+	];
+	var LIKE_REACTION = "1f44d";
+	var REACTION_OPTIONS = [
+		{
+			kind: "1f60a",
+			label: "Happy",
+			icon: happy_default
+		},
+		{
+			kind: "1f602",
+			label: "Haha",
+			icon: laugh_default
+		},
+		{
+			kind: "1f622",
+			label: "Sad",
+			icon: sad_default
+		},
+		{
+			kind: "1f620",
+			label: "Angry",
+			icon: angry_default
+		},
+		{
+			kind: "1f615",
+			label: "Confused",
+			icon: confused_default
+		}
+	];
+	var ACTIVITY_LABEL = {
+		[ACTIVITY_TYPE.COMMENT]: "commented",
+		[ACTIVITY_TYPE.REPLY]: "replied to",
+		[ACTIVITY_TYPE.REACTION]: "reacted to a comment"
+	};
+	var LIKED_LABEL = "liked a comment";
+	var ACTIVITY_TAB = {
+		ALL: "all",
+		REMOVED: "removed"
+	};
+	var ACTIVITY_TABS = [{
+		id: ACTIVITY_TAB.ALL,
+		label: "Activity",
+		emptyText: "No comments yet."
+	}, {
+		id: ACTIVITY_TAB.REMOVED,
+		label: "Removed",
+		emptyText: "No removed comments."
+	}];
+	var MESSAGE_ACTION = {
+		EDIT: {
+			label: "Edit",
+			icon: edit_default
+		},
+		SHARE: {
+			label: "Share",
+			icon: share_default
+		},
+		REPORT: {
+			label: "Report",
+			icon: report_default
+		}
+	};
+	var MESSAGE_ACTION_FEEDBACK_MS = 1200;
+	var EDIT_DISABLED_REASON = {
+		ROOM: "Editing is turned off in this room",
+		SUPERCHAT: "YourSay+ can't be edited",
+		EXPIRED: (duration) => `Messages can only be edited within ${duration} of posting`
+	};
+	var SUPERCHAT_TIERS = [
+		{
+			extraCoins: 0,
+			color: "var(--color-superchat-1)"
+		},
+		{
+			extraCoins: 20,
+			color: "var(--color-superchat-2)"
+		},
+		{
+			extraCoins: 40,
+			color: "var(--color-superchat-3)"
+		},
+		{
+			extraCoins: 60,
+			color: "var(--color-superchat-4)"
+		}
+	];
+	var BUY_COINS_URL = "https://www.gbnews.com/support";
+	var MODERATION_KIND = {
+		COMMENT: "comment",
+		SUPERCHAT: "superchat"
+	};
+	var SAMPLE_LOCKED_SUGGESTION = "Members get a rewritten version of their message that is far more likely to pass moderation.";
+	//#endregion
+	//#region src/constants/profanity.ts
+	var LEET_SUBSTITUTIONS = {
+		"0": "o",
+		"1": "i",
+		"!": "i",
+		"3": "e",
+		"4": "a",
+		"@": "a",
+		"5": "s",
+		"$": "s",
+		"7": "t",
+		"+": "t",
+		"8": "b",
+		"9": "g"
+	};
+	var PROFANITY_WORDS = [
+		"fuck",
+		"fucker",
+		"fucking",
+		"fucked",
+		"motherfucker",
+		"fk",
+		"fuk",
+		"shit",
+		"shitty",
+		"bullshit",
+		"shithead",
+		"horseshit",
+		"damn",
+		"goddamn",
+		"dammit",
+		"hell",
+		"crap",
+		"crappy",
+		"piss",
+		"pissed",
+		"pissoff",
+		"bastard",
+		"bitch",
+		"bitches",
+		"bitchy",
+		"asshole",
+		"ass",
+		"arse",
+		"arsehole",
+		"dumbass",
+		"jackass",
+		"smartass",
+		"dick",
+		"dickhead",
+		"dickwad",
+		"cock",
+		"cocksucker",
+		"pussy",
+		"cunt",
+		"twat",
+		"wanker",
+		"wank",
+		"bollocks",
+		"bugger",
+		"tosser",
+		"prick",
+		"douche",
+		"douchebag",
+		"slut",
+		"slutty",
+		"whore",
+		"hoe",
+		"skank",
+		"tramp",
+		"jerkoff",
+		"jackoff",
+		"nutsack",
+		"numbnuts",
+		"bellend",
+		"knob",
+		"knobhead",
+		"minger",
+		"munter",
+		"pillock",
+		"prat",
+		"sod",
+		"twit",
+		"clunge",
+		"gash",
+		"porn",
+		"pornography",
+		"boob",
+		"boobs",
+		"tit",
+		"tits",
+		"titty",
+		"penis",
+		"vagina",
+		"orgasm",
+		"handjob",
+		"blowjob",
+		"anal",
+		"cum",
+		"cumming",
+		"jizz",
+		"deepthroat",
+		"masturbate",
+		"masturbating",
+		"horny",
+		"nudes",
+		"sext",
+		"sexting",
+		"idiot",
+		"moron",
+		"imbecile",
+		"cretin",
+		"retard",
+		"retarded",
+		"stupid",
+		"loser",
+		"scum",
+		"scumbag",
+		"trash",
+		"garbage",
+		"pathetic",
+		"worthless",
+		"freak",
+		"psycho",
+		"psychopath",
+		"creep",
+		"creepy",
+		"clown",
+		"pig",
+		"rat",
+		"snake",
+		"leech",
+		"parasite",
+		"vermin",
+		"filth",
+		"filthy",
+		"kys",
+		"kill yourself",
+		"killyourself",
+		"die",
+		"hopeyoudie",
+		"suicide",
+		"selfharm",
+		"cutting",
+		"kill you",
+		"killyou",
+		"murder",
+		"murderer",
+		"gonnakillyou",
+		"beatyouup",
+		"stab",
+		"stabbed",
+		"shoot you",
+		"terrorist",
+		"terrorism",
+		"bomb threat",
+		"nazi",
+		"hitler",
+		"bigot",
+		"racist",
+		"sexist",
+		"homophobe",
+		"homophobic",
+		"xenophobe",
+		"spastic",
+		"spaz",
+		"junkie",
+		"crackhead",
+		"druggie",
+		"dealer",
+		"meth",
+		"cocaine",
+		"heroin",
+		"scammer",
+		"fraudster",
+		"cheater",
+		"liar",
+		"thief",
+		"suck",
+		"sucks",
+		"sucker",
+		"screwyou",
+		"shutup",
+		"shut up",
+		"stfu",
+		"gtfo",
+		"wtf",
+		"af",
+		"omfg",
+		"lmfao"
+	];
+	var PROFANITY_MASK_CHARS = `*"#%?~^\``;
+	//#endregion
+	//#region src/constants/user.ts
+	var USER_RANK = {
+		FRIEND: "friend",
+		SUPPORTER: "supporter",
+		DEFENDER: "defender",
+		CHAMPION: "champion"
+	};
+	var AUTH_STATUS = {
+		CHECKING: "checking",
+		GUEST: "guest",
+		AUTHENTICATED: "authenticated"
+	};
+	var RANK_BY_TIER_ID = {
+		1: USER_RANK.FRIEND,
+		2: USER_RANK.SUPPORTER,
+		3: USER_RANK.DEFENDER,
+		4: USER_RANK.CHAMPION
+	};
+	var RANK_ICONS = {
+		[USER_RANK.SUPPORTER]: star_default,
+		[USER_RANK.DEFENDER]: shield_default,
+		[USER_RANK.CHAMPION]: trophy_default
+	};
+	var ASSETS_BASE_URL = "https://gbn-public-assets-prod.s3.eu-north-1.amazonaws.com/assets";
+	var TIER_AVATARS = {
+		1: {
+			icon: `${ASSETS_BASE_URL}/headerFriendIcon.png`,
+			initialsTop: 17
+		},
+		2: {
+			icon: `${ASSETS_BASE_URL}/headerSupporterIcon.png`,
+			initialsTop: 12
+		},
+		3: {
+			icon: `${ASSETS_BASE_URL}/headerDefenderIcon.png`,
+			initialsTop: 10
+		},
+		4: {
+			icon: `${ASSETS_BASE_URL}/headerChampionIcon.png`,
+			initialsTop: 7
+		}
+	};
+	var TIER_AVATAR_BADGE_SCALE = .72;
+	var AVATAR_COLORS = [
+		"var(--color-avatar-1)",
+		"var(--color-avatar-2)",
+		"var(--color-avatar-3)",
+		"var(--color-avatar-4)",
+		"var(--color-avatar-5)",
+		"var(--color-avatar-6)",
+		"var(--color-avatar-7)",
+		"var(--color-avatar-8)"
+	];
+	//#endregion
+	//#region src/constants/index.ts
+	var TAG_NAME = {
+		COMMENTS: "gbn-comments",
+		MESSAGE_BOX: "gbn-message-box"
+	};
+	var ROOM_ID_ATTRIBUTE = "room-id";
+	var LOCALE = "en-GB";
+	var FONT_URL = "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap";
 	//#endregion
 	//#region node_modules/react/cjs/react.development.js
 	/**
@@ -806,7 +1364,7 @@
 			exports.useTransition = function() {
 				return resolveDispatcher().useTransition();
 			};
-			exports.version = "19.3.0";
+			exports.version = "19.3.1";
 			"undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
 		})();
 	}));
@@ -815,1378 +1373,6 @@
 	var require_react = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		module.exports = require_react_development();
 	}));
-	//#endregion
-	//#region node_modules/react/cjs/react-jsx-dev-runtime.development.js
-	/**
-	* @license React
-	* react-jsx-dev-runtime.development.js
-	*
-	* Copyright (c) Meta Platforms, Inc. and affiliates.
-	*
-	* This source code is licensed under the MIT license found in the
-	* LICENSE file in the root directory of this source tree.
-	*/
-	var require_react_jsx_dev_runtime_development = /* @__PURE__ */ __commonJSMin(((exports) => {
-		(function() {
-			function getComponentNameFromType(type) {
-				if (null == type) return null;
-				if ("function" === typeof type) return type.$$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
-				if ("string" === typeof type) return type;
-				switch (type) {
-					case REACT_FRAGMENT_TYPE: return "Fragment";
-					case REACT_PROFILER_TYPE: return "Profiler";
-					case REACT_STRICT_MODE_TYPE: return "StrictMode";
-					case REACT_SUSPENSE_TYPE: return "Suspense";
-					case REACT_SUSPENSE_LIST_TYPE: return "SuspenseList";
-					case REACT_ACTIVITY_TYPE: return "Activity";
-					case REACT_VIEW_TRANSITION_TYPE: return "ViewTransition";
-				}
-				if ("object" === typeof type) switch ("number" === typeof type.tag && console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), type.$$typeof) {
-					case REACT_PORTAL_TYPE: return "Portal";
-					case REACT_CONTEXT_TYPE: return type.displayName || "Context";
-					case REACT_CONSUMER_TYPE: return (type._context.displayName || "Context") + ".Consumer";
-					case REACT_FORWARD_REF_TYPE:
-						var innerType = type.render;
-						type = type.displayName;
-						type || (type = innerType.displayName || innerType.name || "", type = "" !== type ? "ForwardRef(" + type + ")" : "ForwardRef");
-						return type;
-					case REACT_MEMO_TYPE: return innerType = type.displayName || null, null !== innerType ? innerType : getComponentNameFromType(type.type) || "Memo";
-					case REACT_LAZY_TYPE:
-						innerType = type._payload;
-						type = type._init;
-						try {
-							return getComponentNameFromType(type(innerType));
-						} catch (x) {}
-				}
-				return null;
-			}
-			function testStringCoercion(value) {
-				return "" + value;
-			}
-			function checkKeyStringCoercion(value) {
-				try {
-					testStringCoercion(value);
-					var JSCompiler_inline_result = !1;
-				} catch (e) {
-					JSCompiler_inline_result = !0;
-				}
-				if (JSCompiler_inline_result) {
-					JSCompiler_inline_result = console;
-					var JSCompiler_temp_const = JSCompiler_inline_result.error;
-					var JSCompiler_inline_result$jscomp$0 = "function" === typeof Symbol && Symbol.toStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
-					JSCompiler_temp_const.call(JSCompiler_inline_result, "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.", JSCompiler_inline_result$jscomp$0);
-					return testStringCoercion(value);
-				}
-			}
-			function getTaskName(type) {
-				if (type === REACT_FRAGMENT_TYPE) return "<>";
-				if ("object" === typeof type && null !== type && type.$$typeof === REACT_LAZY_TYPE) return "<...>";
-				try {
-					var name = getComponentNameFromType(type);
-					return name ? "<" + name + ">" : "<...>";
-				} catch (x) {
-					return "<...>";
-				}
-			}
-			function getOwner() {
-				var dispatcher = ReactSharedInternals.A;
-				return null === dispatcher ? null : dispatcher.getOwner();
-			}
-			function UnknownOwner() {
-				return Error("react-stack-top-frame");
-			}
-			function hasValidKey(config) {
-				if (hasOwnProperty.call(config, "key")) {
-					var getter = Object.getOwnPropertyDescriptor(config, "key").get;
-					if (getter && getter.isReactWarning) return !1;
-				}
-				return void 0 !== config.key;
-			}
-			function defineKeyPropWarningGetter(props, displayName) {
-				function warnAboutAccessingKey() {
-					specialPropKeyWarningShown || (specialPropKeyWarningShown = !0, console.error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)", displayName));
-				}
-				warnAboutAccessingKey.isReactWarning = !0;
-				Object.defineProperty(props, "key", {
-					get: warnAboutAccessingKey,
-					configurable: !0
-				});
-			}
-			function elementRefGetterWithDeprecationWarning() {
-				var componentName = getComponentNameFromType(this.type);
-				didWarnAboutElementRef[componentName] || (didWarnAboutElementRef[componentName] = !0, console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."));
-				componentName = this.props.ref;
-				return void 0 !== componentName ? componentName : null;
-			}
-			function ReactElement(type, key, props, owner, debugStack, debugTask) {
-				var refProp = props.ref;
-				type = {
-					$$typeof: REACT_ELEMENT_TYPE,
-					type,
-					key,
-					props,
-					_owner: owner
-				};
-				null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
-					enumerable: !1,
-					get: elementRefGetterWithDeprecationWarning
-				}) : Object.defineProperty(type, "ref", {
-					enumerable: !1,
-					value: null
-				});
-				type._store = {};
-				Object.defineProperty(type._store, "validated", {
-					configurable: !1,
-					enumerable: !1,
-					writable: !0,
-					value: 0
-				});
-				Object.defineProperty(type, "_debugInfo", {
-					configurable: !1,
-					enumerable: !1,
-					writable: !0,
-					value: null
-				});
-				Object.defineProperty(type, "_debugStack", {
-					configurable: !1,
-					enumerable: !1,
-					writable: !0,
-					value: debugStack
-				});
-				Object.defineProperty(type, "_debugTask", {
-					configurable: !1,
-					enumerable: !1,
-					writable: !0,
-					value: debugTask
-				});
-				Object.freeze && (Object.freeze(type.props), Object.freeze(type));
-				return type;
-			}
-			function jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStack, debugTask) {
-				var children = config.children;
-				if (void 0 !== children) if (isStaticChildren) if (isArrayImpl(children)) {
-					for (isStaticChildren = 0; isStaticChildren < children.length; isStaticChildren++) validateChildKeys(children[isStaticChildren]);
-					Object.freeze && Object.freeze(children);
-				} else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
-				else validateChildKeys(children);
-				if (hasOwnProperty.call(config, "key")) {
-					children = getComponentNameFromType(type);
-					var keys = Object.keys(config).filter(function(k) {
-						return "key" !== k;
-					});
-					isStaticChildren = 0 < keys.length ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
-					didWarnAboutKeySpread[children + isStaticChildren] || (keys = 0 < keys.length ? "{" + keys.join(": ..., ") + ": ...}" : "{}", console.error("A props object containing a \"key\" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />", isStaticChildren, children, keys, children), didWarnAboutKeySpread[children + isStaticChildren] = !0);
-				}
-				children = null;
-				void 0 !== maybeKey && (checkKeyStringCoercion(maybeKey), children = "" + maybeKey);
-				hasValidKey(config) && (checkKeyStringCoercion(config.key), children = "" + config.key);
-				if ("key" in config) {
-					maybeKey = {};
-					for (var propName in config) "key" !== propName && (maybeKey[propName] = config[propName]);
-				} else maybeKey = config;
-				children && defineKeyPropWarningGetter(maybeKey, "function" === typeof type ? type.displayName || type.name || "Unknown" : type);
-				return ReactElement(type, children, maybeKey, getOwner(), debugStack, debugTask);
-			}
-			function validateChildKeys(node) {
-				isValidElement(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$$typeof === REACT_LAZY_TYPE && ("fulfilled" === node._payload.status ? isValidElement(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
-			}
-			function isValidElement(object) {
-				return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
-			}
-			var React = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_VIEW_TRANSITION_TYPE = Symbol.for("react.view_transition"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
-				return null;
-			};
-			React = { react_stack_bottom_frame: function(callStackForError) {
-				return callStackForError();
-			} };
-			var specialPropKeyWarningShown;
-			var didWarnAboutElementRef = {};
-			var unknownOwnerDebugStack = React.react_stack_bottom_frame.bind(React, UnknownOwner)();
-			var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
-			var didWarnAboutKeySpread = {};
-			exports.Fragment = REACT_FRAGMENT_TYPE;
-			exports.jsxDEV = function(type, config, maybeKey, isStaticChildren) {
-				var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
-				if (trackActualOwner) {
-					var previousStackTraceLimit = Error.stackTraceLimit;
-					Error.stackTraceLimit = 10;
-					var debugStackDEV = Error("react-stack-top-frame");
-					Error.stackTraceLimit = previousStackTraceLimit;
-				} else debugStackDEV = unknownOwnerDebugStack;
-				return jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStackDEV, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
-			};
-		})();
-	}));
-	//#endregion
-	//#region node_modules/react/jsx-dev-runtime.js
-	var require_jsx_dev_runtime = /* @__PURE__ */ __commonJSMin(((exports, module) => {
-		module.exports = require_react_jsx_dev_runtime_development();
-	}));
-	//#endregion
-	//#region src/context/SheetHostContext.tsx
-	var import_react = require_react();
-	var import_jsx_dev_runtime = require_jsx_dev_runtime();
-	var _jsxFileName$35 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/context/SheetHostContext.tsx";
-	var SheetHostContext = (0, import_react.createContext)(null);
-	/**
-	* The Superchat sheet is opened from <gbn-message-box> but shown over the list
-	* in <gbn-comments>; this hands the panel element from one to the other.
-	*/
-	function SheetHostProvider({ children }) {
-		const [sheetHost, setSheetHost] = (0, import_react.useState)(null);
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SheetHostContext.Provider, {
-			value: {
-				sheetHost,
-				setSheetHost
-			},
-			children
-		}, void 0, false, {
-			fileName: _jsxFileName$35,
-			lineNumber: 19,
-			columnNumber: 5
-		}, this);
-	}
-	function useSheetHost() {
-		const ctx = (0, import_react.useContext)(SheetHostContext);
-		if (!ctx) throw new Error("useSheetHost must be used within a SheetHostProvider");
-		return ctx;
-	}
-	//#endregion
-	//#region src/constants/api.ts
-	var API_BASE_URL = "https://mutual-calibrate-among.ngrok-free.dev";
-	var SOCKET_URL = "https://mutual-calibrate-among.ngrok-free.dev";
-	var NGROK_SKIP_HEADER = { "ngrok-skip-browser-warning": "true" };
-	var API_ROUTE = {
-		MESSAGES: "/api/messages",
-		SUPER_CHATS: "/api/super-chats",
-		SUGGESTIONS: "/api/suggestions",
-		LIKES: "/api/likes",
-		REACTIONS: "/api/reactions",
-		LIVE_FEED: "/api/live-feed"
-	};
-	var SOCKET_EVENT = {
-		MESSAGE_NEW: "message:new",
-		SUPERCHAT_NEW: "superchat:new",
-		LIKE_UPDATE: "like:update",
-		REACTION_UPDATE: "reaction:update",
-		MESSAGE_REMOVE: "message:remove",
-		LIVE_FEED_CONFIG: "livefeed:config"
-	};
-	//#endregion
-	//#region src/constants/chat.ts
-	var MESSAGE_TYPE = {
-		NORMAL: "normal",
-		SUPER: "super"
-	};
-	var CHAT_TAB = {
-		SUPER: "super",
-		NORMAL: "normal"
-	};
-	var REQUEST_STATUS = {
-		IDLE: "idle",
-		LOADING: "loading",
-		SUCCEEDED: "succeeded",
-		FAILED: "failed"
-	};
-	/** Which send flow opened the moderation dialog. */
-	var MODERATION_KIND = {
-		SUPER: "super",
-		NORMAL: "normal"
-	};
-	/** "moderate": the profanity filter flagged it. "enhance": the viewer asked to polish it. */
-	var SUGGESTION_KIND = {
-		MODERATE: "moderate",
-		ENHANCE: "enhance"
-	};
-	var RELATIVE_TIME_REFRESH_MS = 3e4;
-	var MODERATION_MESSAGE = "Your message is unethical and breaks our community guidelines.";
-	//#endregion
-	//#region src/constants/reactions.ts
-	var REACTION_KIND = {
-		HAPPY: "happy",
-		LAUGH: "laugh",
-		SAD: "sad",
-		ANGRY: "angry",
-		CONFUSED: "confused"
-	};
-	var REACTION_OPTIONS = [
-		{
-			emoji: "☺️",
-			kind: REACTION_KIND.HAPPY,
-			label: "Happy"
-		},
-		{
-			emoji: "😄",
-			kind: REACTION_KIND.LAUGH,
-			label: "Haha"
-		},
-		{
-			emoji: "😢",
-			kind: REACTION_KIND.SAD,
-			label: "Sad"
-		},
-		{
-			emoji: "😠",
-			kind: REACTION_KIND.ANGRY,
-			label: "Angry"
-		},
-		{
-			emoji: "😕",
-			kind: REACTION_KIND.CONFUSED,
-			label: "Confused"
-		}
-	];
-	var MESSAGE_ACTION_FEEDBACK_MS = 1200;
-	//#endregion
-	//#region src/constants/storage.ts
-	var STORAGE_PREFIX = "super-chat:";
-	var STORAGE_KEY = {
-		COIN_BALANCE: "superchatBalance",
-		COMMENT_BALANCE: "superchatCommentBalance",
-		COMMENT_MONTH: "superchatCommentMonth",
-		ENHANCE_UPSELL_DISMISSED: "enhanceUpsellDismissed",
-		DEV_USER_ID: "devUserId",
-		DEV_USER_TIER: "devUserTier"
-	};
-	//#endregion
-	//#region src/constants/superChat.ts
-	var SUPERCHAT_TIERS = [
-		{
-			extraCoins: 0,
-			bg: "var(--color-superchat-1-bg)",
-			accent: "var(--color-superchat-1-accent)"
-		},
-		{
-			extraCoins: 20,
-			bg: "var(--color-superchat-2-bg)",
-			accent: "var(--color-superchat-2-accent)"
-		},
-		{
-			extraCoins: 40,
-			bg: "var(--color-superchat-3-bg)",
-			accent: "var(--color-superchat-3-accent)"
-		},
-		{
-			extraCoins: 60,
-			bg: "var(--color-superchat-4-bg)",
-			accent: "var(--color-superchat-4-accent)"
-		}
-	];
-	//#endregion
-	//#region src/assets/close.svg
-	var close_default = "data:image/svg+xml,%3csvg%20width='10'%20height='10'%20viewBox='0%200%2010%2010'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M9.81286%201.12981C9.9343%201.00407%2010.0015%200.835672%209.99997%200.660874C9.99846%200.486076%209.92834%200.318868%209.80474%200.195262C9.68113%200.0716569%209.51392%200.00154415%209.33913%202.52016e-05C9.16433%20-0.00149374%208.99593%200.0657028%208.87019%200.187141L5.00819%204.04914L1.14619%200.187141C1.02046%200.0657028%200.852056%20-0.00149374%200.677258%202.52016e-05C0.50246%200.00154415%200.335252%200.0716569%200.211646%200.195262C0.088041%200.318868%200.0179282%200.486076%200.0164093%200.660874C0.0148903%200.835672%200.0820869%201.00407%200.203526%201.12981L4.06553%204.99181L0.203526%208.85381C0.139852%208.91531%200.0890639%208.98887%200.0541246%209.0702C0.0191852%209.15154%200.000794382%209.23902%202.51714e-05%209.32754C-0.000744039%209.41606%200.0161236%209.50385%200.0496442%209.58578C0.0831648%209.66771%200.132667%209.74214%200.195262%209.80474C0.257857%209.86733%200.332292%209.91683%200.414223%209.95036C0.496154%209.98388%200.58394%2010.0007%200.67246%209.99997C0.760979%209.99921%200.848459%209.98081%200.929795%209.94587C1.01113%209.91094%201.08469%209.86015%201.14619%209.79647L5.00819%205.93447L8.87019%209.79647C8.99593%209.91791%209.16433%209.98511%209.33913%209.98359C9.51392%209.98207%209.68113%209.91196%209.80474%209.78835C9.92834%209.66475%209.99846%209.49754%209.99997%209.32274C10.0015%209.14794%209.9343%208.97954%209.81286%208.85381L5.95086%204.99181L9.81286%201.12981Z'%20fill='%23EB0000'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/go-to-top.svg
-	var go_to_top_default = "data:image/svg+xml,%3csvg%20width='24'%20height='29'%20viewBox='0%200%2024%2029'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M23.445%2010.5607C24.185%209.97485%2024.185%209.02531%2023.445%208.43951L13.3397%200.43935C12.5997%20-0.146449%2011.4003%20-0.146449%2010.6603%200.43935L0.55496%208.43951C-0.18499%209.02531%20-0.18499%209.97485%200.55496%2010.5607C1.29491%2011.1464%202.49432%2011.1464%203.23427%2010.5607L12%203.62106L20.7657%2010.5607C21.5057%2011.1464%2022.7051%2011.1464%2023.445%2010.5607Z'%20fill='white'/%3e%3cpath%20opacity='0.3'%20d='M23.445%2019.5607C24.185%2018.9749%2024.185%2018.0253%2023.445%2017.4395L13.3397%209.43935C12.5997%208.85355%2011.4003%208.85355%2010.6603%209.43935L0.55496%2017.4395C-0.18499%2018.0253%20-0.18499%2018.9749%200.55496%2019.5607C1.29491%2020.1464%202.49432%2020.1464%203.23427%2019.5607L12%2012.6211L20.7657%2019.5607C21.5057%2020.1464%2022.7051%2020.1464%2023.445%2019.5607Z'%20fill='white'/%3e%3cpath%20opacity='0.1'%20d='M23.445%2028.5607C24.185%2027.9749%2024.185%2027.0253%2023.445%2026.4395L13.3397%2018.4394C12.5997%2017.8536%2011.4003%2017.8536%2010.6603%2018.4394L0.55496%2026.4395C-0.18499%2027.0253%20-0.18499%2027.9749%200.55496%2028.5607C1.29491%2029.1464%202.49432%2029.1464%203.23427%2028.5607L12%2021.6211L20.7657%2028.5607C21.5057%2029.1464%2022.7051%2029.1464%2023.445%2028.5607Z'%20fill='white'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/guest-avatar.svg
-	var guest_avatar_default = "data:image/svg+xml,%3csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2040%2040'%20fill='none'%3e%3ccircle%20cx='20'%20cy='20'%20r='20'%20fill='%23EDEDED'/%3e%3cpath%20d='M8%2036c1.2-6.6%206-10%2012-10s10.8%203.4%2012%2010a19.9%2019.9%200%200%201-24%200Z'%20fill='%23C2C2C2'/%3e%3cellipse%20cx='20'%20cy='15.5'%20rx='7'%20ry='8'%20fill='%23C2C2C2'/%3e%3cpath%20d='M17.6%2013.4a2.4%202.4%200%201%201%203.4%202.2c-.7.3-1%20.8-1%201.5v.6'%20stroke='%23FFFFFF'%20stroke-width='1.6'%20stroke-linecap='round'/%3e%3ccircle%20cx='20'%20cy='20.2'%20r='0.95'%20fill='%23FFFFFF'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/heart.svg
-	var heart_default = "data:image/svg+xml,%3csvg%20width='16'%20height='14'%20viewBox='0%200%2016%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M7.99999%201.60047C9.61378%20-0.302475%2012.4986%20-0.55847%2014.4242%201.10192C16.4213%202.82419%2016.5355%205.87886%2014.6789%207.74656L8.78523%2013.6752C8.35455%2014.1083%207.64542%2014.1083%207.21475%2013.6752L1.3211%207.74656C-0.535492%205.87886%20-0.421305%202.82419%201.57576%201.10192C3.50133%20-0.558478%206.38622%20-0.302481%207.99999%201.60047ZM13.74%201.82749C12.203%200.502125%209.87494%200.752001%208.65092%202.39346L8.41555%202.70887C8.31972%202.83734%208.165%202.91363%207.99999%202.91363C7.83497%202.91363%207.68026%202.83734%207.58443%202.70887L7.34905%202.39346C6.12507%200.751995%203.79697%200.50213%202.25994%201.82749C0.692439%203.17926%200.597812%205.60099%202.06113%207.07313L7.95477%2013.0024C7.97191%2013.0195%207.98797%2013.0233%207.99999%2013.0233C8.012%2013.0233%208.02807%2013.0195%208.0452%2013.0024L13.9388%207.07313C15.4022%205.601%2015.3075%203.17925%2013.74%201.82749Z'%20fill='%23A4A4A4'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/more.svg
-	var more_default = "data:image/svg+xml,%3csvg%20width='20'%20height='4'%20viewBox='0%200%2020%204'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3ccircle%20cx='2'%20cy='2'%20r='2'%20fill='%23393F56'/%3e%3ccircle%20cx='10'%20cy='2'%20r='2'%20fill='%23393F56'/%3e%3ccircle%20cx='18'%20cy='2'%20r='2'%20fill='%23393F56'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/react.svg
-	var react_default = "data:image/svg+xml,%3csvg%20width='14'%20height='14'%20viewBox='0%200%2014%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M14%207C14%203.13918%2010.8607%200%207%200C3.13932%200%200%203.13932%200%207C0%2010.8607%203.13932%2014%207%2014C10.8607%2014%2014%2010.8607%2014%207ZM7%2012.9234C3.73145%2012.9234%201.0766%2010.2687%201.0766%207C1.0766%203.73128%203.73128%201.07661%207%201.07661C10.2687%201.07661%2012.9234%203.73128%2012.9234%207C12.9234%2010.2687%2010.2687%2012.9234%207%2012.9234Z'%20fill='%23A4A4A4'/%3e%3cpath%20d='M10.8937%208.44558C10.6298%208.30558%2010.3067%208.40789%2010.1667%208.67174C9.54745%209.85101%208.33589%2010.5779%207.00047%2010.5779C5.66505%2010.5779%204.45349%209.8456%203.83424%208.67174C3.69423%208.40789%203.37113%208.30558%203.10729%208.44558C2.84344%208.58559%202.74113%208.90869%202.88113%209.17253C3.68345%2010.7072%205.26117%2011.6603%207.00042%2011.6603C8.73967%2011.6603%2010.3174%2010.7072%2011.1197%209.17253C11.2597%208.90868%2011.1575%208.5856%2010.8937%208.44558Z'%20fill='%23A4A4A4'/%3e%3cpath%20d='M5.23769%206.36902C5.53386%206.36902%205.77617%206.12671%205.77617%205.83055V4.06972C5.77617%203.77356%205.53386%203.53125%205.23769%203.53125C4.94153%203.53125%204.69922%203.77356%204.69922%204.06972V5.83055C4.69922%206.12671%204.94153%206.36902%205.23769%206.36902Z'%20fill='%23A4A4A4'/%3e%3cpath%20d='M8.76113%206.36902C9.05729%206.36902%209.29961%206.12671%209.29961%205.83055V4.06972C9.29961%203.77356%209.05729%203.53125%208.76113%203.53125C8.46497%203.53125%208.22266%203.77356%208.22266%204.06972V5.83055C8.22266%206.12671%208.46497%206.36902%208.76113%206.36902Z'%20fill='%23A4A4A4'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/reply.svg
-	var reply_default = "data:image/svg+xml,%3csvg%20width='13'%20height='9'%20viewBox='0%200%2013%209'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M4.94811%200.171914C5.17888%200.401132%205.17888%200.772778%204.94811%201.002L2.01749%203.91304H8.4697C9.22086%203.91304%2010.3344%204.13202%2011.2771%204.80623C12.2499%205.50205%2013%206.65656%2013%208.41304C13%208.7372%2012.7354%209%2012.4091%209C12.0828%209%2011.8182%208.7372%2011.8182%208.41304C11.8182%207.0391%2011.2551%206.23708%2010.5866%205.75898C9.88788%205.25929%209.03169%205.08696%208.4697%205.08696H2.01749L4.94811%207.99803C5.17888%208.22725%205.17888%208.59883%204.94811%208.82806C4.71738%209.05729%204.34323%209.05729%204.11247%208.82806L0.173071%204.91502C-0.0576905%204.68579%20-0.0576905%204.31421%200.173071%204.08498L4.11247%200.171914C4.34323%20-0.0573046%204.71738%20-0.0573046%204.94811%200.171914Z'%20fill='%23A4A4A4'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/send.svg
-	var send_default = "data:image/svg+xml,%3csvg%20width='20'%20height='21'%20viewBox='0%200%2020%2021'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M19.4118%209.06477C19.582%209.14935%2019.7263%209.27822%2019.8296%209.4378L19.8396%209.45344L19.8493%209.46932C19.9478%209.63387%2020%209.82223%2020%2010.0143C20%2010.2126%2019.9446%2010.4068%2019.8398%2010.575C19.736%2010.7418%2019.5879%2010.8763%2019.4122%2010.9635L1.5293%2019.9162L1.52768%2019.9171L1.52605%2019.9179C1.3457%2020.0069%201.14372%2020.0425%200.943813%2020.0207C0.743908%2019.9989%200.554327%2019.9204%200.397286%2019.7946C0.240236%2019.6688%200.122214%2019.5007%200.0570656%2019.3101C-0.00808261%2019.1196%20-0.017665%2018.9144%200.0294286%2018.7186L0.0327681%2018.7047L2.58384%209.8696L0.0358956%201.32443L0.0319178%201.30795C-0.0152533%201.11215%20-0.00575219%200.906945%200.0593183%200.716406C0.124391%200.525871%200.242348%200.357868%200.399343%200.232087L0.414164%200.220429C0.5682%200.101467%200.752137%200.0272698%200.94578%200.00619672L0.964531%200.00432713C1.15829%20-0.0132654%201.3533%200.022995%201.52805%200.10928L1.52967%200.110053L19.4118%209.06477ZM3.72149%2010.5076L1.39615%2018.5609L17.2115%2010.6433L3.72149%2010.5076ZM1.40387%201.46861L3.71984%209.23588L17.1853%209.37132L1.40387%201.46861Z'%20fill='white'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/shield.svg
-	var shield_default = "data:image/svg+xml,%3csvg%20width='11'%20height='12'%20viewBox='0%200%2011%2012'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%201.42657L5.41729%200L11%201.42657C10.1316%2010.0699%209.92481%209.73427%205.41729%2012C1.1579%209.56643%200.909774%2010.1958%200%201.42657Z'%20fill='url(%23paint0_linear_20430_98552)'/%3e%3cdefs%3e%3clinearGradient%20id='paint0_linear_20430_98552'%20x1='5.5'%20y1='0'%20x2='5.5'%20y2='12'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23FCFCFC'/%3e%3cstop%20offset='1'%20stop-color='%23D0D0D0'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/sparkle.svg
-	var sparkle_default = "data:image/svg+xml,%3csvg%20width='38'%20height='27'%20viewBox='0%200%2038%2027'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0.666037%2013.6356C7.9018%2014.2966%208.44102%2014.828%209.10805%2022C9.77605%2014.828%2010.3158%2014.2963%2017.5547%2013.6356C10.3158%2012.9781%209.77605%2012.4394%209.10805%205.2708C8.44102%2012.4394%207.9018%2012.9781%200.666037%2013.6356Z'%20fill='url(%23paint0_linear_20663_42602)'/%3e%3cpath%20d='M12.0915%206.375C12.3464%203.64433%2012.5529%203.44033%2015.3086%203.18788C12.5529%202.93933%2012.3464%202.73046%2012.0915%20-0.0028863C11.841%202.7307%2011.6346%202.93933%208.87545%203.18788C11.6346%203.44033%2011.841%203.64433%2012.0915%206.375Z'%20fill='url(%23paint1_linear_20663_42602)'/%3e%3cpath%20d='M2.09244%207.43721C1.92642%209.21164%201.79204%209.34237%200.000320911%209.50986C1.7918%209.67296%201.92642%209.8032%202.09244%2011.5781C2.25701%209.8032%202.39188%209.67296%204.18359%209.50986C2.39188%209.34237%202.25701%209.21164%202.09244%207.43721Z'%20fill='url(%23paint2_linear_20663_42602)'/%3e%3cpath%20d='M33.7974%2026.9844V10.6044H37.3594V26.9844H33.7974Z'%20fill='url(%23paint3_linear_20663_42602)'/%3e%3cpath%20d='M22.1105%2020.609H26.2705L25.5165%2018.425C25.2738%2017.749%2025.0485%2017.073%2024.8405%2016.397C24.6325%2015.7037%2024.4332%2015.0103%2024.2425%2014.317H24.1905C23.9998%2014.9757%2023.7918%2015.6517%2023.5665%2016.345C23.3412%2017.021%2023.1072%2017.7143%2022.8645%2018.425L22.1105%2020.609ZM22.4225%2010.625H26.1145L32.1725%2027.005H28.4025L27.1285%2023.235H21.3045L20.0305%2027.005H16.3125L22.4225%2010.625Z'%20fill='url(%23paint4_linear_20663_42602)'/%3e%3cdefs%3e%3clinearGradient%20id='paint0_linear_20663_42602'%20x1='9.32442'%20y1='11.3555'%20x2='9.19072'%20y2='22.001'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint1_linear_20663_42602'%20x1='12.1736'%20y1='2.31688'%20x2='12.1225'%20y2='6.37538'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint2_linear_20663_42602'%20x1='2.14498'%20y1='8.94334'%20x2='2.11191'%20y2='11.5784'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint3_linear_20663_42602'%20x1='35.6235'%20y1='16.5621'%20x2='35.0177'%20y2='26.9517'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23EB0000'/%3e%3cstop%20offset='1'%20stop-color='%23AE0202'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint4_linear_20663_42602'%20x1='24.2425'%20y1='10.625'%20x2='24.2425'%20y2='27.005'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.403846'%20stop-color='%230132A9'/%3e%3cstop%20offset='1'%20stop-color='%23001443'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/star.svg
-	var star_default = "data:image/svg+xml,%3csvg%20width='12'%20height='11'%20viewBox='0%200%2012%2011'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M5.14361%200.346337C5.29329%20-0.114318%205.94499%20-0.114318%206.09467%200.346338L7.07848%203.3742C7.14542%203.58021%207.3374%203.71969%207.55401%203.71969H10.7377C11.2221%203.71969%2011.4234%204.3395%2011.0316%204.6242L8.45593%206.49553C8.28069%206.62285%208.20736%206.84853%208.2743%207.05454L9.25811%2010.0824C9.40779%2010.5431%208.88054%2010.9261%208.48869%2010.6414L5.91303%208.7701C5.73779%208.64278%205.50049%208.64278%205.32525%208.7701L2.74959%2010.6414C2.35774%2010.9261%201.8305%2010.5431%201.98017%2010.0824L2.96398%207.05454C3.03092%206.84853%202.95759%206.62285%202.78235%206.49553L0.206693%204.6242C-0.185163%204.3395%200.0162247%203.71969%200.500586%203.71969H3.68427C3.90088%203.71969%204.09286%203.58021%204.1598%203.3742L5.14361%200.346337Z'%20fill='white'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/superchat.svg
-	var superchat_default = "data:image/svg+xml,%3csvg%20width='21'%20height='18'%20viewBox='0%200%2021%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M5.50078%206.60938C6.43316%206.60939%207.18904%207.36476%207.18906%208.29656C7.18906%209.22836%206.43317%209.98382%205.50078%209.98383C5.19616%209.98383%204.91042%209.90312%204.66369%209.76204L4.6149%209.73303L4.57023%209.70447C4.11371%209.40246%203.8125%208.88465%203.8125%208.29656C3.81251%207.6895%204.13346%207.1573%204.6149%206.86009L4.66369%206.83107C4.91041%206.69001%205.19617%206.60938%205.50078%206.60938Z'%20fill='white'/%3e%3cpath%20d='M10.2022%206.60938C11.1346%206.60939%2011.8905%207.36476%2011.8905%208.29656C11.8905%209.22836%2011.1346%209.98382%2010.2022%209.98383C9.26983%209.98383%208.51396%209.22837%208.51395%208.29656C8.51397%207.36476%209.26984%206.60938%2010.2022%206.60938Z'%20fill='white'/%3e%3cpath%20d='M14.9037%206.60938C15.8361%206.60939%2016.5919%207.36476%2016.592%208.29656C16.592%209.22836%2015.8361%209.98382%2014.9037%209.98383C13.9713%209.98383%2013.2154%209.22837%2013.2154%208.29656C13.2154%207.36476%2013.9713%206.60938%2014.9037%206.60938Z'%20fill='white'/%3e%3cpath%20d='M12.9552%200C19.5946%200%2019.6602%205.61262%2019.6602%205.61262C19.6602%205.61262%2017.499%203.4363%2014.4523%203.4363C11.4057%203.4363%2010.7918%203.4363%2010.7918%203.4363H5.19003C2.7645%203.43631%201.36213%206.49564%202.91721%209.21157C2.32803%208.96203%201.80757%208.61114%201.37108%208.1719C0.45174%207.24675%200.0027738%206.02658%201.2768e-05%204.82911C-0.00274445%203.63131%200.441028%202.40767%201.36213%201.47933C2.30009%200.534005%203.62659%204.43009e-06%205.19003%200C5.19003%200%206.31577%200%2012.9552%200Z'%20fill='white'/%3e%3cpath%20d='M17.4976%207.40625C18.0689%207.65007%2018.5758%207.98731%2019.0044%208.40845C19.9446%209.33246%2020.4022%2010.5592%2020.3966%2011.7677C20.391%2012.9754%2019.9231%2014.1952%2018.9864%2015.1129C18.0352%2016.0448%2016.7002%2016.5706%2015.1315%2016.5706C15.1315%2016.5706%2010.8569%2016.5706%205.95402%2016.5706C3.74768%2016.5706%201.9425%2016.771%200.338058%2018.0023H0.337891C0.337891%2018.0023%200.867362%2016.2922%201.72497%2015.1129C2.60153%2013.9074%204.57864%2013.1343%206.0688%2013.1343H15.1315C17.5958%2013.1343%2019.4009%2010.1034%2017.4976%207.40625Z'%20fill='white'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/assets/trophy.svg
-	var trophy_default = "data:image/svg+xml,%3csvg%20width='12'%20height='12'%20viewBox='0%200%2012%2012'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M11.9875%202.3288L11.9584%202.07664H10.4987C10.5717%201.57231%2010.6155%201.05315%2010.6447%200.519159C10.6593%200.23733%2010.4404%200%2010.1922%200H1.82867C1.56594%200%201.36159%200.23733%201.37619%200.519159C1.39078%201.05315%201.44917%201.57231%201.52215%202.07664H0.0625407L0.0187525%202.3288C0.00415644%202.38813%20-0.156401%203.90111%200.806941%205.26576C1.43457%206.15575%202.41251%206.76391%203.68237%207.0754C4.09106%207.49073%204.54354%207.80223%205.02521%207.99506C4.96683%208.60321%204.89385%209.19654%204.82087%209.74537H4.35379C3.62399%209.74537%203.04014%2010.3387%203.04014%2011.0803V12H8.96616V11.0803C8.96616%2010.3387%208.38231%209.74537%207.65251%209.74537H7.20003C7.11245%209.18171%207.03947%208.60321%206.98109%207.99506C7.46276%207.81706%207.91524%207.50556%208.32393%207.0754C9.59379%206.76391%2010.5717%206.15575%2011.1994%205.26576C12.1627%203.90111%2011.9875%202.38813%2011.9875%202.3288ZM1.23023%204.89493C0.617192%204.03461%200.544212%203.10012%200.544212%202.65513H1.60973C1.88705%204.06428%202.38332%205.31026%203.01095%206.24475C2.25195%205.94808%201.65351%205.48826%201.23023%204.89493ZM10.7761%204.89493C10.3528%205.48826%209.75434%205.94808%208.99535%206.24475C9.63757%205.29543%2010.1192%204.06428%2010.3966%202.65513H11.4621C11.4621%203.10012%2011.3745%204.03461%2010.7761%204.89493Z'%20fill='white'/%3e%3c/svg%3e";
-	//#endregion
-	//#region src/constants/user.ts
-	var USER_RANK = {
-		FRIEND: "friend",
-		SUPPORTER: "supporter",
-		DEFENDER: "defender",
-		CHAMPION: "champion"
-	};
-	var AUTH_STATUS = {
-		CHECKING: "checking",
-		GUEST: "guest",
-		AUTHENTICATED: "authenticated"
-	};
-	var USER_RANKS = [
-		{
-			rank: USER_RANK.FRIEND,
-			label: "Friend",
-			icon: ""
-		},
-		{
-			rank: USER_RANK.SUPPORTER,
-			label: "Supporter",
-			icon: star_default
-		},
-		{
-			rank: USER_RANK.DEFENDER,
-			label: "Defender",
-			icon: shield_default
-		},
-		{
-			rank: USER_RANK.CHAMPION,
-			label: "Champion",
-			icon: trophy_default
-		}
-	];
-	var RANK_BY_TIER_ID = {
-		1: USER_RANK.FRIEND,
-		2: USER_RANK.SUPPORTER,
-		3: USER_RANK.DEFENDER,
-		4: USER_RANK.CHAMPION
-	};
-	var MEMBERSHIP_URL = "https://www.gbnews.com/support";
-	var BUY_COINS_URL = "https://www.gbnews.com/support";
-	var ASSETS_BASE = "https://gbn-public-assets-prod.s3.eu-north-1.amazonaws.com/assets";
-	var TIER_AVATARS = {
-		1: {
-			icon: `${ASSETS_BASE}/headerFriendIcon.png`,
-			initialsTop: 17
-		},
-		2: {
-			icon: `${ASSETS_BASE}/headerSupporterIcon.png`,
-			initialsTop: 12
-		},
-		3: {
-			icon: `${ASSETS_BASE}/headerDefenderIcon.png`,
-			initialsTop: 10
-		},
-		4: {
-			icon: `${ASSETS_BASE}/headerChampionIcon.png`,
-			initialsTop: 7
-		}
-	};
-	var TIER_AVATAR_BADGE_SCALE = .72;
-	var AVATAR_PALETTE = [
-		"var(--color-avatar-1)",
-		"var(--color-avatar-2)",
-		"var(--color-avatar-3)",
-		"var(--color-avatar-4)",
-		"var(--color-avatar-5)",
-		"var(--color-avatar-6)",
-		"var(--color-avatar-7)",
-		"var(--color-avatar-8)"
-	];
-	//#endregion
-	//#region src/constants/widget.ts
-	var TAG_NAME = {
-		COMMENTS: "gbn-comments",
-		MESSAGE_BOX: "gbn-message-box"
-	};
-	var FONT_URL = "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap";
-	//#endregion
-	//#region src/api/client.ts
-	var EXTRA_HEADERS = "https://mutual-calibrate-among.ngrok-free.dev".includes("ngrok") ? NGROK_SKIP_HEADER : {};
-	async function request(path, options) {
-		const res = await fetch(`${API_BASE_URL}${path}`, {
-			headers: {
-				"Content-Type": "application/json",
-				...EXTRA_HEADERS
-			},
-			...options
-		});
-		let body = null;
-		try {
-			body = await res.json();
-		} catch {}
-		if (!res.ok) {
-			const message = body && typeof body === "object" && "error" in body ? String(body.error) : `Request failed with status ${res.status}`;
-			throw new Error(message);
-		}
-		return body;
-	}
-	function fetchNormalMessages(page, limit) {
-		return request(`${API_ROUTE.MESSAGES}?page=${page}&limit=${limit}`);
-	}
-	function fetchSuperChats(page, limit) {
-		return request(`${API_ROUTE.SUPER_CHATS}?page=${page}&limit=${limit}`);
-	}
-	function createNormalMessage(input) {
-		return request(API_ROUTE.MESSAGES, {
-			method: "POST",
-			body: JSON.stringify(input)
-		});
-	}
-	function createSuperChat(input) {
-		return request(API_ROUTE.SUPER_CHATS, {
-			method: "POST",
-			body: JSON.stringify(input)
-		});
-	}
-	/** AI rewrite of a comment or Superchat. Members only. */
-	function fetchCommentSuggestion(message, userRank, kind = SUGGESTION_KIND.MODERATE) {
-		return request(API_ROUTE.SUGGESTIONS, {
-			method: "POST",
-			body: JSON.stringify({
-				message,
-				userRank,
-				kind
-			})
-		});
-	}
-	function toggleLike(messageId, userId) {
-		return request(`${API_ROUTE.LIKES}/${messageId}`, {
-			method: "POST",
-			body: JSON.stringify({ userId })
-		});
-	}
-	function toggleReaction(messageId, userId, emoji) {
-		return request(`${API_ROUTE.REACTIONS}/${messageId}`, {
-			method: "POST",
-			body: JSON.stringify({
-				userId,
-				emoji
-			})
-		});
-	}
-	function removeMessage(messageId, userId) {
-		return request(`${API_ROUTE.MESSAGES}/${messageId}`, {
-			method: "DELETE",
-			body: JSON.stringify({ userId })
-		});
-	}
-	function reportMessage(messageId, userId) {
-		return request(`${API_ROUTE.MESSAGES}/${messageId}/report`, {
-			method: "POST",
-			body: JSON.stringify({ userId })
-		});
-	}
-	function fetchLiveFeedConfig() {
-		return request(API_ROUTE.LIVE_FEED);
-	}
-	function updateLiveFeedInterval(intervalSeconds) {
-		return request(API_ROUTE.LIVE_FEED, {
-			method: "PUT",
-			body: JSON.stringify({ intervalSeconds })
-		});
-	}
-	//#endregion
-	//#region src/utils/error.ts
-	function toErrorMessage(err, fallback) {
-		return err instanceof Error ? err.message : fallback;
-	}
-	//#endregion
-	//#region src/context/chatReducer.ts
-	var CHAT_ACTION = {
-		LOAD_NORMAL_PENDING: "LOAD_NORMAL_PENDING",
-		LOAD_NORMAL_FULFILLED: "LOAD_NORMAL_FULFILLED",
-		LOAD_NORMAL_REJECTED: "LOAD_NORMAL_REJECTED",
-		LOAD_SUPER_PENDING: "LOAD_SUPER_PENDING",
-		LOAD_SUPER_FULFILLED: "LOAD_SUPER_FULFILLED",
-		LOAD_SUPER_REJECTED: "LOAD_SUPER_REJECTED",
-		SEND_PENDING: "SEND_PENDING",
-		SEND_NORMAL_FULFILLED: "SEND_NORMAL_FULFILLED",
-		SEND_SUPER_FULFILLED: "SEND_SUPER_FULFILLED",
-		SEND_REJECTED: "SEND_REJECTED",
-		RECEIVE_NORMAL: "RECEIVE_NORMAL",
-		RECEIVE_SUPER: "RECEIVE_SUPER",
-		UPDATE_LIKES: "UPDATE_LIKES",
-		UPDATE_REACTIONS: "UPDATE_REACTIONS",
-		REMOVE_MESSAGE: "REMOVE_MESSAGE"
-	};
-	function createFeedState() {
-		return {
-			items: [],
-			page: 0,
-			limit: 20,
-			total: 0,
-			status: REQUEST_STATUS.IDLE,
-			error: null
-		};
-	}
-	var initialChatState = {
-		normal: createFeedState(),
-		super: createFeedState(),
-		sendStatus: REQUEST_STATUS.IDLE,
-		sendError: null,
-		lastSent: null
-	};
-	function mergeFeedPage(current, page, incoming) {
-		if (page === 1) return incoming;
-		const existingIds = new Set(current.map((item) => item.id));
-		return [...current, ...incoming.filter((item) => !existingIds.has(item.id))];
-	}
-	function prependUnique(feed, item) {
-		if (feed.items.some((existing) => existing.id === item.id)) return feed;
-		return {
-			...feed,
-			items: [item, ...feed.items],
-			total: feed.total + 1
-		};
-	}
-	function addSuperChat(state, superChat) {
-		return {
-			...state,
-			super: prependUnique(state.super, superChat),
-			normal: prependUnique(state.normal, superChat)
-		};
-	}
-	function removeFromFeed(feed, messageId) {
-		if (!feed.items.some((item) => item.id === messageId)) return feed;
-		return {
-			...feed,
-			items: feed.items.filter((item) => item.id !== messageId),
-			total: Math.max(0, feed.total - 1)
-		};
-	}
-	function applyPage(feed, { messages, page, limit, total }) {
-		return {
-			...feed,
-			status: REQUEST_STATUS.SUCCEEDED,
-			items: mergeFeedPage(feed.items, page, messages),
-			page,
-			limit,
-			total
-		};
-	}
-	function updateItem(feed, messageId, changes) {
-		return {
-			...feed,
-			items: feed.items.map((item) => item.id === messageId ? {
-				...item,
-				...changes
-			} : item)
-		};
-	}
-	function chatReducer(state, action) {
-		switch (action.type) {
-			case CHAT_ACTION.LOAD_NORMAL_PENDING: return {
-				...state,
-				normal: {
-					...state.normal,
-					status: REQUEST_STATUS.LOADING,
-					error: null
-				}
-			};
-			case CHAT_ACTION.LOAD_NORMAL_FULFILLED: return {
-				...state,
-				normal: applyPage(state.normal, action.payload)
-			};
-			case CHAT_ACTION.LOAD_NORMAL_REJECTED: return {
-				...state,
-				normal: {
-					...state.normal,
-					status: REQUEST_STATUS.FAILED,
-					error: action.error
-				}
-			};
-			case CHAT_ACTION.LOAD_SUPER_PENDING: return {
-				...state,
-				super: {
-					...state.super,
-					status: REQUEST_STATUS.LOADING,
-					error: null
-				}
-			};
-			case CHAT_ACTION.LOAD_SUPER_FULFILLED: return {
-				...state,
-				super: applyPage(state.super, action.payload)
-			};
-			case CHAT_ACTION.LOAD_SUPER_REJECTED: return {
-				...state,
-				super: {
-					...state.super,
-					status: REQUEST_STATUS.FAILED,
-					error: action.error
-				}
-			};
-			case CHAT_ACTION.SEND_PENDING: return {
-				...state,
-				sendStatus: REQUEST_STATUS.LOADING,
-				sendError: null
-			};
-			case CHAT_ACTION.SEND_NORMAL_FULFILLED: return {
-				...state,
-				sendStatus: REQUEST_STATUS.SUCCEEDED,
-				lastSent: {
-					id: action.payload.id,
-					type: action.payload.type
-				},
-				normal: prependUnique(state.normal, action.payload)
-			};
-			case CHAT_ACTION.SEND_SUPER_FULFILLED: return {
-				...addSuperChat(state, action.payload),
-				sendStatus: REQUEST_STATUS.SUCCEEDED,
-				lastSent: {
-					id: action.payload.id,
-					type: action.payload.type
-				}
-			};
-			case CHAT_ACTION.SEND_REJECTED: return {
-				...state,
-				sendStatus: REQUEST_STATUS.FAILED,
-				sendError: action.error
-			};
-			case CHAT_ACTION.RECEIVE_NORMAL: {
-				const normal = prependUnique(state.normal, action.payload);
-				return normal === state.normal ? state : {
-					...state,
-					normal
-				};
-			}
-			case CHAT_ACTION.RECEIVE_SUPER: return addSuperChat(state, action.payload);
-			case CHAT_ACTION.UPDATE_LIKES: {
-				const { messageId, likeCount, likedBy } = action.payload;
-				return {
-					...state,
-					normal: updateItem(state.normal, messageId, {
-						likeCount,
-						likedBy
-					}),
-					super: updateItem(state.super, messageId, {
-						likeCount,
-						likedBy
-					})
-				};
-			}
-			case CHAT_ACTION.UPDATE_REACTIONS: {
-				const { messageId, reactions } = action.payload;
-				return {
-					...state,
-					normal: updateItem(state.normal, messageId, { reactions }),
-					super: updateItem(state.super, messageId, { reactions })
-				};
-			}
-			case CHAT_ACTION.REMOVE_MESSAGE: return {
-				...state,
-				normal: removeFromFeed(state.normal, action.messageId),
-				super: removeFromFeed(state.super, action.messageId)
-			};
-			default: return state;
-		}
-	}
-	//#endregion
-	//#region src/context/ChatContext.tsx
-	var _jsxFileName$34 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/context/ChatContext.tsx";
-	var ChatContext = (0, import_react.createContext)(null);
-	function ChatProvider({ children }) {
-		const [state, dispatch] = (0, import_react.useReducer)(chatReducer, initialChatState);
-		const loadNormalMessages = (0, import_react.useCallback)(async (page, limit = 20) => {
-			dispatch({ type: CHAT_ACTION.LOAD_NORMAL_PENDING });
-			try {
-				const data = await fetchNormalMessages(page, limit);
-				dispatch({
-					type: CHAT_ACTION.LOAD_NORMAL_FULFILLED,
-					payload: data
-				});
-			} catch (err) {
-				const error = toErrorMessage(err, "Failed to load messages");
-				dispatch({
-					type: CHAT_ACTION.LOAD_NORMAL_REJECTED,
-					error
-				});
-			}
-		}, []);
-		const loadSuperChats = (0, import_react.useCallback)(async (page, limit = 20) => {
-			dispatch({ type: CHAT_ACTION.LOAD_SUPER_PENDING });
-			try {
-				const data = await fetchSuperChats(page, limit);
-				dispatch({
-					type: CHAT_ACTION.LOAD_SUPER_FULFILLED,
-					payload: data
-				});
-			} catch (err) {
-				const error = toErrorMessage(err, "Failed to load super chats");
-				dispatch({
-					type: CHAT_ACTION.LOAD_SUPER_REJECTED,
-					error
-				});
-			}
-		}, []);
-		const sendNormalMessage = (0, import_react.useCallback)(async (input) => {
-			dispatch({ type: CHAT_ACTION.SEND_PENDING });
-			try {
-				const created = await createNormalMessage(input);
-				dispatch({
-					type: CHAT_ACTION.SEND_NORMAL_FULFILLED,
-					payload: created
-				});
-				return created;
-			} catch (err) {
-				const error = toErrorMessage(err, "Failed to send message");
-				dispatch({
-					type: CHAT_ACTION.SEND_REJECTED,
-					error
-				});
-				throw err;
-			}
-		}, []);
-		const sendSuperChat = (0, import_react.useCallback)(async (input) => {
-			dispatch({ type: CHAT_ACTION.SEND_PENDING });
-			try {
-				const created = await createSuperChat(input);
-				dispatch({
-					type: CHAT_ACTION.SEND_SUPER_FULFILLED,
-					payload: created
-				});
-				return created;
-			} catch (err) {
-				const error = toErrorMessage(err, "Failed to send super chat");
-				dispatch({
-					type: CHAT_ACTION.SEND_REJECTED,
-					error
-				});
-				throw err;
-			}
-		}, []);
-		const receiveNormalMessage = (0, import_react.useCallback)((message) => {
-			dispatch({
-				type: CHAT_ACTION.RECEIVE_NORMAL,
-				payload: message
-			});
-		}, []);
-		const receiveSuperChat = (0, import_react.useCallback)((superChat) => {
-			dispatch({
-				type: CHAT_ACTION.RECEIVE_SUPER,
-				payload: superChat
-			});
-		}, []);
-		const toggleMessageLike = (0, import_react.useCallback)(async (messageId, userId) => {
-			const result = await toggleLike(messageId, userId);
-			dispatch({
-				type: CHAT_ACTION.UPDATE_LIKES,
-				payload: result
-			});
-			return result;
-		}, []);
-		const receiveLikeUpdate = (0, import_react.useCallback)((payload) => {
-			dispatch({
-				type: CHAT_ACTION.UPDATE_LIKES,
-				payload
-			});
-		}, []);
-		const toggleMessageReaction = (0, import_react.useCallback)(async (messageId, userId, emoji) => {
-			const result = await toggleReaction(messageId, userId, emoji);
-			dispatch({
-				type: CHAT_ACTION.UPDATE_REACTIONS,
-				payload: result
-			});
-			return result;
-		}, []);
-		const receiveReactionUpdate = (0, import_react.useCallback)((payload) => {
-			dispatch({
-				type: CHAT_ACTION.UPDATE_REACTIONS,
-				payload
-			});
-		}, []);
-		const removeMessage$1 = (0, import_react.useCallback)(async (messageId, userId) => {
-			await removeMessage(messageId, userId);
-			dispatch({
-				type: CHAT_ACTION.REMOVE_MESSAGE,
-				messageId
-			});
-		}, []);
-		const receiveMessageRemoval = (0, import_react.useCallback)((messageId) => {
-			dispatch({
-				type: CHAT_ACTION.REMOVE_MESSAGE,
-				messageId
-			});
-		}, []);
-		const reportMessage$1 = (0, import_react.useCallback)(async (messageId, userId) => {
-			await reportMessage(messageId, userId);
-		}, []);
-		const value = {
-			...state,
-			loadNormalMessages,
-			loadSuperChats,
-			sendNormalMessage,
-			sendSuperChat,
-			receiveNormalMessage,
-			receiveSuperChat,
-			toggleMessageLike,
-			receiveLikeUpdate,
-			toggleMessageReaction,
-			receiveReactionUpdate,
-			removeMessage: removeMessage$1,
-			receiveMessageRemoval,
-			reportMessage: reportMessage$1
-		};
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ChatContext.Provider, {
-			value,
-			children
-		}, void 0, false, {
-			fileName: _jsxFileName$34,
-			lineNumber: 159,
-			columnNumber: 10
-		}, this);
-	}
-	function useChat() {
-		const ctx = (0, import_react.useContext)(ChatContext);
-		if (!ctx) throw new Error("useChat must be used within a ChatProvider");
-		return ctx;
-	}
-	//#endregion
-	//#region src/context/ReplyContext.tsx
-	var _jsxFileName$33 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/context/ReplyContext.tsx";
-	var ReplyContext = (0, import_react.createContext)(null);
-	function ReplyProvider({ children }) {
-		const [replyTo, setReplyTo] = (0, import_react.useState)(null);
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ReplyContext.Provider, {
-			value: {
-				replyTo,
-				setReplyTo
-			},
-			children
-		}, void 0, false, {
-			fileName: _jsxFileName$33,
-			lineNumber: 15,
-			columnNumber: 5
-		}, this);
-	}
-	function useReply() {
-		const ctx = (0, import_react.useContext)(ReplyContext);
-		if (!ctx) throw new Error("useReply must be used within a ReplyProvider");
-		return ctx;
-	}
-	//#endregion
-	//#region src/utils/gbnAuth.ts
-	/** Runs `callback` once the gbnCE SDK is live (now, if it already is). */
-	function onGbnCEReady(callback) {
-		const gbnCE = window.gbnCE;
-		if (typeof gbnCE?.auth?.getUserProfile === "function") {
-			callback(gbnCE);
-			return;
-		}
-		window.gbnCE = gbnCE || [];
-		window.gbnCE.push(["init", callback]);
-	}
-	/** Null while gbnCE has no session; rejects if the profile request fails. */
-	function getUserProfile(gbnCE) {
-		if (typeof gbnCE.auth?.getUserProfile !== "function") return Promise.resolve(null);
-		return gbnCE.auth.getUserProfile();
-	}
-	function getCurrentAccount() {
-		const gbnID = window.gbnID;
-		if (typeof gbnID?.getCurrentUser === "function") return gbnID.getCurrentUser().catch(() => null);
-		return Promise.resolve(gbnID?._currentUser ?? null);
-	}
-	function onGbnIDReady(callback) {
-		window.gbnID = window.gbnID || [];
-		window.gbnID.push(["init", () => callback(window.gbnID)]);
-	}
-	function openGbnLogin() {
-		if (typeof window.gbnID?.openLoginModal === "function") window.gbnID.openLoginModal();
-	}
-	//#endregion
-	//#region src/utils/storage.ts
-	function readStorage(key, fallback) {
-		try {
-			const raw = window.localStorage.getItem(STORAGE_PREFIX + key);
-			if (raw === null) return fallback;
-			return JSON.parse(raw);
-		} catch {
-			return fallback;
-		}
-	}
-	function writeStorage(key, value) {
-		try {
-			window.localStorage.setItem(STORAGE_PREFIX + key, JSON.stringify(value));
-		} catch {}
-	}
-	//#endregion
-	//#region src/utils/time.ts
-	function formatRelativeTime(isoDate) {
-		const then = new Date(isoDate).getTime();
-		const diffMs = Math.max(0, Date.now() - then);
-		const diffSec = Math.floor(diffMs / 1e3);
-		if (diffSec < 10) return "Just now";
-		if (diffSec < 60) return `${diffSec} Sec Ago`;
-		const diffMin = Math.floor(diffSec / 60);
-		if (diffMin < 60) return `${diffMin} Min Ago`;
-		const diffHour = Math.floor(diffMin / 60);
-		if (diffHour < 24) return `${diffHour} Hour${diffHour > 1 ? "s" : ""} Ago`;
-		const diffDay = Math.floor(diffHour / 24);
-		return `${diffDay} Day${diffDay > 1 ? "s" : ""} Ago`;
-	}
-	/** The current month as "2026-10". */
-	function getCurrentMonth() {
-		const now = /* @__PURE__ */ new Date();
-		return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-	}
-	//#endregion
-	//#region src/utils/user.ts
-	function getRankInfo(rank) {
-		return USER_RANKS.find((entry) => entry.rank === rank) ?? USER_RANKS[0];
-	}
-	/** Friend is the free tier; every other rank is a paid membership. */
-	function isMember(rank) {
-		return rank !== USER_RANK.FRIEND;
-	}
-	/** Membership tier id (1-4), or null when the profile has none. */
-	function getProfileTierId(profile) {
-		const tierId = Number(profile?.tier?.tierId);
-		return Number.isInteger(tierId) && tierId > 0 ? tierId : null;
-	}
-	function getTierRank(tierId) {
-		return tierId && RANK_BY_TIER_ID[tierId] || USER_RANK.FRIEND;
-	}
-	function getAccountName(account) {
-		return [account.name?.first, account.name?.last].map((part) => part?.trim()).filter(Boolean).join(" ") || account.displayName?.trim() || account.email?.split("@")[0] || "Member";
-	}
-	/** First letter of the first and last name, as the site header's getUserInitials does. */
-	function getInitials(name, fallback = "") {
-		const words = name.trim().split(/\s+/).filter(Boolean);
-		if (words.length === 0) return fallback;
-		const last = words.length > 1 ? words[words.length - 1].charAt(0) : "";
-		return (words[0].charAt(0) + last).toUpperCase();
-	}
-	//#endregion
-	//#region src/context/UserContext.tsx
-	var _jsxFileName$32 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/context/UserContext.tsx";
-	function readCommentBalance() {
-		const month = getCurrentMonth();
-		if (readStorage(STORAGE_KEY.COMMENT_MONTH, "") !== month) {
-			writeStorage(STORAGE_KEY.COMMENT_MONTH, month);
-			writeStorage(STORAGE_KEY.COMMENT_BALANCE, 6);
-			return 6;
-		}
-		return readStorage(STORAGE_KEY.COMMENT_BALANCE, 6);
-	}
-	var TIER_PENDING = {
-		tierId: null,
-		isLoaded: false
-	};
-	function getDevUser() {
-		if (window.gbnID) return null;
-		const randomId = `dev-${Math.random().toString(36).slice(2, 8)}`;
-		const devId = readStorage(STORAGE_KEY.DEV_USER_ID, randomId);
-		writeStorage(STORAGE_KEY.DEV_USER_ID, devId);
-		return {
-			userId: devId,
-			userName: `Local ${devId.slice(4)}`,
-			tierId: readStorage(STORAGE_KEY.DEV_USER_TIER, null)
-		};
-	}
-	var DEV_USER = getDevUser();
-	var UserContext = (0, import_react.createContext)(null);
-	function UserProvider({ children }) {
-		const [authStatus, setAuthStatus] = (0, import_react.useState)(DEV_USER ? AUTH_STATUS.AUTHENTICATED : AUTH_STATUS.CHECKING);
-		const [user, setUser] = (0, import_react.useState)(DEV_USER);
-		const [tier, setTier] = (0, import_react.useState)(DEV_USER ? {
-			tierId: DEV_USER.tierId,
-			isLoaded: true
-		} : TIER_PENDING);
-		const [commentBalance, setCommentBalance] = (0, import_react.useState)(readCommentBalance);
-		const [coinBalance, setCoinBalance] = (0, import_react.useState)(() => readStorage(STORAGE_KEY.COIN_BALANCE, 100));
-		(0, import_react.useEffect)(() => {
-			if (DEV_USER) return;
-			let latestRefresh = 0;
-			let latestTierFetch = 0;
-			let knownUserId = null;
-			async function refreshTier(gbnCE) {
-				const fetchId = ++latestTierFetch;
-				let next;
-				try {
-					const profile = await getUserProfile(gbnCE);
-					next = profile ? {
-						tierId: getProfileTierId(profile),
-						isLoaded: true
-					} : TIER_PENDING;
-				} catch {
-					next = {
-						tierId: null,
-						isLoaded: true
-					};
-				}
-				if (fetchId === latestTierFetch) setTier(next);
-			}
-			function resetTier() {
-				latestTierFetch += 1;
-				setTier(TIER_PENDING);
-			}
-			async function refreshUser(gbnReady) {
-				const refreshId = ++latestRefresh;
-				const account = await getCurrentAccount();
-				if (refreshId !== latestRefresh) return;
-				if (!account?.id) {
-					if (gbnReady) {
-						knownUserId = null;
-						resetTier();
-						setUser(null);
-						setAuthStatus(AUTH_STATUS.GUEST);
-					}
-					return;
-				}
-				if (knownUserId && knownUserId !== account.id) {
-					resetTier();
-					onGbnCEReady(refreshTier);
-				}
-				knownUserId = account.id;
-				setUser({
-					userId: account.id,
-					userName: getAccountName(account)
-				});
-				setAuthStatus(AUTH_STATUS.AUTHENTICATED);
-			}
-			refreshUser(false);
-			onGbnCEReady((gbnCE) => {
-				refreshTier(gbnCE);
-				gbnCE.onLogin?.(() => refreshTier(gbnCE));
-			});
-			onGbnIDReady((gbnID) => {
-				refreshUser(true);
-				gbnID.onLogin?.(() => refreshUser(true));
-				gbnID.onLogout?.(() => {
-					latestRefresh += 1;
-					knownUserId = null;
-					resetTier();
-					setUser(null);
-					setAuthStatus(AUTH_STATUS.GUEST);
-				});
-			});
-		}, []);
-		const spendSuperChat = (0, import_react.useCallback)(({ comments, coins }) => {
-			if (comments > commentBalance || coins > coinBalance) return;
-			const nextComments = commentBalance - comments;
-			const nextCoins = coinBalance - coins;
-			setCommentBalance(nextComments);
-			setCoinBalance(nextCoins);
-			writeStorage(STORAGE_KEY.COMMENT_BALANCE, nextComments);
-			writeStorage(STORAGE_KEY.COIN_BALANCE, nextCoins);
-		}, [commentBalance, coinBalance]);
-		const requireLogin = (0, import_react.useCallback)(() => {
-			if (authStatus === AUTH_STATUS.AUTHENTICATED) return true;
-			openGbnLogin();
-			return false;
-		}, [authStatus]);
-		const userRank = getTierRank(tier.tierId);
-		const hasCommentBalance = isMember(userRank);
-		const value = {
-			authStatus,
-			userId: user?.userId ?? "",
-			userName: user?.userName ?? "",
-			userRank,
-			userTierId: tier.tierId,
-			isTierLoading: authStatus === AUTH_STATUS.AUTHENTICATED && !tier.isLoaded,
-			hasCommentBalance,
-			commentBalance: hasCommentBalance ? commentBalance : 0,
-			coinBalance,
-			spendSuperChat,
-			requireLogin
-		};
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserContext.Provider, {
-			value,
-			children
-		}, void 0, false, {
-			fileName: _jsxFileName$32,
-			lineNumber: 210,
-			columnNumber: 10
-		}, this);
-	}
-	function useUser() {
-		const ctx = (0, import_react.useContext)(UserContext);
-		if (!ctx) throw new Error("useUser must be used within a UserProvider");
-		return ctx;
-	}
-	//#endregion
-	//#region src/hooks/useInfiniteScroll.ts
-	function useInfiniteScroll(containerRef, { hasMore, isLoading, onLoadMore }) {
-		const sentinelRef = (0, import_react.useRef)(null);
-		(0, import_react.useEffect)(() => {
-			const container = containerRef.current;
-			const sentinel = sentinelRef.current;
-			if (!container || !sentinel || !hasMore) return;
-			const observer = new IntersectionObserver((entries) => {
-				if (entries[0].isIntersecting) onLoadMore();
-			}, {
-				root: container,
-				rootMargin: `200px 0px`
-			});
-			observer.observe(sentinel);
-			return () => observer.disconnect();
-		}, [
-			containerRef,
-			hasMore,
-			onLoadMore
-		]);
-		(0, import_react.useEffect)(() => {
-			if (isLoading || !hasMore) return;
-			const container = containerRef.current;
-			const sentinel = sentinelRef.current;
-			if (!container || !sentinel) return;
-			const containerRect = container.getBoundingClientRect();
-			if (sentinel.getBoundingClientRect().top < containerRect.bottom + 200) onLoadMore();
-		}, [isLoading, hasMore]);
-		return sentinelRef;
-	}
-	//#endregion
-	//#region src/components/GoToTopButton.tsx
-	var _jsxFileName$31 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/GoToTopButton.tsx";
-	function GoToTopButton({ newCount, onClick }) {
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-			type: "button",
-			className: "go-to-top",
-			onClick,
-			children: [
-				newCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-					className: "go-to-top__badge",
-					children: [newCount > 99 ? "99+" : newCount, " new"]
-				}, void 0, true, {
-					fileName: _jsxFileName$31,
-					lineNumber: 13,
-					columnNumber: 9
-				}, this),
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-					className: "go-to-top__icon",
-					"aria-hidden": "true",
-					children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-						src: go_to_top_default,
-						alt: ""
-					}, void 0, false, {
-						fileName: _jsxFileName$31,
-						lineNumber: 16,
-						columnNumber: 9
-					}, this)
-				}, void 0, false, {
-					fileName: _jsxFileName$31,
-					lineNumber: 15,
-					columnNumber: 7
-				}, this),
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-					className: "go-to-top__label",
-					children: "Go to Top"
-				}, void 0, false, {
-					fileName: _jsxFileName$31,
-					lineNumber: 18,
-					columnNumber: 7
-				}, this)
-			]
-		}, void 0, true, {
-			fileName: _jsxFileName$31,
-			lineNumber: 11,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/MessageSkeleton.tsx
-	var _jsxFileName$30 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/MessageSkeleton.tsx";
-	function MessageSkeleton({ variant = MESSAGE_TYPE.NORMAL }) {
-		const isSuper = variant === MESSAGE_TYPE.SUPER;
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: isSuper ? "super-chat-item" : "normal-message-item",
-			"aria-hidden": "true",
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: isSuper ? "super-chat-item__body" : "normal-message-item__body",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: isSuper ? "super-chat-item__header" : "normal-message-item__header",
-						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton skeleton--name" }, void 0, false, {
-							fileName: _jsxFileName$30,
-							lineNumber: 21,
-							columnNumber: 11
-						}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton skeleton--time" }, void 0, false, {
-							fileName: _jsxFileName$30,
-							lineNumber: 22,
-							columnNumber: 11
-						}, this)]
-					}, void 0, true, {
-						fileName: _jsxFileName$30,
-						lineNumber: 20,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton skeleton--line" }, void 0, false, {
-						fileName: _jsxFileName$30,
-						lineNumber: 24,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton skeleton--line skeleton--line-short" }, void 0, false, {
-						fileName: _jsxFileName$30,
-						lineNumber: 25,
-						columnNumber: 9
-					}, this)
-				]
-			}, void 0, true, {
-				fileName: _jsxFileName$30,
-				lineNumber: 19,
-				columnNumber: 7
-			}, this)
-		}, void 0, false, {
-			fileName: _jsxFileName$30,
-			lineNumber: 18,
-			columnNumber: 5
-		}, this);
-	}
-	function MessageSkeletonList({ count = 5, variant = MESSAGE_TYPE.NORMAL }) {
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: Array.from({ length: count }, (_, index) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageSkeleton, { variant }, index, false, {
-			fileName: _jsxFileName$30,
-			lineNumber: 41,
-			columnNumber: 9
-		}, this)) }, void 0, false, {
-			fileName: _jsxFileName$30,
-			lineNumber: 39,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/MaskIcon.tsx
-	var _jsxFileName$29 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/MaskIcon.tsx";
-	/**
-	* An SVG icon painted in the surrounding text colour (via CSS mask), so the
-	* same file can be grey in one place and navy or white in another.
-	*/
-	function MaskIcon({ src, className }) {
-		const style = {
-			WebkitMaskImage: `url("${src}")`,
-			maskImage: `url("${src}")`
-		};
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-			className: `mask-icon ${className ?? ""}`,
-			style,
-			"aria-hidden": "true"
-		}, void 0, false, {
-			fileName: _jsxFileName$29,
-			lineNumber: 15,
-			columnNumber: 10
-		}, this);
-	}
-	//#endregion
-	//#region src/components/LikeButton.tsx
-	var _jsxFileName$28 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/LikeButton.tsx";
-	function LikeButton({ messageId, likeCount, likedBy }) {
-		const { authStatus, userId, requireLogin } = useUser();
-		const { toggleMessageLike } = useChat();
-		const liked = authStatus === AUTH_STATUS.AUTHENTICATED && likedBy.includes(userId);
-		const handleClick = () => {
-			if (!requireLogin()) return;
-			toggleMessageLike(messageId, userId).catch(() => {});
-		};
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-			type: "button",
-			className: `like-button ${liked ? "like-button--active" : ""}`,
-			onClick: handleClick,
-			"aria-pressed": liked,
-			"aria-label": `${likeCount} ${likeCount === 1 ? "Like" : "Likes"}`,
-			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MaskIcon, {
-				src: heart_default,
-				className: "like-button__icon"
-			}, void 0, false, {
-				fileName: _jsxFileName$28,
-				lineNumber: 31,
-				columnNumber: 7
-			}, this), likeCount]
-		}, void 0, true, {
-			fileName: _jsxFileName$28,
-			lineNumber: 24,
-			columnNumber: 5
-		}, this);
-	}
 	//#endregion
 	//#region node_modules/scheduler/cjs/scheduler.development.js
 	/**
@@ -2620,7 +1806,7 @@
 			exports.useFormStatus = function() {
 				return resolveDispatcher().useHostTransitionStatus();
 			};
-			exports.version = "19.3.0";
+			exports.version = "19.3.1";
 			"undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
 		})();
 	}));
@@ -18143,7 +17329,7 @@
 			};
 			(function() {
 				var isomorphicReactPackageVersion = React.version;
-				if ("19.3.0" !== isomorphicReactPackageVersion) throw Error("Incompatible React versions: The \"react\" and \"react-dom\" packages must have the exact same version. Instead got:\n  - react:      " + (isomorphicReactPackageVersion + "\n  - react-dom:  19.3.0\nLearn more: https://react.dev/warnings/version-mismatch"));
+				if ("19.3.1" !== isomorphicReactPackageVersion) throw Error("Incompatible React versions: The \"react\" and \"react-dom\" packages must have the exact same version. Instead got:\n  - react:      " + (isomorphicReactPackageVersion + "\n  - react-dom:  19.3.1\nLearn more: https://react.dev/warnings/version-mismatch"));
 			})();
 			"function" === typeof Map && null != Map.prototype && "function" === typeof Map.prototype.forEach && "function" === typeof Set && null != Set.prototype && "function" === typeof Set.prototype.clear && "function" === typeof Set.prototype.forEach || console.error("React depends on Map and Set built-in types. Make sure that you load a polyfill in older browsers. https://react.dev/link/react-polyfills");
 			ReactDOMSharedInternals.findDOMNode = function(componentOrElement) {
@@ -18161,10 +17347,10 @@
 			if (!(function() {
 				var internals = {
 					bundleType: 1,
-					version: "19.3.0",
+					version: "19.3.1",
 					rendererPackageName: "react-dom",
 					currentDispatcherRef: ReactSharedInternals,
-					reconcilerVersion: "19.3.0"
+					reconcilerVersion: "19.3.1"
 				};
 				internals.overrideHookState = overrideHookState;
 				internals.overrideHookStateDeletePath = overrideHookStateDeletePath;
@@ -18218,3995 +17404,7242 @@
 				listenToAllSupportedEvents(container);
 				return new ReactDOMHydrationRoot(initialChildren);
 			};
-			exports.version = "19.3.0";
+			exports.version = "19.3.1";
 			"undefined" !== typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ && "function" === typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop && __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStop(Error());
 		})();
 	}));
 	//#endregion
-	//#region src/styles/index.css?inline
-	var import_client = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
+	//#region node_modules/react-dom/client.js
+	var require_client = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		module.exports = require_react_dom_client_development();
-	})))();
-	var styles_default = "/*\n * Everything the widget draws. Inlined into each element's shadow root, so\n * nothing here leaks onto the host page and the host page's CSS can't leak in.\n */\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n/* Design tokens. Set on :host so each element's shadow root gets its own copy. */\n:host {\n  --color-surface-alt: #f7f9fd;\n  --color-surface-muted: #ebebeb;\n  --color-border: #e3e7f1;\n  --color-white: #ffffff;\n\n  --color-text: #000F55;\n  --color-text-faded: #000F5580;\n  --color-text-subtle: #A4A4A4;\n  --color-name: #393F56;\n\n  --color-navy: #004BE3;\n  --color-blue: #2f6fed;\n  --color-blue-soft: #eaf2ff;\n  --color-reaction-picker-border: #9B9B9B;\n  --color-reaction-label-bg: #000F55CC;\n  --color-coins: #43A01C;\n  --color-tier-avatar-bg: #000E55;\n  --color-tier-avatar-supporter-bg: #FCEBDF;\n  --color-tier-avatar-defender-bg: #EDEDED;\n  --color-tier-avatar-champion-bg: #FFF1D0;\n  --color-recommended: #4A8C3F;\n  --color-enhance-bg: #E5F6FF;\n  --color-confirm-gradient-start: #001C75;\n  --color-confirm-gradient-end: #010A27;\n  --color-confirm-locked-bg: #E5F9F7;\n  --color-moderation: #D70000;\n  --color-btn-light-from: #F0F7FD;\n  --color-btn-light-to: #D4D7E3;\n  --color-btn-light-border: #D8E1F0;\n\n  --color-danger: #eb0000;\n  --color-danger-text: #b3273e;\n  --color-warning-bg: #FFF0F0;\n\n  --color-scrim: #000F554D;\n  --color-white-overlay: #FFFFFF26;\n\n  --color-shadow-08: #101A3D14;\n  --color-shadow-12: #101A3D1F;\n  --color-shadow-18: #101A3D2E;\n  --color-shadow-25: #101A3D40;\n  --color-shadow-black-10: #0000001A;\n  --color-shadow-black-15: #00000026;\n\n  --color-rank-defender-from: #C2C2C2;\n  --color-rank-defender-to: #818181;\n  --color-rank-supporter-from: #F6BA92;\n  --color-rank-supporter-to: #C38154;\n  --color-rank-champion-from: #FFC241;\n  --color-rank-champion-to: #E99300;\n\n  --color-avatar-1: #e07a5f;\n  --color-avatar-2: #3d7068;\n  --color-avatar-3: #4f6d9a;\n  --color-avatar-4: #8a5a44;\n  --color-avatar-5: #6b5ca5;\n  --color-avatar-6: #2f8f7a;\n  --color-avatar-7: #c9752f;\n  --color-avatar-8: #4a90c4;\n\n  --color-superchat-1-bg: #014BE312;\n  --color-superchat-1-accent: #014BE3;\n  --color-superchat-2-bg: #433CAD1A;\n  --color-superchat-2-accent: #433CAD;\n  --color-superchat-3-bg: #C81F401A;\n  --color-superchat-3-accent: #C81F40;\n  --color-superchat-4-bg: #FF00131A;\n  --color-superchat-4-accent: #FF0013;\n\n  --font-primary: \"Noto Sans\", sans-serif;\n}\n\n:host {\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  font-family: var(--font-primary);\n  color: var(--color-text);\n}\n\n/*\n * The host counts as focused whenever something inside it is, so the host\n * page's focus outline would box the whole widget. !important is needed for\n * :host rules to beat the page's own styles.\n */\n:host(:focus),\n:host(:focus-visible) {\n  outline: none !important;\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n/* Default size for the comments list; the host page can override it. */\n:host(gbn-comments) {\n  height: min(70vh, 560px);\n}\n\n/* The node each element renders into. */\n:host > div {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\nbutton,\ninput,\ntextarea,\nselect {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\nbutton:disabled {\n  cursor: not-allowed;\n  opacity: 0.55;\n}\n\n/* Shimmer primitives used by MessageSkeleton. */\n\n.skeleton {\n  border-radius: 6px;\n  background: linear-gradient(\n    90deg,\n    var(--color-border) 25%,\n    var(--color-surface-alt) 37%,\n    var(--color-border) 63%\n  );\n  background-size: 400% 100%;\n  animation: skeleton-shimmer 1.4s ease infinite;\n}\n\n@keyframes skeleton-shimmer {\n  0% {\n    background-position: 100% 50%;\n  }\n  100% {\n    background-position: 0 50%;\n  }\n}\n\n.skeleton--avatar {\n  border-radius: 50%;\n  flex-shrink: 0;\n}\n\n.skeleton--name {\n  width: 90px;\n  height: 14px;\n}\n\n.skeleton--time {\n  width: 48px;\n  height: 12px;\n}\n\n.skeleton--line {\n  height: 14px;\n  width: 100%;\n  margin-top: 8px;\n}\n\n.skeleton--line-short {\n  width: 55%;\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .skeleton {\n    animation: none;\n  }\n}\n\n/* Longhands only: the build's minifier mangles mask/animation shorthands. */\n.mask-icon {\n  display: inline-block;\n  flex-shrink: 0;\n  background-color: currentColor;\n  -webkit-mask-repeat: no-repeat;\n  mask-repeat: no-repeat;\n  -webkit-mask-position: center;\n  mask-position: center;\n  -webkit-mask-size: contain;\n  mask-size: contain;\n}\n.avatar {\n  border-radius: 50%;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  color: var(--color-white);\n  font-weight: 700;\n  flex-shrink: 0;\n}\n.tier-avatar {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  overflow: hidden;\n  border-radius: 50%;\n  background: var(--color-tier-avatar-bg);\n}\n\n/* Paid tiers sit on a light tint of their rank colour. */\n.tier-avatar--tier-2 {\n  background: var(--color-tier-avatar-supporter-bg);\n}\n\n.tier-avatar--tier-3 {\n  background: var(--color-tier-avatar-defender-bg);\n}\n\n.tier-avatar--tier-4 {\n  background: var(--color-tier-avatar-champion-bg);\n}\n\n/* Mirrors .login-account__avatar.is-logged-in.has-tier in web-4-prod/header. */\n.tier-avatar__badge {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  background-size: cover;\n  background-position: center;\n  background-repeat: no-repeat;\n}\n\n.tier-avatar__initials {\n  display: block;\n  font-weight: 600;\n  /* The header's avatar is a <button>, whose line-height is \"normal\"; the offsets assume it. */\n  line-height: normal;\n  text-align: center;\n  color: var(--color-white);\n}\n\n.name-plain {\n  color: var(--color-name);\n}\n\n.name-badge {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  height: 22px;\n  padding: 0 10px;\n  border-radius: 100px;\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n  color: var(--color-white);\n}\n\n.name-badge__icon {\n  width: 12px;\n  height: 12px;\n}\n\n.name-badge--defender {\n  background: linear-gradient(180deg, var(--color-rank-defender-from) 0%, var(--color-rank-defender-to) 100%);\n}\n\n.name-badge--supporter {\n  background: linear-gradient(180deg, var(--color-rank-supporter-from) 0%, var(--color-rank-supporter-to) 100%);\n}\n\n.name-badge--champion {\n  background: linear-gradient(180deg, var(--color-rank-champion-from) 0%, var(--color-rank-champion-to) 100%);\n}\n\n.relative-time {\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.message-text__mention {\n  font-weight: 700;\n}\n\n/* Mirrors .like-button so the two footer actions read as a pair. */\n.reply-button {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  background: none;\n  border: none;\n  color: var(--color-text-subtle);\n  font-size: 12px;\n  font-weight: 400;\n  padding: 2px 0;\n}\n\n.reply-button:hover {\n  color: var(--color-blue);\n}\n\n.reply-button__icon {\n  width: 12px;\n  height: 12px;\n}\n\n.like-button {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  background: none;\n  border: none;\n  color: var(--color-text-subtle);\n  font-size: 12px;\n  font-weight: 400;\n  padding: 2px 0;\n}\n\n.like-button__icon {\n  width: 11px;\n  height: 11px;\n}\n\n.message-actions {\n  position: relative;\n  flex-shrink: 0;\n}\n\n.message-actions__trigger {\n  background: none;\n  border: none;\n  color: var(--color-text);\n  font-size: 18px;\n  line-height: 1;\n  padding: 4px 6px;\n  border-radius: 6px;\n}\n\n.message-actions__icon {\n  display: block;\n  width: 18px;\n  height: 18px;\n}\n\n.message-actions__trigger:hover {\n  background: var(--color-surface-alt);\n}\n\n.message-actions__menu {\n  position: absolute;\n  right: 0;\n  top: 100%;\n  background: var(--color-white);\n  border: 1px solid var(--color-border);\n  border-radius: 8px;\n  box-shadow: 0 8px 24px var(--color-shadow-08);\n  z-index: 5;\n  overflow: hidden;\n  min-width: 100px;\n}\n\n.message-actions__menu button {\n  display: block;\n  width: 100%;\n  text-align: left;\n  padding: 8px 12px;\n  background: none;\n  border: none;\n  font-size: 13px;\n}\n\n.message-actions__menu button:hover:not(:disabled) {\n  background: var(--color-surface-alt);\n}\n\n.message-actions__menu button.message-actions__danger {\n  color: var(--color-danger);\n}\n\n.message-actions__feedback {\n  padding: 8px 12px;\n  font-size: 13px;\n  white-space: nowrap;\n  color: var(--color-text);\n}\n\n.message-reactions {\n  display: inline-flex;\n  align-items: center;\n  flex-wrap: wrap;\n  gap: 6px;\n}\n\n.message-reactions__react {\n  position: relative;\n  display: inline-flex;\n}\n\n/* Mirrors .like-button / .reply-button so the footer actions read as a set. */\n.react-button {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  background: none;\n  border: none;\n  color: var(--color-text-subtle);\n  font-size: 12px;\n  font-weight: 400;\n  padding: 2px 0;\n}\n\n.react-button:hover,\n.react-button[aria-expanded=\"true\"] {\n  color: var(--color-blue);\n}\n\n.react-button__icon {\n  width: 12px;\n  height: 12px;\n}\n\n/* ---------- Picker ---------- */\n\n.reaction-picker {\n  position: absolute;\n  left: -6px;\n  bottom: calc(100% + 6px);\n  z-index: 6;\n  display: flex;\n  gap: 4px;\n  padding: 4px 6px;\n  border: 1px solid var(--color-reaction-picker-border);\n  border-radius: 12px;\n  background: var(--color-white);\n  box-shadow: 0 6px 20px var(--color-shadow-12);\n  animation: reaction-picker-in 0.16s ease-out;\n}\n\n.reaction-picker--down {\n  top: calc(100% + 6px);\n  bottom: auto;\n}\n\n.reaction-picker__option {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 26px;\n  height: 26px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n  transition: transform 0.15s cubic-bezier(0.3, 1.6, 0.6, 1);\n}\n\n.reaction-picker__icon {\n  display: block;\n  border-radius: 50%;\n}\n\n/* Small dot under the reaction the user has already picked. */\n.reaction-picker__option--mine::after {\n  content: \"\";\n  position: absolute;\n  bottom: -3px;\n  left: 50%;\n  width: 3px;\n  height: 3px;\n  margin-left: -1.5px;\n  border-radius: 50%;\n  background: var(--color-blue);\n}\n\n.reaction-picker__option:hover,\n.reaction-picker__option:focus-visible {\n  transform: translateY(-4px) scale(1.2);\n  outline: none;\n}\n\n.reaction-picker__option:focus-visible .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-blue);\n}\n\n.reaction-picker__label {\n  position: absolute;\n  bottom: calc(100% + 6px);\n  left: 50%;\n  padding: 3px 7px;\n  border-radius: 999px;\n  background: var(--color-reaction-label-bg);\n  color: var(--color-white);\n  font-size: 10px;\n  font-weight: 600;\n  line-height: 1.2;\n  white-space: nowrap;\n  pointer-events: none;\n  opacity: 0;\n  transform: translate(-50%, 2px) scale(calc(1 / 1.2));\n  transition: opacity 0.12s ease, transform 0.12s ease;\n}\n\n.reaction-picker__option:hover .reaction-picker__label,\n.reaction-picker__option:focus-visible .reaction-picker__label {\n  opacity: 1;\n  transform: translate(-50%, 0) scale(calc(1 / 1.2));\n}\n\n/* ---------- Chips ---------- */\n\n.reaction-chip {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  height: 22px;\n  padding: 0 8px 0 4px;\n  border: 1px solid var(--color-border);\n  border-radius: 999px;\n  background: var(--color-surface-alt);\n  color: var(--color-text);\n  font-size: 11px;\n  font-weight: 600;\n  line-height: 1;\n}\n\n.reaction-chip:hover {\n  border-color: var(--color-blue);\n}\n\n.reaction-chip--mine {\n  border-color: var(--color-blue);\n  background: var(--color-blue-soft);\n  color: var(--color-blue);\n}\n\n.reaction-chip__icon {\n  flex-shrink: 0;\n}\n\n@keyframes reaction-picker-in {\n  from {\n    opacity: 0;\n    transform: translateY(6px) scale(0.96);\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .reaction-picker {\n    animation: none;\n  }\n\n  .reaction-picker__option,\n  .reaction-picker__label {\n    transition: none;\n  }\n}\n\n/* Shared list-panel shell used by SuperChatList and NormalChatList. */\n\n.panel {\n  position: relative;\n  flex: 1;\n  min-height: 0;\n  background: var(--color-white);\n  overflow: hidden;\n  display: flex;\n  flex-direction: column;\n}\n\n.panel__list {\n  flex: 1;\n  min-height: 0;\n  overflow-y: auto;\n  padding: 10px 12px;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n\n.panel__status {\n  text-align: center;\n  color: var(--color-text);\n  font-size: 13px;\n  padding: 24px 12px;\n}\n\n.panel__status--error {\n  color: var(--color-danger-text);\n}\n\n.panel__sentinel {\n  flex-shrink: 0;\n  height: 1px;\n}\n\n.panel__status--loading-more {\n  padding: 4px 12px 10px;\n}\n\n.go-to-top {\n  position: absolute;\n  right: 16px;\n  bottom: 16px;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 4px;\n  background: none;\n  border: none;\n  z-index: 20;\n}\n\n.go-to-top__icon {\n  width: 44px;\n  height: 44px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  border-radius: 6px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 16px;\n  box-shadow: 0 8px 24px var(--color-shadow-08);\n}\n\n.go-to-top__icon img {\n  width: 16px;\n  height: 16px;\n}\n\n.go-to-top:hover .go-to-top__icon {\n  filter: brightness(1.1);\n}\n\n/* Frosted backdrop so the label stays readable over the messages behind it. */\n.go-to-top__label {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--color-white) 85%, transparent);\n  backdrop-filter: blur(4px);\n  box-shadow: 0 2px 8px var(--color-shadow-12);\n  white-space: nowrap;\n  font-size: 12px;\n  font-weight: 600;\n  color: var(--color-blue);\n  text-transform: uppercase;\n  letter-spacing: 0.04em;\n}\n\n.go-to-top__badge {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-blue);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 700;\n  white-space: nowrap;\n  box-shadow: 0 8px 24px var(--color-shadow-08);\n  animation: go-to-top-badge-pop 0.25s ease-out;\n}\n\n@keyframes go-to-top-badge-pop {\n  from {\n    transform: scale(0.6);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n\n/* The card the lists sit in; also the Superchat sheet's positioning parent. */\n.comments {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  overflow: hidden;\n  border-radius: 6px;\n  box-shadow: 0 0 7px 0 var(--color-shadow-black-10);\n  background: var(--color-white);\n  container-type: inline-size;\n}\n.chat-tabs {\n  flex-shrink: 0;\n  display: flex;\n  align-items: stretch;\n  background: var(--color-white);\n  overflow: hidden;\n}\n\n.chat-tabs__list {\n  display: flex;\n  flex: 0 1 auto;\n  min-width: 0;\n}\n\n.chat-tabs__tab {\n  flex: 0 0 auto;\n  border: none;\n  border-bottom: 3px solid transparent;\n  background: var(--color-surface-muted);\n  padding: 22px;\n  font-weight: 500;\n  font-size: 14px;\n  line-height: 12px;\n  color: var(--color-text);\n  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;\n}\n\n.chat-tabs__tab--active {\n  background: var(--color-white);\n  border-bottom-color: var(--color-blue);\n  color: var(--color-text);\n}\n\n.chat-tabs__count {\n  font-weight: 500;\n  opacity: 0.8;\n}\n\n@media (max-width: 520px) {\n  .chat-tabs__list {\n    flex-basis: 100%;\n  }\n\n  .chat-tabs__tab {\n    flex: 1 1 0;\n  }\n}\n\n@container (max-width: 520px) {\n  .chat-tabs__list {\n    flex-basis: 100%;\n  }\n\n  .chat-tabs__tab {\n    flex: 1 1 0;\n  }\n}\n\n.normal-message-item {\n  --normal-message-item-pad-x: 16px;\n\n  display: flex;\n  align-items: flex-start;\n  gap: 12px;\n  padding: 10px var(--normal-message-item-pad-x);\n}\n\n.normal-message-item__body {\n  flex: 1;\n  min-width: 0;\n}\n\n.normal-message-item__header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  flex-wrap: wrap;\n}\n\n/*\n * \"More\" sits at the end of the header; the negative margins cancel the\n * trigger's padding so the dots line up with the body's right edge (and the\n * coins tag below) without making the header row taller.\n */\n.normal-message-item__header .message-actions {\n  margin: -4px -6px -4px auto;\n}\n\n.normal-message-item__name {\n  font-weight: 700;\n  font-size: 15px;\n}\n\n/*\n * Rank badges sit flush against the row's left edge, like on Superchat cards,\n * so they line up with the cards' left border down the feed.\n */\n.normal-message-item__name.name-badge {\n  margin-left: calc(-1 * var(--normal-message-item-pad-x));\n  padding-left: calc(var(--normal-message-item-pad-x) - 5px);\n  border-radius: 0 100px 100px 0;\n}\n\n.normal-message-item__message {\n  font-size: 15px;\n  margin-top: 4px;\n  word-wrap: break-word;\n}\n\n.normal-message-item__footer {\n  display: flex;\n  align-items: center;\n  flex-wrap: wrap;\n  gap: 6px 16px;\n  margin-top: 6px;\n}\n\n.super-chat-item {\n  --super-chat-item-pad-x: 15px;\n  --super-chat-item-pad-y: 10px;\n  --super-chat-item-radius: 8px;\n\n  display: flex;\n  align-items: flex-start;\n  gap: 12px;\n  padding: var(--super-chat-item-pad-y) var(--super-chat-item-pad-x);\n  border-radius: var(--super-chat-item-radius);\n  background: var(--super-chat-item-bg, var(--color-superchat-1-bg));\n}\n\n.super-chat-item__body {\n  flex: 1;\n  min-width: 0;\n}\n\n.super-chat-item__header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  flex-wrap: wrap;\n}\n\n\n.super-chat-item__header .message-actions {\n  margin: -4px -6px -4px auto;\n}\n\n.super-chat-item__name {\n  font-weight: 700;\n  font-size: 15px;\n}\n\n.super-chat-item__name.name-badge {\n  margin-left: calc(-1 * var(--super-chat-item-pad-x));\n  padding-left: calc(var(--super-chat-item-pad-x) - 4px);\n  border-radius: 0 100px 100px 0;\n}\n\n.super-chat-item__message {\n  font-size: 15px;\n  margin-top: 4px;\n  word-wrap: break-word;\n}\n\n.super-chat-item__footer {\n  display: flex;\n  align-items: center;\n  flex-wrap: wrap;\n  gap: 6px 16px;\n  margin-top: 6px;\n}\n\n.super-chat-item__coins {\n  display: inline-flex;\n  align-items: center;\n  height: 22px;\n  margin: 0 calc(-1 * var(--super-chat-item-pad-x)) 0 auto;\n  padding: 0 calc(var(--super-chat-item-pad-x) - 4px) 0 10px;\n  border-radius: 100px 0 0 100px;\n  background: var(--color-coins);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n  white-space: nowrap;\n}\n\n.super-chat-item--preview {\n  color: var(--color-text);\n  text-align: left;\n  pointer-events: none;\n  user-select: none;\n  transition: background-color 0.2s ease;\n}\n\n.super-chat-item--preview .message-actions__trigger {\n  display: block;\n}\n\n.super-chat-item--preview .super-chat-item__coins {\n  transform-origin: right center;\n  animation: super-chat-coins-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);\n}\n\n\n.rolling-number {\n  margin-left: 2px;\n  display: inline-grid;\n  justify-items: center;\n  overflow-x: visible;\n  overflow-y: clip;\n  line-height: 1.25;\n  vertical-align: bottom;\n  font-variant-numeric: tabular-nums;\n}\n\n.rolling-number__digits {\n  grid-area: 1 / 1;\n}\n\n.rolling-number--up .rolling-number__digits--in {\n  animation: rolling-number-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;\n}\n\n.rolling-number--up .rolling-number__digits--out {\n  animation: rolling-number-out-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;\n}\n\n.rolling-number--down .rolling-number__digits--in {\n  animation: rolling-number-in-down 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;\n}\n\n.rolling-number--down .rolling-number__digits--out {\n  animation: rolling-number-out-down 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;\n}\n\n@keyframes rolling-number-in-up {\n  0% {\n    opacity: 0;\n    transform: translateY(100%) scale(0.5);\n    filter: blur(1.5px);\n  }\n\n  60% {\n    opacity: 1;\n    transform: translateY(0) scale(1.2);\n    filter: none;\n  }\n\n  100% {\n    transform: none;\n  }\n}\n\n@keyframes rolling-number-out-up {\n  to {\n    opacity: 0;\n    transform: translateY(-100%) scale(0.5);\n    filter: blur(1.5px);\n  }\n}\n\n@keyframes rolling-number-in-down {\n  0% {\n    opacity: 0;\n    transform: translateY(-100%) scale(1.5);\n    filter: blur(1.5px);\n  }\n\n  60% {\n    opacity: 1;\n    transform: translateY(0) scale(0.88);\n    filter: none;\n  }\n\n  100% {\n    transform: none;\n  }\n}\n\n@keyframes rolling-number-out-down {\n  to {\n    opacity: 0;\n    transform: translateY(100%) scale(1.5);\n    filter: blur(1.5px);\n  }\n}\n\n@keyframes super-chat-coins-in {\n  from {\n    opacity: 0;\n    transform: scale(0.4) translateX(12px);\n  }\n\n  to {\n    opacity: 1;\n    transform: none;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .super-chat-item--preview {\n    transition: none;\n  }\n\n  .super-chat-item--preview .super-chat-item__coins,\n  .rolling-number__digits--in,\n  .rolling-number__digits--out {\n    animation-duration: 0.01ms;\n  }\n}\n\n.message-box .composer {\n  border-radius: 6px;\n  box-shadow: 0 0 7px 0 var(--color-shadow-black-10);\n}\n\n.composer {\n  container: composer / inline-size;\n  flex-shrink: 0;\n  background: var(--color-white);\n  box-shadow: 0 8px 24px var(--color-shadow-08);\n  padding: 16px;\n}\n\n/* Guest: \"Log in\" text link above the locked composer, on the right. */\n.composer__guest-bar {\n  display: flex;\n  justify-content: flex-end;\n  margin-bottom: 8px;\n}\n\n.composer__login-link {\n  background: none;\n  border: none;\n  padding: 0;\n  color: var(--color-text);\n  font-size: 16px;\n  font-weight: 600;\n}\n\n.composer__login-link:hover {\n  color: var(--color-navy);\n}\n\n.composer__login-link:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.composer__guest-avatar {\n  flex-shrink: 0;\n  width: 40px;\n  height: 40px;\n  border-radius: 50%;\n}\n\n.composer--guest .composer__input:disabled {\n  cursor: not-allowed;\n}\n\n.composer__skeleton-field {\n  flex: 1;\n  height: 67px;\n  border-radius: 14px;\n}\n\n.composer__reply-banner {\n  display: flex;\n  align-items: center;\n  flex-wrap: wrap;\n  gap: 8px;\n  font-size: 13px;\n  font-weight: 600;\n  color: var(--color-blue);\n}\n\n.composer__cancel-reply {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  background: none;\n  border: none;\n  border-radius: 999px;\n  box-shadow: 0 1px 4px var(--color-shadow-black-15);\n  color: var(--color-danger);\n  font-size: 12px;\n  font-weight: 600;\n  padding: 3px 12px;\n}\n\n.composer__cancel-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.composer__body {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 10px;\n}\n\n.composer__row {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n  width: 100%;\n}\n\n.composer__field {\n  position: relative;\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  border: 1px solid var(--color-border);\n  border-radius: 14px;\n  background: var(--color-white);\n}\n\n/* Speech-bubble tail pointing back at the profile avatar */\n.composer__field::before {\n  content: \"\";\n  position: absolute;\n  left: -9px;\n  top: 50%;\n  transform: translateY(-50%);\n  width: 0;\n  height: 0;\n  border-top: 7px solid transparent;\n  border-bottom: 7px solid transparent;\n  border-right: 9px solid var(--color-border);\n}\n\n.composer__field::after {\n  content: \"\";\n  position: absolute;\n  left: -7px;\n  top: 50%;\n  transform: translateY(-50%);\n  width: 0;\n  height: 0;\n  border-top: 6px solid transparent;\n  border-bottom: 6px solid transparent;\n  border-right: 8px solid var(--color-white);\n}\n\n.composer__field:focus-within {\n  border-color: var(--color-blue);\n  background: var(--color-white);\n}\n\n.composer__field:focus-within::before {\n  border-right-color: var(--color-blue);\n}\n\n.composer__field:focus-within::after {\n  border-right-color: var(--color-white);\n}\n\n.composer__field-content {\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n  justify-content: center;\n  gap: 6px;\n  padding: 10px 18px;\n}\n\n.composer__input {\n  flex: 1;\n  resize: none;\n  border: none;\n  background: transparent;\n  padding: 0;\n  font-size: 16px;\n  line-height: 1.4;\n  min-height: 24px;\n  max-height: 140px;\n}\n\n.composer__input:focus {\n  outline: none;\n}\n\n.composer__warning {\n  margin-left: 54px;\n  padding: 8px 18px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  color: var(--color-text);\n  font-size: 12px;\n  line-height: 1.35;\n}\n\n/* Send / Superchat sit inside the message box, on the right. */\n.composer__actions {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 10px 14px 10px 0;\n}\n\n.composer__btn {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  border: none;\n  border-radius: 999px;\n  padding: 6px 16px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 17px;\n  font-weight: 500;\n  line-height: 1.3;\n  white-space: nowrap;\n  transition: filter 0.15s ease;\n}\n\n.composer__btn:hover:not(:disabled) {\n  filter: brightness(1.15);\n}\n\n.composer__btn:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n/* Muted grey pills until there's text to send. */\n.composer__btn:disabled {\n  background: var(--color-border);\n  opacity: 1;\n}\n\n.composer__btn-icon {\n  width: 18px;\n  height: 18px;\n}\n\n/* Narrow widget: the buttons drop below the text, still right-aligned. */\n@container composer (max-width: 560px) {\n  .composer__field {\n    flex-wrap: wrap;\n  }\n\n  .composer__actions {\n    width: 100%;\n    justify-content: flex-end;\n    padding: 0 12px 10px;\n  }\n\n  .composer__btn {\n    font-size: 15px;\n    padding: 6px 14px;\n  }\n}\n/* Sits under the message box, lined up with it (avatar 40px + 14px gap). */\n.enhance-ai {\n  display: flex;\n  align-items: center;\n  flex-wrap: wrap;\n  gap: 8px 16px;\n  width: 100%;\n  padding-left: 54px;\n}\n\n.enhance-ai__button {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n  padding: 4px 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 16px;\n  font-weight: 400;\n  white-space: nowrap;\n}\n\n.enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-navy);\n}\n\n.enhance-ai__button:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n  border-radius: 4px;\n}\n\n.enhance-ai__button:disabled {\n  cursor: default;\n}\n\n/* sparkle.svg carries the \"AI\" lettering; its bottom edge sits on the text baseline. */\n.enhance-ai__icon {\n  height: 22px;\n  width: auto;\n}\n\n/* Status pill: loading, suggestion, error or upgrade note. */\n.enhance-ai__pill {\n  flex: 1 1 260px;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  min-height: 36px;\n  padding: 6px 6px 6px 20px;\n  border-radius: 40px;\n  font-size: 15px;\n  line-height: 1.35;\n  animation: enhance-ai-in 0.15s ease;\n}\n\n.enhance-ai__pill--loading {\n  background: var(--color-surface-muted);\n  color: var(--color-text-faded);\n  font-weight: 400;\n}\n\n.enhance-ai__pill--info {\n  background: var(--color-enhance-bg);\n  color: var(--color-text);\n}\n\n.enhance-ai__text {\n  flex: 1;\n  min-width: 0;\n  word-wrap: break-word;\n}\n\n/* The suggestion and its \"Use This\" link (which inherits the font). */\n.enhance-ai__text--suggestion {\n  font-weight: 500;\n}\n\n/* Non-members' upgrade note: red text on a pale red pill. */\n.enhance-ai__pill--upsell {\n  background: var(--color-warning-bg);\n}\n\n.enhance-ai__text--upsell {\n  font-weight: 600;\n  color: var(--color-moderation);\n}\n\n/* \"Upgrade Now\": a link, styled like \"Use This\". */\n.enhance-ai__link {\n  margin-left: 8px;\n  color: var(--color-navy);\n  text-decoration: underline;\n  text-underline-offset: 2px;\n  white-space: nowrap;\n}\n\n.enhance-ai__use {\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font: inherit;\n  text-decoration: underline;\n  text-underline-offset: 2px;\n  white-space: nowrap;\n}\n\n.enhance-ai__close {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: var(--color-white);\n  box-shadow: 0 1px 4px var(--color-shadow-black-15);\n}\n\n/* close.svg is already the red cross. */\n.enhance-ai__close img {\n  width: 8px;\n  height: 8px;\n}\n\n.enhance-ai__use:focus-visible,\n.enhance-ai__link:focus-visible,\n.enhance-ai__close:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n@keyframes enhance-ai-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .enhance-ai__pill {\n    animation: none;\n  }\n}\n\n/* Portalled to the widget root (outside the chat panel), so it sets its own font and colour. */\n.mod-dialog__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n  animation: mod-dialog-fade 0.15s ease;\n}\n\n.mod-dialog {\n  width: 100%;\n  max-width: 560px;\n  max-height: 100%;\n  overflow-y: auto;\n  display: flex;\n  flex-direction: column;\n  gap: 14px;\n  padding: 14px;\n  border-radius: 16px;\n  background: var(--color-white);\n  color: var(--color-text);\n  box-shadow: 0 12px 32px var(--color-shadow-18);\n}\n\n.mod-dialog__card {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  padding: 16px 14px 16px 14px;\n  border: 1px solid var(--color-border);\n  border-radius: 8px;\n}\n\n.mod-dialog__heading {\n  display: flex;\n  align-items: center;\n  flex-wrap: wrap;\n  gap: 8px 10px;\n}\n\n.mod-dialog__title {\n  font-size: 17px;\n  font-weight: 400;\n  line-height: 1.2;\n}\n\n/*\n * sparkle.svg carries the \"AI\" lettering itself (38×27 artwork, letters at the\n * bottom, sparkles above). Baseline alignment puts an image's bottom edge on the\n * text baseline, so the letters line up with \"Suggested ...\".\n */\n.mod-dialog__title--ai {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n}\n\n.mod-dialog__ai {\n  flex-shrink: 0;\n  height: 20px;\n  width: auto;\n}\n\n.mod-dialog__pill {\n  padding: 3px 12px;\n  border-radius: 100px;\n  color: var(--color-white);\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.mod-dialog__pill--warning {\n  background: var(--color-moderation);\n}\n\n.mod-dialog__pill--recommended {\n  background: var(--color-recommended);\n}\n\n.mod-dialog__row {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.mod-dialog__message {\n  flex: 1;\n  min-width: 0;\n  font-size: 13px;\n  line-height: 1.45;\n  word-wrap: break-word;\n}\n\n/* Navy pill shared by \"Send\" and \"Use This\"; matches the composer's Send button. */\n.mod-dialog__action {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  height: 40px;\n  padding: 0 18px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 15px;\n  font-weight: 500;\n  white-space: nowrap;\n  transition: filter 0.15s ease;\n}\n\n.mod-dialog__action:hover:not(:disabled) {\n  filter: brightness(1.15);\n}\n\n.mod-dialog__action:disabled {\n  opacity: 0.5;\n  cursor: not-allowed;\n}\n\n.mod-dialog__action-icon {\n  width: 16px;\n  height: 14px;\n}\n\n.mod-dialog__loading {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n}\n\n.mod-dialog__loading .skeleton--line {\n  margin: 0;\n}\n\n.mod-dialog__visually-hidden {\n  position: absolute;\n  width: 1px;\n  height: 1px;\n  overflow: hidden;\n  clip-path: inset(50%);\n  white-space: nowrap;\n}\n\n/* Non-members: the suggestion is visible as a shape only. */\n.mod-dialog__row--locked {\n  padding: 10px 12px;\n  border: 1px dashed var(--color-text);\n  border-radius: 6px;\n  background: var(--color-blue-soft);\n  user-select: none;\n}\n\n.mod-dialog__row--locked > * {\n  filter: blur(4px);\n}\n\n.mod-dialog__row--locked .mod-dialog__action:disabled {\n  opacity: 0.6;\n}\n\n.mod-dialog__upsell {\n  font-size: 14px;\n  font-weight: 600;\n  color: var(--color-moderation);\n}\n\n.mod-dialog__footer {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.mod-dialog__cancel {\n  height: 40px;\n  padding: 0 18px;\n  border: 1px solid var(--color-btn-light-border);\n  border-radius: 100px;\n  background: linear-gradient(180deg, var(--color-btn-light-from) 0%, var(--color-btn-light-to) 100%);\n  color: var(--color-text);\n  font-size: 15px;\n  font-weight: 400;\n  transition: filter 0.15s ease;\n}\n\n.mod-dialog__cancel:hover {\n  filter: brightness(0.97);\n}\n\n.mod-dialog__action:focus-visible,\n.mod-dialog__cancel:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n@media (max-width: 480px) {\n  .mod-dialog__row:not(.mod-dialog__row--locked) {\n    flex-direction: column;\n    align-items: stretch;\n  }\n\n  .mod-dialog__action {\n    justify-content: center;\n  }\n}\n\n@keyframes mod-dialog-fade {\n  from {\n    opacity: 0;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .mod-dialog__backdrop {\n    animation: none;\n  }\n}\n\n/* Bottom sheet that slides up over the chat list, like YouTube's Super Chat panel. */\n.sc-sheet {\n  position: absolute;\n  inset: 0;\n  z-index: 30;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n}\n\n.sc-sheet__scrim {\n  position: absolute;\n  inset: 0;\n}\n\n.sc-sheet__panel {\n  position: relative;\n  max-height: 100%;\n  overflow-y: auto;\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  padding: 10px 16px 14px;\n  background: var(--color-white);\n  color: var(--color-text);\n  border-top: 1px solid var(--color-border);\n  border-radius: 12px 12px 0 0;\n  box-shadow:\n    0 -2px 6px var(--color-shadow-12),\n    0 -12px 40px var(--color-shadow-25);\n  animation: sc-sheet-slide 0.25s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.sc-sheet__header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n\n.sc-sheet__close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  padding: 0;\n  border: none;\n  border-radius: 999px;\n  background: none;\n}\n\n.sc-sheet__close:hover:not(:disabled) {\n  background: var(--color-blue-soft);\n}\n\n/* close.svg is red; render it as a quiet dark glyph here. */\n.sc-sheet__close img {\n  width: 12px;\n  height: 12px;\n  filter: brightness(0);\n  opacity: 0.55;\n}\n\n.sc-sheet__title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-sheet__amount {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  width: 100%;\n  max-width: 480px;\n  margin-inline: auto;\n}\n\n.sc-sheet__amount-note {\n  font-size: 12px;\n  line-height: 1.3;\n  color: var(--color-text-subtle);\n}\n\n/* ---------- Amount slider ---------- */\n\n.sc-sheet__slider {\n  --sc-thumb: 14px;\n  --sc-track: 3px;\n  --sc-track-bg: linear-gradient(\n    to right,\n    var(--sc-tier-accent) calc(var(--sc-fill) * 100%),\n    var(--color-border) calc(var(--sc-fill) * 100%)\n  );\n\n  position: relative;\n  width: 100%;\n  height: var(--sc-thumb);\n}\n\n.sc-sheet__range {\n  display: block;\n  width: 100%;\n  height: var(--sc-thumb);\n  margin: 0;\n  background: transparent;\n  cursor: pointer;\n  appearance: none;\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range:focus {\n  outline: none;\n}\n\n.sc-sheet__range::-webkit-slider-runnable-track {\n  height: var(--sc-track);\n  border-radius: 999px;\n  background: var(--sc-track-bg);\n}\n\n.sc-sheet__range::-moz-range-track {\n  height: var(--sc-track);\n  border-radius: 999px;\n  background: var(--sc-track-bg);\n}\n\n.sc-sheet__range::-webkit-slider-thumb {\n  position: relative;\n  z-index: 1;\n  width: var(--sc-thumb);\n  height: var(--sc-thumb);\n  margin-top: calc((var(--sc-track) - var(--sc-thumb)) / 2);\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-accent);\n  box-shadow: 0 1px 3px var(--color-shadow-25);\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range::-moz-range-thumb {\n  width: var(--sc-thumb);\n  height: var(--sc-thumb);\n  box-sizing: border-box;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-accent);\n  box-shadow: 0 1px 3px var(--color-shadow-25);\n}\n\n.sc-sheet__range:focus-visible::-webkit-slider-thumb {\n  box-shadow: 0 0 0 4px var(--color-blue-soft);\n}\n\n.sc-sheet__range:focus-visible::-moz-range-thumb {\n  box-shadow: 0 0 0 4px var(--color-blue-soft);\n}\n\n/*\n * Step dots, placed where the thumb's centre lands for each stop: the thumb\n * travels from half a thumb in from the left to half a thumb in from the right.\n */\n.sc-sheet__ticks {\n  position: absolute;\n  inset: 0;\n  pointer-events: none;\n}\n\n.sc-sheet__tick {\n  position: absolute;\n  top: 50%;\n  left: calc(var(--sc-thumb) / 2 + (100% - var(--sc-thumb)) * var(--sc-tick));\n  width: 3px;\n  height: 3px;\n  border-radius: 50%;\n  background: var(--color-text);\n  opacity: 0.3;\n  transform: translate(-50%, -50%);\n}\n\n.sc-sheet__tick--on {\n  background: var(--color-white);\n  opacity: 0.9;\n}\n\n.sc-sheet__tick--current {\n  visibility: hidden;\n}\n\n/* ---------- Footer ---------- */\n\n.sc-sheet__footer {\n  display: flex;\n  justify-content: center;\n}\n\n/* Same pill as the composer's buttons. */\n.sc-sheet__send {\n  border: none;\n  border-radius: 999px;\n  padding: 8px 22px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 14px;\n  font-weight: 600;\n  transition: filter 0.15s ease;\n}\n\n.sc-sheet__send:hover:not(:disabled) {\n  filter: brightness(1.15);\n}\n\n.sc-sheet__send:disabled {\n  background: var(--color-border);\n  opacity: 1;\n}\n\n@keyframes sc-sheet-slide {\n  from {\n    transform: translateY(100%);\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .sc-sheet__panel {\n    animation: none;\n  }\n}\n\n/* Portalled to the widget root (outside the chat panel), so it sets its own font and colour. */\n.sc-confirm__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n  animation: sc-confirm-fade 0.15s ease;\n}\n\n/* Holds the panel plus the × that floats above its top-right corner. */\n.sc-confirm__frame {\n  position: relative;\n  width: 100%;\n  max-width: 678px;\n  max-height: calc(100% - 56px);\n  margin-top: 56px;\n  display: flex;\n}\n\n.sc-confirm {\n  --sc-confirm-card-pad-x: 28px;\n\n  flex: 1;\n  min-width: 0;\n  max-height: 100%;\n  overflow-y: auto;\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  padding: 28px 34px 30px;\n  border-radius: 15px;\n  background: linear-gradient(\n    180deg,\n    var(--color-confirm-gradient-start) 10%,\n    var(--color-confirm-gradient-end) 40%\n  );\n  color: var(--color-white);\n  box-shadow: 0 0 7px 0 var(--color-shadow-black-10);\n}\n\n/* Round white button with the red ×, just above the panel's top-right corner. */\n.sc-confirm__close {\n  position: absolute;\n  top: -48px;\n  right: 0;\n  z-index: 1;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 36px;\n  height: 36px;\n  padding: 0;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-danger);\n  box-shadow: 0 4px 12px var(--color-shadow-25);\n}\n\n.sc-confirm__close:hover:not(:disabled) {\n  filter: brightness(0.96);\n}\n\n.sc-confirm__close:focus-visible {\n  outline: 2px solid var(--color-white);\n  outline-offset: 2px;\n}\n\n.sc-confirm__close svg {\n  width: 18px;\n  height: 18px;\n}\n\n.sc-confirm__title {\n  font-size: 22px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n/* ---------- Comment card ---------- */\n\n.sc-confirm__card {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 4px;\n  padding: 18px var(--sc-confirm-card-pad-x) 20px;\n  border-radius: 14px;\n  color: var(--color-text);\n}\n\n.sc-confirm__card--comments {\n  background: var(--color-enhance-bg);\n}\n\n/* Members: the comment card takes their membership's colour. */\n.sc-confirm__card--supporter {\n  background: var(--color-tier-avatar-supporter-bg);\n}\n\n.sc-confirm__card--defender {\n  background: var(--color-tier-avatar-defender-bg);\n}\n\n.sc-confirm__card--champion {\n  background: var(--color-tier-avatar-champion-bg);\n}\n\n/* Membership badge flush against the card's left edge, as on Superchat cards. */\n.sc-confirm__badge.name-badge {\n  margin: 0 0 10px calc(-1 * var(--sc-confirm-card-pad-x));\n  padding-left: calc(var(--sc-confirm-card-pad-x) - 4px);\n  border-radius: 0 100px 100px 0;\n}\n\n.sc-confirm__label {\n  margin-bottom: 6px;\n  font-size: 15px;\n  line-height: 1.3;\n}\n\n/* Balance on the left, what this Superchat takes from it on the right. */\n.sc-confirm__row {\n  display: flex;\n  align-items: baseline;\n  gap: 12px 20px;\n  width: 100%;\n}\n\n.sc-confirm__value {\n  font-size: 18px;\n  font-weight: 700;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.sc-confirm__card .sc-confirm__value + .sc-confirm__value,\n.sc-confirm__cost {\n  margin-left: auto;\n}\n\n.sc-confirm__note {\n  color: var(--color-text-subtle);\n  font-size: 13px;\n  line-height: 1.3;\n}\n\n.sc-confirm__link {\n  margin-top: 14px;\n  color: var(--color-navy);\n  font-size: 15px;\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__link:hover {\n  text-decoration-thickness: 2px;\n}\n\n/* ---------- Coin balance, straight on the panel ---------- */\n\n.sc-confirm__coins {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  min-width: 0;\n}\n\n.sc-confirm__coins .sc-confirm__label {\n  margin-bottom: 4px;\n}\n\n.sc-confirm__coins .sc-confirm__row {\n  flex-wrap: wrap;\n}\n\n.sc-confirm__link--light {\n  margin-top: 0;\n  color: var(--color-white);\n  font-size: 15px;\n  font-weight: 400;\n}\n\n/* ---------- Non-members: comment card locked behind an upsell ---------- */\n\n.sc-confirm__card--locked {\n  position: relative;\n  background: var(--color-confirm-locked-bg);\n  min-height: 170px;\n  border: 1px dashed var(--color-text);\n  overflow: hidden;\n}\n\n/* Lays out exactly like the member card, then blurs. */\n.sc-confirm__locked-preview {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  width: 100%;\n  gap: 4px;\n  filter: blur(4px);\n  opacity: 0.6;\n  user-select: none;\n}\n\n.sc-confirm__locked-overlay {\n  position: absolute;\n  inset: 0;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  justify-content: center;\n  gap: 8px;\n  padding: 16px;\n  text-align: center;\n}\n\n.sc-confirm__lock {\n  width: 28px;\n  height: auto;\n}\n\n.sc-confirm__locked-title {\n  font-size: 18px;\n  font-weight: 600;\n  line-height: 1.25;\n}\n\n.sc-confirm__error {\n  padding: 6px 14px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  color: var(--color-text);\n  font-size: 12px;\n  line-height: 1.35;\n  text-align: center;\n}\n\n/* ---------- Buttons ---------- */\n\n.sc-confirm__actions {\n  display: flex;\n  align-items: flex-end;\n  justify-content: flex-end;\n  flex-wrap: wrap;\n  gap: 12px;\n}\n\n/* No coins spent: the coin balance takes the row's left end, beside Send. */\n.sc-confirm__actions .sc-confirm__coins {\n  margin-right: auto;\n}\n\n.sc-confirm__submit,\n.sc-confirm__outline-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 8px 26px;\n  border: 1px solid var(--color-navy);\n  border-radius: 999px;\n  font-size: 18px;\n  font-weight: 500;\n  line-height: 1.3;\n  text-decoration: none;\n  white-space: nowrap;\n  transition: filter 0.15s ease, background-color 0.15s ease;\n}\n\n/* White pill on the gradient, navy text and icon. */\n.sc-confirm__submit {\n  gap: 10px;\n  border-color: var(--color-white);\n  background: var(--color-white);\n  color: var(--color-navy);\n}\n\n.sc-confirm__submit-icon {\n  width: 21px;\n  height: 18px;\n}\n\n/*\n * Disabled (not enough coins): the global rule fades disabled buttons, which\n * would let the gradient show through. Stay solid white; fade only the label.\n */\n.sc-confirm__submit:disabled {\n  opacity: 1;\n  color: color-mix(in srgb, var(--color-navy) 40%, var(--color-white));\n}\n\n.sc-confirm__submit:hover:not(:disabled) {\n  background: var(--color-blue-soft);\n}\n\n/* Inside the light comment card (the \"Become a Member\" upsell). */\n.sc-confirm__outline-btn {\n  background: var(--color-white);\n  color: var(--color-navy);\n}\n\n.sc-confirm__outline-btn:hover:not(:disabled) {\n  background: var(--color-blue-soft);\n}\n\n/* \"Send Normal\" sits on the gradient: a white outline. */\n.sc-confirm__actions .sc-confirm__outline-btn {\n  border-color: var(--color-white);\n  background: transparent;\n  color: var(--color-white);\n}\n\n.sc-confirm__actions .sc-confirm__outline-btn:hover:not(:disabled) {\n  background: var(--color-white-overlay);\n}\n\n.sc-confirm__outline-btn:disabled {\n  opacity: 0.6;\n}\n\n.sc-confirm__submit:focus-visible,\n.sc-confirm__actions .sc-confirm__outline-btn:focus-visible,\n.sc-confirm__link--light:focus-visible {\n  outline: 2px solid var(--color-white);\n  outline-offset: 2px;\n}\n\n.sc-confirm__card .sc-confirm__outline-btn:focus-visible,\n.sc-confirm__card .sc-confirm__link:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n@media (max-width: 420px) {\n  .sc-confirm {\n    --sc-confirm-card-pad-x: 18px;\n\n    padding: 22px 18px 20px;\n  }\n\n  .sc-confirm__actions > .sc-confirm__submit,\n  .sc-confirm__actions > .sc-confirm__outline-btn {\n    flex: 1;\n  }\n}\n\n@keyframes sc-confirm-fade {\n  from {\n    opacity: 0;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .sc-confirm__backdrop {\n    animation: none;\n  }\n}\n\n.live-feed {\n  display: flex;\n  align-items: center;\n  justify-content: flex-end;\n  gap: 8px;\n  margin-top: 8px;\n  font-size: 13px;\n  color: var(--color-text);\n}\n\n.live-feed__select {\n  border: 1px solid var(--color-border);\n  border-radius: 6px;\n  background: var(--color-white);\n  padding: 4px 8px;\n  font: inherit;\n  color: var(--color-text);\n  cursor: pointer;\n}\n";
+	}));
 	//#endregion
-	//#region src/widget/registry.ts
-	var mounts = [];
-	var nextId = 0;
-	var listeners = /* @__PURE__ */ new Set();
-	var notify = () => listeners.forEach((listener) => listener());
-	var addMount = (node, Component) => {
-		mounts = [...mounts, {
-			id: nextId++,
-			node,
-			Component
-		}];
-		notify();
-	};
-	var removeMount = (node) => {
-		mounts = mounts.filter((mount) => mount.node !== node);
-		notify();
-	};
-	var subscribeToMounts = (listener) => {
-		listeners.add(listener);
-		return () => {
-			listeners.delete(listener);
-		};
-	};
-	var getMounts = () => mounts;
+	//#region src/styles/index.css?inline
+	var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
+	var import_client = require_client();
+	var styles_default = "* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n:host {\n  --color-text: #000f55;\n  --color-text-placeholder: #A4A4A4;\n  --color-text-faded: #000F5580;\n  --color-enhance-bg: #E5F6FF;\n  --color-enhance-loading-dark-bg: #1938a6;\n  --color-navy: #004be3;\n  --color-border: #D4D7E3;\n  --color-white: #ffffff;\n  --color-text-subtle: #898989;\n  --color-message-meta: #909090;\n  --color-superchat-meta: #b1b1b1;\n  --color-blue: #2f6fed;\n  --color-light-grey: #EBEBEB;\n  --color-tab-border: #CBCBCB;\n  --color-coins: #22AB00;\n  --color-menu-border: #ACACAC;\n  --color-menu-shadow: #00000040;\n  --color-go-to-top-shadow: #101a3d14;\n  --color-soft-shadow: #101a3d1f;\n  --color-tier-friend-bg: #000e55;\n  --color-tier-supporter-bg: #fcebdf;\n  --color-tier-defender-bg: #ededed;\n  --color-tier-champion-bg: #fff1d0;\n  --color-avatar-1: #e07a5f;\n  --color-avatar-2: #3d7068;\n  --color-avatar-3: #4f6d9a;\n  --color-avatar-4: #8a5a44;\n  --color-avatar-5: #6b5ca5;\n  --color-avatar-6: #2f8f7a;\n  --color-avatar-7: #c9752f;\n  --color-avatar-8: #4a90c4;\n  --color-skeleton-shine: #f7f9fd;\n  --color-superchat-1: #031762;\n  --color-superchat-2: #0a2a8f;\n  --color-superchat-3: #0f3dbd;\n  --color-superchat-4: #014be3;\n  --color-gradient-blue: #2043bd;\n  --color-gradient-navy: #00135a;\n  --color-scrollbar-thumb: #CCCCCC;\n  --color-scrollbar-track-dark: #ffffff4d;\n  --color-info-pill-bg: #ffffff1a;\n  --color-info-pill-shadow: #00000012;\n  --color-yellow: #ffd86b;\n  --color-scrim: #00000033;\n  --color-sheet-shadow: #101a3d40;\n  --color-confirm-close: #eb0000;\n  --color-dialog-shadow: #101a3d2e;\n  --color-red: #d70000;\n  --color-warning-bg: #fff0f0;\n  --color-recommended: #39933C;\n  --color-locked-suggestion-bg: #E5F6FF80;\n  --color-cancel-btn-from: #f0f7fd;\n  --color-cancel-btn-border: #d8e1f0;\n  --color-rank-supporter-from: #f6ba92;\n  --color-rank-supporter-to: #c38154;\n  --color-rank-defender-from: #c2c2c2;\n  --color-rank-defender-to: #818181;\n  --color-rank-champion-from: #ffc241;\n  --color-rank-champion-to: #e99300;\n  --color-shadow: #0000001a;\n  --color-reaction-picker-border: #9B9B9B;\n  --color-reaction-label-bg: #000F55CC;\n  --color-cancel-reply-shadow: #00000026;\n\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  font-family: \"Noto Sans\", sans-serif;\n  color: var(--color-text);\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n:host > div {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\nbutton,\ntextarea {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\nbutton:disabled {\n  cursor: not-allowed;\n}\n\n.skeleton {\n  border-radius: 6px;\n  background: linear-gradient(\n    90deg,\n    var(--color-border) 25%,\n    var(--color-skeleton-shine) 37%,\n    var(--color-border) 63%\n  );\n  background-size: 400% 100%;\n  animation: skeleton-shimmer 1.4s ease infinite;\n}\n\n@keyframes skeleton-shimmer {\n  0% {\n    background-position: 100% 50%;\n  }\n\n  100% {\n    background-position: 0 50%;\n  }\n}\n\n.user-avatar {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 40px;\n  height: 40px;\n  overflow: hidden;\n  border-radius: 50%;\n}\n\n.user-avatar--initials {\n  color: var(--color-white);\n  font-weight: 700;\n}\n\n.user-avatar--tier-1 {\n  background: var(--color-tier-friend-bg);\n}\n\n.user-avatar--tier-2 {\n  background: var(--color-tier-supporter-bg);\n}\n\n.user-avatar--tier-3 {\n  background: var(--color-tier-defender-bg);\n}\n\n.user-avatar--tier-4 {\n  background: var(--color-tier-champion-bg);\n}\n\n.user-avatar__badge {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  background-position: center;\n  background-repeat: no-repeat;\n  background-size: cover;\n}\n\n.user-avatar__initials {\n  color: var(--color-white);\n  font-weight: 600;\n  line-height: normal;\n}\n\n:host(gbn-comments) {\n  height: min(70vh, 560px);\n}\n\n.comments {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  overflow: hidden;\n  border: 1px solid var(--color-light-grey);\n  border-bottom: none;\n  background: var(--color-white);\n}\n\n.chat-tabs {\n  flex-shrink: 0;\n  display: flex;\n}\n\n.chat-tabs__tab {\n  display: flex;\n  flex: 1 1 0;\n  align-items: center;\n  justify-content: center;\n  min-width: 0;\n  height: 50px;\n  padding: 0 8px;\n  border: 0.5px solid var(--color-tab-border);\n  background: var(--color-light-grey);\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.2;\n  text-align: center;\n  transition: background 0.15s ease, border-color 0.15s ease;\n}\n\n.chat-tabs__tab--active {\n  border: 1px solid var(--color-light-grey);\n  border-bottom: 3px solid var(--color-navy);\n  background: var(--color-white);\n}\n\n.chat-tabs__tab--yoursay.chat-tabs__tab--active {\n  border-color: var(--color-gradient-navy);\n  border-bottom-color: var(--color-red);\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.comment-list {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\n.comment-list__scroller {\n  flex: 1;\n  min-height: 0;\n}\n\n/* Inset, rounded track. Chrome and Safari only; Firefox falls back to a thin native bar. */\n.comment-list__scroller::-webkit-scrollbar {\n  width: 13px;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track,\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-track {\n  background-color: var(--color-scrollbar-track-dark);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-white);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .comment-list__scroller {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n\n  .comment-list--yoursay .comment-list__scroller {\n    scrollbar-color: var(--color-white) var(--color-scrollbar-track-dark);\n  }\n}\n\n.comment-list__item {\n  padding: 0 0 4px;\n}\n\n.comment-list--yoursay {\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n}\n\n.comment-list--yoursay .comment-list__item {\n  padding: 0;\n}\n\n.comment-list .message-item--super {\n  margin: 0 8px;\n  padding-inline: 8px;\n}\n\n.comment-list .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list--yoursay .message-item--super {\n  margin: 0;\n  padding-inline: 16px;\n  border-radius: 0;\n}\n\n.comment-list--yoursay .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list__spacer {\n  height: 10px;\n}\n\n.comment-list__loading {\n  padding: 4px 12px 10px;\n  font-size: 13px;\n  text-align: center;\n}\n\n.comment-list__empty {\n  margin: auto 0;\n  padding: 24px 12px;\n  font-size: 13px;\n  text-align: center;\n}\n\n.go-to-top {\n  position: absolute;\n  right: 16px;\n  bottom: 16px;\n  z-index: 20;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 4px;\n  border: none;\n  background: none;\n}\n\n.go-to-top__badge {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-blue);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 700;\n  white-space: nowrap;\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n  animation: go-to-top-badge-pop 0.25s ease-out;\n}\n\n@keyframes go-to-top-badge-pop {\n  from {\n    transform: scale(0.6);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n\n.go-to-top__icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 44px;\n  height: 44px;\n  border-radius: 6px;\n  background: var(--color-navy);\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n}\n\n.go-to-top__icon img {\n  width: 16px;\n  height: 16px;\n}\n\n.go-to-top:hover .go-to-top__icon {\n  filter: brightness(1.1);\n}\n\n.go-to-top__label {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--color-white) 85%, transparent);\n  backdrop-filter: blur(4px);\n  box-shadow: 0 2px 8px var(--color-soft-shadow);\n  color: var(--color-blue);\n  font-size: 12px;\n  font-weight: 600;\n  letter-spacing: 0.04em;\n  text-transform: uppercase;\n  white-space: nowrap;\n}\n\n.comment-list__skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  padding: 20px 28px;\n}\n\n.message-skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}\n\n.message-skeleton__name {\n  width: 140px;\n  height: 16px;\n}\n\n.message-skeleton__line {\n  width: 100%;\n  height: 14px;\n}\n\n.message-skeleton__line--short {\n  width: 60%;\n}\n\n.message-item {\n  padding: 10px 16px;\n}\n\n.message-item--super {\n  padding: 10px 15px;\n  border-radius: 10px;\n  color: var(--color-white);\n}\n\n.message-item--super .message-item__time,\n.message-item--super .message-item__action,\n.message-item--super .reaction-chip {\n  color: var(--color-superchat-meta);\n}\n\n.message-item__header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n}\n\n.name-plain {\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.name-badge {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  height: 22px;\n  padding: 0 10px 0 11px;\n  border-radius: 0 100px 100px 0;\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n}\n\n.message-item .name-badge {\n  margin-left: -11px;\n}\n\n.message-item--super .name-badge {\n  margin-left: -15px;\n}\n\n.name-badge__icon {\n  width: 12px;\n  height: 12px;\n}\n\n.name-badge--supporter {\n  background: linear-gradient(180deg, var(--color-rank-supporter-from), var(--color-rank-supporter-to));\n}\n\n.name-badge--defender {\n  background: linear-gradient(180deg, var(--color-rank-defender-from), var(--color-rank-defender-to));\n}\n\n.name-badge--champion {\n  background: linear-gradient(180deg, var(--color-rank-champion-from), var(--color-rank-champion-to));\n}\n\n.message-item__time {\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__review-tag {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-tier-champion-bg);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.message-item__text {\n  margin-top: 4px;\n  font-size: 15px;\n  font-weight: 400;\n  line-height: 18px;\n  overflow-wrap: break-word;\n}\n\n.message-editor {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 4px;\n}\n\n.message-editor__input {\n  width: 100%;\n  min-height: 24px;\n  max-height: 140px;\n  padding: 8px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 10px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-editor__input:focus {\n  outline: none;\n  border-color: var(--color-navy);\n}\n\n.message-editor__error {\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.message-editor__actions {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n\n.message-editor__btn {\n  padding: 4px 14px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.message-editor__btn:disabled {\n  background: var(--color-light-grey);\n  color: var(--color-text-subtle);\n}\n\n.message-editor__btn--cancel {\n  border: 1px solid var(--color-border);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.message-text__mention {\n  margin-right: 4px;\n  font-weight: 500;\n}\n\n.message-item__footer {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 10px;\n  margin-top: 6px;\n}\n\n.message-item__action {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__reply-icon,\n.message-item__react-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-item__like-icon {\n  width: 11px;\n  height: 11px;\n}\n\n.message-reactions {\n  display: inline-flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 10px;\n}\n\n.message-reactions__react {\n  position: relative;\n  display: inline-flex;\n}\n\n.reaction-chip {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.reaction-chip--mine {\n  color: var(--color-navy);\n  font-weight: 600;\n}\n\n.reaction-chip__icon {\n  flex-shrink: 0;\n  width: 14px;\n  height: 14px;\n}\n\n.reaction-picker {\n  position: absolute;\n  left: -6px;\n  bottom: calc(100% + 6px);\n  z-index: 22;\n  display: flex;\n  gap: 4px;\n  padding: 4px 6px;\n  border: 1px solid var(--color-reaction-picker-border);\n  border-radius: 12px;\n  background: var(--color-white);\n  box-shadow: 0 6px 20px var(--color-soft-shadow);\n  animation: reaction-picker-in 0.16s ease-out;\n}\n\n.reaction-picker--down {\n  top: calc(100% + 6px);\n  bottom: auto;\n}\n\n.reaction-picker__option {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 26px;\n  height: 26px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n  transition: transform 0.15s cubic-bezier(0.3, 1.6, 0.6, 1);\n}\n\n.reaction-picker__icon {\n  display: block;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n}\n\n.reaction-picker__option:hover,\n.reaction-picker__option:focus-visible {\n  transform: translateY(-4px) scale(1.2);\n  outline: none;\n}\n\n.reaction-picker__option--selected .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-navy);\n}\n\n.reaction-picker__option:focus-visible .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-blue);\n}\n\n.reaction-picker__label {\n  position: absolute;\n  bottom: calc(100% + 6px);\n  left: 50%;\n  padding: 3px 7px;\n  border-radius: 999px;\n  background: var(--color-reaction-label-bg);\n  color: var(--color-white);\n  font-size: 10px;\n  font-weight: 600;\n  line-height: 1.2;\n  white-space: nowrap;\n  pointer-events: none;\n  opacity: 0;\n  transform: translate(-50%, 2px) scale(calc(1 / 1.2));\n  transition: opacity 0.12s ease, transform 0.12s ease;\n}\n\n.reaction-picker__option:hover .reaction-picker__label,\n.reaction-picker__option:focus-visible .reaction-picker__label {\n  opacity: 1;\n  transform: translate(-50%, 0) scale(calc(1 / 1.2));\n}\n\n@keyframes reaction-picker-in {\n  from {\n    opacity: 0;\n    transform: translateY(6px) scale(0.96);\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .reaction-picker {\n    animation: none;\n  }\n\n  .reaction-picker__option,\n  .reaction-picker__label {\n    transition: none;\n  }\n}\n\n.message-item__coins {\n  display: inline-flex;\n  align-items: center;\n  height: 22px;\n  margin: 0 -15px 0 auto;\n  padding: 0 11px 0 10px;\n  border-radius: 100px 0 0 100px;\n  background: var(--color-coins);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n  white-space: nowrap;\n}\n\n.replies-button {\n  margin: 0 16px 8px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-thread__replies {\n  margin-left: 16px;\n  border-left: 2px solid var(--color-border);\n}\n\n.message-thread__status {\n  padding: 6px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.message-item__author {\n  padding: 0;\n  border: none;\n  background: none;\n}\n\n.message-actions {\n  position: relative;\n  flex-shrink: 0;\n  margin: -4px -6px -4px auto;\n}\n\n.message-actions__trigger {\n  padding: 4px 6px;\n  border: none;\n  border-radius: 6px;\n  background: none;\n  line-height: 1;\n}\n\n.message-actions__trigger:hover {\n  opacity: 0.7;\n}\n\n.message-actions__icon {\n  display: block;\n  width: 18px;\n  height: 18px;\n}\n\n.message-actions__menu {\n  position: absolute;\n  top: 100%;\n  right: 0;\n  z-index: 21;\n  width: max-content;\n  border: 1px solid var(--color-menu-border);\n  background: var(--color-white);\n  box-shadow: 0 4px 4px var(--color-menu-shadow);\n  color: var(--color-text);\n}\n\n.message-actions__item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: 100%;\n  height: 46px;\n  padding: 0 32px 0 20px;\n  border: none;\n  background: none;\n  font-size: 16px;\n  text-align: left;\n}\n\n.message-actions__item + .message-actions__item {\n  border-top: 1px solid var(--color-menu-border);\n}\n\n.message-actions__item:hover {\n  background: var(--color-light-grey);\n}\n\n.message-actions__item-icon {\n  width: 14px;\n  height: 14px;\n}\n\n.message-actions__item:disabled,\n.message-actions__item[aria-disabled=\"true\"] {\n  color: var(--color-text-subtle);\n  cursor: not-allowed;\n}\n\n.message-actions__item[aria-disabled=\"true\"] .message-actions__item-icon {\n  opacity: 0.5;\n}\n\n.message-actions__item[aria-disabled=\"true\"]:hover {\n  background: none;\n}\n\n.message-actions__feedback {\n  padding: 12px 20px;\n  font-size: 14px;\n  white-space: nowrap;\n}\n\n.message-actions__reasons {\n  max-height: 160px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n/* Same inset, rounded bar as the comment list. */\n.message-actions__reasons::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track,\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-actions__reasons {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box {\n  container: message-box / inline-size;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding: 16px;\n  background: var(--color-white);\n  box-shadow: 0 0 7px 0 var(--color-shadow);\n}\n\n.message-box--yoursay {\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-superchat-1));\n}\n\n.message-box__login {\n  align-self: flex-end;\n  padding: 0;\n  border: none;\n  background: none;\n  font-size: 16px;\n  font-weight: 600;\n}\n\n.message-box__login:hover {\n  color: var(--color-navy);\n}\n\n.message-box__login:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__row {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n}\n\n.message-box__field {\n  position: relative;\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  border: 1px solid var(--color-border);\n  border-radius: 14px;\n  background: var(--color-white);\n}\n\n.message-box__field::before {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: -6px;\n  width: 11px;\n  height: 11px;\n  border-left: 1px solid var(--color-border);\n  border-bottom: 1px solid var(--color-border);\n  border-bottom-left-radius: 3px;\n  background: var(--color-white);\n  transform: translateY(-50%) rotate(45deg);\n}\n\n.message-box__field-content {\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n}\n\n.message-box__reply-banner {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 18px 0;\n  font-size: 13px;\n  font-weight: 600;\n  color: var(--color-blue);\n}\n\n.message-box__cancel-reply {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 3px 12px;\n  border: none;\n  border-radius: 999px;\n  background: none;\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n  color: var(--color-confirm-close);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-box__cancel-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-box__input {\n  flex: 1;\n  min-width: 0;\n  min-height: 24px;\n  max-height: 140px;\n  padding: 10px 18px;\n  border: none;\n  background: transparent;\n  font-size: 16px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-box__input::placeholder {\n  color: var(--color-text-placeholder);\n}\n\n.message-box__input:focus {\n  outline: none;\n}\n\n.message-box__actions {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 10px 14px 10px 0;\n}\n\n.message-box__btn {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 6px 16px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 17px;\n  font-weight: 500;\n  line-height: 1.3;\n  white-space: nowrap;\n  transition: filter 0.15s ease;\n}\n\n.message-box__btn:hover:not(:disabled) {\n  filter: brightness(1.15);\n}\n\n.message-box__btn:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__btn:disabled {\n  background: var(--color-light-grey);\n}\n\n.message-box__btn-icon {\n  width: 18px;\n  height: 18px;\n}\n\n.message-box__field-skeleton {\n  flex: 1;\n  height: 67px;\n  border-radius: 14px;\n}\n\n.message-box__warning {\n  align-self: flex-start;\n  margin-left: 54px;\n  padding: 8px 18px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  font-size: 12px;\n  line-height: 1.35;\n}\n\n@container message-box (max-width: 560px) {\n  .message-box__row {\n    gap: 10px;\n  }\n\n  .message-box__field {\n    flex-wrap: wrap;\n  }\n\n  .message-box__field-content {\n    flex-basis: 100%;\n  }\n\n  .message-box__actions {\n    flex-wrap: wrap;\n    width: 100%;\n    gap: 8px;\n    padding: 8px 10px 10px;\n  }\n\n  .message-box__btn {\n    flex: 1 1 0;\n    justify-content: center;\n    gap: 6px;\n    padding: 7px 8px;\n    font-size: 14px;\n  }\n\n  .message-box__btn-icon {\n    width: 15px;\n    height: 15px;\n  }\n\n  .message-box__input {\n    padding: 10px 14px;\n    font-size: 15px;\n  }\n}\n\n.message-box__avatar-btn {\n  flex-shrink: 0;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n}\n\n.message-box__input-row {\n  display: flex;\n  align-items: flex-start;\n}\n\n.message-box__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 10px 0 10px 18px;\n  font-size: 16px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.message-box__mention + .message-box__input {\n  padding-left: 6px;\n}\n\n.message-box--yoursay .message-box__login {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .message-box__login:hover {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .message-box__login:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.enhance-ai {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 16px;\n  width: 100%;\n  padding-left: 54px;\n}\n\n.enhance-ai__button {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n  padding: 4px 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 16px;\n  white-space: nowrap;\n}\n\n.enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-navy);\n}\n\n.enhance-ai__button:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n  border-radius: 4px;\n}\n\n.enhance-ai__button:disabled {\n  cursor: not-allowed;\n}\n\n.enhance-ai__icon {\n  height: 22px;\n}\n\n.enhance-ai__pill {\n  flex: 1 1 260px;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  min-height: 36px;\n  padding: 6px 6px 6px 20px;\n  border-radius: 40px;\n  font-size: 15px;\n  line-height: 1.35;\n  animation: enhance-ai-in 0.15s ease;\n}\n\n.enhance-ai__pill--loading {\n  background: var(--color-light-grey);\n  color: var(--color-text-faded);\n}\n\n.enhance-ai__pill--info {\n  background: var(--color-enhance-bg);\n  color: var(--color-text);\n}\n\n.enhance-ai__pill--upsell {\n  padding-right: 20px;\n  background: var(--color-red);\n  color: var(--color-white);\n}\n\n.enhance-ai__text {\n  flex: 1;\n  min-width: 0;\n  overflow-wrap: break-word;\n}\n\n.enhance-ai__text--suggestion {\n  font-weight: 500;\n}\n\n.enhance-ai__use {\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font: inherit;\n  text-decoration: underline;\n  text-underline-offset: 2px;\n  white-space: nowrap;\n}\n\n.enhance-ai__close {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: var(--color-white);\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n}\n\n.enhance-ai__close img {\n  width: 8px;\n  height: 8px;\n}\n\n.enhance-ai__use:focus-visible,\n.enhance-ai__close:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box--yoursay .enhance-ai__button {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .enhance-ai__button:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__pill--loading {\n  background: var(--color-enhance-loading-dark-bg);\n  color: var(--color-superchat-meta);\n}\n\n@keyframes enhance-ai-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .enhance-ai__pill {\n    animation: none;\n  }\n}\n\n.sc-sheet {\n  position: absolute;\n  inset: 0;\n  z-index: 30;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n}\n\n.sc-sheet__panel {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  max-height: 100%;\n  padding: 10px 16px 14px;\n  overflow-y: auto;\n  border-top: 1px solid var(--color-border);\n  border-radius: 12px 12px 0 0;\n  background: var(--color-white);\n  box-shadow: 0 -12px 40px var(--color-sheet-shadow);\n  animation: sc-sheet-slide 0.25s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.sc-sheet__header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n\n.sc-sheet__close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: none;\n  background: none;\n}\n\n.sc-sheet__close img {\n  width: 12px;\n  height: 12px;\n  filter: brightness(0);\n  opacity: 0.55;\n}\n\n.sc-sheet__title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-sheet__preview {\n  pointer-events: none;\n}\n\n.sc-sheet__amount {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  width: 100%;\n  max-width: 480px;\n  margin-inline: auto;\n}\n\n.sc-sheet__amount-note {\n  color: var(--color-text-subtle);\n  font-size: 12px;\n  line-height: 1.3;\n}\n\n.sc-sheet__slider {\n  position: relative;\n  width: 100%;\n  height: 14px;\n}\n\n.sc-sheet__slider::before,\n.sc-sheet__fill {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: 0;\n  height: 3px;\n  border-radius: 999px;\n  transform: translateY(-50%);\n}\n\n.sc-sheet__slider::before {\n  right: 0;\n  background: var(--color-border);\n}\n\n.sc-sheet__ticks {\n  position: absolute;\n  inset: 0;\n  pointer-events: none;\n}\n\n.sc-sheet__tick {\n  position: absolute;\n  top: 50%;\n  width: 3px;\n  height: 3px;\n  border-radius: 50%;\n  background: var(--color-text);\n  opacity: 0.3;\n  transform: translate(-50%, -50%);\n}\n\n.sc-sheet__tick--on {\n  background: var(--color-white);\n  opacity: 0.9;\n}\n\n.sc-sheet__tick--current {\n  visibility: hidden;\n}\n\n.sc-sheet__range {\n  position: relative;\n  display: block;\n  width: 100%;\n  height: 14px;\n  background: transparent;\n  cursor: pointer;\n  appearance: none;\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range:focus {\n  outline: none;\n}\n\n.sc-sheet__range::-webkit-slider-runnable-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-moz-range-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-webkit-slider-thumb {\n  width: 14px;\n  height: 14px;\n  margin-top: -5.5px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range::-moz-range-thumb {\n  width: 14px;\n  height: 14px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n}\n\n.sc-sheet__footer {\n  display: flex;\n  justify-content: center;\n}\n\n.sc-sheet__continue {\n  padding: 8px 22px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n@keyframes sc-sheet-slide {\n  from {\n    transform: translateY(100%);\n  }\n}\n\n.sc-confirm__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.sc-confirm__frame {\n  position: relative;\n  display: flex;\n  width: 100%;\n  max-width: 678px;\n  max-height: 100%;\n}\n\n.sc-confirm {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 20px;\n  min-width: 0;\n  max-height: 100%;\n  padding: 28px 34px 30px;\n  overflow-y: auto;\n  border-radius: 15px;\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.sc-confirm__header {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n}\n\n.sc-confirm__title {\n  font-size: 22px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-confirm__summary {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  padding: 18px 28px;\n  border-radius: 12px;\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.sc-confirm__summary-row {\n  display: flex;\n  align-items: flex-end;\n  justify-content: space-between;\n  gap: 12px;\n  width: 100%;\n}\n\n.sc-confirm__summary-row--after {\n  align-items: baseline;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid var(--color-light-grey);\n}\n\n.sc-confirm__summary-col {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n}\n\n.sc-confirm__summary-col--end {\n  align-items: flex-end;\n}\n\n.sc-confirm__summary-label {\n  font-size: 15px;\n  line-height: 1.3;\n}\n\n.sc-confirm__summary-value {\n  font-size: 18px;\n  font-weight: 700;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.sc-confirm__summary-price {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 12px;\n}\n\n.sc-confirm__old-price,\n.sc-confirm__no-change {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  white-space: nowrap;\n}\n\n.sc-confirm__balance {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n}\n\n.sc-confirm__icon {\n  flex-shrink: 0;\n  width: 18px;\n  height: 18px;\n}\n\n.sc-confirm__free {\n  color: var(--color-coins);\n}\n\n.sc-confirm__summary-link {\n  margin-top: 8px;\n  color: var(--color-navy);\n  font-size: 15px;\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__note {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 18px;\n  border: 0.5px solid var(--color-scrollbar-track-dark);\n  border-radius: 20px;\n  background: var(--color-info-pill-bg);\n  box-shadow: 0 0 8px var(--color-info-pill-shadow);\n  font-size: 14px;\n  line-height: 1.35;\n}\n\n.sc-confirm__alert {\n  display: flex;\n  align-items: flex-start;\n  gap: 8px;\n  width: 100%;\n  margin-top: 12px;\n  padding: 8px 14px;\n  border-radius: 6px;\n  background: var(--color-warning-bg);\n  color: var(--color-red);\n  font-size: 15px;\n  line-height: 1.4;\n}\n\n.sc-confirm__alert .sc-confirm__icon {\n  margin-top: 2px;\n}\n\n.sc-confirm__upgrade-link {\n  color: var(--color-yellow);\n  font-weight: 600;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__error {\n  padding: 6px 14px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  color: var(--color-text);\n  font-size: 12px;\n  line-height: 1.35;\n  text-align: center;\n}\n\n.sc-confirm__actions {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-end;\n  justify-content: flex-end;\n  gap: 12px;\n}\n\n.sc-confirm__submit,\n.sc-confirm__cancel,\n.sc-confirm__buy-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 8px 26px;\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-navy);\n  font-size: 18px;\n  font-weight: 500;\n  line-height: 1.3;\n  text-decoration: none;\n  white-space: nowrap;\n}\n\n.sc-confirm__submit {\n  border: 1px solid var(--color-white);\n}\n\n.sc-confirm__buy-btn {\n  border: 1px solid var(--color-yellow);\n  background: var(--color-yellow);\n  color: var(--color-text);\n}\n\n.sc-confirm__cancel {\n  border: 1px solid var(--color-white);\n  background: none;\n  color: var(--color-white);\n}\n\n.sc-confirm__submit:disabled {\n  color: color-mix(in srgb, var(--color-navy) 40%, var(--color-white));\n}\n\n@media (max-width: 480px) {\n  .sc-confirm {\n    gap: 16px;\n    padding: 20px 16px;\n  }\n\n  .sc-confirm__title {\n    font-size: 20px;\n  }\n\n  .sc-confirm__summary {\n    padding: 14px 16px;\n  }\n\n  .sc-confirm__summary-label,\n  .sc-confirm__summary-link {\n    font-size: 14px;\n  }\n\n  .sc-confirm__summary-value {\n    font-size: 16px;\n  }\n\n  .sc-confirm__old-price,\n  .sc-confirm__no-change {\n    font-size: 13px;\n  }\n\n  .sc-confirm__summary-price {\n    gap: 6px;\n  }\n\n  .sc-confirm__summary-row--after {\n    flex-wrap: wrap;\n    row-gap: 4px;\n  }\n\n  .sc-confirm__summary-row--after > :last-child {\n    margin-left: auto;\n  }\n\n  .sc-confirm__note {\n    padding: 8px 14px;\n    font-size: 13px;\n  }\n\n  .sc-confirm__actions {\n    flex-direction: column-reverse;\n    align-items: stretch;\n    gap: 10px;\n  }\n\n  .sc-confirm__submit,\n  .sc-confirm__cancel,\n  .sc-confirm__buy-btn {\n    padding: 10px 20px;\n    font-size: 16px;\n  }\n}\n\n.mod-dialog__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.mod-dialog {\n  display: flex;\n  flex-direction: column;\n  gap: 14px;\n  width: 100%;\n  max-width: 560px;\n  max-height: 100%;\n  padding: 14px;\n  overflow-y: auto;\n  border-radius: 16px;\n  background: var(--color-white);\n  box-shadow: 0 12px 32px var(--color-dialog-shadow);\n}\n\n.mod-dialog__card {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  padding: 16px 14px;\n  border: 1px solid var(--color-border);\n  border-radius: 8px;\n}\n\n.mod-dialog__heading {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 10px;\n}\n\n.mod-dialog__title {\n  font-size: 17px;\n  font-weight: 400;\n  line-height: 1.2;\n}\n\n.mod-dialog__title--ai {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n}\n\n.mod-dialog__ai {\n  flex-shrink: 0;\n  height: 20px;\n}\n\n.mod-dialog__pill {\n  padding: 3px 12px;\n  border-radius: 100px;\n  color: var(--color-white);\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.mod-dialog__pill--warning {\n  background: var(--color-red);\n}\n\n.mod-dialog__pill--recommended {\n  background: var(--color-recommended);\n}\n\n.mod-dialog__row {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.mod-dialog__message {\n  flex: 1;\n  min-width: 0;\n  font-size: 13px;\n  line-height: 1.45;\n  overflow-wrap: break-word;\n}\n\n.mod-dialog__action {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 8px;\n  height: 40px;\n  padding: 0 18px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 15px;\n  font-weight: 500;\n  white-space: nowrap;\n}\n\n.mod-dialog__action-icon {\n  width: 16px;\n  height: 14px;\n}\n\n.mod-dialog__row--locked {\n  padding: 10px 12px;\n  border: 1px dashed var(--color-text);\n  border-radius: 6px;\n  background: var(--color-locked-suggestion-bg);\n  user-select: none;\n}\n\n.mod-dialog__row--locked > * {\n  filter: blur(4px);\n}\n\n.mod-dialog__upsell {\n  color: var(--color-red);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n.mod-dialog__footer {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.mod-dialog__cancel {\n  height: 40px;\n  padding: 0 18px;\n  border: 1px solid var(--color-cancel-btn-border);\n  border-radius: 100px;\n  background: linear-gradient(180deg, var(--color-cancel-btn-from), var(--color-border));\n  font-size: 15px;\n}\n\n@media (max-width: 480px) {\n  .mod-dialog__row:not(.mod-dialog__row--locked) {\n    flex-direction: column;\n    align-items: stretch;\n  }\n\n  .mod-dialog__action {\n    justify-content: center;\n  }\n}\n\n.thread-modal {\n  position: absolute;\n  inset: 0;\n  z-index: 25;\n  display: flex;\n  flex-direction: column;\n  background: var(--color-white);\n}\n\n.thread-modal__header {\n  display: grid;\n  grid-template-columns: 1fr auto 1fr;\n  align-items: center;\n  padding: 12px 16px;\n  border-bottom: 1px solid var(--color-border);\n}\n\n.thread-modal__back {\n  justify-self: start;\n  display: inline-flex;\n  align-items: center;\n  gap: 10px;\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 13px;\n  text-transform: uppercase;\n}\n\n.thread-modal__back-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: 1.5px solid var(--color-text);\n  border-radius: 50%;\n}\n\n.thread-modal__back-icon svg {\n  width: 16px;\n  height: 16px;\n}\n\n.thread-modal__title {\n  font-size: 13px;\n  font-weight: 500;\n  text-transform: uppercase;\n}\n\n.thread-modal__close {\n  justify-self: end;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.thread-modal__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.thread-modal__body {\n  flex: 1;\n  min-height: 0;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.thread-modal__status {\n  padding: 8px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.thread-modal__footer {\n  padding: 10px 16px 12px;\n  border-top: 1px solid var(--color-border);\n}\n\n.thread-modal__field {\n  display: flex;\n  align-items: flex-start;\n  border: 1px solid var(--color-navy);\n  border-radius: 6px;\n  background: var(--color-white);\n}\n\n.thread-modal__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 8px 0 8px 12px;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.thread-modal__input {\n  flex: 1;\n  min-width: 0;\n  max-height: 120px;\n  padding: 8px 12px;\n  border: none;\n  background: transparent;\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.thread-modal__input:focus {\n  outline: none;\n}\n\n.thread-modal__error {\n  margin-top: 6px;\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.thread-modal__mention + .thread-modal__input {\n  padding-left: 6px;\n}\n\n.user-panel__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  justify-content: flex-end;\n  background: var(--color-scrim);\n  animation: user-panel-fade-in 250ms ease-out;\n}\n\n.user-panel__backdrop--closing {\n  animation: user-panel-fade-out 250ms ease-in forwards;\n}\n\n.user-panel {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  max-width: 540px;\n  height: 100%;\n  background: var(--color-white);\n  box-shadow: -4px 0 24px var(--color-sheet-shadow);\n  animation: user-panel-slide-in 250ms ease-out;\n}\n\n.user-panel--closing {\n  animation: user-panel-slide-out 250ms ease-in forwards;\n}\n\n@keyframes user-panel-fade-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-fade-out {\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-slide-in {\n  from {\n    transform: translateX(100%);\n  }\n}\n\n@keyframes user-panel-slide-out {\n  to {\n    transform: translateX(100%);\n  }\n}\n\n.user-panel__header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding: 20px 20px 18px;\n  border-bottom: 1px solid var(--color-light-grey);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.user-panel__title {\n  flex: 1;\n  min-width: 0;\n  font-size: 20px;\n  font-weight: 600;\n  line-height: 30px;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__signout {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 6px;\n  padding: 6px 14px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-red);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.user-panel__signout svg {\n  width: 16px;\n  height: 16px;\n}\n\n.user-panel__close {\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.user-panel__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.user-panel__body {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  padding: 0 20px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.user-panel__item {\n  flex-shrink: 0;\n  display: flex;\n  gap: 14px;\n  padding: 18px 0;\n  border-bottom: 1px solid var(--color-light-grey);\n}\n\n.user-panel__item-icon {\n  flex-shrink: 0;\n  width: 20px;\n  height: 20px;\n  margin-top: 1px;\n  object-fit: contain;\n}\n\n.user-panel__item-content {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 8px;\n  min-width: 0;\n}\n\n.user-panel__item-header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 4px 8px;\n}\n\n.user-panel__item-title {\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__quote {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__item-time {\n  color: var(--color-message-meta);\n  font-size: 13px;\n}\n\n.user-panel__tag {\n  padding: 1px 8px;\n  border-radius: 999px;\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.user-panel__status {\n  padding: 16px;\n  font-size: 13px;\n  color: var(--color-text-subtle);\n  text-align: center;\n}\n";
 	//#endregion
-	//#region src/context/WidgetRootContext.tsx
-	var import_react_dom = require_react_dom();
+	//#region node_modules/react/cjs/react-jsx-dev-runtime.development.js
 	/**
-	* The node inside the current element's shadow root that its React content is
-	* rendered into. Dialogs portal here: outside the shadow root the widget's
-	* styles don't apply.
+	* @license React
+	* react-jsx-dev-runtime.development.js
+	*
+	* Copyright (c) Meta Platforms, Inc. and affiliates.
+	*
+	* This source code is licensed under the MIT license found in the
+	* LICENSE file in the root directory of this source tree.
 	*/
-	var WidgetRootContext = (0, import_react.createContext)(null);
-	function useWidgetRoot() {
-		const root = (0, import_react.useContext)(WidgetRootContext);
-		if (!root) throw new Error("useWidgetRoot must be used inside a widget element");
-		return root;
-	}
-	//#endregion
-	//#region node_modules/engine.io-parser/build/esm/commons.js
-	var PACKET_TYPES = Object.create(null);
-	PACKET_TYPES["open"] = "0";
-	PACKET_TYPES["close"] = "1";
-	PACKET_TYPES["ping"] = "2";
-	PACKET_TYPES["pong"] = "3";
-	PACKET_TYPES["message"] = "4";
-	PACKET_TYPES["upgrade"] = "5";
-	PACKET_TYPES["noop"] = "6";
-	var PACKET_TYPES_REVERSE = Object.create(null);
-	Object.keys(PACKET_TYPES).forEach((key) => {
-		PACKET_TYPES_REVERSE[PACKET_TYPES[key]] = key;
-	});
-	var ERROR_PACKET = {
-		type: "error",
-		data: "parser error"
-	};
-	//#endregion
-	//#region node_modules/engine.io-parser/build/esm/encodePacket.browser.js
-	var withNativeBlob$1 = typeof Blob === "function" || typeof Blob !== "undefined" && Object.prototype.toString.call(Blob) === "[object BlobConstructor]";
-	var withNativeArrayBuffer$2 = typeof ArrayBuffer === "function";
-	var isView$1 = (obj) => {
-		return typeof ArrayBuffer.isView === "function" ? ArrayBuffer.isView(obj) : obj && obj.buffer instanceof ArrayBuffer;
-	};
-	var encodePacket = ({ type, data }, supportsBinary, callback) => {
-		if (withNativeBlob$1 && data instanceof Blob) {
-			if (supportsBinary) return callback(data);
-			else return encodeBlobAsBase64(data, callback);
-		} else if (withNativeArrayBuffer$2 && (data instanceof ArrayBuffer || isView$1(data))) {
-			if (supportsBinary) return callback(data);
-			else return encodeBlobAsBase64(new Blob([data]), callback);
-		}
-		return callback(PACKET_TYPES[type] + (data || ""));
-	};
-	var encodeBlobAsBase64 = (data, callback) => {
-		const fileReader = new FileReader();
-		fileReader.onload = function() {
-			const content = fileReader.result.split(",")[1];
-			callback("b" + (content || ""));
-		};
-		return fileReader.readAsDataURL(data);
-	};
-	function toArray(data) {
-		if (data instanceof Uint8Array) return data;
-		else if (data instanceof ArrayBuffer) return new Uint8Array(data);
-		else return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
-	}
-	var TEXT_ENCODER;
-	function encodePacketToBinary(packet, callback) {
-		if (withNativeBlob$1 && packet.data instanceof Blob) return packet.data.arrayBuffer().then(toArray).then(callback);
-		else if (withNativeArrayBuffer$2 && (packet.data instanceof ArrayBuffer || isView$1(packet.data))) return callback(toArray(packet.data));
-		encodePacket(packet, false, (encoded) => {
-			if (!TEXT_ENCODER) TEXT_ENCODER = new TextEncoder();
-			callback(TEXT_ENCODER.encode(encoded));
-		});
-	}
-	//#endregion
-	//#region node_modules/engine.io-parser/build/esm/contrib/base64-arraybuffer.js
-	var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	var lookup$1 = typeof Uint8Array === "undefined" ? [] : /* @__PURE__ */ new Uint8Array(256);
-	for (let i = 0; i < 64; i++) lookup$1[chars.charCodeAt(i)] = i;
-	var decode$1 = (base64) => {
-		let bufferLength = base64.length * .75, len = base64.length, i, p = 0, encoded1, encoded2, encoded3, encoded4;
-		if (base64[base64.length - 1] === "=") {
-			bufferLength--;
-			if (base64[base64.length - 2] === "=") bufferLength--;
-		}
-		const arraybuffer = new ArrayBuffer(bufferLength), bytes = new Uint8Array(arraybuffer);
-		for (i = 0; i < len; i += 4) {
-			encoded1 = lookup$1[base64.charCodeAt(i)];
-			encoded2 = lookup$1[base64.charCodeAt(i + 1)];
-			encoded3 = lookup$1[base64.charCodeAt(i + 2)];
-			encoded4 = lookup$1[base64.charCodeAt(i + 3)];
-			bytes[p++] = encoded1 << 2 | encoded2 >> 4;
-			bytes[p++] = (encoded2 & 15) << 4 | encoded3 >> 2;
-			bytes[p++] = (encoded3 & 3) << 6 | encoded4 & 63;
-		}
-		return arraybuffer;
-	};
-	//#endregion
-	//#region node_modules/engine.io-parser/build/esm/decodePacket.browser.js
-	var withNativeArrayBuffer$1 = typeof ArrayBuffer === "function";
-	var decodePacket = (encodedPacket, binaryType) => {
-		if (typeof encodedPacket !== "string") return {
-			type: "message",
-			data: mapBinary(encodedPacket, binaryType)
-		};
-		const type = encodedPacket.charAt(0);
-		if (type === "b") return {
-			type: "message",
-			data: decodeBase64Packet(encodedPacket.substring(1), binaryType)
-		};
-		if (!PACKET_TYPES_REVERSE[type]) return ERROR_PACKET;
-		return encodedPacket.length > 1 ? {
-			type: PACKET_TYPES_REVERSE[type],
-			data: encodedPacket.substring(1)
-		} : { type: PACKET_TYPES_REVERSE[type] };
-	};
-	var decodeBase64Packet = (data, binaryType) => {
-		if (withNativeArrayBuffer$1) return mapBinary(decode$1(data), binaryType);
-		else return {
-			base64: true,
-			data
-		};
-	};
-	var mapBinary = (data, binaryType) => {
-		switch (binaryType) {
-			case "blob": if (data instanceof Blob) return data;
-			else return new Blob([data]);
-			default: if (data instanceof ArrayBuffer) return data;
-			else return data.buffer;
-		}
-	};
-	//#endregion
-	//#region node_modules/engine.io-parser/build/esm/index.js
-	var SEPARATOR = String.fromCharCode(30);
-	var encodePayload = (packets, callback) => {
-		const length = packets.length;
-		const encodedPackets = new Array(length);
-		let count = 0;
-		packets.forEach((packet, i) => {
-			encodePacket(packet, false, (encodedPacket) => {
-				encodedPackets[i] = encodedPacket;
-				if (++count === length) callback(encodedPackets.join(SEPARATOR));
-			});
-		});
-	};
-	var decodePayload = (encodedPayload, binaryType) => {
-		const encodedPackets = encodedPayload.split(SEPARATOR);
-		const packets = [];
-		for (let i = 0; i < encodedPackets.length; i++) {
-			const decodedPacket = decodePacket(encodedPackets[i], binaryType);
-			packets.push(decodedPacket);
-			if (decodedPacket.type === "error") break;
-		}
-		return packets;
-	};
-	function createPacketEncoderStream() {
-		return new TransformStream({ transform(packet, controller) {
-			encodePacketToBinary(packet, (encodedPacket) => {
-				const payloadLength = encodedPacket.length;
-				let header;
-				if (payloadLength < 126) {
-					header = /* @__PURE__ */ new Uint8Array(1);
-					new DataView(header.buffer).setUint8(0, payloadLength);
-				} else if (payloadLength < 65536) {
-					header = /* @__PURE__ */ new Uint8Array(3);
-					const view = new DataView(header.buffer);
-					view.setUint8(0, 126);
-					view.setUint16(1, payloadLength);
-				} else {
-					header = /* @__PURE__ */ new Uint8Array(9);
-					const view = new DataView(header.buffer);
-					view.setUint8(0, 127);
-					view.setBigUint64(1, BigInt(payloadLength));
+	var require_react_jsx_dev_runtime_development = /* @__PURE__ */ __commonJSMin(((exports) => {
+		(function() {
+			function getComponentNameFromType(type) {
+				if (null == type) return null;
+				if ("function" === typeof type) return type.$$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
+				if ("string" === typeof type) return type;
+				switch (type) {
+					case REACT_FRAGMENT_TYPE: return "Fragment";
+					case REACT_PROFILER_TYPE: return "Profiler";
+					case REACT_STRICT_MODE_TYPE: return "StrictMode";
+					case REACT_SUSPENSE_TYPE: return "Suspense";
+					case REACT_SUSPENSE_LIST_TYPE: return "SuspenseList";
+					case REACT_ACTIVITY_TYPE: return "Activity";
+					case REACT_VIEW_TRANSITION_TYPE: return "ViewTransition";
 				}
-				if (packet.data && typeof packet.data !== "string") header[0] |= 128;
-				controller.enqueue(header);
-				controller.enqueue(encodedPacket);
-			});
-		} });
-	}
-	var TEXT_DECODER;
-	function totalLength(chunks) {
-		return chunks.reduce((acc, chunk) => acc + chunk.length, 0);
-	}
-	function concatChunks(chunks, size) {
-		if (chunks[0].length === size) return chunks.shift();
-		const buffer = new Uint8Array(size);
-		let j = 0;
-		for (let i = 0; i < size; i++) {
-			buffer[i] = chunks[0][j++];
-			if (j === chunks[0].length) {
-				chunks.shift();
-				j = 0;
+				if ("object" === typeof type) switch ("number" === typeof type.tag && console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), type.$$typeof) {
+					case REACT_PORTAL_TYPE: return "Portal";
+					case REACT_CONTEXT_TYPE: return type.displayName || "Context";
+					case REACT_CONSUMER_TYPE: return (type._context.displayName || "Context") + ".Consumer";
+					case REACT_FORWARD_REF_TYPE:
+						var innerType = type.render;
+						type = type.displayName;
+						type || (type = innerType.displayName || innerType.name || "", type = "" !== type ? "ForwardRef(" + type + ")" : "ForwardRef");
+						return type;
+					case REACT_MEMO_TYPE: return innerType = type.displayName || null, null !== innerType ? innerType : getComponentNameFromType(type.type) || "Memo";
+					case REACT_LAZY_TYPE:
+						innerType = type._payload;
+						type = type._init;
+						try {
+							return getComponentNameFromType(type(innerType));
+						} catch (x) {}
+				}
+				return null;
 			}
-		}
-		if (chunks.length && j < chunks[0].length) chunks[0] = chunks[0].slice(j);
-		return buffer;
-	}
-	function createPacketDecoderStream(maxPayload, binaryType) {
-		if (!TEXT_DECODER) TEXT_DECODER = new TextDecoder();
-		const chunks = [];
-		let state = 0;
-		let expectedLength = -1;
-		let isBinary = false;
-		return new TransformStream({ transform(chunk, controller) {
-			chunks.push(chunk);
-			while (true) {
-				if (state === 0) {
-					if (totalLength(chunks) < 1) break;
-					const header = concatChunks(chunks, 1);
-					isBinary = (header[0] & 128) === 128;
-					expectedLength = header[0] & 127;
-					if (expectedLength < 126) state = 3;
-					else if (expectedLength === 126) state = 1;
-					else state = 2;
-				} else if (state === 1) {
-					if (totalLength(chunks) < 2) break;
-					const headerArray = concatChunks(chunks, 2);
-					expectedLength = new DataView(headerArray.buffer, headerArray.byteOffset, headerArray.length).getUint16(0);
-					state = 3;
-				} else if (state === 2) {
-					if (totalLength(chunks) < 8) break;
-					const headerArray = concatChunks(chunks, 8);
-					const view = new DataView(headerArray.buffer, headerArray.byteOffset, headerArray.length);
-					const n = view.getUint32(0);
-					if (n > Math.pow(2, 21) - 1) {
-						controller.enqueue(ERROR_PACKET);
-						break;
-					}
-					expectedLength = n * Math.pow(2, 32) + view.getUint32(4);
-					state = 3;
-				} else {
-					if (totalLength(chunks) < expectedLength) break;
-					const data = concatChunks(chunks, expectedLength);
-					controller.enqueue(decodePacket(isBinary ? data : TEXT_DECODER.decode(data), binaryType));
-					state = 0;
+			function testStringCoercion(value) {
+				return "" + value;
+			}
+			function checkKeyStringCoercion(value) {
+				try {
+					testStringCoercion(value);
+					var JSCompiler_inline_result = !1;
+				} catch (e) {
+					JSCompiler_inline_result = !0;
 				}
-				if (expectedLength === 0 || expectedLength > maxPayload) {
-					controller.enqueue(ERROR_PACKET);
-					break;
+				if (JSCompiler_inline_result) {
+					JSCompiler_inline_result = console;
+					var JSCompiler_temp_const = JSCompiler_inline_result.error;
+					var JSCompiler_inline_result$jscomp$0 = "function" === typeof Symbol && Symbol.toStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
+					JSCompiler_temp_const.call(JSCompiler_inline_result, "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.", JSCompiler_inline_result$jscomp$0);
+					return testStringCoercion(value);
 				}
 			}
-		} });
-	}
-	//#endregion
-	//#region node_modules/@socket.io/component-emitter/lib/esm/index.js
-	/**
-	* Initialize a new `Emitter`.
-	*
-	* @api public
-	*/
-	function Emitter(obj) {
-		if (obj) return mixin(obj);
-	}
-	/**
-	* Mixin the emitter properties.
-	*
-	* @param {Object} obj
-	* @return {Object}
-	* @api private
-	*/
-	function mixin(obj) {
-		for (var key in Emitter.prototype) obj[key] = Emitter.prototype[key];
-		return obj;
-	}
-	/**
-	* Listen on the given `event` with `fn`.
-	*
-	* @param {String} event
-	* @param {Function} fn
-	* @return {Emitter}
-	* @api public
-	*/
-	Emitter.prototype.on = Emitter.prototype.addEventListener = function(event, fn) {
-		this._callbacks = this._callbacks || {};
-		(this._callbacks["$" + event] = this._callbacks["$" + event] || []).push(fn);
-		return this;
-	};
-	/**
-	* Adds an `event` listener that will be invoked a single
-	* time then automatically removed.
-	*
-	* @param {String} event
-	* @param {Function} fn
-	* @return {Emitter}
-	* @api public
-	*/
-	Emitter.prototype.once = function(event, fn) {
-		function on() {
-			this.off(event, on);
-			fn.apply(this, arguments);
-		}
-		on.fn = fn;
-		this.on(event, on);
-		return this;
-	};
-	/**
-	* Remove the given callback for `event` or all
-	* registered callbacks.
-	*
-	* @param {String} event
-	* @param {Function} fn
-	* @return {Emitter}
-	* @api public
-	*/
-	Emitter.prototype.off = Emitter.prototype.removeListener = Emitter.prototype.removeAllListeners = Emitter.prototype.removeEventListener = function(event, fn) {
-		this._callbacks = this._callbacks || {};
-		if (0 == arguments.length) {
-			this._callbacks = {};
-			return this;
-		}
-		var callbacks = this._callbacks["$" + event];
-		if (!callbacks) return this;
-		if (1 == arguments.length) {
-			delete this._callbacks["$" + event];
-			return this;
-		}
-		var cb;
-		for (var i = 0; i < callbacks.length; i++) {
-			cb = callbacks[i];
-			if (cb === fn || cb.fn === fn) {
-				callbacks.splice(i, 1);
-				break;
-			}
-		}
-		if (callbacks.length === 0) delete this._callbacks["$" + event];
-		return this;
-	};
-	/**
-	* Emit `event` with the given args.
-	*
-	* @param {String} event
-	* @param {Mixed} ...
-	* @return {Emitter}
-	*/
-	Emitter.prototype.emit = function(event) {
-		this._callbacks = this._callbacks || {};
-		var args = new Array(arguments.length - 1), callbacks = this._callbacks["$" + event];
-		for (var i = 1; i < arguments.length; i++) args[i - 1] = arguments[i];
-		if (callbacks) {
-			callbacks = callbacks.slice(0);
-			for (var i = 0, len = callbacks.length; i < len; ++i) callbacks[i].apply(this, args);
-		}
-		return this;
-	};
-	Emitter.prototype.emitReserved = Emitter.prototype.emit;
-	/**
-	* Return array of callbacks for `event`.
-	*
-	* @param {String} event
-	* @return {Array}
-	* @api public
-	*/
-	Emitter.prototype.listeners = function(event) {
-		this._callbacks = this._callbacks || {};
-		return this._callbacks["$" + event] || [];
-	};
-	/**
-	* Check if this emitter has `event` handlers.
-	*
-	* @param {String} event
-	* @return {Boolean}
-	* @api public
-	*/
-	Emitter.prototype.hasListeners = function(event) {
-		return !!this.listeners(event).length;
-	};
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/globals.js
-	var nextTick = (() => {
-		if (typeof Promise === "function" && typeof Promise.resolve === "function") return (cb) => Promise.resolve().then(cb);
-		else return (cb, setTimeoutFn) => setTimeoutFn(cb, 0);
-	})();
-	var globalThisShim = (() => {
-		if (typeof self !== "undefined") return self;
-		else if (typeof window !== "undefined") return window;
-		else return Function("return this")();
-	})();
-	var defaultBinaryType = "arraybuffer";
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/util.js
-	function pick(obj, ...attr) {
-		return attr.reduce((acc, k) => {
-			if (obj.hasOwnProperty(k)) acc[k] = obj[k];
-			return acc;
-		}, {});
-	}
-	var NATIVE_SET_TIMEOUT = globalThisShim.setTimeout;
-	var NATIVE_CLEAR_TIMEOUT = globalThisShim.clearTimeout;
-	function installTimerFunctions(obj, opts) {
-		if (opts.useNativeTimers) {
-			obj.setTimeoutFn = NATIVE_SET_TIMEOUT.bind(globalThisShim);
-			obj.clearTimeoutFn = NATIVE_CLEAR_TIMEOUT.bind(globalThisShim);
-		} else {
-			obj.setTimeoutFn = globalThisShim.setTimeout.bind(globalThisShim);
-			obj.clearTimeoutFn = globalThisShim.clearTimeout.bind(globalThisShim);
-		}
-	}
-	var BASE64_OVERHEAD = 1.33;
-	function byteLength(obj) {
-		if (typeof obj === "string") return utf8Length(obj);
-		return Math.ceil((obj.byteLength || obj.size) * BASE64_OVERHEAD);
-	}
-	function utf8Length(str) {
-		let c = 0, length = 0;
-		for (let i = 0, l = str.length; i < l; i++) {
-			c = str.charCodeAt(i);
-			if (c < 128) length += 1;
-			else if (c < 2048) length += 2;
-			else if (c < 55296 || c >= 57344) length += 3;
-			else {
-				i++;
-				length += 4;
-			}
-		}
-		return length;
-	}
-	/**
-	* Generates a random 8-characters string.
-	*/
-	function randomString() {
-		return Date.now().toString(36).substring(3) + Math.random().toString(36).substring(2, 5);
-	}
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/contrib/parseqs.js
-	/**
-	* Compiles a querystring
-	* Returns string representation of the object
-	*
-	* @param {Object}
-	* @api private
-	*/
-	function encode(obj) {
-		let str = "";
-		for (let i in obj) if (obj.hasOwnProperty(i)) {
-			if (str.length) str += "&";
-			str += encodeURIComponent(i) + "=" + encodeURIComponent(obj[i]);
-		}
-		return str;
-	}
-	/**
-	* Parses a simple querystring into an object
-	*
-	* @param {String} qs
-	* @api private
-	*/
-	function decode(qs) {
-		let qry = {};
-		let pairs = qs.split("&");
-		for (let i = 0, l = pairs.length; i < l; i++) {
-			let pair = pairs[i].split("=");
-			qry[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
-		}
-		return qry;
-	}
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/transport.js
-	var TransportError = class extends Error {
-		constructor(reason, description, context) {
-			super(reason);
-			this.description = description;
-			this.context = context;
-			this.type = "TransportError";
-		}
-	};
-	var Transport = class extends Emitter {
-		/**
-		* Transport abstract constructor.
-		*
-		* @param {Object} opts - options
-		* @protected
-		*/
-		constructor(opts) {
-			super();
-			this.writable = false;
-			installTimerFunctions(this, opts);
-			this.opts = opts;
-			this.query = opts.query;
-			this.socket = opts.socket;
-			this.supportsBinary = !opts.forceBase64;
-		}
-		/**
-		* Emits an error.
-		*
-		* @param {String} reason
-		* @param description
-		* @param context - the error context
-		* @return {Transport} for chaining
-		* @protected
-		*/
-		onError(reason, description, context) {
-			super.emitReserved("error", new TransportError(reason, description, context));
-			return this;
-		}
-		/**
-		* Opens the transport.
-		*/
-		open() {
-			this.readyState = "opening";
-			this.doOpen();
-			return this;
-		}
-		/**
-		* Closes the transport.
-		*/
-		close() {
-			if (this.readyState === "opening" || this.readyState === "open") {
-				this.doClose();
-				this.onClose();
-			}
-			return this;
-		}
-		/**
-		* Sends multiple packets.
-		*
-		* @param {Array} packets
-		*/
-		send(packets) {
-			if (this.readyState === "open") this.write(packets);
-		}
-		/**
-		* Called upon open
-		*
-		* @protected
-		*/
-		onOpen() {
-			this.readyState = "open";
-			this.writable = true;
-			super.emitReserved("open");
-		}
-		/**
-		* Called with data.
-		*
-		* @param {String} data
-		* @protected
-		*/
-		onData(data) {
-			const packet = decodePacket(data, this.socket.binaryType);
-			this.onPacket(packet);
-		}
-		/**
-		* Called with a decoded packet.
-		*
-		* @protected
-		*/
-		onPacket(packet) {
-			super.emitReserved("packet", packet);
-		}
-		/**
-		* Called upon close.
-		*
-		* @protected
-		*/
-		onClose(details) {
-			this.readyState = "closed";
-			super.emitReserved("close", details);
-		}
-		/**
-		* Pauses the transport, in order not to lose packets during an upgrade.
-		*
-		* @param onPause
-		*/
-		pause(onPause) {}
-		createUri(schema, query = {}) {
-			return schema + "://" + this._hostname() + this._port() + this.opts.path + this._query(query);
-		}
-		_hostname() {
-			const hostname = this.opts.hostname;
-			return hostname.indexOf(":") === -1 ? hostname : "[" + hostname + "]";
-		}
-		_port() {
-			if (this.opts.port && (this.opts.secure && Number(this.opts.port) !== 443 || !this.opts.secure && Number(this.opts.port) !== 80)) return ":" + this.opts.port;
-			else return "";
-		}
-		_query(query) {
-			const encodedQuery = encode(query);
-			return encodedQuery.length ? "?" + encodedQuery : "";
-		}
-	};
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/transports/polling.js
-	var Polling = class extends Transport {
-		constructor() {
-			super(...arguments);
-			this._polling = false;
-		}
-		get name() {
-			return "polling";
-		}
-		/**
-		* Opens the socket (triggers polling). We write a PING message to determine
-		* when the transport is open.
-		*
-		* @protected
-		*/
-		doOpen() {
-			this._poll();
-		}
-		/**
-		* Pauses polling.
-		*
-		* @param {Function} onPause - callback upon buffers are flushed and transport is paused
-		* @package
-		*/
-		pause(onPause) {
-			this.readyState = "pausing";
-			const pause = () => {
-				this.readyState = "paused";
-				onPause();
-			};
-			if (this._polling || !this.writable) {
-				let total = 0;
-				if (this._polling) {
-					total++;
-					this.once("pollComplete", function() {
-						--total || pause();
-					});
+			function getTaskName(type) {
+				if (type === REACT_FRAGMENT_TYPE) return "<>";
+				if ("object" === typeof type && null !== type && type.$$typeof === REACT_LAZY_TYPE) return "<...>";
+				try {
+					var name = getComponentNameFromType(type);
+					return name ? "<" + name + ">" : "<...>";
+				} catch (x) {
+					return "<...>";
 				}
-				if (!this.writable) {
-					total++;
-					this.once("drain", function() {
-						--total || pause();
-					});
-				}
-			} else pause();
-		}
-		/**
-		* Starts polling cycle.
-		*
-		* @private
-		*/
-		_poll() {
-			this._polling = true;
-			this.doPoll();
-			this.emitReserved("poll");
-		}
-		/**
-		* Overloads onData to detect payloads.
-		*
-		* @protected
-		*/
-		onData(data) {
-			const callback = (packet) => {
-				if ("opening" === this.readyState && packet.type === "open") this.onOpen();
-				if ("close" === packet.type) {
-					this.onClose({ description: "transport closed by the server" });
-					return false;
-				}
-				this.onPacket(packet);
-			};
-			decodePayload(data, this.socket.binaryType).forEach(callback);
-			if ("closed" !== this.readyState) {
-				this._polling = false;
-				this.emitReserved("pollComplete");
-				if ("open" === this.readyState) this._poll();
 			}
-		}
-		/**
-		* For polling, send a close packet.
-		*
-		* @protected
-		*/
-		doClose() {
-			const close = () => {
-				this.write([{ type: "close" }]);
-			};
-			if ("open" === this.readyState) close();
-			else this.once("open", close);
-		}
-		/**
-		* Writes a packets payload.
-		*
-		* @param {Array} packets - data packets
-		* @protected
-		*/
-		write(packets) {
-			this.writable = false;
-			encodePayload(packets, (data) => {
-				this.doWrite(data, () => {
-					this.writable = true;
-					this.emitReserved("drain");
+			function getOwner() {
+				var dispatcher = ReactSharedInternals.A;
+				return null === dispatcher ? null : dispatcher.getOwner();
+			}
+			function UnknownOwner() {
+				return Error("react-stack-top-frame");
+			}
+			function hasValidKey(config) {
+				if (hasOwnProperty.call(config, "key")) {
+					var getter = Object.getOwnPropertyDescriptor(config, "key").get;
+					if (getter && getter.isReactWarning) return !1;
+				}
+				return void 0 !== config.key;
+			}
+			function defineKeyPropWarningGetter(props, displayName) {
+				function warnAboutAccessingKey() {
+					specialPropKeyWarningShown || (specialPropKeyWarningShown = !0, console.error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)", displayName));
+				}
+				warnAboutAccessingKey.isReactWarning = !0;
+				Object.defineProperty(props, "key", {
+					get: warnAboutAccessingKey,
+					configurable: !0
 				});
-			});
-		}
-		/**
-		* Generates uri for connection.
-		*
-		* @private
-		*/
-		uri() {
-			const schema = this.opts.secure ? "https" : "http";
-			const query = this.query || {};
-			if (false !== this.opts.timestampRequests) query[this.opts.timestampParam] = randomString();
-			if (!this.supportsBinary && !query.sid) query.b64 = 1;
-			return this.createUri(schema, query);
-		}
-	};
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/contrib/has-cors.js
-	var value = false;
-	try {
-		value = typeof XMLHttpRequest !== "undefined" && "withCredentials" in new XMLHttpRequest();
-	} catch (err) {}
-	var hasCORS = value;
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/transports/polling-xhr.js
-	function empty() {}
-	var BaseXHR = class extends Polling {
-		/**
-		* XHR Polling constructor.
-		*
-		* @param {Object} opts
-		* @package
-		*/
-		constructor(opts) {
-			super(opts);
-			if (typeof location !== "undefined") {
-				const isSSL = "https:" === location.protocol;
-				let port = location.port;
-				if (!port) port = isSSL ? "443" : "80";
-				this.xd = typeof location !== "undefined" && opts.hostname !== location.hostname || port !== opts.port;
 			}
-		}
-		/**
-		* Sends data.
-		*
-		* @param {String} data - data to send.
-		* @param {Function} fn - called upon flush.
-		* @private
-		*/
-		doWrite(data, fn) {
-			const req = this.request({
-				method: "POST",
-				data
-			});
-			req.on("success", fn);
-			req.on("error", (xhrStatus, context) => {
-				this.onError("xhr post error", xhrStatus, context);
-			});
-		}
-		/**
-		* Starts a poll cycle.
-		*
-		* @private
-		*/
-		doPoll() {
-			const req = this.request();
-			req.on("data", this.onData.bind(this));
-			req.on("error", (xhrStatus, context) => {
-				this.onError("xhr poll error", xhrStatus, context);
-			});
-			this.pollXhr = req;
-		}
-	};
-	var Request = class Request extends Emitter {
-		/**
-		* Request constructor
-		*
-		* @param {Object} options
-		* @package
-		*/
-		constructor(createRequest, uri, opts) {
-			super();
-			this.createRequest = createRequest;
-			installTimerFunctions(this, opts);
-			this._opts = opts;
-			this._method = opts.method || "GET";
-			this._uri = uri;
-			this._data = void 0 !== opts.data ? opts.data : null;
-			this._create();
-		}
-		/**
-		* Creates the XHR object and sends the request.
-		*
-		* @private
-		*/
-		_create() {
-			var _a;
-			const opts = pick(this._opts, "agent", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "autoUnref");
-			opts.xdomain = !!this._opts.xd;
-			const xhr = this._xhr = this.createRequest(opts);
-			try {
-				xhr.open(this._method, this._uri, true);
-				try {
-					if (this._opts.extraHeaders) {
-						xhr.setDisableHeaderCheck && xhr.setDisableHeaderCheck(true);
-						for (let i in this._opts.extraHeaders) if (this._opts.extraHeaders.hasOwnProperty(i)) xhr.setRequestHeader(i, this._opts.extraHeaders[i]);
-					}
-				} catch (e) {}
-				if ("POST" === this._method) try {
-					xhr.setRequestHeader("Content-type", "text/plain;charset=UTF-8");
-				} catch (e) {}
-				try {
-					xhr.setRequestHeader("Accept", "*/*");
-				} catch (e) {}
-				(_a = this._opts.cookieJar) === null || _a === void 0 || _a.addCookies(xhr);
-				if ("withCredentials" in xhr) xhr.withCredentials = this._opts.withCredentials;
-				if (this._opts.requestTimeout) xhr.timeout = this._opts.requestTimeout;
-				xhr.onreadystatechange = () => {
-					var _a;
-					if (xhr.readyState === 3) (_a = this._opts.cookieJar) === null || _a === void 0 || _a.parseCookies(xhr.getResponseHeader("set-cookie"));
-					if (4 !== xhr.readyState) return;
-					if (200 === xhr.status || 1223 === xhr.status) this._onLoad();
-					else this.setTimeoutFn(() => {
-						this._onError(typeof xhr.status === "number" ? xhr.status : 0);
-					}, 0);
+			function elementRefGetterWithDeprecationWarning() {
+				var componentName = getComponentNameFromType(this.type);
+				didWarnAboutElementRef[componentName] || (didWarnAboutElementRef[componentName] = !0, console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."));
+				componentName = this.props.ref;
+				return void 0 !== componentName ? componentName : null;
+			}
+			function ReactElement(type, key, props, owner, debugStack, debugTask) {
+				var refProp = props.ref;
+				type = {
+					$$typeof: REACT_ELEMENT_TYPE,
+					type,
+					key,
+					props,
+					_owner: owner
 				};
-				xhr.send(this._data);
-			} catch (e) {
-				this.setTimeoutFn(() => {
-					this._onError(e);
-				}, 0);
-				return;
-			}
-			if (typeof document !== "undefined") {
-				this._index = Request.requestsCount++;
-				Request.requests[this._index] = this;
-			}
-		}
-		/**
-		* Called upon error.
-		*
-		* @private
-		*/
-		_onError(err) {
-			this.emitReserved("error", err, this._xhr);
-			this._cleanup(true);
-		}
-		/**
-		* Cleans up house.
-		*
-		* @private
-		*/
-		_cleanup(fromError) {
-			if ("undefined" === typeof this._xhr || null === this._xhr) return;
-			this._xhr.onreadystatechange = empty;
-			if (fromError) try {
-				this._xhr.abort();
-			} catch (e) {}
-			if (typeof document !== "undefined") delete Request.requests[this._index];
-			this._xhr = null;
-		}
-		/**
-		* Called upon load.
-		*
-		* @private
-		*/
-		_onLoad() {
-			const data = this._xhr.responseText;
-			if (data !== null) {
-				this.emitReserved("data", data);
-				this.emitReserved("success");
-				this._cleanup();
-			}
-		}
-		/**
-		* Aborts the request.
-		*
-		* @package
-		*/
-		abort() {
-			this._cleanup();
-		}
-	};
-	Request.requestsCount = 0;
-	Request.requests = {};
-	/**
-	* Aborts pending requests when unloading the window. This is needed to prevent
-	* memory leaks (e.g. when using IE) and to ensure that no spurious error is
-	* emitted.
-	*/
-	if (typeof document !== "undefined") {
-		if (typeof attachEvent === "function") attachEvent("onunload", unloadHandler);
-		else if (typeof addEventListener === "function") {
-			const terminationEvent = "onpagehide" in globalThisShim ? "pagehide" : "unload";
-			addEventListener(terminationEvent, unloadHandler, false);
-		}
-	}
-	function unloadHandler() {
-		for (let i in Request.requests) if (Request.requests.hasOwnProperty(i)) Request.requests[i].abort();
-	}
-	var hasXHR2 = (function() {
-		const xhr = newRequest({ xdomain: false });
-		return xhr && xhr.responseType !== null;
-	})();
-	/**
-	* HTTP long-polling based on the built-in `XMLHttpRequest` object.
-	*
-	* Usage: browser
-	*
-	* @see https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
-	*/
-	var XHR = class extends BaseXHR {
-		constructor(opts) {
-			super(opts);
-			const forceBase64 = opts && opts.forceBase64;
-			this.supportsBinary = hasXHR2 && !forceBase64;
-		}
-		request(opts = {}) {
-			Object.assign(opts, { xd: this.xd }, this.opts);
-			return new Request(newRequest, this.uri(), opts);
-		}
-	};
-	function newRequest(opts) {
-		const xdomain = opts.xdomain;
-		try {
-			if ("undefined" !== typeof XMLHttpRequest && (!xdomain || hasCORS)) return new XMLHttpRequest();
-		} catch (e) {}
-		if (!xdomain) try {
-			return new globalThisShim[["Active"].concat("Object").join("X")]("Microsoft.XMLHTTP");
-		} catch (e) {}
-	}
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/transports/websocket.js
-	var isReactNative = typeof navigator !== "undefined" && typeof navigator.product === "string" && navigator.product.toLowerCase() === "reactnative";
-	var BaseWS = class extends Transport {
-		get name() {
-			return "websocket";
-		}
-		doOpen() {
-			const uri = this.uri();
-			const protocols = this.opts.protocols;
-			const opts = isReactNative ? {} : pick(this.opts, "agent", "perMessageDeflate", "pfx", "key", "passphrase", "cert", "ca", "ciphers", "rejectUnauthorized", "localAddress", "protocolVersion", "origin", "maxPayload", "family", "checkServerIdentity");
-			if (this.opts.extraHeaders) opts.headers = this.opts.extraHeaders;
-			try {
-				this.ws = this.createSocket(uri, protocols, opts);
-			} catch (err) {
-				return this.emitReserved("error", err);
-			}
-			this.ws.binaryType = this.socket.binaryType;
-			this.addEventListeners();
-		}
-		/**
-		* Adds event listeners to the socket
-		*
-		* @private
-		*/
-		addEventListeners() {
-			this.ws.onopen = () => {
-				if (this.opts.autoUnref) this.ws._socket.unref();
-				this.onOpen();
-			};
-			this.ws.onclose = (closeEvent) => this.onClose({
-				description: "websocket connection closed",
-				context: closeEvent
-			});
-			this.ws.onmessage = (ev) => this.onData(ev.data);
-			this.ws.onerror = (e) => this.onError("websocket error", e);
-		}
-		write(packets) {
-			this.writable = false;
-			for (let i = 0; i < packets.length; i++) {
-				const packet = packets[i];
-				const lastPacket = i === packets.length - 1;
-				encodePacket(packet, this.supportsBinary, (data) => {
-					try {
-						this.doWrite(packet, data);
-					} catch (e) {}
-					if (lastPacket) nextTick(() => {
-						this.writable = true;
-						this.emitReserved("drain");
-					}, this.setTimeoutFn);
+				null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
+					enumerable: !1,
+					get: elementRefGetterWithDeprecationWarning
+				}) : Object.defineProperty(type, "ref", {
+					enumerable: !1,
+					value: null
 				});
-			}
-		}
-		doClose() {
-			if (typeof this.ws !== "undefined") {
-				this.ws.onerror = () => {};
-				this.ws.close();
-				this.ws = null;
-			}
-		}
-		/**
-		* Generates uri for connection.
-		*
-		* @private
-		*/
-		uri() {
-			const schema = this.opts.secure ? "wss" : "ws";
-			const query = this.query || {};
-			if (this.opts.timestampRequests) query[this.opts.timestampParam] = randomString();
-			if (!this.supportsBinary) query.b64 = 1;
-			return this.createUri(schema, query);
-		}
-	};
-	var WebSocketCtor = globalThisShim.WebSocket || globalThisShim.MozWebSocket;
-	/**
-	* WebSocket transport based on the built-in `WebSocket` object.
-	*
-	* Usage: browser, Node.js (since v21), Deno, Bun
-	*
-	* @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
-	* @see https://caniuse.com/mdn-api_websocket
-	* @see https://nodejs.org/api/globals.html#websocket
-	*/
-	var WS = class extends BaseWS {
-		createSocket(uri, protocols, opts) {
-			return !isReactNative ? protocols ? new WebSocketCtor(uri, protocols) : new WebSocketCtor(uri) : new WebSocketCtor(uri, protocols, opts);
-		}
-		doWrite(_packet, data) {
-			this.ws.send(data);
-		}
-	};
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/transports/webtransport.js
-	/**
-	* WebTransport transport based on the built-in `WebTransport` object.
-	*
-	* Usage: browser, Node.js (with the `@fails-components/webtransport` package)
-	*
-	* @see https://developer.mozilla.org/en-US/docs/Web/API/WebTransport
-	* @see https://caniuse.com/webtransport
-	*/
-	var WT = class extends Transport {
-		get name() {
-			return "webtransport";
-		}
-		doOpen() {
-			try {
-				this._transport = new WebTransport(this.createUri("https"), this.opts.transportOptions[this.name]);
-			} catch (err) {
-				return this.emitReserved("error", err);
-			}
-			this._transport.closed.then(() => {
-				this.onClose();
-			}).catch((err) => {
-				this.onError("webtransport error", err);
-			});
-			this._transport.ready.then(() => {
-				this._transport.createBidirectionalStream().then((stream) => {
-					const decoderStream = createPacketDecoderStream(Number.MAX_SAFE_INTEGER, this.socket.binaryType);
-					const reader = stream.readable.pipeThrough(decoderStream).getReader();
-					const encoderStream = createPacketEncoderStream();
-					encoderStream.readable.pipeTo(stream.writable);
-					this._writer = encoderStream.writable.getWriter();
-					const read = () => {
-						reader.read().then(({ done, value }) => {
-							if (done) return;
-							this.onPacket(value);
-							read();
-						}).catch((err) => {});
-					};
-					read();
-					const packet = { type: "open" };
-					if (this.query.sid) packet.data = `{"sid":"${this.query.sid}"}`;
-					this._writer.write(packet).then(() => this.onOpen());
+				type._store = {};
+				Object.defineProperty(type._store, "validated", {
+					configurable: !1,
+					enumerable: !1,
+					writable: !0,
+					value: 0
 				});
-			});
-		}
-		write(packets) {
-			this.writable = false;
-			for (let i = 0; i < packets.length; i++) {
-				const packet = packets[i];
-				const lastPacket = i === packets.length - 1;
-				this._writer.write(packet).then(() => {
-					if (lastPacket) nextTick(() => {
-						this.writable = true;
-						this.emitReserved("drain");
-					}, this.setTimeoutFn);
+				Object.defineProperty(type, "_debugInfo", {
+					configurable: !1,
+					enumerable: !1,
+					writable: !0,
+					value: null
 				});
-			}
-		}
-		doClose() {
-			var _a;
-			(_a = this._transport) === null || _a === void 0 || _a.close();
-		}
-	};
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/transports/index.js
-	var transports = {
-		websocket: WS,
-		webtransport: WT,
-		polling: XHR
-	};
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/contrib/parseuri.js
-	/**
-	* Parses a URI
-	*
-	* Note: we could also have used the built-in URL object, but it isn't supported on all platforms.
-	*
-	* See:
-	* - https://developer.mozilla.org/en-US/docs/Web/API/URL
-	* - https://caniuse.com/url
-	* - https://www.rfc-editor.org/rfc/rfc3986#appendix-B
-	*
-	* History of the parse() method:
-	* - first commit: https://github.com/socketio/socket.io-client/commit/4ee1d5d94b3906a9c052b459f1a818b15f38f91c
-	* - export into its own module: https://github.com/socketio/engine.io-client/commit/de2c561e4564efeb78f1bdb1ba39ef81b2822cb3
-	* - reimport: https://github.com/socketio/engine.io-client/commit/df32277c3f6d622eec5ed09f493cae3f3391d242
-	*
-	* @author Steven Levithan <stevenlevithan.com> (MIT license)
-	* @api private
-	*/
-	var re = /^(?:(?![^:@\/?#]+:[^:@\/]*@)(http|https|ws|wss):\/\/)?((?:(([^:@\/?#]*)(?::([^:@\/?#]*))?)?@)?((?:[a-f0-9]{0,4}:){2,7}[a-f0-9]{0,4}|[^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
-	var parts = [
-		"source",
-		"protocol",
-		"authority",
-		"userInfo",
-		"user",
-		"password",
-		"host",
-		"port",
-		"relative",
-		"path",
-		"directory",
-		"file",
-		"query",
-		"anchor"
-	];
-	function parse(str) {
-		if (str.length > 8e3) throw "URI too long";
-		const src = str, b = str.indexOf("["), e = str.indexOf("]");
-		if (b != -1 && e != -1) str = str.substring(0, b) + str.substring(b, e).replace(/:/g, ";") + str.substring(e, str.length);
-		let m = re.exec(str || ""), uri = {}, i = 14;
-		while (i--) uri[parts[i]] = m[i] || "";
-		if (b != -1 && e != -1) {
-			uri.source = src;
-			uri.host = uri.host.substring(1, uri.host.length - 1).replace(/;/g, ":");
-			uri.authority = uri.authority.replace("[", "").replace("]", "").replace(/;/g, ":");
-			uri.ipv6uri = true;
-		}
-		uri.pathNames = pathNames(uri, uri["path"]);
-		uri.queryKey = queryKey(uri, uri["query"]);
-		return uri;
-	}
-	function pathNames(obj, path) {
-		const names = path.replace(/\/{2,9}/g, "/").split("/");
-		if (path.slice(0, 1) == "/" || path.length === 0) names.splice(0, 1);
-		if (path.slice(-1) == "/") names.splice(names.length - 1, 1);
-		return names;
-	}
-	function queryKey(uri, query) {
-		const data = {};
-		query.replace(/(?:^|&)([^&=]*)=?([^&]*)/g, function($0, $1, $2) {
-			if ($1) data[$1] = $2;
-		});
-		return data;
-	}
-	//#endregion
-	//#region node_modules/engine.io-client/build/esm/socket.js
-	var withEventListeners = typeof addEventListener === "function" && typeof removeEventListener === "function";
-	var OFFLINE_EVENT_LISTENERS = [];
-	if (withEventListeners) addEventListener("offline", () => {
-		OFFLINE_EVENT_LISTENERS.forEach((listener) => listener());
-	}, false);
-	/**
-	* This class provides a WebSocket-like interface to connect to an Engine.IO server. The connection will be established
-	* with one of the available low-level transports, like HTTP long-polling, WebSocket or WebTransport.
-	*
-	* This class comes without upgrade mechanism, which means that it will keep the first low-level transport that
-	* successfully establishes the connection.
-	*
-	* In order to allow tree-shaking, there are no transports included, that's why the `transports` option is mandatory.
-	*
-	* @example
-	* import { SocketWithoutUpgrade, WebSocket } from "engine.io-client";
-	*
-	* const socket = new SocketWithoutUpgrade({
-	*   transports: [WebSocket]
-	* });
-	*
-	* socket.on("open", () => {
-	*   socket.send("hello");
-	* });
-	*
-	* @see SocketWithUpgrade
-	* @see Socket
-	*/
-	var SocketWithoutUpgrade = class SocketWithoutUpgrade extends Emitter {
-		/**
-		* Socket constructor.
-		*
-		* @param {String|Object} uri - uri or options
-		* @param {Object} opts - options
-		*/
-		constructor(uri, opts) {
-			super();
-			this.binaryType = defaultBinaryType;
-			this.writeBuffer = [];
-			this._prevBufferLen = 0;
-			this._pingInterval = -1;
-			this._pingTimeout = -1;
-			this._maxPayload = -1;
-			/**
-			* The expiration timestamp of the {@link _pingTimeoutTimer} object is tracked, in case the timer is throttled and the
-			* callback is not fired on time. This can happen for example when a laptop is suspended or when a phone is locked.
-			*/
-			this._pingTimeoutTime = Infinity;
-			if (uri && "object" === typeof uri) {
-				opts = uri;
-				uri = null;
-			}
-			if (uri) {
-				const parsedUri = parse(uri);
-				opts.hostname = parsedUri.host;
-				opts.secure = parsedUri.protocol === "https" || parsedUri.protocol === "wss";
-				opts.port = parsedUri.port;
-				if (parsedUri.query) opts.query = parsedUri.query;
-			} else if (opts.host) opts.hostname = parse(opts.host).host;
-			installTimerFunctions(this, opts);
-			this.secure = null != opts.secure ? opts.secure : typeof location !== "undefined" && "https:" === location.protocol;
-			if (opts.hostname && !opts.port) opts.port = this.secure ? "443" : "80";
-			this.hostname = opts.hostname || (typeof location !== "undefined" ? location.hostname : "localhost");
-			this.port = opts.port || (typeof location !== "undefined" && location.port ? location.port : this.secure ? "443" : "80");
-			this.transports = [];
-			this._transportsByName = {};
-			opts.transports.forEach((t) => {
-				const transportName = t.prototype.name;
-				this.transports.push(transportName);
-				this._transportsByName[transportName] = t;
-			});
-			this.opts = Object.assign({
-				path: "/engine.io",
-				agent: false,
-				withCredentials: false,
-				upgrade: true,
-				timestampParam: "t",
-				rememberUpgrade: false,
-				addTrailingSlash: true,
-				rejectUnauthorized: true,
-				perMessageDeflate: { threshold: 1024 },
-				transportOptions: {},
-				closeOnBeforeunload: false
-			}, opts);
-			this.opts.path = this.opts.path.replace(/\/$/, "") + (this.opts.addTrailingSlash ? "/" : "");
-			if (typeof this.opts.query === "string") this.opts.query = decode(this.opts.query);
-			if (withEventListeners) {
-				if (this.opts.closeOnBeforeunload) {
-					this._beforeunloadEventListener = () => {
-						if (this.transport) {
-							this.transport.removeAllListeners();
-							this.transport.close();
-						}
-					};
-					addEventListener("beforeunload", this._beforeunloadEventListener, false);
-				}
-				if (this.hostname !== "localhost") {
-					this._offlineEventListener = () => {
-						this._onClose("transport close", { description: "network connection lost" });
-					};
-					OFFLINE_EVENT_LISTENERS.push(this._offlineEventListener);
-				}
-			}
-			if (this.opts.withCredentials) this._cookieJar = void 0;
-			this._open();
-		}
-		/**
-		* Creates transport of the given type.
-		*
-		* @param {String} name - transport name
-		* @return {Transport}
-		* @private
-		*/
-		createTransport(name) {
-			const query = Object.assign({}, this.opts.query);
-			query.EIO = 4;
-			query.transport = name;
-			if (this.id) query.sid = this.id;
-			const opts = Object.assign({}, this.opts, {
-				query,
-				socket: this,
-				hostname: this.hostname,
-				secure: this.secure,
-				port: this.port
-			}, this.opts.transportOptions[name]);
-			return new this._transportsByName[name](opts);
-		}
-		/**
-		* Initializes transport to use and starts probe.
-		*
-		* @private
-		*/
-		_open() {
-			if (this.transports.length === 0) {
-				this.setTimeoutFn(() => {
-					this.emitReserved("error", "No transports available");
-				}, 0);
-				return;
-			}
-			const transportName = this.opts.rememberUpgrade && SocketWithoutUpgrade.priorWebsocketSuccess && this.transports.indexOf("websocket") !== -1 ? "websocket" : this.transports[0];
-			this.readyState = "opening";
-			const transport = this.createTransport(transportName);
-			transport.open();
-			this.setTransport(transport);
-		}
-		/**
-		* Sets the current transport. Disables the existing one (if any).
-		*
-		* @private
-		*/
-		setTransport(transport) {
-			if (this.transport) this.transport.removeAllListeners();
-			this.transport = transport;
-			transport.on("drain", this._onDrain.bind(this)).on("packet", this._onPacket.bind(this)).on("error", this._onError.bind(this)).on("close", (reason) => this._onClose("transport close", reason));
-		}
-		/**
-		* Called when connection is deemed open.
-		*
-		* @private
-		*/
-		onOpen() {
-			this.readyState = "open";
-			SocketWithoutUpgrade.priorWebsocketSuccess = "websocket" === this.transport.name;
-			this.emitReserved("open");
-			this.flush();
-		}
-		/**
-		* Handles a packet.
-		*
-		* @private
-		*/
-		_onPacket(packet) {
-			if ("opening" === this.readyState || "open" === this.readyState || "closing" === this.readyState) {
-				this.emitReserved("packet", packet);
-				this.emitReserved("heartbeat");
-				switch (packet.type) {
-					case "open":
-						this.onHandshake(JSON.parse(packet.data));
-						break;
-					case "ping":
-						this._sendPacket("pong");
-						this.emitReserved("ping");
-						this.emitReserved("pong");
-						this._resetPingTimeout();
-						break;
-					case "error":
-						const err = /* @__PURE__ */ new Error("server error");
-						err.code = packet.data;
-						this._onError(err);
-						break;
-					case "message":
-						this.emitReserved("data", packet.data);
-						this.emitReserved("message", packet.data);
-				}
-			}
-		}
-		/**
-		* Called upon handshake completion.
-		*
-		* @param {Object} data - handshake obj
-		* @private
-		*/
-		onHandshake(data) {
-			this.emitReserved("handshake", data);
-			this.id = data.sid;
-			this.transport.query.sid = data.sid;
-			this._pingInterval = data.pingInterval;
-			this._pingTimeout = data.pingTimeout;
-			this._maxPayload = data.maxPayload;
-			this.onOpen();
-			if ("closed" === this.readyState) return;
-			this._resetPingTimeout();
-		}
-		/**
-		* Sets and resets ping timeout timer based on server pings.
-		*
-		* @private
-		*/
-		_resetPingTimeout() {
-			this.clearTimeoutFn(this._pingTimeoutTimer);
-			const delay = this._pingInterval + this._pingTimeout;
-			this._pingTimeoutTime = Date.now() + delay;
-			this._pingTimeoutTimer = this.setTimeoutFn(() => {
-				this._onClose("ping timeout");
-			}, delay);
-			if (this.opts.autoUnref) this._pingTimeoutTimer.unref();
-		}
-		/**
-		* Called on `drain` event
-		*
-		* @private
-		*/
-		_onDrain() {
-			this.writeBuffer.splice(0, this._prevBufferLen);
-			this._prevBufferLen = 0;
-			if (0 === this.writeBuffer.length) this.emitReserved("drain");
-			else this.flush();
-		}
-		/**
-		* Flush write buffers.
-		*
-		* @private
-		*/
-		flush() {
-			if ("closed" !== this.readyState && this.transport.writable && !this.upgrading && this.writeBuffer.length) {
-				const packets = this._getWritablePackets();
-				this.transport.send(packets);
-				this._prevBufferLen = packets.length;
-				this.emitReserved("flush");
-			}
-		}
-		/**
-		* Ensure the encoded size of the writeBuffer is below the maxPayload value sent by the server (only for HTTP
-		* long-polling)
-		*
-		* @private
-		*/
-		_getWritablePackets() {
-			if (!(this._maxPayload && this.transport.name === "polling" && this.writeBuffer.length > 1)) return this.writeBuffer;
-			let payloadSize = 1;
-			for (let i = 0; i < this.writeBuffer.length; i++) {
-				const data = this.writeBuffer[i].data;
-				if (data) payloadSize += byteLength(data);
-				if (i > 0 && payloadSize > this._maxPayload) return this.writeBuffer.slice(0, i);
-				payloadSize += 2;
-			}
-			return this.writeBuffer;
-		}
-		/**
-		* Checks whether the heartbeat timer has expired but the socket has not yet been notified.
-		*
-		* Note: this method is private for now because it does not really fit the WebSocket API, but if we put it in the
-		* `write()` method then the message would not be buffered by the Socket.IO client.
-		*
-		* @return {boolean}
-		* @private
-		*/
-		_hasPingExpired() {
-			if (!this._pingTimeoutTime) return true;
-			const hasExpired = Date.now() > this._pingTimeoutTime;
-			if (hasExpired) {
-				this._pingTimeoutTime = 0;
-				nextTick(() => {
-					this._onClose("ping timeout");
-				}, this.setTimeoutFn);
-			}
-			return hasExpired;
-		}
-		/**
-		* Sends a message.
-		*
-		* @param {String} msg - message.
-		* @param {Object} options.
-		* @param {Function} fn - callback function.
-		* @return {Socket} for chaining.
-		*/
-		write(msg, options, fn) {
-			this._sendPacket("message", msg, options, fn);
-			return this;
-		}
-		/**
-		* Sends a message. Alias of {@link Socket#write}.
-		*
-		* @param {String} msg - message.
-		* @param {Object} options.
-		* @param {Function} fn - callback function.
-		* @return {Socket} for chaining.
-		*/
-		send(msg, options, fn) {
-			this._sendPacket("message", msg, options, fn);
-			return this;
-		}
-		/**
-		* Sends a packet.
-		*
-		* @param {String} type - packet type.
-		* @param {String} data.
-		* @param {Object} options.
-		* @param {Function} fn - callback function.
-		* @private
-		*/
-		_sendPacket(type, data, options, fn) {
-			if ("function" === typeof data) {
-				fn = data;
-				data = void 0;
-			}
-			if ("function" === typeof options) {
-				fn = options;
-				options = null;
-			}
-			if ("closing" === this.readyState || "closed" === this.readyState) return;
-			options = options || {};
-			options.compress = false !== options.compress;
-			const packet = {
-				type,
-				data,
-				options
-			};
-			this.emitReserved("packetCreate", packet);
-			this.writeBuffer.push(packet);
-			if (fn) this.once("flush", fn);
-			this.flush();
-		}
-		/**
-		* Closes the connection.
-		*/
-		close() {
-			const close = () => {
-				this._onClose("forced close");
-				this.transport.close();
-			};
-			const cleanupAndClose = () => {
-				this.off("upgrade", cleanupAndClose);
-				this.off("upgradeError", cleanupAndClose);
-				close();
-			};
-			const waitForUpgrade = () => {
-				this.once("upgrade", cleanupAndClose);
-				this.once("upgradeError", cleanupAndClose);
-			};
-			if ("opening" === this.readyState || "open" === this.readyState) {
-				this.readyState = "closing";
-				if (this.writeBuffer.length) this.once("drain", () => {
-					if (this.upgrading) waitForUpgrade();
-					else close();
+				Object.defineProperty(type, "_debugStack", {
+					configurable: !1,
+					enumerable: !1,
+					writable: !0,
+					value: debugStack
 				});
-				else if (this.upgrading) waitForUpgrade();
-				else close();
-			}
-			return this;
-		}
-		/**
-		* Called upon transport error
-		*
-		* @private
-		*/
-		_onError(err) {
-			SocketWithoutUpgrade.priorWebsocketSuccess = false;
-			if (this.opts.tryAllTransports && this.transports.length > 1 && this.readyState === "opening") {
-				this.transports.shift();
-				return this._open();
-			}
-			this.emitReserved("error", err);
-			this._onClose("transport error", err);
-		}
-		/**
-		* Called upon transport close.
-		*
-		* @private
-		*/
-		_onClose(reason, description) {
-			if ("opening" === this.readyState || "open" === this.readyState || "closing" === this.readyState) {
-				this.clearTimeoutFn(this._pingTimeoutTimer);
-				this.transport.removeAllListeners("close");
-				this.transport.close();
-				this.transport.removeAllListeners();
-				if (withEventListeners) {
-					if (this._beforeunloadEventListener) removeEventListener("beforeunload", this._beforeunloadEventListener, false);
-					if (this._offlineEventListener) {
-						const i = OFFLINE_EVENT_LISTENERS.indexOf(this._offlineEventListener);
-						if (i !== -1) OFFLINE_EVENT_LISTENERS.splice(i, 1);
-					}
-				}
-				this.readyState = "closed";
-				this.id = null;
-				this.emitReserved("close", reason, description);
-				this.writeBuffer = [];
-				this._prevBufferLen = 0;
-			}
-		}
-	};
-	SocketWithoutUpgrade.protocol = 4;
-	/**
-	* This class provides a WebSocket-like interface to connect to an Engine.IO server. The connection will be established
-	* with one of the available low-level transports, like HTTP long-polling, WebSocket or WebTransport.
-	*
-	* This class comes with an upgrade mechanism, which means that once the connection is established with the first
-	* low-level transport, it will try to upgrade to a better transport.
-	*
-	* In order to allow tree-shaking, there are no transports included, that's why the `transports` option is mandatory.
-	*
-	* @example
-	* import { SocketWithUpgrade, WebSocket } from "engine.io-client";
-	*
-	* const socket = new SocketWithUpgrade({
-	*   transports: [WebSocket]
-	* });
-	*
-	* socket.on("open", () => {
-	*   socket.send("hello");
-	* });
-	*
-	* @see SocketWithoutUpgrade
-	* @see Socket
-	*/
-	var SocketWithUpgrade = class extends SocketWithoutUpgrade {
-		constructor() {
-			super(...arguments);
-			this._upgrades = [];
-		}
-		onOpen() {
-			super.onOpen();
-			if ("open" === this.readyState && this.opts.upgrade) for (let i = 0; i < this._upgrades.length; i++) this._probe(this._upgrades[i]);
-		}
-		/**
-		* Probes a transport.
-		*
-		* @param {String} name - transport name
-		* @private
-		*/
-		_probe(name) {
-			let transport = this.createTransport(name);
-			let failed = false;
-			SocketWithoutUpgrade.priorWebsocketSuccess = false;
-			const onTransportOpen = () => {
-				if (failed) return;
-				transport.send([{
-					type: "ping",
-					data: "probe"
-				}]);
-				transport.once("packet", (msg) => {
-					if (failed) return;
-					if ("pong" === msg.type && "probe" === msg.data) {
-						this.upgrading = true;
-						this.emitReserved("upgrading", transport);
-						if (!transport) return;
-						SocketWithoutUpgrade.priorWebsocketSuccess = "websocket" === transport.name;
-						this.transport.pause(() => {
-							if (failed) return;
-							if ("closed" === this.readyState) return;
-							cleanup();
-							this.setTransport(transport);
-							transport.send([{ type: "upgrade" }]);
-							this.emitReserved("upgrade", transport);
-							transport = null;
-							this.upgrading = false;
-							this.flush();
-						});
-					} else {
-						const err = /* @__PURE__ */ new Error("probe error");
-						err.transport = transport.name;
-						this.emitReserved("upgradeError", err);
-					}
+				Object.defineProperty(type, "_debugTask", {
+					configurable: !1,
+					enumerable: !1,
+					writable: !0,
+					value: debugTask
 				});
-			};
-			function freezeTransport() {
-				if (failed) return;
-				failed = true;
-				cleanup();
-				transport.close();
-				transport = null;
+				Object.freeze && (Object.freeze(type.props), Object.freeze(type));
+				return type;
 			}
-			const onerror = (err) => {
-				const error = /* @__PURE__ */ new Error("probe error: " + err);
-				error.transport = transport.name;
-				freezeTransport();
-				this.emitReserved("upgradeError", error);
-			};
-			function onTransportClose() {
-				onerror("transport closed");
-			}
-			function onclose() {
-				onerror("socket closed");
-			}
-			function onupgrade(to) {
-				if (transport && to.name !== transport.name) freezeTransport();
-			}
-			const cleanup = () => {
-				transport.removeListener("open", onTransportOpen);
-				transport.removeListener("error", onerror);
-				transport.removeListener("close", onTransportClose);
-				this.off("close", onclose);
-				this.off("upgrading", onupgrade);
-			};
-			transport.once("open", onTransportOpen);
-			transport.once("error", onerror);
-			transport.once("close", onTransportClose);
-			this.once("close", onclose);
-			this.once("upgrading", onupgrade);
-			if (this._upgrades.indexOf("webtransport") !== -1 && name !== "webtransport") this.setTimeoutFn(() => {
-				if (!failed) transport.open();
-			}, 200);
-			else transport.open();
-		}
-		onHandshake(data) {
-			this._upgrades = this._filterUpgrades(data.upgrades);
-			super.onHandshake(data);
-		}
-		/**
-		* Filters upgrades, returning only those matching client transports.
-		*
-		* @param {Array} upgrades - server upgrades
-		* @private
-		*/
-		_filterUpgrades(upgrades) {
-			const filteredUpgrades = [];
-			for (let i = 0; i < upgrades.length; i++) if (~this.transports.indexOf(upgrades[i])) filteredUpgrades.push(upgrades[i]);
-			return filteredUpgrades;
-		}
-	};
-	/**
-	* This class provides a WebSocket-like interface to connect to an Engine.IO server. The connection will be established
-	* with one of the available low-level transports, like HTTP long-polling, WebSocket or WebTransport.
-	*
-	* This class comes with an upgrade mechanism, which means that once the connection is established with the first
-	* low-level transport, it will try to upgrade to a better transport.
-	*
-	* @example
-	* import { Socket } from "engine.io-client";
-	*
-	* const socket = new Socket();
-	*
-	* socket.on("open", () => {
-	*   socket.send("hello");
-	* });
-	*
-	* @see SocketWithoutUpgrade
-	* @see SocketWithUpgrade
-	*/
-	var Socket$1 = class extends SocketWithUpgrade {
-		constructor(uri, opts = {}) {
-			const isOptionsOnly = typeof uri === "object";
-			const o = isOptionsOnly ? { ...uri } : { ...opts };
-			if (!o.transports || o.transports && typeof o.transports[0] === "string") o.transports = (o.transports || [
-				"polling",
-				"websocket",
-				"webtransport"
-			]).map((transportName) => transports[transportName]).filter((t) => !!t);
-			super(isOptionsOnly ? o : uri, o);
-		}
-	};
-	Socket$1.protocol;
-	//#endregion
-	//#region node_modules/socket.io-client/build/esm/url.js
-	/**
-	* URL parser.
-	*
-	* @param uri - url
-	* @param path - the request path of the connection
-	* @param loc - An object meant to mimic window.location.
-	*        Defaults to window.location.
-	* @public
-	*/
-	function url(uri, path = "", loc) {
-		let obj = uri;
-		loc = loc || typeof location !== "undefined" && location;
-		if (null == uri) uri = loc.protocol + "//" + loc.host;
-		if (typeof uri === "string") {
-			if ("/" === uri.charAt(0)) {
-				if ("/" === uri.charAt(1)) uri = loc.protocol + uri;
-				else uri = loc.host + uri;
-			}
-			if (!/^(https?|wss?):\/\//.test(uri)) {
-				if ("undefined" !== typeof loc) uri = loc.protocol + "//" + uri;
-				else uri = "https://" + uri;
-			}
-			obj = parse(uri);
-		}
-		if (!obj.port) {
-			if (/^(http|ws)$/.test(obj.protocol)) obj.port = "80";
-			else if (/^(http|ws)s$/.test(obj.protocol)) obj.port = "443";
-		}
-		obj.path = obj.path || "/";
-		const host = obj.host.indexOf(":") !== -1 ? "[" + obj.host + "]" : obj.host;
-		obj.id = obj.protocol + "://" + host + ":" + obj.port + path;
-		obj.href = obj.protocol + "://" + host + (loc && loc.port === obj.port ? "" : ":" + obj.port);
-		return obj;
-	}
-	//#endregion
-	//#region node_modules/socket.io-parser/build/esm-debug/is-binary.js
-	var withNativeArrayBuffer = typeof ArrayBuffer === "function";
-	var isView = (obj) => {
-		return typeof ArrayBuffer.isView === "function" ? ArrayBuffer.isView(obj) : obj.buffer instanceof ArrayBuffer;
-	};
-	var toString = Object.prototype.toString;
-	var withNativeBlob = typeof Blob === "function" || typeof Blob !== "undefined" && toString.call(Blob) === "[object BlobConstructor]";
-	var withNativeFile = typeof File === "function" || typeof File !== "undefined" && toString.call(File) === "[object FileConstructor]";
-	/**
-	* Returns true if obj is a Buffer, an ArrayBuffer, a Blob or a File.
-	*
-	* @private
-	*/
-	function isBinary(obj) {
-		return withNativeArrayBuffer && (obj instanceof ArrayBuffer || isView(obj)) || withNativeBlob && obj instanceof Blob || withNativeFile && obj instanceof File;
-	}
-	function hasBinary(obj, toJSON) {
-		if (!obj || typeof obj !== "object") return false;
-		if (Array.isArray(obj)) {
-			for (let i = 0, l = obj.length; i < l; i++) if (hasBinary(obj[i])) return true;
-			return false;
-		}
-		if (isBinary(obj)) return true;
-		if (obj.toJSON && typeof obj.toJSON === "function" && arguments.length === 1) return hasBinary(obj.toJSON(), true);
-		for (const key in obj) if (Object.prototype.hasOwnProperty.call(obj, key) && hasBinary(obj[key])) return true;
-		return false;
-	}
-	//#endregion
-	//#region node_modules/socket.io-parser/build/esm-debug/binary.js
-	/**
-	* Replaces every Buffer | ArrayBuffer | Blob | File in packet with a numbered placeholder.
-	*
-	* @param {Object} packet - socket.io event packet
-	* @return {Object} with deconstructed packet and list of buffers
-	* @public
-	*/
-	function deconstructPacket(packet) {
-		const buffers = [];
-		const packetData = packet.data;
-		const pack = packet;
-		pack.data = _deconstructPacket(packetData, buffers);
-		pack.attachments = buffers.length;
-		return {
-			packet: pack,
-			buffers
-		};
-	}
-	function _deconstructPacket(data, buffers, toJSON) {
-		if (!data) return data;
-		if (isBinary(data)) {
-			const placeholder = {
-				_placeholder: true,
-				num: buffers.length
-			};
-			buffers.push(data);
-			return placeholder;
-		} else if (Array.isArray(data)) {
-			const newData = new Array(data.length);
-			for (let i = 0; i < data.length; i++) newData[i] = _deconstructPacket(data[i], buffers);
-			return newData;
-		} else if (typeof data === "object" && !(data instanceof Date)) {
-			if (data.toJSON && typeof data.toJSON === "function" && !toJSON) return _deconstructPacket(data.toJSON(), buffers, true);
-			const newData = {};
-			for (const key in data) if (Object.prototype.hasOwnProperty.call(data, key)) newData[key] = _deconstructPacket(data[key], buffers);
-			return newData;
-		}
-		return data;
-	}
-	/**
-	* Reconstructs a binary packet from its placeholder packet and buffers
-	*
-	* @param {Object} packet - event packet with placeholders
-	* @param {Array} buffers - binary buffers to put in placeholder positions
-	* @return {Object} reconstructed packet
-	* @public
-	*/
-	function reconstructPacket(packet, buffers) {
-		packet.data = _reconstructPacket(packet.data, buffers);
-		delete packet.attachments;
-		return packet;
-	}
-	function _reconstructPacket(data, buffers) {
-		if (!data) return data;
-		if (data && data._placeholder === true) {
-			if (typeof data.num === "number" && data.num >= 0 && data.num < buffers.length) return buffers[data.num];
-			else throw new Error("illegal attachments");
-		} else if (Array.isArray(data)) for (let i = 0; i < data.length; i++) data[i] = _reconstructPacket(data[i], buffers);
-		else if (typeof data === "object") {
-			for (const key in data) if (Object.prototype.hasOwnProperty.call(data, key)) data[key] = _reconstructPacket(data[key], buffers);
-		}
-		return data;
-	}
-	//#endregion
-	//#region node_modules/ms/index.js
-	var require_ms = /* @__PURE__ */ __commonJSMin(((exports, module) => {
-		/**
-		* Helpers.
-		*/
-		var s = 1e3;
-		var m = s * 60;
-		var h = m * 60;
-		var d = h * 24;
-		var w = d * 7;
-		var y = d * 365.25;
-		/**
-		* Parse or format the given `val`.
-		*
-		* Options:
-		*
-		*  - `long` verbose formatting [false]
-		*
-		* @param {String|Number} val
-		* @param {Object} [options]
-		* @throws {Error} throw an error if val is not a non-empty string or a number
-		* @return {String|Number}
-		* @api public
-		*/
-		module.exports = function(val, options) {
-			options = options || {};
-			var type = typeof val;
-			if (type === "string" && val.length > 0) return parse(val);
-			else if (type === "number" && isFinite(val)) return options.long ? fmtLong(val) : fmtShort(val);
-			throw new Error("val is not a non-empty string or a valid number. val=" + JSON.stringify(val));
-		};
-		/**
-		* Parse the given `str` and return milliseconds.
-		*
-		* @param {String} str
-		* @return {Number}
-		* @api private
-		*/
-		function parse(str) {
-			str = String(str);
-			if (str.length > 100) return;
-			var match = /^(-?(?:\d+)?\.?\d+) *(milliseconds?|msecs?|ms|seconds?|secs?|s|minutes?|mins?|m|hours?|hrs?|h|days?|d|weeks?|w|years?|yrs?|y)?$/i.exec(str);
-			if (!match) return;
-			var n = parseFloat(match[1]);
-			switch ((match[2] || "ms").toLowerCase()) {
-				case "years":
-				case "year":
-				case "yrs":
-				case "yr":
-				case "y": return n * y;
-				case "weeks":
-				case "week":
-				case "w": return n * w;
-				case "days":
-				case "day":
-				case "d": return n * d;
-				case "hours":
-				case "hour":
-				case "hrs":
-				case "hr":
-				case "h": return n * h;
-				case "minutes":
-				case "minute":
-				case "mins":
-				case "min":
-				case "m": return n * m;
-				case "seconds":
-				case "second":
-				case "secs":
-				case "sec":
-				case "s": return n * s;
-				case "milliseconds":
-				case "millisecond":
-				case "msecs":
-				case "msec":
-				case "ms": return n;
-				default: return;
-			}
-		}
-		/**
-		* Short format for `ms`.
-		*
-		* @param {Number} ms
-		* @return {String}
-		* @api private
-		*/
-		function fmtShort(ms) {
-			var msAbs = Math.abs(ms);
-			if (msAbs >= d) return Math.round(ms / d) + "d";
-			if (msAbs >= h) return Math.round(ms / h) + "h";
-			if (msAbs >= m) return Math.round(ms / m) + "m";
-			if (msAbs >= s) return Math.round(ms / s) + "s";
-			return ms + "ms";
-		}
-		/**
-		* Long format for `ms`.
-		*
-		* @param {Number} ms
-		* @return {String}
-		* @api private
-		*/
-		function fmtLong(ms) {
-			var msAbs = Math.abs(ms);
-			if (msAbs >= d) return plural(ms, msAbs, d, "day");
-			if (msAbs >= h) return plural(ms, msAbs, h, "hour");
-			if (msAbs >= m) return plural(ms, msAbs, m, "minute");
-			if (msAbs >= s) return plural(ms, msAbs, s, "second");
-			return ms + " ms";
-		}
-		/**
-		* Pluralization helper.
-		*/
-		function plural(ms, msAbs, n, name) {
-			var isPlural = msAbs >= n * 1.5;
-			return Math.round(ms / n) + " " + name + (isPlural ? "s" : "");
-		}
-	}));
-	//#endregion
-	//#region node_modules/debug/src/common.js
-	var require_common = /* @__PURE__ */ __commonJSMin(((exports, module) => {
-		/**
-		* This is the common logic for both the Node.js and web browser
-		* implementations of `debug()`.
-		*/
-		function setup(env) {
-			createDebug.debug = createDebug;
-			createDebug.default = createDebug;
-			createDebug.coerce = coerce;
-			createDebug.disable = disable;
-			createDebug.enable = enable;
-			createDebug.enabled = enabled;
-			createDebug.humanize = require_ms();
-			createDebug.destroy = destroy;
-			Object.keys(env).forEach((key) => {
-				createDebug[key] = env[key];
-			});
-			/**
-			* The currently active debug mode names, and names to skip.
-			*/
-			createDebug.names = [];
-			createDebug.skips = [];
-			/**
-			* Map of special "%n" handling functions, for the debug "format" argument.
-			*
-			* Valid key names are a single, lower or upper-case letter, i.e. "n" and "N".
-			*/
-			createDebug.formatters = {};
-			/**
-			* Selects a color for a debug namespace
-			* @param {String} namespace The namespace string for the debug instance to be colored
-			* @return {Number|String} An ANSI color code for the given namespace
-			* @api private
-			*/
-			function selectColor(namespace) {
-				let hash = 0;
-				for (let i = 0; i < namespace.length; i++) {
-					hash = (hash << 5) - hash + namespace.charCodeAt(i);
-					hash |= 0;
-				}
-				return createDebug.colors[Math.abs(hash) % createDebug.colors.length];
-			}
-			createDebug.selectColor = selectColor;
-			/**
-			* Create a debugger with the given `namespace`.
-			*
-			* @param {String} namespace
-			* @return {Function}
-			* @api public
-			*/
-			function createDebug(namespace) {
-				let prevTime;
-				let enableOverride = null;
-				let namespacesCache;
-				let enabledCache;
-				function debug(...args) {
-					if (!debug.enabled) return;
-					const self = debug;
-					const curr = Number(/* @__PURE__ */ new Date());
-					self.diff = curr - (prevTime || curr);
-					self.prev = prevTime;
-					self.curr = curr;
-					prevTime = curr;
-					args[0] = createDebug.coerce(args[0]);
-					if (typeof args[0] !== "string") args.unshift("%O");
-					let index = 0;
-					args[0] = args[0].replace(/%([a-zA-Z%])/g, (match, format) => {
-						if (match === "%%") return "%";
-						index++;
-						const formatter = createDebug.formatters[format];
-						if (typeof formatter === "function") {
-							const val = args[index];
-							match = formatter.call(self, val);
-							args.splice(index, 1);
-							index--;
-						}
-						return match;
+			function jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStack, debugTask) {
+				var children = config.children;
+				if (void 0 !== children) if (isStaticChildren) if (isArrayImpl(children)) {
+					for (isStaticChildren = 0; isStaticChildren < children.length; isStaticChildren++) validateChildKeys(children[isStaticChildren]);
+					Object.freeze && Object.freeze(children);
+				} else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
+				else validateChildKeys(children);
+				if (hasOwnProperty.call(config, "key")) {
+					children = getComponentNameFromType(type);
+					var keys = Object.keys(config).filter(function(k) {
+						return "key" !== k;
 					});
-					createDebug.formatArgs.call(self, args);
-					(self.log || createDebug.log).apply(self, args);
+					isStaticChildren = 0 < keys.length ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
+					didWarnAboutKeySpread[children + isStaticChildren] || (keys = 0 < keys.length ? "{" + keys.join(": ..., ") + ": ...}" : "{}", console.error("A props object containing a \"key\" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />", isStaticChildren, children, keys, children), didWarnAboutKeySpread[children + isStaticChildren] = !0);
 				}
-				debug.namespace = namespace;
-				debug.useColors = createDebug.useColors();
-				debug.color = createDebug.selectColor(namespace);
-				debug.extend = extend;
-				debug.destroy = createDebug.destroy;
-				Object.defineProperty(debug, "enabled", {
-					enumerable: true,
-					configurable: false,
-					get: () => {
-						if (enableOverride !== null) return enableOverride;
-						if (namespacesCache !== createDebug.namespaces) {
-							namespacesCache = createDebug.namespaces;
-							enabledCache = createDebug.enabled(namespace);
-						}
-						return enabledCache;
-					},
-					set: (v) => {
-						enableOverride = v;
-					}
-				});
-				if (typeof createDebug.init === "function") createDebug.init(debug);
-				return debug;
+				children = null;
+				void 0 !== maybeKey && (checkKeyStringCoercion(maybeKey), children = "" + maybeKey);
+				hasValidKey(config) && (checkKeyStringCoercion(config.key), children = "" + config.key);
+				if ("key" in config) {
+					maybeKey = {};
+					for (var propName in config) "key" !== propName && (maybeKey[propName] = config[propName]);
+				} else maybeKey = config;
+				children && defineKeyPropWarningGetter(maybeKey, "function" === typeof type ? type.displayName || type.name || "Unknown" : type);
+				return ReactElement(type, children, maybeKey, getOwner(), debugStack, debugTask);
 			}
-			function extend(namespace, delimiter) {
-				const newDebug = createDebug(this.namespace + (typeof delimiter === "undefined" ? ":" : delimiter) + namespace);
-				newDebug.log = this.log;
-				return newDebug;
+			function validateChildKeys(node) {
+				isValidElement(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$$typeof === REACT_LAZY_TYPE && ("fulfilled" === node._payload.status ? isValidElement(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
 			}
-			/**
-			* Enables a debug mode by namespaces. This can include modes
-			* separated by a colon and wildcards.
-			*
-			* @param {String} namespaces
-			* @api public
-			*/
-			function enable(namespaces) {
-				createDebug.save(namespaces);
-				createDebug.namespaces = namespaces;
-				createDebug.names = [];
-				createDebug.skips = [];
-				const split = (typeof namespaces === "string" ? namespaces : "").trim().replace(/\s+/g, ",").split(",").filter(Boolean);
-				for (const ns of split) if (ns[0] === "-") createDebug.skips.push(ns.slice(1));
-				else createDebug.names.push(ns);
+			function isValidElement(object) {
+				return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
 			}
-			/**
-			* Checks if the given string matches a namespace template, honoring
-			* asterisks as wildcards.
-			*
-			* @param {String} search
-			* @param {String} template
-			* @return {Boolean}
-			*/
-			function matchesTemplate(search, template) {
-				let searchIndex = 0;
-				let templateIndex = 0;
-				let starIndex = -1;
-				let matchIndex = 0;
-				while (searchIndex < search.length) if (templateIndex < template.length && (template[templateIndex] === search[searchIndex] || template[templateIndex] === "*")) {
-					if (template[templateIndex] === "*") {
-						starIndex = templateIndex;
-						matchIndex = searchIndex;
-						templateIndex++;
-					} else {
-						searchIndex++;
-						templateIndex++;
-					}
-				} else if (starIndex !== -1) {
-					templateIndex = starIndex + 1;
-					matchIndex++;
-					searchIndex = matchIndex;
-				} else return false;
-				while (templateIndex < template.length && template[templateIndex] === "*") templateIndex++;
-				return templateIndex === template.length;
-			}
-			/**
-			* Disable debug output.
-			*
-			* @return {String} namespaces
-			* @api public
-			*/
-			function disable() {
-				const namespaces = [...createDebug.names, ...createDebug.skips.map((namespace) => "-" + namespace)].join(",");
-				createDebug.enable("");
-				return namespaces;
-			}
-			/**
-			* Returns true if the given mode name is enabled, false otherwise.
-			*
-			* @param {String} name
-			* @return {Boolean}
-			* @api public
-			*/
-			function enabled(name) {
-				for (const skip of createDebug.skips) if (matchesTemplate(name, skip)) return false;
-				for (const ns of createDebug.names) if (matchesTemplate(name, ns)) return true;
-				return false;
-			}
-			/**
-			* Coerce `val`.
-			*
-			* @param {Mixed} val
-			* @return {Mixed}
-			* @api private
-			*/
-			function coerce(val) {
-				if (val instanceof Error) return val.stack || val.message;
-				return val;
-			}
-			/**
-			* XXX DO NOT USE. This is a temporary stub function.
-			* XXX It WILL be removed in the next major release.
-			*/
-			function destroy() {
-				console.warn("Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
-			}
-			createDebug.enable(createDebug.load());
-			return createDebug;
-		}
-		module.exports = setup;
-	}));
-	//#endregion
-	//#region node_modules/debug/src/browser.js
-	var require_browser = /* @__PURE__ */ __commonJSMin(((exports, module) => {
-		/**
-		* This is the web browser implementation of `debug()`.
-		*/
-		exports.formatArgs = formatArgs;
-		exports.save = save;
-		exports.load = load;
-		exports.useColors = useColors;
-		exports.storage = localstorage();
-		exports.destroy = (() => {
-			let warned = false;
-			return () => {
-				if (!warned) {
-					warned = true;
-					console.warn("Instance method `debug.destroy()` is deprecated and no longer does anything. It will be removed in the next major version of `debug`.");
-				}
+			var React = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_VIEW_TRANSITION_TYPE = Symbol.for("react.view_transition"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+				return null;
+			};
+			React = { react_stack_bottom_frame: function(callStackForError) {
+				return callStackForError();
+			} };
+			var specialPropKeyWarningShown;
+			var didWarnAboutElementRef = {};
+			var unknownOwnerDebugStack = React.react_stack_bottom_frame.bind(React, UnknownOwner)();
+			var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
+			var didWarnAboutKeySpread = {};
+			exports.Fragment = REACT_FRAGMENT_TYPE;
+			exports.jsxDEV = function(type, config, maybeKey, isStaticChildren) {
+				var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
+				if (trackActualOwner) {
+					var previousStackTraceLimit = Error.stackTraceLimit;
+					Error.stackTraceLimit = 10;
+					var debugStackDEV = Error("react-stack-top-frame");
+					Error.stackTraceLimit = previousStackTraceLimit;
+				} else debugStackDEV = unknownOwnerDebugStack;
+				return jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStackDEV, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
 			};
 		})();
-		/**
-		* Colors.
-		*/
-		exports.colors = [
-			"#0000CC",
-			"#0000FF",
-			"#0033CC",
-			"#0033FF",
-			"#0066CC",
-			"#0066FF",
-			"#0099CC",
-			"#0099FF",
-			"#00CC00",
-			"#00CC33",
-			"#00CC66",
-			"#00CC99",
-			"#00CCCC",
-			"#00CCFF",
-			"#3300CC",
-			"#3300FF",
-			"#3333CC",
-			"#3333FF",
-			"#3366CC",
-			"#3366FF",
-			"#3399CC",
-			"#3399FF",
-			"#33CC00",
-			"#33CC33",
-			"#33CC66",
-			"#33CC99",
-			"#33CCCC",
-			"#33CCFF",
-			"#6600CC",
-			"#6600FF",
-			"#6633CC",
-			"#6633FF",
-			"#66CC00",
-			"#66CC33",
-			"#9900CC",
-			"#9900FF",
-			"#9933CC",
-			"#9933FF",
-			"#99CC00",
-			"#99CC33",
-			"#CC0000",
-			"#CC0033",
-			"#CC0066",
-			"#CC0099",
-			"#CC00CC",
-			"#CC00FF",
-			"#CC3300",
-			"#CC3333",
-			"#CC3366",
-			"#CC3399",
-			"#CC33CC",
-			"#CC33FF",
-			"#CC6600",
-			"#CC6633",
-			"#CC9900",
-			"#CC9933",
-			"#CCCC00",
-			"#CCCC33",
-			"#FF0000",
-			"#FF0033",
-			"#FF0066",
-			"#FF0099",
-			"#FF00CC",
-			"#FF00FF",
-			"#FF3300",
-			"#FF3333",
-			"#FF3366",
-			"#FF3399",
-			"#FF33CC",
-			"#FF33FF",
-			"#FF6600",
-			"#FF6633",
-			"#FF9900",
-			"#FF9933",
-			"#FFCC00",
-			"#FFCC33"
-		];
-		/**
-		* Currently only WebKit-based Web Inspectors, Firefox >= v31,
-		* and the Firebug extension (any Firefox version) are known
-		* to support "%c" CSS customizations.
-		*
-		* TODO: add a `localStorage` variable to explicitly enable/disable colors
-		*/
-		function useColors() {
-			if (typeof window !== "undefined" && window.process && (window.process.type === "renderer" || window.process.__nwjs)) return true;
-			if (typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/(edge|trident)\/(\d+)/)) return false;
-			let m;
-			return typeof document !== "undefined" && document.documentElement && document.documentElement.style && document.documentElement.style.WebkitAppearance || typeof window !== "undefined" && window.console && (window.console.firebug || window.console.exception && window.console.table) || typeof navigator !== "undefined" && navigator.userAgent && (m = navigator.userAgent.toLowerCase().match(/firefox\/(\d+)/)) && parseInt(m[1], 10) >= 31 || typeof navigator !== "undefined" && navigator.userAgent && navigator.userAgent.toLowerCase().match(/applewebkit\/(\d+)/);
-		}
-		/**
-		* Colorize log arguments if enabled.
-		*
-		* @api public
-		*/
-		function formatArgs(args) {
-			args[0] = (this.useColors ? "%c" : "") + this.namespace + (this.useColors ? " %c" : " ") + args[0] + (this.useColors ? "%c " : " ") + "+" + module.exports.humanize(this.diff);
-			if (!this.useColors) return;
-			const c = "color: " + this.color;
-			args.splice(1, 0, c, "color: inherit");
-			let index = 0;
-			let lastC = 0;
-			args[0].replace(/%[a-zA-Z%]/g, (match) => {
-				if (match === "%%") return;
-				index++;
-				if (match === "%c") lastC = index;
-			});
-			args.splice(lastC, 0, c);
-		}
-		/**
-		* Invokes `console.debug()` when available.
-		* No-op when `console.debug` is not a "function".
-		* If `console.debug` is not available, falls back
-		* to `console.log`.
-		*
-		* @api public
-		*/
-		exports.log = console.debug || console.log || (() => {});
-		/**
-		* Save `namespaces`.
-		*
-		* @param {String} namespaces
-		* @api private
-		*/
-		function save(namespaces) {
-			try {
-				if (namespaces) exports.storage.setItem("debug", namespaces);
-				else exports.storage.removeItem("debug");
-			} catch (error) {}
-		}
-		/**
-		* Load `namespaces`.
-		*
-		* @return {String} returns the previously persisted debug modes
-		* @api private
-		*/
-		function load() {
-			let r;
-			try {
-				r = exports.storage.getItem("debug") || exports.storage.getItem("DEBUG");
-			} catch (error) {}
-			if (!r && typeof process !== "undefined" && "env" in process) r = process.env.DEBUG;
-			return r;
-		}
-		/**
-		* Localstorage attempts to return the localstorage.
-		*
-		* This is necessary because safari throws
-		* when a user disables cookies/localstorage
-		* and you attempt to access it.
-		*
-		* @return {LocalStorage}
-		* @api private
-		*/
-		function localstorage() {
-			try {
-				return localStorage;
-			} catch (error) {}
-		}
-		module.exports = require_common()(exports);
-		var { formatters } = module.exports;
-		/**
-		* Map %j to `JSON.stringify()`, since no Web Inspectors do that by default.
-		*/
-		formatters.j = function(v) {
-			try {
-				return JSON.stringify(v);
-			} catch (error) {
-				return "[UnexpectedJSONParseError]: " + error.message;
-			}
-		};
 	}));
 	//#endregion
-	//#region node_modules/socket.io-parser/build/esm-debug/index.js
-	var esm_debug_exports = /* @__PURE__ */ __exportAll({
-		Decoder: () => Decoder,
-		Encoder: () => Encoder,
-		PacketType: () => PacketType,
-		isPacketValid: () => isPacketValid,
-		protocol: () => 5
-	});
-	var debug = (0, (/* @__PURE__ */ __toESM(require_browser())).default)("socket.io-parser");
-	/**
-	* These strings must not be used as event names, as they have a special meaning.
-	*/
-	var RESERVED_EVENTS$1 = [
-		"connect",
-		"connect_error",
-		"disconnect",
-		"disconnecting",
-		"newListener",
-		"removeListener"
-	];
-	var PacketType;
-	(function(PacketType) {
-		PacketType[PacketType["CONNECT"] = 0] = "CONNECT";
-		PacketType[PacketType["DISCONNECT"] = 1] = "DISCONNECT";
-		PacketType[PacketType["EVENT"] = 2] = "EVENT";
-		PacketType[PacketType["ACK"] = 3] = "ACK";
-		PacketType[PacketType["CONNECT_ERROR"] = 4] = "CONNECT_ERROR";
-		PacketType[PacketType["BINARY_EVENT"] = 5] = "BINARY_EVENT";
-		PacketType[PacketType["BINARY_ACK"] = 6] = "BINARY_ACK";
-	})(PacketType || (PacketType = {}));
-	/**
-	* A socket.io Encoder instance
-	*/
-	var Encoder = class {
-		/**
-		* Encoder constructor
-		*
-		* @param {function} replacer - custom replacer to pass down to JSON.parse
-		*/
-		constructor(replacer) {
-			this.replacer = replacer;
-		}
-		/**
-		* Encode a packet as a single string if non-binary, or as a
-		* buffer sequence, depending on packet type.
-		*
-		* @param {Object} obj - packet object
-		*/
-		encode(obj) {
-			debug("encoding packet %j", obj);
-			if (obj.type === PacketType.EVENT || obj.type === PacketType.ACK) {
-				if (hasBinary(obj)) return this.encodeAsBinary({
-					type: obj.type === PacketType.EVENT ? PacketType.BINARY_EVENT : PacketType.BINARY_ACK,
-					nsp: obj.nsp,
-					data: obj.data,
-					id: obj.id
-				});
-			}
-			return [this.encodeAsString(obj)];
-		}
-		/**
-		* Encode packet as string.
-		*/
-		encodeAsString(obj) {
-			let str = "" + obj.type;
-			if (obj.type === PacketType.BINARY_EVENT || obj.type === PacketType.BINARY_ACK) str += obj.attachments + "-";
-			if (obj.nsp && "/" !== obj.nsp) str += obj.nsp + ",";
-			if (null != obj.id) str += obj.id;
-			if (null != obj.data) str += JSON.stringify(obj.data, this.replacer);
-			debug("encoded %j as %s", obj, str);
-			return str;
-		}
-		/**
-		* Encode packet as 'buffer sequence' by removing blobs, and
-		* deconstructing packet into object with placeholders and
-		* a list of buffers.
-		*/
-		encodeAsBinary(obj) {
-			const deconstruction = deconstructPacket(obj);
-			const pack = this.encodeAsString(deconstruction.packet);
-			const buffers = deconstruction.buffers;
-			buffers.unshift(pack);
-			return buffers;
-		}
-	};
-	/**
-	* A socket.io Decoder instance
-	*
-	* @return {Object} decoder
-	*/
-	var Decoder = class Decoder extends Emitter {
-		/**
-		* Decoder constructor
-		*/
-		constructor(opts) {
-			super();
-			this.opts = Object.assign({
-				reviver: void 0,
-				maxAttachments: 10
-			}, typeof opts === "function" ? { reviver: opts } : opts);
-		}
-		/**
-		* Decodes an encoded packet string into packet JSON.
-		*
-		* @param {String} obj - encoded packet
-		*/
-		add(obj) {
-			let packet;
-			if (typeof obj === "string") {
-				if (this.reconstructor) throw new Error("got plaintext data when reconstructing a packet");
-				packet = this.decodeString(obj);
-				const isBinaryEvent = packet.type === PacketType.BINARY_EVENT;
-				if (isBinaryEvent || packet.type === PacketType.BINARY_ACK) {
-					packet.type = isBinaryEvent ? PacketType.EVENT : PacketType.ACK;
-					this.reconstructor = new BinaryReconstructor(packet);
-				} else super.emitReserved("decoded", packet);
-			} else if (isBinary(obj) || obj.base64) {
-				if (!this.reconstructor) throw new Error("got binary data when not reconstructing a packet");
-				else {
-					packet = this.reconstructor.takeBinaryData(obj);
-					if (packet) {
-						this.reconstructor = null;
-						super.emitReserved("decoded", packet);
-					}
-				}
-			} else throw new Error("Unknown type: " + obj);
-		}
-		/**
-		* Decode a packet String (JSON data)
-		*
-		* @param {String} str
-		* @return {Object} packet
-		*/
-		decodeString(str) {
-			let i = 0;
-			const p = { type: Number(str.charAt(0)) };
-			if (PacketType[p.type] === void 0) throw new Error("unknown packet type " + p.type);
-			if (p.type === PacketType.BINARY_EVENT || p.type === PacketType.BINARY_ACK) {
-				const start = i + 1;
-				while (str.charAt(++i) !== "-" && i != str.length);
-				const buf = str.substring(start, i);
-				if (buf != Number(buf) || str.charAt(i) !== "-") throw new Error("Illegal attachments");
-				const n = Number(buf);
-				if (!isInteger(n) || n < 1) throw new Error("Illegal attachments");
-				else if (n > this.opts.maxAttachments) throw new Error("too many attachments");
-				p.attachments = n;
-			}
-			if ("/" === str.charAt(i + 1)) {
-				const start = i + 1;
-				while (++i) {
-					if ("," === str.charAt(i)) break;
-					if (i === str.length) break;
-				}
-				p.nsp = str.substring(start, i);
-			} else p.nsp = "/";
-			const next = str.charAt(i + 1);
-			if ("" !== next && Number(next) == next) {
-				const start = i + 1;
-				while (++i) {
-					const c = str.charAt(i);
-					if (null == c || Number(c) != c) {
-						--i;
-						break;
-					}
-					if (i === str.length) break;
-				}
-				p.id = Number(str.substring(start, i + 1));
-			}
-			if (str.charAt(++i)) {
-				const payload = this.tryParse(str.substr(i));
-				if (Decoder.isPayloadValid(p.type, payload)) p.data = payload;
-				else throw new Error("invalid payload");
-			}
-			debug("decoded %s as %j", str, p);
-			return p;
-		}
-		tryParse(str) {
-			try {
-				return JSON.parse(str, this.opts.reviver);
-			} catch (e) {
-				return false;
-			}
-		}
-		static isPayloadValid(type, payload) {
-			switch (type) {
-				case PacketType.CONNECT: return isObject(payload);
-				case PacketType.DISCONNECT: return payload === void 0;
-				case PacketType.CONNECT_ERROR: return typeof payload === "string" || isObject(payload);
-				case PacketType.EVENT:
-				case PacketType.BINARY_EVENT: return Array.isArray(payload) && (typeof payload[0] === "number" || typeof payload[0] === "string" && RESERVED_EVENTS$1.indexOf(payload[0]) === -1);
-				case PacketType.ACK:
-				case PacketType.BINARY_ACK: return Array.isArray(payload);
-			}
-		}
-		/**
-		* Deallocates a parser's resources
-		*/
-		destroy() {
-			if (this.reconstructor) {
-				this.reconstructor.finishedReconstruction();
-				this.reconstructor = null;
-			}
-		}
-	};
-	/**
-	* A manager of a binary event's 'buffer sequence'. Should
-	* be constructed whenever a packet of type BINARY_EVENT is
-	* decoded.
-	*
-	* @param {Object} packet
-	* @return {BinaryReconstructor} initialized reconstructor
-	*/
-	var BinaryReconstructor = class {
-		constructor(packet) {
-			this.packet = packet;
-			this.buffers = [];
-			this.reconPack = packet;
-		}
-		/**
-		* Method to be called when binary data received from connection
-		* after a BINARY_EVENT packet.
-		*
-		* @param {Buffer | ArrayBuffer} binData - the raw binary data received
-		* @return {null | Object} returns null if more binary data is expected or
-		*   a reconstructed packet object if all buffers have been received.
-		*/
-		takeBinaryData(binData) {
-			this.buffers.push(binData);
-			if (this.buffers.length === this.reconPack.attachments) {
-				const packet = reconstructPacket(this.reconPack, this.buffers);
-				this.finishedReconstruction();
-				return packet;
-			}
-			return null;
-		}
-		/**
-		* Cleans up binary packet reconstruction variables.
-		*/
-		finishedReconstruction() {
-			this.reconPack = null;
-			this.buffers = [];
-		}
-	};
-	function isNamespaceValid(nsp) {
-		return typeof nsp === "string";
-	}
-	var isInteger = Number.isInteger || function(value) {
-		return typeof value === "number" && isFinite(value) && Math.floor(value) === value;
-	};
-	function isAckIdValid(id) {
-		return id === void 0 || isInteger(id);
-	}
-	function isObject(value) {
-		return Object.prototype.toString.call(value) === "[object Object]";
-	}
-	function isDataValid(type, payload) {
-		switch (type) {
-			case PacketType.CONNECT: return payload === void 0 || isObject(payload);
-			case PacketType.DISCONNECT: return payload === void 0;
-			case PacketType.EVENT: return Array.isArray(payload) && (typeof payload[0] === "number" || typeof payload[0] === "string" && RESERVED_EVENTS$1.indexOf(payload[0]) === -1);
-			case PacketType.ACK: return Array.isArray(payload);
-			case PacketType.CONNECT_ERROR: return typeof payload === "string" || isObject(payload);
-			default: return false;
-		}
-	}
-	function isPacketValid(packet) {
-		return isNamespaceValid(packet.nsp) && isAckIdValid(packet.id) && isDataValid(packet.type, packet.data);
-	}
-	//#endregion
-	//#region node_modules/socket.io-client/build/esm/on.js
-	function on(obj, ev, fn) {
-		obj.on(ev, fn);
-		return function subDestroy() {
-			obj.off(ev, fn);
-		};
-	}
-	//#endregion
-	//#region node_modules/socket.io-client/build/esm/socket.js
-	/**
-	* Internal events.
-	* These events can't be emitted by the user.
-	*/
-	var RESERVED_EVENTS = Object.freeze({
-		connect: 1,
-		connect_error: 1,
-		disconnect: 1,
-		disconnecting: 1,
-		newListener: 1,
-		removeListener: 1
-	});
-	/**
-	* A Socket is the fundamental class for interacting with the server.
-	*
-	* A Socket belongs to a certain Namespace (by default /) and uses an underlying {@link Manager} to communicate.
-	*
-	* @example
-	* const socket = io();
-	*
-	* socket.on("connect", () => {
-	*   console.log("connected");
-	* });
-	*
-	* // send an event to the server
-	* socket.emit("foo", "bar");
-	*
-	* socket.on("foobar", () => {
-	*   // an event was received from the server
-	* });
-	*
-	* // upon disconnection
-	* socket.on("disconnect", (reason) => {
-	*   console.log(`disconnected due to ${reason}`);
-	* });
-	*/
-	var Socket = class extends Emitter {
-		/**
-		* `Socket` constructor.
-		*/
-		constructor(io, nsp, opts) {
-			super();
-			/**
-			* Whether the socket is currently connected to the server.
-			*
-			* @example
-			* const socket = io();
-			*
-			* socket.on("connect", () => {
-			*   console.log(socket.connected); // true
-			* });
-			*
-			* socket.on("disconnect", () => {
-			*   console.log(socket.connected); // false
-			* });
-			*/
-			this.connected = false;
-			/**
-			* Whether the connection state was recovered after a temporary disconnection. In that case, any missed packets will
-			* be transmitted by the server.
-			*/
-			this.recovered = false;
-			/**
-			* Buffer for packets received before the CONNECT packet
-			*/
-			this.receiveBuffer = [];
-			/**
-			* Buffer for packets that will be sent once the socket is connected
-			*/
-			this.sendBuffer = [];
-			/**
-			* The queue of packets to be sent with retry in case of failure.
-			*
-			* Packets are sent one by one, each waiting for the server acknowledgement, in order to guarantee the delivery order.
-			* @private
-			*/
-			this._queue = [];
-			/**
-			* A sequence to generate the ID of the {@link QueuedPacket}.
-			* @private
-			*/
-			this._queueSeq = 0;
-			this.ids = 0;
-			/**
-			* A map containing acknowledgement handlers.
-			*
-			* The `withError` attribute is used to differentiate handlers that accept an error as first argument:
-			*
-			* - `socket.emit("test", (err, value) => { ... })` with `ackTimeout` option
-			* - `socket.timeout(5000).emit("test", (err, value) => { ... })`
-			* - `const value = await socket.emitWithAck("test")`
-			*
-			* From those that don't:
-			*
-			* - `socket.emit("test", (value) => { ... });`
-			*
-			* In the first case, the handlers will be called with an error when:
-			*
-			* - the timeout is reached
-			* - the socket gets disconnected
-			*
-			* In the second case, the handlers will be simply discarded upon disconnection, since the client will never receive
-			* an acknowledgement from the server.
-			*
-			* @private
-			*/
-			this.acks = {};
-			this.flags = {};
-			this.io = io;
-			this.nsp = nsp;
-			if (opts && opts.auth) this.auth = opts.auth;
-			this._opts = Object.assign({}, opts);
-			if (this.io._autoConnect) this.open();
-		}
-		/**
-		* Whether the socket is currently disconnected
-		*
-		* @example
-		* const socket = io();
-		*
-		* socket.on("connect", () => {
-		*   console.log(socket.disconnected); // false
-		* });
-		*
-		* socket.on("disconnect", () => {
-		*   console.log(socket.disconnected); // true
-		* });
-		*/
-		get disconnected() {
-			return !this.connected;
-		}
-		/**
-		* Subscribe to open, close and packet events
-		*
-		* @private
-		*/
-		subEvents() {
-			if (this.subs) return;
-			const io = this.io;
-			this.subs = [
-				on(io, "open", this.onopen.bind(this)),
-				on(io, "packet", this.onpacket.bind(this)),
-				on(io, "error", this.onerror.bind(this)),
-				on(io, "close", this.onclose.bind(this))
-			];
-		}
-		/**
-		* Whether the Socket will try to reconnect when its Manager connects or reconnects.
-		*
-		* @example
-		* const socket = io();
-		*
-		* console.log(socket.active); // true
-		*
-		* socket.on("disconnect", (reason) => {
-		*   if (reason === "io server disconnect") {
-		*     // the disconnection was initiated by the server, you need to manually reconnect
-		*     console.log(socket.active); // false
-		*   }
-		*   // else the socket will automatically try to reconnect
-		*   console.log(socket.active); // true
-		* });
-		*/
-		get active() {
-			return !!this.subs;
-		}
-		/**
-		* "Opens" the socket.
-		*
-		* @example
-		* const socket = io({
-		*   autoConnect: false
-		* });
-		*
-		* socket.connect();
-		*/
-		connect() {
-			if (this.connected) return this;
-			this.subEvents();
-			if (!this.io["_reconnecting"]) this.io.open();
-			if ("open" === this.io._readyState) this.onopen();
-			return this;
-		}
-		/**
-		* Alias for {@link connect()}.
-		*/
-		open() {
-			return this.connect();
-		}
-		/**
-		* Sends a `message` event.
-		*
-		* This method mimics the WebSocket.send() method.
-		*
-		* @see https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/send
-		*
-		* @example
-		* socket.send("hello");
-		*
-		* // this is equivalent to
-		* socket.emit("message", "hello");
-		*
-		* @return self
-		*/
-		send(...args) {
-			args.unshift("message");
-			this.emit.apply(this, args);
-			return this;
-		}
-		/**
-		* Override `emit`.
-		* If the event is in `events`, it's emitted normally.
-		*
-		* @example
-		* socket.emit("hello", "world");
-		*
-		* // all serializable datastructures are supported (no need to call JSON.stringify)
-		* socket.emit("hello", 1, "2", { 3: ["4"], 5: Uint8Array.from([6]) });
-		*
-		* // with an acknowledgement from the server
-		* socket.emit("hello", "world", (val) => {
-		*   // ...
-		* });
-		*
-		* @return self
-		*/
-		emit(ev, ...args) {
-			var _a, _b, _c;
-			if (RESERVED_EVENTS.hasOwnProperty(ev)) throw new Error("\"" + ev.toString() + "\" is a reserved event name");
-			args.unshift(ev);
-			if (this._opts.retries && !this.flags.fromQueue && !this.flags.volatile) {
-				this._addToQueue(args);
-				return this;
-			}
-			const packet = {
-				type: PacketType.EVENT,
-				data: args
-			};
-			packet.options = {};
-			packet.options.compress = this.flags.compress !== false;
-			if ("function" === typeof args[args.length - 1]) {
-				const id = this.ids++;
-				const ack = args.pop();
-				this._registerAckCallback(id, ack);
-				packet.id = id;
-			}
-			const isTransportWritable = (_b = (_a = this.io.engine) === null || _a === void 0 ? void 0 : _a.transport) === null || _b === void 0 ? void 0 : _b.writable;
-			const isConnected = this.connected && !((_c = this.io.engine) === null || _c === void 0 ? void 0 : _c._hasPingExpired());
-			if (this.flags.volatile && !isTransportWritable) {} else if (isConnected) {
-				this.notifyOutgoingListeners(packet);
-				this.packet(packet);
-			} else this.sendBuffer.push(packet);
-			this.flags = {};
-			return this;
-		}
-		/**
-		* @private
-		*/
-		_registerAckCallback(id, ack) {
-			var _a;
-			const timeout = (_a = this.flags.timeout) !== null && _a !== void 0 ? _a : this._opts.ackTimeout;
-			if (timeout === void 0) {
-				this.acks[id] = ack;
-				return;
-			}
-			const timer = this.io.setTimeoutFn(() => {
-				delete this.acks[id];
-				for (let i = 0; i < this.sendBuffer.length; i++) if (this.sendBuffer[i].id === id) this.sendBuffer.splice(i, 1);
-				ack.call(this, /* @__PURE__ */ new Error("operation has timed out"));
-			}, timeout);
-			const fn = (...args) => {
-				this.io.clearTimeoutFn(timer);
-				ack.apply(this, args);
-			};
-			fn.withError = true;
-			this.acks[id] = fn;
-		}
-		/**
-		* Emits an event and waits for an acknowledgement
-		*
-		* @example
-		* // without timeout
-		* const response = await socket.emitWithAck("hello", "world");
-		*
-		* // with a specific timeout
-		* try {
-		*   const response = await socket.timeout(1000).emitWithAck("hello", "world");
-		* } catch (err) {
-		*   // the server did not acknowledge the event in the given delay
-		* }
-		*
-		* @return a Promise that will be fulfilled when the server acknowledges the event
-		*/
-		emitWithAck(ev, ...args) {
-			return new Promise((resolve, reject) => {
-				const fn = (arg1, arg2) => {
-					return arg1 ? reject(arg1) : resolve(arg2);
-				};
-				fn.withError = true;
-				args.push(fn);
-				this.emit(ev, ...args);
-			});
-		}
-		/**
-		* Add the packet to the queue.
-		* @param args
-		* @private
-		*/
-		_addToQueue(args) {
-			let ack;
-			if (typeof args[args.length - 1] === "function") ack = args.pop();
-			const packet = {
-				id: this._queueSeq++,
-				tryCount: 0,
-				pending: false,
-				args,
-				flags: Object.assign({ fromQueue: true }, this.flags)
-			};
-			args.push((err, ...responseArgs) => {
-				if (packet !== this._queue[0]) {}
-				if (err !== null) {
-					if (packet.tryCount > this._opts.retries) {
-						this._queue.shift();
-						if (ack) ack(err);
-					}
-				} else {
-					this._queue.shift();
-					if (ack) ack(null, ...responseArgs);
-				}
-				packet.pending = false;
-				return this._drainQueue();
-			});
-			this._queue.push(packet);
-			this._drainQueue();
-		}
-		/**
-		* Send the first packet of the queue, and wait for an acknowledgement from the server.
-		* @param force - whether to resend a packet that has not been acknowledged yet
-		*
-		* @private
-		*/
-		_drainQueue(force = false) {
-			if (!this.connected || this._queue.length === 0) return;
-			const packet = this._queue[0];
-			if (packet.pending && !force) return;
-			packet.pending = true;
-			packet.tryCount++;
-			this.flags = packet.flags;
-			this.emit.apply(this, packet.args);
-		}
-		/**
-		* Sends a packet.
-		*
-		* @param packet
-		* @private
-		*/
-		packet(packet) {
-			packet.nsp = this.nsp;
-			this.io._packet(packet);
-		}
-		/**
-		* Called upon engine `open`.
-		*
-		* @private
-		*/
-		onopen() {
-			if (typeof this.auth == "function") this.auth((data) => {
-				this._sendConnectPacket(data);
-			});
-			else this._sendConnectPacket(this.auth);
-		}
-		/**
-		* Sends a CONNECT packet to initiate the Socket.IO session.
-		*
-		* @param data
-		* @private
-		*/
-		_sendConnectPacket(data) {
-			this.packet({
-				type: PacketType.CONNECT,
-				data: this._pid ? Object.assign({
-					pid: this._pid,
-					offset: this._lastOffset
-				}, data) : data
-			});
-		}
-		/**
-		* Called upon engine or manager `error`.
-		*
-		* @param err
-		* @private
-		*/
-		onerror(err) {
-			if (!this.connected) this.emitReserved("connect_error", err);
-		}
-		/**
-		* Called upon engine `close`.
-		*
-		* @param reason
-		* @param description
-		* @private
-		*/
-		onclose(reason, description) {
-			this.connected = false;
-			delete this.id;
-			this.emitReserved("disconnect", reason, description);
-			this._clearAcks();
-		}
-		/**
-		* Clears the acknowledgement handlers upon disconnection, since the client will never receive an acknowledgement from
-		* the server.
-		*
-		* @private
-		*/
-		_clearAcks() {
-			Object.keys(this.acks).forEach((id) => {
-				if (!this.sendBuffer.some((packet) => String(packet.id) === id)) {
-					const ack = this.acks[id];
-					delete this.acks[id];
-					if (ack.withError) ack.call(this, /* @__PURE__ */ new Error("socket has been disconnected"));
-				}
-			});
-		}
-		/**
-		* Called with socket packet.
-		*
-		* @param packet
-		* @private
-		*/
-		onpacket(packet) {
-			if (!(packet.nsp === this.nsp)) return;
-			switch (packet.type) {
-				case PacketType.CONNECT:
-					if (packet.data && packet.data.sid) this.onconnect(packet.data.sid, packet.data.pid);
-					else this.emitReserved("connect_error", /* @__PURE__ */ new Error("It seems you are trying to reach a Socket.IO server in v2.x with a v3.x client, but they are not compatible (more information here: https://socket.io/docs/v3/migrating-from-2-x-to-3-0/)"));
-					break;
-				case PacketType.EVENT:
-				case PacketType.BINARY_EVENT:
-					this.onevent(packet);
-					break;
-				case PacketType.ACK:
-				case PacketType.BINARY_ACK:
-					this.onack(packet);
-					break;
-				case PacketType.DISCONNECT:
-					this.ondisconnect();
-					break;
-				case PacketType.CONNECT_ERROR:
-					this.destroy();
-					const err = new Error(packet.data.message);
-					err.data = packet.data.data;
-					this.emitReserved("connect_error", err);
-			}
-		}
-		/**
-		* Called upon a server event.
-		*
-		* @param packet
-		* @private
-		*/
-		onevent(packet) {
-			const args = packet.data || [];
-			if (null != packet.id) args.push(this.ack(packet.id));
-			if (this.connected) this.emitEvent(args);
-			else this.receiveBuffer.push(Object.freeze(args));
-		}
-		emitEvent(args) {
-			if (this._anyListeners && this._anyListeners.length) {
-				const listeners = this._anyListeners.slice();
-				for (const listener of listeners) listener.apply(this, args);
-			}
-			super.emit.apply(this, args);
-			if (this._pid && args.length && typeof args[args.length - 1] === "string") this._lastOffset = args[args.length - 1];
-		}
-		/**
-		* Produces an ack callback to emit with an event.
-		*
-		* @private
-		*/
-		ack(id) {
-			const self = this;
-			let sent = false;
-			return function(...args) {
-				if (sent) return;
-				sent = true;
-				self.packet({
-					type: PacketType.ACK,
-					id,
-					data: args
-				});
-			};
-		}
-		/**
-		* Called upon a server acknowledgement.
-		*
-		* @param packet
-		* @private
-		*/
-		onack(packet) {
-			const ack = this.acks[packet.id];
-			if (typeof ack !== "function") return;
-			delete this.acks[packet.id];
-			if (ack.withError) packet.data.unshift(null);
-			ack.apply(this, packet.data);
-		}
-		/**
-		* Called upon server connect.
-		*
-		* @private
-		*/
-		onconnect(id, pid) {
-			this.id = id;
-			this.recovered = pid && this._pid === pid;
-			this._pid = pid;
-			this.connected = true;
-			this.emitBuffered();
-			this._drainQueue(true);
-			this.emitReserved("connect");
-		}
-		/**
-		* Emit buffered events (received and emitted).
-		*
-		* @private
-		*/
-		emitBuffered() {
-			this.receiveBuffer.forEach((args) => this.emitEvent(args));
-			this.receiveBuffer = [];
-			this.sendBuffer.forEach((packet) => {
-				this.notifyOutgoingListeners(packet);
-				this.packet(packet);
-			});
-			this.sendBuffer = [];
-		}
-		/**
-		* Called upon server disconnect.
-		*
-		* @private
-		*/
-		ondisconnect() {
-			this.destroy();
-			this.onclose("io server disconnect");
-		}
-		/**
-		* Called upon forced client/server side disconnections,
-		* this method ensures the manager stops tracking us and
-		* that reconnections don't get triggered for this.
-		*
-		* @private
-		*/
-		destroy() {
-			if (this.subs) {
-				this.subs.forEach((subDestroy) => subDestroy());
-				this.subs = void 0;
-			}
-			this.io["_destroy"](this);
-		}
-		/**
-		* Disconnects the socket manually. In that case, the socket will not try to reconnect.
-		*
-		* If this is the last active Socket instance of the {@link Manager}, the low-level connection will be closed.
-		*
-		* @example
-		* const socket = io();
-		*
-		* socket.on("disconnect", (reason) => {
-		*   // console.log(reason); prints "io client disconnect"
-		* });
-		*
-		* socket.disconnect();
-		*
-		* @return self
-		*/
-		disconnect() {
-			if (this.connected) this.packet({ type: PacketType.DISCONNECT });
-			this.destroy();
-			if (this.connected) this.onclose("io client disconnect");
-			return this;
-		}
-		/**
-		* Alias for {@link disconnect()}.
-		*
-		* @return self
-		*/
-		close() {
-			return this.disconnect();
-		}
-		/**
-		* Sets the compress flag.
-		*
-		* @example
-		* socket.compress(false).emit("hello");
-		*
-		* @param compress - if `true`, compresses the sending data
-		* @return self
-		*/
-		compress(compress) {
-			this.flags.compress = compress;
-			return this;
-		}
-		/**
-		* Sets a modifier for a subsequent event emission that the event message will be dropped when this socket is not
-		* ready to send messages.
-		*
-		* @example
-		* socket.volatile.emit("hello"); // the server may or may not receive it
-		*
-		* @returns self
-		*/
-		get volatile() {
-			this.flags.volatile = true;
-			return this;
-		}
-		/**
-		* Sets a modifier for a subsequent event emission that the callback will be called with an error when the
-		* given number of milliseconds have elapsed without an acknowledgement from the server:
-		*
-		* @example
-		* socket.timeout(5000).emit("my-event", (err) => {
-		*   if (err) {
-		*     // the server did not acknowledge the event in the given delay
-		*   }
-		* });
-		*
-		* @returns self
-		*/
-		timeout(timeout) {
-			this.flags.timeout = timeout;
-			return this;
-		}
-		/**
-		* Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
-		* callback.
-		*
-		* @example
-		* socket.onAny((event, ...args) => {
-		*   console.log(`got ${event}`);
-		* });
-		*
-		* @param listener
-		*/
-		onAny(listener) {
-			this._anyListeners = this._anyListeners || [];
-			this._anyListeners.push(listener);
-			return this;
-		}
-		/**
-		* Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
-		* callback. The listener is added to the beginning of the listeners array.
-		*
-		* @example
-		* socket.prependAny((event, ...args) => {
-		*   console.log(`got event ${event}`);
-		* });
-		*
-		* @param listener
-		*/
-		prependAny(listener) {
-			this._anyListeners = this._anyListeners || [];
-			this._anyListeners.unshift(listener);
-			return this;
-		}
-		/**
-		* Removes the listener that will be fired when any event is emitted.
-		*
-		* @example
-		* const catchAllListener = (event, ...args) => {
-		*   console.log(`got event ${event}`);
-		* }
-		*
-		* socket.onAny(catchAllListener);
-		*
-		* // remove a specific listener
-		* socket.offAny(catchAllListener);
-		*
-		* // or remove all listeners
-		* socket.offAny();
-		*
-		* @param listener
-		*/
-		offAny(listener) {
-			if (!this._anyListeners) return this;
-			if (listener) {
-				const listeners = this._anyListeners;
-				for (let i = 0; i < listeners.length; i++) if (listener === listeners[i]) {
-					listeners.splice(i, 1);
-					return this;
-				}
-			} else this._anyListeners = [];
-			return this;
-		}
-		/**
-		* Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
-		* e.g. to remove listeners.
-		*/
-		listenersAny() {
-			return this._anyListeners || [];
-		}
-		/**
-		* Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
-		* callback.
-		*
-		* Note: acknowledgements sent to the server are not included.
-		*
-		* @example
-		* socket.onAnyOutgoing((event, ...args) => {
-		*   console.log(`sent event ${event}`);
-		* });
-		*
-		* @param listener
-		*/
-		onAnyOutgoing(listener) {
-			this._anyOutgoingListeners = this._anyOutgoingListeners || [];
-			this._anyOutgoingListeners.push(listener);
-			return this;
-		}
-		/**
-		* Adds a listener that will be fired when any event is emitted. The event name is passed as the first argument to the
-		* callback. The listener is added to the beginning of the listeners array.
-		*
-		* Note: acknowledgements sent to the server are not included.
-		*
-		* @example
-		* socket.prependAnyOutgoing((event, ...args) => {
-		*   console.log(`sent event ${event}`);
-		* });
-		*
-		* @param listener
-		*/
-		prependAnyOutgoing(listener) {
-			this._anyOutgoingListeners = this._anyOutgoingListeners || [];
-			this._anyOutgoingListeners.unshift(listener);
-			return this;
-		}
-		/**
-		* Removes the listener that will be fired when any event is emitted.
-		*
-		* @example
-		* const catchAllListener = (event, ...args) => {
-		*   console.log(`sent event ${event}`);
-		* }
-		*
-		* socket.onAnyOutgoing(catchAllListener);
-		*
-		* // remove a specific listener
-		* socket.offAnyOutgoing(catchAllListener);
-		*
-		* // or remove all listeners
-		* socket.offAnyOutgoing();
-		*
-		* @param [listener] - the catch-all listener (optional)
-		*/
-		offAnyOutgoing(listener) {
-			if (!this._anyOutgoingListeners) return this;
-			if (listener) {
-				const listeners = this._anyOutgoingListeners;
-				for (let i = 0; i < listeners.length; i++) if (listener === listeners[i]) {
-					listeners.splice(i, 1);
-					return this;
-				}
-			} else this._anyOutgoingListeners = [];
-			return this;
-		}
-		/**
-		* Returns an array of listeners that are listening for any event that is specified. This array can be manipulated,
-		* e.g. to remove listeners.
-		*/
-		listenersAnyOutgoing() {
-			return this._anyOutgoingListeners || [];
-		}
-		/**
-		* Notify the listeners for each packet sent
-		*
-		* @param packet
-		*
-		* @private
-		*/
-		notifyOutgoingListeners(packet) {
-			if (this._anyOutgoingListeners && this._anyOutgoingListeners.length) {
-				const listeners = this._anyOutgoingListeners.slice();
-				for (const listener of listeners) listener.apply(this, packet.data);
-			}
-		}
-	};
-	//#endregion
-	//#region node_modules/socket.io-client/build/esm/contrib/backo2.js
-	/**
-	* Initialize backoff timer with `opts`.
-	*
-	* - `min` initial timeout in milliseconds [100]
-	* - `max` max timeout [10000]
-	* - `jitter` [0]
-	* - `factor` [2]
-	*
-	* @param {Object} opts
-	* @api public
-	*/
-	function Backoff(opts) {
-		opts = opts || {};
-		this.ms = opts.min || 100;
-		this.max = opts.max || 1e4;
-		this.factor = opts.factor || 2;
-		this.jitter = opts.jitter > 0 && opts.jitter <= 1 ? opts.jitter : 0;
-		this.attempts = 0;
-	}
-	/**
-	* Return the backoff duration.
-	*
-	* @return {Number}
-	* @api public
-	*/
-	Backoff.prototype.duration = function() {
-		var ms = this.ms * Math.pow(this.factor, this.attempts++);
-		if (this.jitter) {
-			var rand = Math.random();
-			var deviation = Math.floor(rand * this.jitter * ms);
-			ms = (Math.floor(rand * 10) & 1) == 0 ? ms - deviation : ms + deviation;
-		}
-		return Math.min(ms, this.max) | 0;
-	};
-	/**
-	* Reset the number of attempts.
-	*
-	* @api public
-	*/
-	Backoff.prototype.reset = function() {
-		this.attempts = 0;
-	};
-	/**
-	* Set the minimum duration
-	*
-	* @api public
-	*/
-	Backoff.prototype.setMin = function(min) {
-		this.ms = min;
-	};
-	/**
-	* Set the maximum duration
-	*
-	* @api public
-	*/
-	Backoff.prototype.setMax = function(max) {
-		this.max = max;
-	};
-	/**
-	* Set the jitter
-	*
-	* @api public
-	*/
-	Backoff.prototype.setJitter = function(jitter) {
-		this.jitter = jitter;
-	};
-	//#endregion
-	//#region node_modules/socket.io-client/build/esm/manager.js
-	var Manager = class extends Emitter {
-		constructor(uri, opts) {
-			var _a;
-			super();
-			this.nsps = {};
-			this.subs = [];
-			if (uri && "object" === typeof uri) {
-				opts = uri;
-				uri = void 0;
-			}
-			opts = opts || {};
-			opts.path = opts.path || "/socket.io";
-			this.opts = opts;
-			installTimerFunctions(this, opts);
-			this.reconnection(opts.reconnection !== false);
-			this.reconnectionAttempts(opts.reconnectionAttempts || Infinity);
-			this.reconnectionDelay(opts.reconnectionDelay || 1e3);
-			this.reconnectionDelayMax(opts.reconnectionDelayMax || 5e3);
-			this.randomizationFactor((_a = opts.randomizationFactor) !== null && _a !== void 0 ? _a : .5);
-			this.backoff = new Backoff({
-				min: this.reconnectionDelay(),
-				max: this.reconnectionDelayMax(),
-				jitter: this.randomizationFactor()
-			});
-			this.timeout(null == opts.timeout ? 2e4 : opts.timeout);
-			this._readyState = "closed";
-			this.uri = uri;
-			const _parser = opts.parser || esm_debug_exports;
-			this.encoder = new _parser.Encoder();
-			this.decoder = new _parser.Decoder();
-			this._autoConnect = opts.autoConnect !== false;
-			if (this._autoConnect) this.open();
-		}
-		reconnection(v) {
-			if (!arguments.length) return this._reconnection;
-			this._reconnection = !!v;
-			if (!v) this.skipReconnect = true;
-			return this;
-		}
-		reconnectionAttempts(v) {
-			if (v === void 0) return this._reconnectionAttempts;
-			this._reconnectionAttempts = v;
-			return this;
-		}
-		reconnectionDelay(v) {
-			var _a;
-			if (v === void 0) return this._reconnectionDelay;
-			this._reconnectionDelay = v;
-			(_a = this.backoff) === null || _a === void 0 || _a.setMin(v);
-			return this;
-		}
-		randomizationFactor(v) {
-			var _a;
-			if (v === void 0) return this._randomizationFactor;
-			this._randomizationFactor = v;
-			(_a = this.backoff) === null || _a === void 0 || _a.setJitter(v);
-			return this;
-		}
-		reconnectionDelayMax(v) {
-			var _a;
-			if (v === void 0) return this._reconnectionDelayMax;
-			this._reconnectionDelayMax = v;
-			(_a = this.backoff) === null || _a === void 0 || _a.setMax(v);
-			return this;
-		}
-		timeout(v) {
-			if (!arguments.length) return this._timeout;
-			this._timeout = v;
-			return this;
-		}
-		/**
-		* Starts trying to reconnect if reconnection is enabled and we have not
-		* started reconnecting yet
-		*
-		* @private
-		*/
-		maybeReconnectOnOpen() {
-			if (!this._reconnecting && this._reconnection && this.backoff.attempts === 0) this.reconnect();
-		}
-		/**
-		* Sets the current transport `socket`.
-		*
-		* @param {Function} fn - optional, callback
-		* @return self
-		* @public
-		*/
-		open(fn) {
-			if (~this._readyState.indexOf("open")) return this;
-			this.engine = new Socket$1(this.uri, this.opts);
-			const socket = this.engine;
-			const self = this;
-			this._readyState = "opening";
-			this.skipReconnect = false;
-			const openSubDestroy = on(socket, "open", function() {
-				self.onopen();
-				fn && fn();
-			});
-			const onError = (err) => {
-				this.cleanup();
-				this._readyState = "closed";
-				this.emitReserved("error", err);
-				if (fn) fn(err);
-				else this.maybeReconnectOnOpen();
-			};
-			const errorSub = on(socket, "error", onError);
-			if (false !== this._timeout) {
-				const timeout = this._timeout;
-				const timer = this.setTimeoutFn(() => {
-					openSubDestroy();
-					onError(/* @__PURE__ */ new Error("timeout"));
-					socket.close();
-				}, timeout);
-				if (this.opts.autoUnref) timer.unref();
-				this.subs.push(() => {
-					this.clearTimeoutFn(timer);
-				});
-			}
-			this.subs.push(openSubDestroy);
-			this.subs.push(errorSub);
-			return this;
-		}
-		/**
-		* Alias for open()
-		*
-		* @return self
-		* @public
-		*/
-		connect(fn) {
-			return this.open(fn);
-		}
-		/**
-		* Called upon transport open.
-		*
-		* @private
-		*/
-		onopen() {
-			this.cleanup();
-			this._readyState = "open";
-			this.emitReserved("open");
-			const socket = this.engine;
-			this.subs.push(on(socket, "ping", this.onping.bind(this)), on(socket, "data", this.ondata.bind(this)), on(socket, "error", this.onerror.bind(this)), on(socket, "close", this.onclose.bind(this)), on(this.decoder, "decoded", this.ondecoded.bind(this)));
-		}
-		/**
-		* Called upon a ping.
-		*
-		* @private
-		*/
-		onping() {
-			this.emitReserved("ping");
-		}
-		/**
-		* Called with data.
-		*
-		* @private
-		*/
-		ondata(data) {
-			try {
-				this.decoder.add(data);
-			} catch (e) {
-				this.onclose("parse error", e);
-			}
-		}
-		/**
-		* Called when parser fully decodes a packet.
-		*
-		* @private
-		*/
-		ondecoded(packet) {
-			nextTick(() => {
-				this.emitReserved("packet", packet);
-			}, this.setTimeoutFn);
-		}
-		/**
-		* Called upon socket error.
-		*
-		* @private
-		*/
-		onerror(err) {
-			this.emitReserved("error", err);
-		}
-		/**
-		* Creates a new socket for the given `nsp`.
-		*
-		* @return {Socket}
-		* @public
-		*/
-		socket(nsp, opts) {
-			let socket = this.nsps[nsp];
-			if (!socket) {
-				socket = new Socket(this, nsp, opts);
-				this.nsps[nsp] = socket;
-			} else if (this._autoConnect && !socket.active) socket.connect();
-			return socket;
-		}
-		/**
-		* Called upon a socket close.
-		*
-		* @param socket
-		* @private
-		*/
-		_destroy(socket) {
-			const nsps = Object.keys(this.nsps);
-			for (const nsp of nsps) if (this.nsps[nsp].active) return;
-			this._close();
-		}
-		/**
-		* Writes a packet.
-		*
-		* @param packet
-		* @private
-		*/
-		_packet(packet) {
-			const encodedPackets = this.encoder.encode(packet);
-			for (let i = 0; i < encodedPackets.length; i++) this.engine.write(encodedPackets[i], packet.options);
-		}
-		/**
-		* Clean up transport subscriptions and packet buffer.
-		*
-		* @private
-		*/
-		cleanup() {
-			this.subs.forEach((subDestroy) => subDestroy());
-			this.subs.length = 0;
-			this.decoder.destroy();
-		}
-		/**
-		* Close the current socket.
-		*
-		* @private
-		*/
-		_close() {
-			this.skipReconnect = true;
-			this._reconnecting = false;
-			this.onclose("forced close");
-		}
-		/**
-		* Alias for close()
-		*
-		* @private
-		*/
-		disconnect() {
-			return this._close();
-		}
-		/**
-		* Called when:
-		*
-		* - the low-level engine is closed
-		* - the parser encountered a badly formatted packet
-		* - all sockets are disconnected
-		*
-		* @private
-		*/
-		onclose(reason, description) {
-			var _a;
-			this.cleanup();
-			(_a = this.engine) === null || _a === void 0 || _a.close();
-			this.backoff.reset();
-			this._readyState = "closed";
-			this.emitReserved("close", reason, description);
-			if (this._reconnection && !this.skipReconnect) this.reconnect();
-		}
-		/**
-		* Attempt a reconnection.
-		*
-		* @private
-		*/
-		reconnect() {
-			if (this._reconnecting || this.skipReconnect) return this;
-			const self = this;
-			if (this.backoff.attempts >= this._reconnectionAttempts) {
-				this.backoff.reset();
-				this.emitReserved("reconnect_failed");
-				this._reconnecting = false;
-			} else {
-				const delay = this.backoff.duration();
-				this._reconnecting = true;
-				const timer = this.setTimeoutFn(() => {
-					if (self.skipReconnect) return;
-					this.emitReserved("reconnect_attempt", self.backoff.attempts);
-					if (self.skipReconnect) return;
-					self.open((err) => {
-						if (err) {
-							self._reconnecting = false;
-							self.reconnect();
-							this.emitReserved("reconnect_error", err);
-						} else self.onreconnect();
-					});
-				}, delay);
-				if (this.opts.autoUnref) timer.unref();
-				this.subs.push(() => {
-					this.clearTimeoutFn(timer);
-				});
-			}
-		}
-		/**
-		* Called upon successful reconnect.
-		*
-		* @private
-		*/
-		onreconnect() {
-			const attempt = this.backoff.attempts;
-			this._reconnecting = false;
-			this.backoff.reset();
-			this.emitReserved("reconnect", attempt);
-		}
-	};
-	//#endregion
-	//#region node_modules/socket.io-client/build/esm/index.js
-	/**
-	* Managers cache.
-	*/
-	var cache = {};
-	function lookup(uri, opts) {
-		if (typeof uri === "object") {
-			opts = uri;
-			uri = void 0;
-		}
-		opts = opts || {};
-		const parsed = url(uri, opts.path || "/socket.io");
-		const source = parsed.source;
-		const id = parsed.id;
-		const path = parsed.path;
-		const sameNamespace = cache[id] && path in cache[id]["nsps"];
-		const newConnection = opts.forceNew || opts["force new connection"] || false === opts.multiplex || sameNamespace;
-		let io;
-		if (newConnection) io = new Manager(source, opts);
-		else {
-			if (!cache[id]) cache[id] = new Manager(source, opts);
-			io = cache[id];
-		}
-		if (parsed.query && !opts.query) opts.query = parsed.queryKey;
-		return io.socket(parsed.path, opts);
-	}
-	Object.assign(lookup, {
-		Manager,
-		Socket,
-		io: lookup,
-		connect: lookup
-	});
-	//#endregion
-	//#region src/socket/socketClient.ts
-	var IS_NGROK = SOCKET_URL.includes("ngrok");
-	var socket = null;
-	function getSocket() {
-		if (!socket) socket = lookup(SOCKET_URL, {
-			autoConnect: true,
-			reconnection: true,
-			...IS_NGROK ? {
-				transports: ["polling"],
-				extraHeaders: { ...NGROK_SKIP_HEADER }
-			} : {}
-		});
-		return socket;
-	}
-	//#endregion
-	//#region src/hooks/useChatSocket.ts
-	/** Feeds live messages, likes, reactions and removals from the server into the chat state. */
-	function useChatSocket() {
-		const { receiveNormalMessage, receiveSuperChat, receiveLikeUpdate, receiveReactionUpdate, receiveMessageRemoval } = useChat();
-		(0, import_react.useEffect)(() => {
-			const socket = getSocket();
-			const handleMessageRemove = ({ messageId }) => {
-				receiveMessageRemoval(messageId);
-			};
-			socket.on(SOCKET_EVENT.MESSAGE_NEW, receiveNormalMessage);
-			socket.on(SOCKET_EVENT.SUPERCHAT_NEW, receiveSuperChat);
-			socket.on(SOCKET_EVENT.LIKE_UPDATE, receiveLikeUpdate);
-			socket.on(SOCKET_EVENT.REACTION_UPDATE, receiveReactionUpdate);
-			socket.on(SOCKET_EVENT.MESSAGE_REMOVE, handleMessageRemove);
-			return () => {
-				socket.off(SOCKET_EVENT.MESSAGE_NEW, receiveNormalMessage);
-				socket.off(SOCKET_EVENT.SUPERCHAT_NEW, receiveSuperChat);
-				socket.off(SOCKET_EVENT.LIKE_UPDATE, receiveLikeUpdate);
-				socket.off(SOCKET_EVENT.REACTION_UPDATE, receiveReactionUpdate);
-				socket.off(SOCKET_EVENT.MESSAGE_REMOVE, handleMessageRemove);
-			};
-		}, [
-			receiveNormalMessage,
-			receiveSuperChat,
-			receiveLikeUpdate,
-			receiveReactionUpdate,
-			receiveMessageRemoval
-		]);
-	}
-	//#endregion
-	//#region src/widget/WidgetApp.tsx
-	var _jsxFileName$27 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/widget/WidgetApp.tsx";
-	var WidgetPortals = () => {
-		useChatSocket();
-		return (0, import_react.useSyncExternalStore)(subscribeToMounts, getMounts).map(({ id, node, Component }) => (0, import_react_dom.createPortal)(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(WidgetRootContext, {
-			value: node,
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Component, {}, void 0, false, {
-				fileName: _jsxFileName$27,
-				lineNumber: 18,
-				columnNumber: 9
-			}, void 0)
-		}, void 0, false, {
-			fileName: _jsxFileName$27,
-			lineNumber: 17,
-			columnNumber: 7
-		}, void 0), node, id));
-	};
-	/**
-	* One React tree for every widget element on the page, so they share chat
-	* state and a single socket. Each element's component is portalled into its
-	* own shadow root.
-	*/
-	var WidgetApp = () => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserProvider, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ChatProvider, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ReplyProvider, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SheetHostProvider, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(WidgetPortals, {}, void 0, false, {
-		fileName: _jsxFileName$27,
-		lineNumber: 36,
-		columnNumber: 11
-	}, void 0) }, void 0, false, {
-		fileName: _jsxFileName$27,
-		lineNumber: 35,
-		columnNumber: 9
-	}, void 0) }, void 0, false, {
-		fileName: _jsxFileName$27,
-		lineNumber: 34,
-		columnNumber: 7
-	}, void 0) }, void 0, false, {
-		fileName: _jsxFileName$27,
-		lineNumber: 33,
-		columnNumber: 5
-	}, void 0) }, void 0, false, {
-		fileName: _jsxFileName$27,
-		lineNumber: 32,
-		columnNumber: 3
-	}, void 0);
-	//#endregion
-	//#region src/widget/createWidgetElement.tsx
-	var _jsxFileName$26 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/widget/createWidgetElement.tsx";
-	var appRoot = null;
-	var renderApp = () => {
-		if (appRoot) return;
-		appRoot = (0, import_client.createRoot)(document.createElement("div"));
-		appRoot.render(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_react.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(WidgetApp, {}, void 0, false, {
-			fileName: _jsxFileName$26,
-			lineNumber: 18,
-			columnNumber: 7
-		}, void 0) }, void 0, false, {
-			fileName: _jsxFileName$26,
-			lineNumber: 17,
-			columnNumber: 5
-		}, void 0));
-	};
+	//#region src/createWidgetElement.tsx
+	var import_jsx_dev_runtime = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
+		module.exports = require_react_jsx_dev_runtime_development();
+	})))();
+	var _jsxFileName$16 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/createWidgetElement.tsx";
 	var createWidgetElement = (Component) => class extends HTMLElement {
-		#mountNode = null;
+		#root = null;
 		connectedCallback() {
-			if (this.#mountNode) return;
+			if (this.#root) return;
 			const shadow = this.shadowRoot ?? this.attachShadow({ mode: "open" });
 			const style = document.createElement("style");
 			style.textContent = styles_default;
-			this.#mountNode = document.createElement("div");
-			shadow.replaceChildren(style, this.#mountNode);
-			renderApp();
-			addMount(this.#mountNode, Component);
+			const mountNode = document.createElement("div");
+			shadow.replaceChildren(style, mountNode);
+			this.#root = (0, import_client.createRoot)(mountNode);
+			this.#root.render(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_react.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Component, { roomId: this.getAttribute(ROOM_ID_ATTRIBUTE) }, void 0, false, {
+				fileName: _jsxFileName$16,
+				lineNumber: 25,
+				columnNumber: 11
+			}, this) }, void 0, false, {
+				fileName: _jsxFileName$16,
+				lineNumber: 24,
+				columnNumber: 9
+			}, this));
 		}
 		disconnectedCallback() {
 			queueMicrotask(() => {
-				if (this.isConnected || !this.#mountNode) return;
-				removeMount(this.#mountNode);
-				this.#mountNode = null;
-				this.shadowRoot?.replaceChildren();
+				if (!this.isConnected) {
+					this.#root?.unmount();
+					this.#root = null;
+					this.shadowRoot?.replaceChildren();
+				}
 			});
 		}
+	};
+	var defineElement = (tagName, Component) => {
+		if (!customElements.get(tagName)) customElements.define(tagName, createWidgetElement(Component));
+	};
+	//#endregion
+	//#region node_modules/react/cjs/react-jsx-runtime.development.js
+	/**
+	* @license React
+	* react-jsx-runtime.development.js
+	*
+	* Copyright (c) Meta Platforms, Inc. and affiliates.
+	*
+	* This source code is licensed under the MIT license found in the
+	* LICENSE file in the root directory of this source tree.
+	*/
+	var require_react_jsx_runtime_development = /* @__PURE__ */ __commonJSMin(((exports) => {
+		(function() {
+			function getComponentNameFromType(type) {
+				if (null == type) return null;
+				if ("function" === typeof type) return type.$$typeof === REACT_CLIENT_REFERENCE ? null : type.displayName || type.name || null;
+				if ("string" === typeof type) return type;
+				switch (type) {
+					case REACT_FRAGMENT_TYPE: return "Fragment";
+					case REACT_PROFILER_TYPE: return "Profiler";
+					case REACT_STRICT_MODE_TYPE: return "StrictMode";
+					case REACT_SUSPENSE_TYPE: return "Suspense";
+					case REACT_SUSPENSE_LIST_TYPE: return "SuspenseList";
+					case REACT_ACTIVITY_TYPE: return "Activity";
+					case REACT_VIEW_TRANSITION_TYPE: return "ViewTransition";
+				}
+				if ("object" === typeof type) switch ("number" === typeof type.tag && console.error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue."), type.$$typeof) {
+					case REACT_PORTAL_TYPE: return "Portal";
+					case REACT_CONTEXT_TYPE: return type.displayName || "Context";
+					case REACT_CONSUMER_TYPE: return (type._context.displayName || "Context") + ".Consumer";
+					case REACT_FORWARD_REF_TYPE:
+						var innerType = type.render;
+						type = type.displayName;
+						type || (type = innerType.displayName || innerType.name || "", type = "" !== type ? "ForwardRef(" + type + ")" : "ForwardRef");
+						return type;
+					case REACT_MEMO_TYPE: return innerType = type.displayName || null, null !== innerType ? innerType : getComponentNameFromType(type.type) || "Memo";
+					case REACT_LAZY_TYPE:
+						innerType = type._payload;
+						type = type._init;
+						try {
+							return getComponentNameFromType(type(innerType));
+						} catch (x) {}
+				}
+				return null;
+			}
+			function testStringCoercion(value) {
+				return "" + value;
+			}
+			function checkKeyStringCoercion(value) {
+				try {
+					testStringCoercion(value);
+					var JSCompiler_inline_result = !1;
+				} catch (e) {
+					JSCompiler_inline_result = !0;
+				}
+				if (JSCompiler_inline_result) {
+					JSCompiler_inline_result = console;
+					var JSCompiler_temp_const = JSCompiler_inline_result.error;
+					var JSCompiler_inline_result$jscomp$0 = "function" === typeof Symbol && Symbol.toStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
+					JSCompiler_temp_const.call(JSCompiler_inline_result, "The provided key is an unsupported type %s. This value must be coerced to a string before using it here.", JSCompiler_inline_result$jscomp$0);
+					return testStringCoercion(value);
+				}
+			}
+			function getTaskName(type) {
+				if (type === REACT_FRAGMENT_TYPE) return "<>";
+				if ("object" === typeof type && null !== type && type.$$typeof === REACT_LAZY_TYPE) return "<...>";
+				try {
+					var name = getComponentNameFromType(type);
+					return name ? "<" + name + ">" : "<...>";
+				} catch (x) {
+					return "<...>";
+				}
+			}
+			function getOwner() {
+				var dispatcher = ReactSharedInternals.A;
+				return null === dispatcher ? null : dispatcher.getOwner();
+			}
+			function UnknownOwner() {
+				return Error("react-stack-top-frame");
+			}
+			function hasValidKey(config) {
+				if (hasOwnProperty.call(config, "key")) {
+					var getter = Object.getOwnPropertyDescriptor(config, "key").get;
+					if (getter && getter.isReactWarning) return !1;
+				}
+				return void 0 !== config.key;
+			}
+			function defineKeyPropWarningGetter(props, displayName) {
+				function warnAboutAccessingKey() {
+					specialPropKeyWarningShown || (specialPropKeyWarningShown = !0, console.error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://react.dev/link/special-props)", displayName));
+				}
+				warnAboutAccessingKey.isReactWarning = !0;
+				Object.defineProperty(props, "key", {
+					get: warnAboutAccessingKey,
+					configurable: !0
+				});
+			}
+			function elementRefGetterWithDeprecationWarning() {
+				var componentName = getComponentNameFromType(this.type);
+				didWarnAboutElementRef[componentName] || (didWarnAboutElementRef[componentName] = !0, console.error("Accessing element.ref was removed in React 19. ref is now a regular prop. It will be removed from the JSX Element type in a future release."));
+				componentName = this.props.ref;
+				return void 0 !== componentName ? componentName : null;
+			}
+			function ReactElement(type, key, props, owner, debugStack, debugTask) {
+				var refProp = props.ref;
+				type = {
+					$$typeof: REACT_ELEMENT_TYPE,
+					type,
+					key,
+					props,
+					_owner: owner
+				};
+				null !== (void 0 !== refProp ? refProp : null) ? Object.defineProperty(type, "ref", {
+					enumerable: !1,
+					get: elementRefGetterWithDeprecationWarning
+				}) : Object.defineProperty(type, "ref", {
+					enumerable: !1,
+					value: null
+				});
+				type._store = {};
+				Object.defineProperty(type._store, "validated", {
+					configurable: !1,
+					enumerable: !1,
+					writable: !0,
+					value: 0
+				});
+				Object.defineProperty(type, "_debugInfo", {
+					configurable: !1,
+					enumerable: !1,
+					writable: !0,
+					value: null
+				});
+				Object.defineProperty(type, "_debugStack", {
+					configurable: !1,
+					enumerable: !1,
+					writable: !0,
+					value: debugStack
+				});
+				Object.defineProperty(type, "_debugTask", {
+					configurable: !1,
+					enumerable: !1,
+					writable: !0,
+					value: debugTask
+				});
+				Object.freeze && (Object.freeze(type.props), Object.freeze(type));
+				return type;
+			}
+			function jsxDEVImpl(type, config, maybeKey, isStaticChildren, debugStack, debugTask) {
+				var children = config.children;
+				if (void 0 !== children) if (isStaticChildren) if (isArrayImpl(children)) {
+					for (isStaticChildren = 0; isStaticChildren < children.length; isStaticChildren++) validateChildKeys(children[isStaticChildren]);
+					Object.freeze && Object.freeze(children);
+				} else console.error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
+				else validateChildKeys(children);
+				if (hasOwnProperty.call(config, "key")) {
+					children = getComponentNameFromType(type);
+					var keys = Object.keys(config).filter(function(k) {
+						return "key" !== k;
+					});
+					isStaticChildren = 0 < keys.length ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
+					didWarnAboutKeySpread[children + isStaticChildren] || (keys = 0 < keys.length ? "{" + keys.join(": ..., ") + ": ...}" : "{}", console.error("A props object containing a \"key\" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />", isStaticChildren, children, keys, children), didWarnAboutKeySpread[children + isStaticChildren] = !0);
+				}
+				children = null;
+				void 0 !== maybeKey && (checkKeyStringCoercion(maybeKey), children = "" + maybeKey);
+				hasValidKey(config) && (checkKeyStringCoercion(config.key), children = "" + config.key);
+				if ("key" in config) {
+					maybeKey = {};
+					for (var propName in config) "key" !== propName && (maybeKey[propName] = config[propName]);
+				} else maybeKey = config;
+				children && defineKeyPropWarningGetter(maybeKey, "function" === typeof type ? type.displayName || type.name || "Unknown" : type);
+				return ReactElement(type, children, maybeKey, getOwner(), debugStack, debugTask);
+			}
+			function validateChildKeys(node) {
+				isValidElement(node) ? node._store && (node._store.validated = 1) : "object" === typeof node && null !== node && node.$$typeof === REACT_LAZY_TYPE && ("fulfilled" === node._payload.status ? isValidElement(node._payload.value) && node._payload.value._store && (node._payload.value._store.validated = 1) : node._store && (node._store.validated = 1));
+			}
+			function isValidElement(object) {
+				return "object" === typeof object && null !== object && object.$$typeof === REACT_ELEMENT_TYPE;
+			}
+			var React = require_react(), REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_PORTAL_TYPE = Symbol.for("react.portal"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment"), REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode"), REACT_PROFILER_TYPE = Symbol.for("react.profiler"), REACT_CONSUMER_TYPE = Symbol.for("react.consumer"), REACT_CONTEXT_TYPE = Symbol.for("react.context"), REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref"), REACT_SUSPENSE_TYPE = Symbol.for("react.suspense"), REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list"), REACT_MEMO_TYPE = Symbol.for("react.memo"), REACT_LAZY_TYPE = Symbol.for("react.lazy"), REACT_ACTIVITY_TYPE = Symbol.for("react.activity"), REACT_VIEW_TRANSITION_TYPE = Symbol.for("react.view_transition"), REACT_CLIENT_REFERENCE = Symbol.for("react.client.reference"), ReactSharedInternals = React.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE, hasOwnProperty = Object.prototype.hasOwnProperty, isArrayImpl = Array.isArray, createTask = console.createTask ? console.createTask : function() {
+				return null;
+			};
+			React = { react_stack_bottom_frame: function(callStackForError) {
+				return callStackForError();
+			} };
+			var specialPropKeyWarningShown;
+			var didWarnAboutElementRef = {};
+			var unknownOwnerDebugStack = React.react_stack_bottom_frame.bind(React, UnknownOwner)();
+			var unknownOwnerDebugTask = createTask(getTaskName(UnknownOwner));
+			var didWarnAboutKeySpread = {};
+			exports.Fragment = REACT_FRAGMENT_TYPE;
+			exports.jsx = function(type, config, maybeKey) {
+				var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
+				if (trackActualOwner) {
+					var previousStackTraceLimit = Error.stackTraceLimit;
+					Error.stackTraceLimit = 10;
+					var debugStackDEV = Error("react-stack-top-frame");
+					Error.stackTraceLimit = previousStackTraceLimit;
+				} else debugStackDEV = unknownOwnerDebugStack;
+				return jsxDEVImpl(type, config, maybeKey, !1, debugStackDEV, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
+			};
+			exports.jsxs = function(type, config, maybeKey) {
+				var trackActualOwner = 1e4 > ReactSharedInternals.recentlyCreatedOwnerStacks++;
+				if (trackActualOwner) {
+					var previousStackTraceLimit = Error.stackTraceLimit;
+					Error.stackTraceLimit = 10;
+					var debugStackDEV = Error("react-stack-top-frame");
+					Error.stackTraceLimit = previousStackTraceLimit;
+				} else debugStackDEV = unknownOwnerDebugStack;
+				return jsxDEVImpl(type, config, maybeKey, !0, debugStackDEV, trackActualOwner ? createTask(getTaskName(type)) : unknownOwnerDebugTask);
+			};
+		})();
+	}));
+	//#endregion
+	//#region node_modules/react-virtuoso/dist/index.mjs
+	var import_jsx_runtime = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
+		module.exports = require_react_jsx_runtime_development();
+	})))();
+	var import_react_dom = /* @__PURE__ */ __toESM(require_react_dom(), 1);
+	var ye = 0;
+	var Gt = 1;
+	var Qt = 2;
+	var Pn = 4;
+	function mn(t) {
+		return () => t;
+	}
+	function So(t) {
+		t();
+	}
+	function re(t, e) {
+		return (n) => t(e(n));
+	}
+	function pn(t, e) {
+		return () => t(e);
+	}
+	function xo(t, e) {
+		return (n) => t(e, n);
+	}
+	function Ne(t) {
+		return t !== void 0;
+	}
+	function vo(...t) {
+		return () => {
+			t.map(So);
+		};
+	}
+	function te() {}
+	function be(t, e) {
+		return e(t), t;
+	}
+	function To(t, e) {
+		return e(t);
+	}
+	function st(...t) {
+		return t;
+	}
+	function X(t, e) {
+		return t(Gt, e);
+	}
+	function _(t, e) {
+		t(ye, e);
+	}
+	function De(t) {
+		t(Qt);
+	}
+	function tt(t) {
+		return t(Pn);
+	}
+	function z(t, e) {
+		return X(t, xo(e, ye));
+	}
+	function Et(t, e) {
+		const n = t(Gt, (o) => {
+			n(), e(o);
+		});
+		return n;
+	}
+	function hn(t) {
+		let e, n;
+		return (o) => (r) => {
+			e = r, n && clearTimeout(n), n = setTimeout(() => {
+				o(e);
+			}, t);
+		};
+	}
+	function Gn(t, e) {
+		return t === e;
+	}
+	function ot(t = Gn) {
+		let e;
+		return (n) => (o) => {
+			t(e, o) || (e = o, n(o));
+		};
+	}
+	function V(t) {
+		return (e) => (n) => {
+			t(n) && e(n);
+		};
+	}
+	function k(t) {
+		return (e) => re(e, t);
+	}
+	function Ct(t) {
+		return (e) => () => {
+			e(t);
+		};
+	}
+	function S(t, ...e) {
+		const n = Co(...e);
+		return ((o, r) => {
+			switch (o) {
+				case Qt:
+					De(t);
+					return;
+				case Gt: return X(t, n(r));
+			}
+		});
+	}
+	function Ht(t, e) {
+		return (n) => (o) => {
+			n(e = t(e, o));
+		};
+	}
+	function jt(t) {
+		return (e) => (n) => {
+			t > 0 ? t-- : e(n);
+		};
+	}
+	function Wt(t) {
+		let e = null, n;
+		return (o) => (r) => {
+			e = r, !n && (n = setTimeout(() => {
+				n = void 0, o(e);
+			}, t));
+		};
+	}
+	function $(...t) {
+		const e = Array.from({ length: t.length });
+		let n = 0, o = null;
+		const r = 2 ** t.length - 1;
+		return t.forEach((s, i) => {
+			const l = 2 ** i;
+			X(s, (u) => {
+				const d = n;
+				n |= l, e[i] = u, d !== r && n === r && o && (o(), o = null);
+			});
+		}), (s) => (i) => {
+			const l = () => {
+				s([i].concat(e));
+			};
+			n === r ? l() : o = l;
+		};
+	}
+	function Co(...t) {
+		return (e) => t.reduceRight(To, e);
+	}
+	function wo(t) {
+		let e, n;
+		const o = () => e?.();
+		return function(r, s) {
+			switch (r) {
+				case Gt: return s ? n === s ? void 0 : (o(), n = s, e = X(t, s), e) : (o(), te);
+				case Qt:
+					o(), n = null;
+					return;
+			}
+		};
+	}
+	function y(t) {
+		let e = t;
+		const n = U();
+		return ((o, r) => {
+			switch (o) {
+				case ye:
+					e = r;
+					break;
+				case Gt:
+					r(e);
+					break;
+				case Pn: return e;
+			}
+			return n(o, r);
+		});
+	}
+	function gt(t, e) {
+		return be(y(e), (n) => z(t, n));
+	}
+	function U() {
+		const t = [];
+		return ((e, n) => {
+			switch (e) {
+				case ye:
+					t.slice().forEach((o) => {
+						o(n);
+					});
+					return;
+				case Qt:
+					t.splice(0);
+					return;
+				case Gt: return t.push(n), () => {
+					const o = t.indexOf(n);
+					o > -1 && t.splice(o, 1);
+				};
+			}
+		});
+	}
+	function yt(t) {
+		return be(U(), (e) => z(t, e));
+	}
+	var yo = { singleton: !0 };
+	function Y(t, e = [], n = yo) {
+		const { singleton: o } = n;
+		return {
+			constructor: t,
+			dependencies: e,
+			id: bo(),
+			singleton: o
+		};
+	}
+	var bo = () => /* @__PURE__ */ Symbol("id");
+	function Ro(t) {
+		const e = /* @__PURE__ */ new Map(), n = ({ constructor: o, dependencies: r, id: s, singleton: i }) => {
+			if (i && e.has(s)) return e.get(s);
+			const l = o(r.map((u) => n(u)));
+			return i && e.set(s, l), l;
+		};
+		return n(t);
+	}
+	function mt(...t) {
+		const e = U(), n = Array.from({ length: t.length });
+		let o = 0;
+		const r = 2 ** t.length - 1;
+		return t.forEach((s, i) => {
+			const l = 2 ** i;
+			X(s, (u) => {
+				n[i] = u, o |= l, o === r && _(e, n);
+			});
+		}), function(s, i) {
+			switch (s) {
+				case Qt:
+					De(e);
+					return;
+				case Gt: return o === r && i(n), X(e, i);
+			}
+		};
+	}
+	function P(t, e = Gn) {
+		return S(t, ot(e));
+	}
+	function Te(...t) {
+		return function(e, n) {
+			switch (e) {
+				case Qt: return;
+				case Gt: return vo(...t.map((o) => X(o, n)));
+			}
+		};
+	}
+	var ht = {
+		/** Detailed debugging information including item measurements */
+		DEBUG: 0,
+		/** General informational messages */
+		INFO: 1,
+		/** Warning messages for potential issues */
+		WARN: 2,
+		/** Error messages for failures (default level) */
+		ERROR: 3
+	};
+	var Ho = {
+		[ht.DEBUG]: "debug",
+		[ht.ERROR]: "error",
+		[ht.INFO]: "log",
+		[ht.WARN]: "warn"
+	};
+	var Eo = () => typeof globalThis > "u" ? window : globalThis;
+	var Mt = Y(() => {
+		const t = y(ht.ERROR);
+		return {
+			log: y((n, o, r = ht.INFO) => {
+				r >= (Eo().VIRTUOSO_LOG_LEVEL ?? tt(t)) && console[Ho[r]]("%creact-virtuoso: %c%s %o", "color: #0253b3; font-weight: bold", "color: initial", n, o);
+			}),
+			logLevel: t
+		};
+	}, [], { singleton: !0 });
+	function ko(t) {
+		return "self" in t ? t.document.documentElement : t;
+	}
+	function Mn(t) {
+		const e = ko(t);
+		return e.ownerDocument.defaultView.getComputedStyle(e).direction === "rtl";
+	}
+	function Nt(t, e) {
+		return Mn(t) ? -e : e;
+	}
+	function gn(t, e) {
+		return Mn(t) ? -e : e;
+	}
+	function Lt(t, e, n) {
+		return $e(t, e, n).callbackRef;
+	}
+	function $e(t, e, n) {
+		const o = import_react.useRef(null);
+		let r = (i) => {};
+		const s = import_react.useMemo(() => typeof ResizeObserver < "u" ? new ResizeObserver((i) => {
+			const l = () => {
+				const u = i[0].target;
+				u.offsetParent !== null && t(u);
+			};
+			n ? l() : requestAnimationFrame(l);
+		}) : null, [t, n]);
+		return r = (i) => {
+			i && e ? (s?.observe(i), o.current = i) : (o.current && s?.unobserve(o.current), o.current = null);
+		}, {
+			callbackRef: r,
+			ref: o
+		};
+	}
+	function An(t, e, n, o, r, s, i, l, u) {
+		return $e(import_react.useCallback((f) => {
+			const x = Bo(f.children, e, l ? "offsetWidth" : "offsetHeight", r);
+			let h = f.parentElement;
+			for (; h.dataset.virtuosoScroller === void 0;) h = h.parentElement;
+			const m = h.lastElementChild?.dataset.viewportType === "window";
+			let v;
+			m && (v = h.ownerDocument.defaultView);
+			const R = i ? l ? i.scrollWidth : i.scrollHeight : m ? l ? v.document.documentElement.scrollWidth : v.document.documentElement.scrollHeight : l ? h.scrollWidth : h.scrollHeight, g = i ? l ? i.offsetWidth : i.offsetHeight : m ? l ? v.innerWidth : v.innerHeight : l ? h.offsetWidth : h.offsetHeight, T = i ? l ? Nt(i, i.scrollLeft) : i.scrollTop : m ? l ? Nt(v, v.scrollX || v.document.documentElement.scrollLeft) : v.scrollY || v.document.documentElement.scrollTop : l ? Nt(h, h.scrollLeft) : h.scrollTop;
+			o({
+				scrollHeight: R,
+				scrollTop: Math.max(T, 0),
+				viewportHeight: g
+			}), s?.(l ? In("column-gap", getComputedStyle(f).columnGap, r) : In("row-gap", getComputedStyle(f).rowGap, r)), x !== null && t(x);
+		}, [
+			t,
+			e,
+			r,
+			s,
+			i,
+			o,
+			l
+		]), n, u);
+	}
+	function Bo(t, e, n, o) {
+		const r = t.length;
+		if (r === 0) return null;
+		const s = [];
+		for (let i = 0; i < r; i++) {
+			const l = t.item(i);
+			if (l.dataset.index === void 0) continue;
+			const u = parseInt(l.dataset.index, 10), d = parseFloat(l.dataset.knownSize), f = e(l, n);
+			if (f === 0 && o("Zero-sized element, this should not happen", { child: l }, ht.ERROR), f === d) continue;
+			const x = s[s.length - 1];
+			s.length === 0 || x.size !== f || x.endIndex !== u - 1 ? s.push({
+				endIndex: u,
+				size: f,
+				startIndex: u
+			}) : s[s.length - 1].endIndex++;
+		}
+		return s;
+	}
+	function In(t, e, n) {
+		return e !== "normal" && e?.endsWith("px") !== !0 && n(`${t} was not resolved to pixel value correctly`, e, ht.WARN), e === "normal" ? 0 : parseInt(e ?? "0", 10);
+	}
+	var Re = typeof document > "u" ? import_react.useEffect : import_react.useLayoutEffect;
+	function Ue(t, e, n) {
+		const o = import_react.useRef(null), r = import_react.useCallback((u) => {
+			if (!u?.offsetParent) return;
+			const d = u.getBoundingClientRect(), f = d.width;
+			let x, h;
+			if (e) {
+				const m = e.getBoundingClientRect(), v = d.top - m.top;
+				h = m.height - Math.max(0, v), x = v + e.scrollTop;
+			} else {
+				const m = i.current.ownerDocument.defaultView;
+				h = m.innerHeight - Math.max(0, d.top), x = d.top + m.scrollY;
+			}
+			o.current = {
+				listHeight: d.height,
+				offsetTop: x,
+				visibleHeight: h,
+				visibleWidth: f
+			}, t(o.current);
+		}, [t, e]), { callbackRef: s, ref: i } = $e(r, !0, n), l = import_react.useCallback(() => {
+			r(i.current);
+		}, [r, i]);
+		return import_react.useEffect(() => {
+			if (e) {
+				e.addEventListener("scroll", l);
+				const d = new ResizeObserver(() => {
+					requestAnimationFrame(l);
+				});
+				return d.observe(e), () => {
+					e.removeEventListener("scroll", l), d.unobserve(e);
+				};
+			}
+			const u = i.current?.ownerDocument.defaultView;
+			return u?.addEventListener("scroll", l), u?.addEventListener("resize", l), () => {
+				u?.removeEventListener("scroll", l), u?.removeEventListener("resize", l);
+			};
+		}, [
+			l,
+			e,
+			i
+		]), s;
+	}
+	var St = Y(() => {
+		const t = U(), e = U(), n = y(0), o = U(), r = U(), s = y(0), i = U(), l = U(), u = y(0), d = y(0), f = y(0), x = y(0), h = U(), m = U(), v = y(!1), R = y(!1), g = y(!1);
+		return z(S(t, k(({ scrollTop: T }) => T)), e), z(S(t, k(({ scrollHeight: T }) => T)), l), z(e, s), {
+			deviation: n,
+			deviationCommitted: o,
+			fixedFooterHeight: f,
+			fixedHeaderHeight: d,
+			footerHeight: x,
+			headerHeight: u,
+			horizontalDirection: R,
+			scrollBy: m,
+			scrollContainerState: t,
+			scrollHeight: l,
+			scrollingInProgress: v,
+			scrollTo: h,
+			scrollTop: e,
+			skipAnimationFrameInResizeObserver: g,
+			smoothScrollTargetReached: r,
+			statefulScrollTop: s,
+			viewportHeight: i
+		};
+	}, [], { singleton: !0 });
+	var se = { lvl: 0 };
+	function _n(t, e) {
+		const n = t.length;
+		if (n === 0) return [];
+		let { index: o, value: r } = e(t[0]);
+		const s = [];
+		for (let i = 1; i < n; i++) {
+			const { index: l, value: u } = e(t[i]);
+			s.push({
+				end: l - 1,
+				start: o,
+				value: r
+			}), o = l, r = u;
+		}
+		return s.push({
+			end: 1 / 0,
+			start: o,
+			value: r
+		}), s;
+	}
+	function J(t) {
+		return t === se;
+	}
+	function ie(t, e) {
+		if (!J(t)) return e === t.k ? t.v : e < t.k ? ie(t.l, e) : ie(t.r, e);
+	}
+	function kt(t, e, n = "k") {
+		if (J(t)) return [-1 / 0, void 0];
+		if (Number(t[n]) === e) return [t.k, t.v];
+		if (Number(t[n]) < e) {
+			const o = kt(t.r, e, n);
+			return o[0] === -1 / 0 ? [t.k, t.v] : o;
+		}
+		return kt(t.l, e, n);
+	}
+	function xt(t, e, n) {
+		return J(t) ? $n(e, n, 1) : e === t.k ? pt(t, {
+			k: e,
+			v: n
+		}) : e < t.k ? Sn(pt(t, { l: xt(t.l, e, n) })) : Sn(pt(t, { r: xt(t.r, e, n) }));
+	}
+	function Dt() {
+		return se;
+	}
+	function Xt(t, e, n) {
+		if (J(t)) return [];
+		const o = kt(t, e)[0];
+		return Oo(Pe(t, o, n));
+	}
+	function We(t, e) {
+		if (J(t)) return se;
+		const { k: n, l: o, r } = t;
+		if (e === n) {
+			if (J(o)) return r;
+			if (J(r)) return o;
+			const [s, i] = Dn(o);
+			return xe(pt(t, {
+				k: s,
+				l: Nn(o),
+				v: i
+			}));
+		}
+		return e < n ? xe(pt(t, { l: We(o, e) })) : xe(pt(t, { r: We(r, e) }));
+	}
+	function $t(t) {
+		return J(t) ? [] : [
+			...$t(t.l),
+			{
+				k: t.k,
+				v: t.v
+			},
+			...$t(t.r)
+		];
+	}
+	function Pe(t, e, n) {
+		if (J(t)) return [];
+		const { k: o, l: r, r: s, v: i } = t;
+		let l = [];
+		return o > e && (l = l.concat(Pe(r, e, n))), o >= e && o <= n && l.push({
+			k: o,
+			v: i
+		}), o <= n && (l = l.concat(Pe(s, e, n))), l;
+	}
+	function xe(t) {
+		const { l: e, lvl: n, r: o } = t;
+		if (o.lvl >= n - 1 && e.lvl >= n - 1) return t;
+		if (n > o.lvl + 1) {
+			if (Oe(e)) return Un(pt(t, { lvl: n - 1 }));
+			if (!J(e) && !J(e.r)) return pt(e.r, {
+				l: pt(e, { r: e.r.l }),
+				lvl: n,
+				r: pt(t, {
+					l: e.r.r,
+					lvl: n - 1
+				})
+			});
+			throw new Error("Unexpected empty nodes");
+		}
+		if (Oe(t)) return Ge(pt(t, { lvl: n - 1 }));
+		if (!J(o) && !J(o.l)) {
+			const r = o.l, s = Oe(r) ? o.lvl - 1 : o.lvl;
+			return pt(r, {
+				l: pt(t, {
+					lvl: n - 1,
+					r: r.l
+				}),
+				lvl: r.lvl + 1,
+				r: Ge(pt(o, {
+					l: r.r,
+					lvl: s
+				}))
+			});
+		}
+		throw new Error("Unexpected empty nodes");
+	}
+	function pt(t, e) {
+		return $n(e.k === void 0 ? t.k : e.k, e.v === void 0 ? t.v : e.v, e.lvl === void 0 ? t.lvl : e.lvl, e.l === void 0 ? t.l : e.l, e.r === void 0 ? t.r : e.r);
+	}
+	function Nn(t) {
+		return J(t.r) ? t.l : xe(pt(t, { r: Nn(t.r) }));
+	}
+	function Oe(t) {
+		return J(t) || t.lvl > t.r.lvl;
+	}
+	function Dn(t) {
+		return J(t.r) ? [t.k, t.v] : Dn(t.r);
+	}
+	function $n(t, e, n, o = se, r = se) {
+		return {
+			k: t,
+			l: o,
+			lvl: n,
+			r,
+			v: e
+		};
+	}
+	function Sn(t) {
+		return Ge(Un(t));
+	}
+	function Un(t) {
+		const { l: e } = t;
+		return !J(e) && e.lvl === t.lvl ? pt(e, { r: pt(t, { l: e.r }) }) : t;
+	}
+	function Ge(t) {
+		const { lvl: e, r: n } = t;
+		return !J(n) && !J(n.r) && n.lvl === e && n.r.lvl === e ? pt(n, {
+			l: pt(t, { r: n.l }),
+			lvl: e + 1
+		}) : t;
+	}
+	function Oo(t) {
+		return _n(t, ({ k: e, v: n }) => ({
+			index: e,
+			value: n
+		}));
+	}
+	function Kn(t, e) {
+		return !!(t && t.startIndex === e.startIndex && t.endIndex === e.endIndex);
+	}
+	function Jt(t, e) {
+		return !!(t && t[0] === e[0] && t[1] === e[1]);
+	}
+	var Ke = Y(() => ({ recalcInProgress: y(!1) }), [], { singleton: !0 });
+	function jn(t, e, n) {
+		return t[Ce(t, e, n)];
+	}
+	function Ce(t, e, n, o = 0) {
+		let r = t.length - 1;
+		for (; o <= r;) {
+			const s = Math.floor((o + r) / 2), i = t[s], l = n(i, e);
+			if (l === 0) return s;
+			if (l === -1) {
+				if (r - o < 2) return s - 1;
+				r = s - 1;
+			} else {
+				if (r === o) return s;
+				o = s + 1;
+			}
+		}
+		throw new Error(`Failed binary finding record in array - ${t.join(",")}, searched for ${e}`);
+	}
+	function Lo(t, e, n, o) {
+		const r = Ce(t, e, o), s = Ce(t, n, o, r);
+		return t.slice(r, s + 1);
+	}
+	function Bt(t, e) {
+		return Math.round(t.getBoundingClientRect()[e]);
+	}
+	function He(t) {
+		return !J(t.groupOffsetTree);
+	}
+	function je({ index: t }, e) {
+		return e === t ? 0 : e < t ? -1 : 1;
+	}
+	function xn() {
+		return {
+			groupIndices: [],
+			groupOffsetTree: Dt(),
+			lastIndex: 0,
+			lastOffset: 0,
+			lastSize: 0,
+			offsetTree: [],
+			sizeTree: Dt()
+		};
+	}
+	function zo(t, e) {
+		let n = J(t) ? 0 : 1 / 0;
+		for (const o of e) {
+			const { endIndex: r, size: s, startIndex: i } = o;
+			if (n = Math.min(n, i), J(t)) {
+				t = xt(t, 0, s);
+				continue;
+			}
+			const l = Xt(t, i - 1, r + 1);
+			if (l.some(Ao(o))) continue;
+			let u = !1, d = !1;
+			for (const { end: f, start: x, value: h } of l) u ? (r >= x || s === h) && (t = We(t, x)) : (d = h !== s, u = !0), f > r && r >= x && h !== s && (t = xt(t, r + 1, h));
+			d && (t = xt(t, i, s));
+		}
+		return [t, n];
+	}
+	function Fo(t) {
+		return t.groupIndex !== void 0;
+	}
+	function Vo({ offset: t }, e) {
+		return e === t ? 0 : e < t ? -1 : 1;
+	}
+	function le(t, e, n) {
+		if (e.length === 0) return 0;
+		const { index: o, offset: r, size: s } = jn(e, t, je), i = t - o, l = s * i + (i - 1) * n + r;
+		return l > 0 ? l + n : l;
+	}
+	function qn(t, e) {
+		if (!He(e)) return t;
+		let n = 0;
+		for (; e.groupIndices[n] <= t + n;) n++;
+		return t + n;
+	}
+	function Yn(t, e, n) {
+		if (Fo(t)) return e.groupIndices[t.groupIndex] + 1;
+		let r = qn(t.index === "LAST" ? n : t.index, e);
+		return r = Math.max(0, Math.min(n, r)), r;
+	}
+	function Wo(t, e, n, o = 0) {
+		return o > 0 && (e = Math.max(e, jn(t, o, je).offset)), _n(Lo(t, e, n, Vo), Mo);
+	}
+	function Po(t, [e, n, o, r]) {
+		e.length > 0 && o("received item sizes", e, ht.DEBUG);
+		const s = t.sizeTree;
+		let i = s, l = 0;
+		if (n.length > 0 && J(s) && e.length === 2) {
+			const h = e[0].size, m = e[1].size;
+			i = n.reduce((v, R) => xt(xt(v, R, h), R + 1, m), i);
+		} else [i, l] = zo(i, e);
+		if (i === s) return t;
+		const { lastIndex: u, lastOffset: d, lastSize: f, offsetTree: x } = Me(t.offsetTree, l, i, r);
+		return {
+			groupIndices: n,
+			groupOffsetTree: n.reduce((h, m) => xt(h, m, le(m, x, r)), Dt()),
+			lastIndex: u,
+			lastOffset: d,
+			lastSize: f,
+			offsetTree: x,
+			sizeTree: i
+		};
+	}
+	function Go(t) {
+		return $t(t).map(({ k: e, v: n }, o, r) => {
+			const s = r[o + 1];
+			return {
+				endIndex: s === void 0 ? 1 / 0 : s.k - 1,
+				size: n,
+				startIndex: e
+			};
+		});
+	}
+	function vn(t, e) {
+		let n = 0, o = 0;
+		for (; n < t;) n += e[o + 1] - e[o] - 1, o++;
+		return o - (n === t ? 0 : 1);
+	}
+	function Me(t, e, n, o) {
+		let r = t, s = 0, i = 0, l = 0, u = 0;
+		if (e === 0) r = [];
+		else {
+			u = Ce(r, e - 1, je), l = r[u].offset;
+			const f = kt(n, e - 1);
+			s = f[0], i = f[1], r.length && r[u].size === kt(n, e)[1] && (u -= 1), r = r.slice(0, u + 1);
+		}
+		for (const { start: d, value: f } of Xt(n, e, 1 / 0)) {
+			const x = d - s, h = x * i + l + x * o;
+			r.push({
+				index: d,
+				offset: h,
+				size: f
+			}), s = d, l = h, i = f;
+		}
+		return {
+			lastIndex: s,
+			lastOffset: l,
+			lastSize: i,
+			offsetTree: r
+		};
+	}
+	function Mo(t) {
+		return {
+			index: t.index,
+			value: t
+		};
+	}
+	function Ao(t) {
+		const { endIndex: e, size: n, startIndex: o } = t;
+		return (r) => r.start === o && (r.end === e || r.end === 1 / 0) && r.value === n;
+	}
+	var _o = {
+		offsetHeight: "height",
+		offsetWidth: "width"
+	};
+	var zt = Y(([{ log: t }, { recalcInProgress: e }]) => {
+		const n = U(), o = U(), r = gt(o, 0), s = U(), i = U(), l = y(0), u = y([]), d = y(void 0), f = y(void 0), x = y(void 0), h = y(void 0), m = y((c, p) => Bt(c, _o[p])), v = y(void 0), R = y(0), g = xn(), T = U(), a = gt(S(Te(n, T), $(u, t, R), Ht((c, [p, ...b]) => {
+			if (p === null) {
+				const [O] = b;
+				return {
+					...xn(),
+					groupIndices: O,
+					groupOffsetTree: O.reduce((L, F, G) => xt(L, F, G), Dt())
+				};
+			}
+			return Po(c, [p, ...b]);
+		}, g), ot()), g), C = gt(S(u, ot(), Ht((c, p) => ({
+			current: p,
+			prev: c.current
+		}), {
+			current: [],
+			prev: []
+		}), k(({ prev: c }) => c)), []);
+		z(S(u, V((c) => c.length > 0), $(a, R), k(([c, p, b]) => {
+			const O = c.reduce((L, F, G) => xt(L, F, le(F, p.offsetTree, b) || G), Dt());
+			return {
+				...p,
+				groupIndices: c,
+				groupOffsetTree: O
+			};
+		})), a), z(S(o, $(a), V(([c, { lastIndex: p }]) => c < p), k(([c, { lastIndex: p, lastSize: b }]) => [{
+			endIndex: p,
+			size: b,
+			startIndex: c
+		}])), n), z(d, f);
+		const I = gt(S(d, k((c) => c === void 0)), !0);
+		z(S(f, V((c) => c !== void 0 && J(tt(a).sizeTree)), k((c) => {
+			const p = tt(x), b = tt(u).length > 0;
+			return p !== void 0 && p !== 0 ? b ? [{
+				endIndex: 0,
+				size: p,
+				startIndex: 0
+			}, {
+				endIndex: 1,
+				size: c,
+				startIndex: 1
+			}] : [] : [{
+				endIndex: 0,
+				size: c,
+				startIndex: 0
+			}];
+		})), n), z(S(h, V((c) => c !== void 0 && c.length > 0 && J(tt(a).sizeTree)), k((c) => {
+			const p = [];
+			let b = c[0], O = 0;
+			for (let L = 1; L < c.length; L++) {
+				const F = c[L];
+				F !== b && (p.push({
+					endIndex: L - 1,
+					size: b,
+					startIndex: O
+				}), b = F, O = L);
+			}
+			return p.push({
+				endIndex: c.length - 1,
+				size: b,
+				startIndex: O
+			}), p;
+		})), n), z(S(u, $(x, f), V(([, c, p]) => c !== void 0 && p !== void 0), k(([c, p, b]) => {
+			const O = [];
+			for (let L = 0; L < c.length; L++) {
+				const F = c[L], G = c[L + 1];
+				O.push({
+					startIndex: F,
+					endIndex: F,
+					size: p
+				}), G !== void 0 && O.push({
+					startIndex: F + 1,
+					endIndex: G - 1,
+					size: b
+				});
+			}
+			return O;
+		})), n);
+		const w = yt(S(n, $(a), Ht(({ sizes: c }, [p, b]) => ({
+			changed: b !== c,
+			sizes: b
+		}), {
+			changed: !1,
+			sizes: g
+		}), k((c) => c.changed)));
+		X(S(l, Ht((c, p) => ({
+			diff: c.prev - p,
+			prev: p
+		}), {
+			diff: 0,
+			prev: 0
+		}), k((c) => c.diff)), (c) => {
+			const { groupIndices: p } = tt(a);
+			if (c > 0) _(e, !0), _(s, c + vn(c, p));
+			else if (c < 0) {
+				const b = tt(C);
+				b.length > 0 && (c -= vn(-c, b)), _(i, c);
+			}
+		}), X(S(l, $(t)), ([c, p]) => {
+			c < 0 && p("`firstItemIndex` prop should not be set to less than zero. If you don't know the total count, just use a very high value", { firstItemIndex: l }, ht.ERROR);
+		});
+		const B = yt(s);
+		z(S(s, $(a), k(([c, p]) => {
+			const b = p.groupIndices.length > 0, O = [], L = p.lastSize;
+			if (b) {
+				const F = ie(p.sizeTree, 0);
+				let G = 0, Z = 0;
+				for (; G < c;) {
+					const K = p.groupIndices[Z], lt = p.groupIndices.length === Z + 1 ? 1 / 0 : p.groupIndices[Z + 1] - K - 1;
+					O.push({
+						endIndex: K,
+						size: F,
+						startIndex: K
+					}), O.push({
+						endIndex: K + 1 + lt - 1,
+						size: L,
+						startIndex: K + 1
+					}), Z++, G += lt + 1;
+				}
+				const W = $t(p.sizeTree);
+				return G !== c && W.shift(), W.reduce((K, { k: lt, v: ct }) => {
+					let It = K.ranges;
+					return K.prevSize !== 0 && (It = [...K.ranges, {
+						endIndex: lt + c - 1,
+						size: K.prevSize,
+						startIndex: K.prevIndex
+					}]), {
+						prevIndex: lt + c,
+						prevSize: ct,
+						ranges: It
+					};
+				}, {
+					prevIndex: c,
+					prevSize: 0,
+					ranges: O
+				}).ranges;
+			}
+			return $t(p.sizeTree).reduce((F, { k: G, v: Z }) => ({
+				prevIndex: G + c,
+				prevSize: Z,
+				ranges: [...F.ranges, {
+					endIndex: G + c - 1,
+					size: F.prevSize,
+					startIndex: F.prevIndex
+				}]
+			}), {
+				prevIndex: 0,
+				prevSize: L,
+				ranges: []
+			}).ranges;
+		})), n);
+		const N = yt(S(i, $(a, R), k(([c, { offsetTree: p }, b]) => {
+			return le(-c, p, b);
+		})));
+		return z(S(i, $(a, R), k(([c, p, b]) => {
+			if (p.groupIndices.length > 0) {
+				if (J(p.sizeTree)) return p;
+				let F = Dt();
+				const G = tt(C);
+				let Z = 0, W = 0, ft = 0;
+				for (; Z < -c;) {
+					ft = G[W];
+					const lt = G[W + 1] - ft - 1;
+					W++, Z += lt + 1;
+				}
+				if (F = $t(p.sizeTree).reduce((lt, { k: ct, v: It }) => xt(lt, Math.max(0, ct + c), It), F), Z !== -c) {
+					const lt = ie(p.sizeTree, ft);
+					F = xt(F, 0, lt);
+					const ct = kt(p.sizeTree, -c + 1)[1];
+					F = xt(F, 1, ct);
+				}
+				return {
+					...p,
+					sizeTree: F,
+					...Me(p.offsetTree, 0, F, b)
+				};
+			}
+			const L = $t(p.sizeTree).reduce((F, { k: G, v: Z }) => xt(F, Math.max(0, G + c), Z), Dt());
+			return {
+				...p,
+				sizeTree: L,
+				...Me(p.offsetTree, 0, L, b)
+			};
+		})), a), {
+			beforeUnshiftWith: B,
+			data: v,
+			defaultItemSize: f,
+			firstItemIndex: l,
+			fixedItemSize: d,
+			fixedGroupSize: x,
+			gap: R,
+			groupIndices: u,
+			heightEstimates: h,
+			itemSize: m,
+			listRefresh: w,
+			resetSizes: T,
+			shiftWith: i,
+			shiftWithOffset: N,
+			sizeRanges: n,
+			sizes: a,
+			statefulTotalCount: r,
+			totalCount: o,
+			trackItemSizes: I,
+			unshiftWith: s
+		};
+	}, st(Mt, Ke), { singleton: !0 });
+	function No(t) {
+		return t.reduce((e, n) => (e.groupIndices.push(e.totalCount), e.totalCount += n + 1, e), {
+			groupIndices: [],
+			totalCount: 0
+		});
+	}
+	var Zn = Y(([{ groupIndices: t, resetSizes: e, sizeRanges: n, sizes: o, statefulTotalCount: r, totalCount: s, trackItemSizes: i }, { headerHeight: l, scrollTop: u }]) => {
+		const d = U(), f = U(), x = yt(S(d, k(No))), h = gt(S(n, $(r, t), V(([, m, v]) => m > v.length), Ct(!0)), !1);
+		return z(S(x, Ht(([, m], v) => [m, v], [{
+			groupIndices: [],
+			totalCount: 0
+		}, {
+			groupIndices: [],
+			totalCount: 0
+		}]), $(o, i, h), V(([[m, v], { sizeTree: R }, g, T]) => {
+			const a = m.groupIndices.length > 0 && m.totalCount === m.groupIndices.length, C = v.totalCount > v.groupIndices.length;
+			return g && !T && a && C && !J(R);
+		}), Ct(null)), e), z(S(x, k((m) => m.totalCount)), s), z(S(x, k((m) => m.groupIndices)), t), z(S(mt(u, o, l), V(([m, v]) => He(v)), k(([m, v, R]) => kt(v.groupOffsetTree, Math.max(m - R, 0), "v")[0]), ot(), k((m) => [m])), f), {
+			groupCounts: d,
+			topItemsIndexes: f
+		};
+	}, st(zt, St));
+	var At = Y(([{ log: t }]) => {
+		const e = y(!1), n = yt(S(e, V((o) => o), ot()));
+		return X(e, (o) => {
+			o && tt(t)("props updated", {}, ht.DEBUG);
+		}), {
+			didMount: n,
+			propsReady: e
+		};
+	}, st(Mt), { singleton: !0 });
+	var Do = typeof document < "u" && "scrollBehavior" in document.documentElement.style;
+	function Xn(t) {
+		const e = typeof t == "number" ? { index: t } : { ...t };
+		return e.align || (e.align = "start"), (!e.behavior || !Do) && (e.behavior = "auto"), e.offset === void 0 && (e.offset = 0), e;
+	}
+	var de = Y(([{ gap: t, listRefresh: e, sizes: n, totalCount: o }, { fixedFooterHeight: r, fixedHeaderHeight: s, footerHeight: i, headerHeight: l, scrollingInProgress: u, scrollTo: d, smoothScrollTargetReached: f, viewportHeight: x }, { log: h }]) => {
+		const m = U(), v = U(), R = y(0);
+		let g = null, T = null, a = null;
+		function C() {
+			g !== null && (g(), g = null), a !== null && (a(), a = null), T && (clearTimeout(T), T = null), _(u, !1);
+		}
+		return z(S(m, $(n, x, o, R, l, i, h), $(t, s, r), k(([[I, w, B, N, c, p, b, O], L, F, G]) => {
+			const Z = Xn(I), { align: W, behavior: ft, offset: K } = Z, lt = N - 1, ct = Yn(Z, w, lt);
+			let It = le(ct, w.offsetTree, L) + p;
+			W === "end" ? (It += F + kt(w.sizeTree, ct)[1] - B + G, ct === lt && (It += b)) : W === "center" ? It += (F + kt(w.sizeTree, ct)[1] - B + G) / 2 : It -= c, K !== void 0 && K !== 0 && (It += K);
+			const Ft = (vt) => {
+				C(), vt ? (O("retrying to scroll to", { location: I }, ht.DEBUG), _(m, I)) : (_(v, !0), O("list did not change, scroll successful", {}, ht.DEBUG));
+			};
+			if (C(), ft === "smooth") {
+				let vt = !1;
+				a = X(e, (Ot) => {
+					vt = vt || Ot;
+				}), g = Et(f, () => {
+					Ft(vt);
+				});
+			} else g = Et(S(e, $o(150)), Ft);
+			return T = setTimeout(() => {
+				C();
+			}, 1200), _(u, !0), O("scrolling from index to", {
+				behavior: ft,
+				index: ct,
+				top: It
+			}, ht.DEBUG), {
+				behavior: ft,
+				top: It
+			};
+		})), d), {
+			scrollTargetReached: v,
+			scrollToIndex: m,
+			topListHeight: R
+		};
+	}, st(zt, St, Mt), { singleton: !0 });
+	function $o(t) {
+		return (e) => {
+			const n = setTimeout(() => {
+				e(!1);
+			}, t);
+			return (o) => {
+				o && (e(!0), clearTimeout(n));
+			};
+		};
+	}
+	function qe(t, e) {
+		t === 0 ? e() : requestAnimationFrame(() => {
+			qe(t - 1, e);
+		});
+	}
+	function Ye(t, e) {
+		if (t === void 0) return 0;
+		const n = e - 1, o = typeof t == "number" ? t : t.index === "LAST" ? n : t.index;
+		return Math.max(0, Math.min(o, n));
+	}
+	function Ae(t) {
+		return t === void 0 ? !0 : typeof t == "number" ? t === 0 : t.index === 0 && (t.align === void 0 || t.align === "start") && (t.offset === void 0 || t.offset === 0);
+	}
+	var fe = Y(([{ defaultItemSize: t, listRefresh: e, sizes: n }, { scrollTop: o }, { scrollTargetReached: r, scrollToIndex: s }, { didMount: i }]) => {
+		const l = y(!0), u = y(0), d = y(!0);
+		return z(S(i, $(u), V(([f, x]) => !Ae(x)), Ct(!1)), l), z(S(i, $(u), V(([f, x]) => !Ae(x)), Ct(!1)), d), X(S(mt(e, i), $(l, n, t, d), V(([[, f], x, { sizeTree: h }, m, v]) => f && (!J(h) || Ne(m)) && !x && !v), $(u)), ([, f]) => {
+			if (f === void 0) {
+				_(l, !0), _(d, !0);
+				return;
+			}
+			Et(r, () => {
+				_(d, !0);
+			}), qe(4, () => {
+				Et(o, () => {
+					_(l, !0);
+				}), _(s, f);
+			});
+		}), {
+			initialItemFinalLocationReached: d,
+			initialTopMostItemIndex: u,
+			scrolledToInitialItem: l
+		};
+	}, st(zt, St, de, At), { singleton: !0 });
+	function Jn(t, e) {
+		return Math.abs(t - e) < 1.01;
+	}
+	var ce = "up";
+	var ne = "down";
+	var Uo = "none";
+	var Ko = {
+		atBottom: !1,
+		notAtBottomBecause: "NOT_SHOWING_LAST_ITEM",
+		state: {
+			offsetBottom: 0,
+			scrollHeight: 0,
+			scrollTop: 0,
+			viewportHeight: 0
+		}
+	};
+	var jo = 0;
+	var me = Y(([{ footerHeight: t, headerHeight: e, scrollBy: n, scrollContainerState: o, scrollTop: r, viewportHeight: s }]) => {
+		const i = y(!1), l = y(!0), u = U(), d = U(), f = y(4), x = y(jo), h = gt(S(Te(S(P(r), jt(1), Ct(!0)), S(P(r), jt(1), Ct(!1), hn(100))), ot()), !1), m = gt(S(Te(S(n, Ct(!0)), S(n, Ct(!1), hn(200))), ot()), !1);
+		z(S(mt(P(r), P(x)), k(([a, C]) => a <= C), ot()), l), z(S(l, Wt(50)), d);
+		const v = yt(S(mt(o, P(s), P(e), P(t), P(f)), Ht((a, [{ scrollHeight: C, scrollTop: I }, w, B, N, c]) => {
+			const p = I + w - C > -c, b = {
+				scrollHeight: C,
+				scrollTop: I,
+				viewportHeight: w
+			};
+			if (p) {
+				let L, F;
+				return I > a.state.scrollTop ? (L = "SCROLLED_DOWN", F = a.state.scrollTop - I) : (L = "SIZE_DECREASED", F = a.state.scrollTop - I || a.scrollTopDelta), {
+					atBottom: !0,
+					atBottomBecause: L,
+					scrollTopDelta: F,
+					state: b
+				};
+			}
+			let O;
+			return b.scrollHeight > a.state.scrollHeight ? O = "SIZE_INCREASED" : w < a.state.viewportHeight ? O = "VIEWPORT_HEIGHT_DECREASING" : I < a.state.scrollTop ? O = "SCROLLING_UPWARDS" : O = "NOT_FULLY_SCROLLED_TO_LAST_ITEM_BOTTOM", {
+				atBottom: !1,
+				notAtBottomBecause: O,
+				state: b
+			};
+		}, Ko), ot((a, C) => a !== void 0 && a.atBottom === C.atBottom))), R = gt(S(o, Ht((a, { scrollHeight: C, scrollTop: I, viewportHeight: w }) => {
+			if (!Jn(a.scrollHeight, C)) {
+				const B = C - (I + w) < 1;
+				return a.scrollTop !== I && B ? {
+					changed: !0,
+					jump: a.scrollTop - I,
+					scrollHeight: C,
+					scrollTop: I
+				} : {
+					changed: !0,
+					jump: 0,
+					scrollHeight: C,
+					scrollTop: I
+				};
+			}
+			return {
+				changed: !1,
+				jump: 0,
+				scrollHeight: C,
+				scrollTop: I
+			};
+		}, {
+			changed: !1,
+			jump: 0,
+			scrollHeight: 0,
+			scrollTop: 0
+		}), V((a) => a.changed), k((a) => a.jump)), 0);
+		z(S(v, k((a) => a.atBottom)), i), z(S(i, Wt(50)), u);
+		const g = y(ne);
+		z(S(o, k(({ scrollTop: a }) => a), ot(), Ht((a, C) => tt(m) ? {
+			direction: a.direction,
+			prevScrollTop: C
+		} : {
+			direction: C < a.prevScrollTop ? ce : ne,
+			prevScrollTop: C
+		}, {
+			direction: ne,
+			prevScrollTop: 0
+		}), k((a) => a.direction)), g), z(S(o, Wt(50), Ct(Uo)), g);
+		const T = y(0);
+		return z(S(h, V((a) => !a), Ct(0)), T), z(S(r, Wt(100), $(h), V(([a, C]) => C), Ht(([a, C], [I]) => [C, I], [0, 0]), k(([a, C]) => C - a)), T), {
+			atBottomState: v,
+			atBottomStateChange: u,
+			atBottomThreshold: f,
+			atTopStateChange: d,
+			atTopThreshold: x,
+			isAtBottom: i,
+			isAtTop: l,
+			isScrolling: h,
+			lastJumpDueToItemResize: R,
+			scrollDirection: g,
+			scrollVelocity: T
+		};
+	}, st(St));
+	var ue = "top";
+	var ae = "bottom";
+	var Tn = "none";
+	function Cn(t, e, n) {
+		return typeof t == "number" ? n === ce && e === ue || n === ne && e === ae ? t : 0 : n === ce ? e === ue ? t.main : t.reverse : e === ae ? t.main : t.reverse;
+	}
+	function wn(t, e) {
+		return typeof t == "number" ? t : t[e] ?? 0;
+	}
+	var Ze = Y(([{ deviation: t, fixedHeaderHeight: e, headerHeight: n, scrollTop: o, viewportHeight: r }]) => {
+		const s = U(), i = y(0), l = y(0), u = y(0);
+		return {
+			increaseViewportBy: l,
+			listBoundary: s,
+			overscan: u,
+			topListHeight: i,
+			visibleRange: gt(S(mt(P(o), P(r), P(n), P(s, Jt), P(u), P(i), P(e), P(t), P(l)), k(([f, x, h, [m, v], R, g, T, a, C]) => {
+				const I = f - a, w = g + T, B = Math.max(h - I, 0);
+				let N = Tn;
+				const c = wn(C, ue), p = wn(C, ae);
+				return m -= a, m += h + T, v += h + T, v -= a, m > f + w - c && (N = ce), v < f - B + x + p && (N = ne), N !== Tn ? [Math.max(I - h - Cn(R, ue, N) - c, 0), I - B - T + x + Cn(R, ae, N) + p] : null;
+			}), V((f) => f !== null), ot(Jt)), [0, 0])
+		};
+	}, st(St), { singleton: !0 });
+	function qo(t, e, n, o) {
+		if (He(e)) {
+			const r = o - e.groupIndices.length;
+			if (r <= 0) return [{
+				index: e.groupIndices[0],
+				offset: 0,
+				size: 0
+			}];
+			const s = qn(Math.min(t, r - 1), e);
+			return [{
+				index: kt(e.groupOffsetTree, s)[0],
+				offset: 0,
+				size: 0
+			}, {
+				data: n?.[0],
+				index: s,
+				offset: 0,
+				size: 0
+			}];
+		}
+		return [{
+			data: n?.[0],
+			index: t,
+			offset: 0,
+			size: 0
+		}];
+	}
+	var Le = {
+		bottom: 0,
+		firstItemIndex: 0,
+		items: [],
+		offsetBottom: 0,
+		offsetTop: 0,
+		top: 0,
+		topItems: [],
+		topListHeight: 0,
+		totalCount: 0
+	};
+	function ve(t, e, n, o, r, s) {
+		const { lastIndex: i, lastOffset: l, lastSize: u } = r;
+		let d = 0, f = 0;
+		if (t.length > 0) {
+			d = t[0].offset;
+			const R = t[t.length - 1];
+			f = R.offset + R.size;
+		}
+		const x = n - i, h = l + x * u + (x - 1) * o, m = d, v = h - f;
+		return {
+			bottom: f,
+			firstItemIndex: s,
+			items: yn(t, r, s),
+			offsetBottom: v,
+			offsetTop: d,
+			top: m,
+			topItems: yn(e, r, s),
+			topListHeight: e.reduce((R, g) => g.size + R, 0),
+			totalCount: n
+		};
+	}
+	function Qn(t, e, n, o, r, s) {
+		let i = 0;
+		if (n.groupIndices.length > 0) for (const m of n.groupIndices) {
+			if (m - i >= t) break;
+			i++;
+		}
+		const l = t + i, u = s !== void 0, d = s?.length ?? 0, f = Ye(e, u ? d : l), x = u ? Math.max(0, Math.min(l, d - f)) : l;
+		return ve(Array.from({ length: x }).map((m, v) => ({
+			data: s?.[v + f],
+			index: v + f,
+			offset: 0,
+			size: 0
+		})), [], x, r, n, o);
+	}
+	function yn(t, e, n) {
+		if (t.length === 0) return [];
+		if (!He(e)) return t.map((d) => ({
+			...d,
+			index: d.index + n,
+			originalIndex: d.index
+		}));
+		const o = t[0].index, r = t[t.length - 1].index, s = [], i = Xt(e.groupOffsetTree, o, r);
+		let l, u = 0;
+		for (const d of t) {
+			(!l || l.end < d.index) && (l = i.shift(), u = e.groupIndices.indexOf(l.start));
+			let f;
+			d.index === l.start ? f = {
+				index: u,
+				type: "group"
+			} : f = {
+				groupIndex: u,
+				index: d.index - (u + 1) + n
+			}, s.push({
+				...f,
+				data: d.data,
+				offset: d.offset,
+				originalIndex: d.index,
+				size: d.size
+			});
+		}
+		return s;
+	}
+	function bn(t, e) {
+		return t === void 0 ? 0 : typeof t == "number" ? t : t[e] ?? 0;
+	}
+	var qt = Y(([{ data: t, firstItemIndex: e, gap: n, sizes: o, totalCount: r }, s, { listBoundary: i, topListHeight: l, visibleRange: u }, { initialTopMostItemIndex: d, scrolledToInitialItem: f }, { topListHeight: x }, h, { didMount: m }, { recalcInProgress: v }]) => {
+		const R = y([]), g = y(0), T = gt(S(o, V(({ sizeTree: c }) => !J(c)), Ct(!0)), !1), a = U(), C = y(0);
+		z(s.topItemsIndexes, R);
+		const I = gt(S(mt(m, v, P(u, Jt), P(r), P(o), P(d), f, P(R), P(e), P(n), P(C), t, P(g)), V(([c, p, , b, , , , , , , , O]) => {
+			const L = O !== void 0 && O.length !== b;
+			return c && !p && !L;
+		}), k(([, , [c, p], b, O, L, F, G, Z, W, ft, K, lt]) => {
+			const ct = O, { offsetTree: It, sizeTree: Ft } = ct;
+			if (b === 0) return {
+				...Le,
+				totalCount: b
+			};
+			if (c === 0 && p === 0) return lt === 0 ? {
+				...Le,
+				totalCount: b
+			} : Qn(lt, L, O, Z, W, K);
+			if (J(Ft)) return lt > 0 && !tt(T) ? null : ve(qo(Ye(L, b), ct, K, b), [], b, W, ct, Z);
+			const vt = [];
+			if (G.length > 0) {
+				const q = G[0], Q = G[G.length - 1];
+				let ut = 0;
+				for (const it of Xt(Ft, q, Q)) {
+					const et = it.value, dt = Math.max(it.start, q), Tt = Math.min(it.end, Q);
+					for (let at = dt; at <= Tt; at++) vt.push({
+						data: K?.[at],
+						index: at,
+						offset: ut,
+						size: et
+					}), ut += et;
+				}
+			}
+			if (!F) return ve([], vt, b, W, ct, Z);
+			const Ot = G.length > 0 ? G[G.length - 1] + 1 : 0, pe = Wo(It, c, p, Ot);
+			if (pe.length === 0) return null;
+			const Yt = b - 1, Vt = be([], (q) => {
+				for (const Q of pe) {
+					const ut = Q.value;
+					let it = ut.offset, et = Q.start;
+					const dt = ut.size;
+					if (ut.offset < c) {
+						et += Math.floor((c - ut.offset + W) / (dt + W));
+						const at = et - Q.start;
+						it += at * dt + at * W;
+					}
+					et < Ot && (it += (Ot - et) * dt, et = Ot);
+					const Tt = Math.min(Q.end, Yt);
+					for (let at = et; at <= Tt && !(it >= p); at++) q.push({
+						data: K?.[at],
+						index: at,
+						offset: it,
+						size: dt
+					}), it += dt + W;
+				}
+			}), H = bn(ft, ue), j = bn(ft, ae);
+			if (Vt.length > 0 && (H > 0 || j > 0)) {
+				const q = Vt[0], Q = Vt[Vt.length - 1];
+				if (H > 0 && q.index > Ot) {
+					const ut = Math.min(H, q.index - Ot), it = [];
+					let et = q.offset;
+					for (let dt = q.index - 1; dt >= q.index - ut; dt--) {
+						const at = Xt(Ft, dt, dt)[0]?.value ?? q.size;
+						et -= at + W, it.unshift({
+							data: K?.[dt],
+							index: dt,
+							offset: et,
+							size: at
+						});
+					}
+					Vt.unshift(...it);
+				}
+				if (j > 0 && Q.index < Yt) {
+					const ut = Math.min(j, Yt - Q.index);
+					let it = Q.offset + Q.size + W;
+					for (let et = Q.index + 1; et <= Q.index + ut; et++) {
+						const Tt = Xt(Ft, et, et)[0]?.value ?? Q.size;
+						Vt.push({
+							data: K?.[et],
+							index: et,
+							offset: it,
+							size: Tt
+						}), it += Tt + W;
+					}
+				}
+			}
+			return ve(Vt, vt, b, W, ct, Z);
+		}), V((c) => c !== null), ot()), Le);
+		z(S(t, V(Ne), k((c) => c?.length)), r), z(S(I, k((c) => c.topListHeight)), x), z(x, l), z(S(I, k((c) => [c.top, c.bottom])), i), z(S(I, k((c) => c.items)), a);
+		const w = yt(S(I, V(({ items: c }) => c.length > 0), $(r, t), V(([{ items: c }, p]) => c[c.length - 1].originalIndex === p - 1), k(([{ items: c }, p, b]) => {
+			const O = c[c.length - 1], L = O.type === "group" ? O.index + 1 : (O.groupIndex ?? -1) + 1;
+			return [p - 1 - L, b];
+		}), ot(Jt), V(([c]) => c >= 0), k(([c]) => c))), B = yt(S(I, Wt(200), V(({ items: c, topItems: p }) => c.length > 0 && c[0].originalIndex === p.length), k(({ items: c }) => c[0].index), ot()));
+		return {
+			endReached: w,
+			initialItemCount: g,
+			itemsRendered: a,
+			listState: I,
+			minOverscanItemCount: C,
+			rangeChanged: yt(S(I, V(({ items: c }) => c.length > 0), k(({ items: c }) => {
+				let p = 0, b = c.length - 1;
+				for (; c[p].type === "group" && p < b;) p++;
+				for (; c[b].type === "group" && b > p;) b--;
+				return {
+					endIndex: c[b].index,
+					startIndex: c[p].index
+				};
+			}), ot(Kn))),
+			startReached: B,
+			topItemsIndexes: R,
+			...h
+		};
+	}, st(zt, Zn, Ze, fe, de, me, At, Ke), { singleton: !0 });
+	var to = Y(([{ fixedFooterHeight: t, fixedHeaderHeight: e, footerHeight: n, headerHeight: o }, { listState: r }]) => {
+		const s = U(), i = gt(S(mt(n, t, o, e, r), k(([l, u, d, f, x]) => l + u + d + f + x.offsetBottom + x.bottom)), 0);
+		return z(P(i), s), {
+			totalListHeight: i,
+			totalListHeightChanged: s
+		};
+	}, st(St, qt), { singleton: !0 });
+	var Yo = Y(([{ viewportHeight: t }, { totalListHeight: e }]) => {
+		const n = y(!1);
+		return {
+			alignToBottom: n,
+			paddingTopAddition: gt(S(mt(n, t, e), V(([r]) => r), k(([, r, s]) => Math.max(0, r - s)), Wt(0), ot()), 0)
+		};
+	}, st(St, to), { singleton: !0 });
+	var eo = Y(() => ({ context: y(null) }));
+	var Zo = ({ itemBottom: t, itemTop: e, locationParams: { align: n, behavior: o, ...r }, viewportBottom: s, viewportTop: i }) => e < i ? {
+		...r,
+		align: n ?? "start",
+		...o === void 0 ? {} : { behavior: o }
+	} : t > s ? {
+		...r,
+		align: n ?? "end",
+		...o === void 0 ? {} : { behavior: o }
+	} : null;
+	var no = Y(([{ gap: t, sizes: e, totalCount: n }, { fixedFooterHeight: o, fixedHeaderHeight: r, headerHeight: s, scrollingInProgress: i, scrollTop: l, viewportHeight: u }, { scrollToIndex: d }]) => {
+		const f = U();
+		return z(S(f, $(e, u, n, s, r, o, l), $(t), k(([[x, h, m, v, R, g, T, a], C]) => {
+			const { calculateViewLocation: I = Zo, done: w, ...B } = x, N = Yn(x, h, v - 1), c = le(N, h.offsetTree, C) + R + g, p = c + kt(h.sizeTree, N)[1], b = a + g, L = I({
+				itemBottom: p,
+				itemTop: c,
+				locationParams: B,
+				viewportBottom: a + m - T,
+				viewportTop: b
+			});
+			return L === null ? w?.() : w && Et(S(i, V((F) => !F), jt(tt(i) ? 1 : 2)), w), L;
+		}), V((x) => x !== null)), d), { scrollIntoView: f };
+	}, st(zt, St, de, qt, Mt), { singleton: !0 });
+	function Rn(t) {
+		return t === !1 ? !1 : t === "smooth" ? "smooth" : "auto";
+	}
+	var Xo = (t, e) => typeof t == "function" ? Rn(t(e)) : e && Rn(t);
+	var Jo = Y(([{ listRefresh: t, totalCount: e, fixedItemSize: n, data: o }, { atBottomState: r, isAtBottom: s }, { scrollToIndex: i }, { scrolledToInitialItem: l }, { didMount: u, propsReady: d }, { log: f }, { scrollingInProgress: x }, { context: h }, { scrollIntoView: m }]) => {
+		const v = y(!1), R = U();
+		let g = null;
+		function T(w) {
+			_(i, {
+				align: "end",
+				behavior: w,
+				index: "LAST"
+			});
+		}
+		X(S(mt(S(P(e), jt(1)), u), $(P(v), s, l, x), k(([[w, B], N, c, p, b]) => {
+			let O = B && p, L = "auto";
+			return O && (L = Xo(N, c || b), O = O && L !== !1), {
+				followOutputBehavior: L,
+				shouldFollow: O,
+				totalCount: w
+			};
+		}), V(({ shouldFollow: w }) => w)), ({ followOutputBehavior: w, totalCount: B }) => {
+			g !== null && (g(), g = null), tt(n) === void 0 ? g = Et(t, () => {
+				tt(f)("following output to ", { totalCount: B }, ht.DEBUG), T(w), g = null;
+			}) : requestAnimationFrame(() => {
+				tt(f)("following output to ", { totalCount: B }, ht.DEBUG), T(w);
+			});
+		});
+		function a(w) {
+			const B = Et(r, (N) => {
+				w && !N.atBottom && N.notAtBottomBecause === "SIZE_INCREASED" && g === null && (tt(f)("scrolling to bottom due to increased size", {}, ht.DEBUG), T("auto"));
+			});
+			setTimeout(B, 100);
+		}
+		X(S(mt(P(v), e, d), V(([w, , B]) => w !== !1 && B), Ht(({ value: w }, [, B]) => ({
+			refreshed: w === B,
+			value: B
+		}), {
+			refreshed: !1,
+			value: 0
+		}), V(({ refreshed: w }) => w), $(v, e)), ([, w]) => {
+			tt(l) && a(w !== !1);
+		}), X(R, () => {
+			a(tt(v) !== !1);
+		}), X(mt(P(v), r), ([w, B]) => {
+			w !== !1 && !B.atBottom && B.notAtBottomBecause === "VIEWPORT_HEIGHT_DECREASING" && T("auto");
+		});
+		const C = y(null), I = U();
+		return z(Te(S(P(o), k((w) => w?.length ?? 0)), S(P(e))), I), X(S(mt(S(I, jt(1)), u), $(P(C), l, x, h), k(([[w, B], N, c, p, b]) => B && c && N?.({
+			context: b,
+			totalCount: w,
+			scrollingInProgress: p
+		})), V((w) => !!w), Wt(0)), (w) => {
+			g !== null && (g(), g = null), tt(n) === void 0 ? g = Et(t, () => {
+				tt(f)("scrolling into view", {}), _(m, w), g = null;
+			}) : requestAnimationFrame(() => {
+				tt(f)("scrolling into view", {}), _(m, w);
+			});
+		}), {
+			autoscrollToBottom: R,
+			followOutput: v,
+			scrollIntoViewOnChange: C
+		};
+	}, st(zt, me, de, fe, At, Mt, St, eo, no));
+	var Qo = Y(([{ data: t, firstItemIndex: e, gap: n, sizes: o }, { initialTopMostItemIndex: r }, { initialItemCount: s, listState: i }, { didMount: l }]) => (z(S(l, $(s), V(([, u]) => u !== 0), $(r, o, e, n, t), k(([[, u], d, f, x, h, m]) => Qn(u, d, f, x, h, m))), i), {}), st(zt, fe, qt, At), { singleton: !0 });
+	var tr = Y(([{ didMount: t }, { scrollTo: e }, { listState: n }]) => {
+		const o = y(0);
+		return X(S(t, $(o), V(([, r]) => r !== 0), k(([, r]) => ({ top: r }))), (r) => {
+			Et(S(n, jt(1), V((s) => s.items.length > 1)), () => {
+				requestAnimationFrame(() => {
+					_(e, r);
+				});
+			});
+		}), { initialScrollTop: o };
+	}, st(At, St, qt), { singleton: !0 });
+	var oo = Y(([{ scrollVelocity: t }]) => {
+		const e = y(!1), n = U(), o = y(!1);
+		return z(S(t, $(o, e, n), V(([r, s]) => s !== !1 && s !== void 0), k(([r, s, i, l]) => {
+			const { enter: u, exit: d } = s;
+			if (i) {
+				if (d(r, l)) return !1;
+			} else if (u(r, l)) return !0;
+			return i;
+		}), ot()), e), X(S(mt(e, t, n), $(o)), ([[r, s, i], l]) => {
+			r && l !== !1 && l !== void 0 && l.change && l.change(s, i);
+		}), {
+			isSeeking: e,
+			scrollSeekConfiguration: o,
+			scrollSeekRangeChanged: n,
+			scrollVelocity: t
+		};
+	}, st(me), { singleton: !0 });
+	var Xe = Y(([{ scrollContainerState: t, scrollTo: e }]) => {
+		const n = U(), o = U(), r = U(), s = y(!1), i = y(void 0);
+		return z(S(mt(n, o), k(([{ scrollTop: l, viewportHeight: u }, { offsetTop: d, listHeight: f }]) => ({
+			scrollHeight: f,
+			scrollTop: Math.max(0, l - d),
+			viewportHeight: u
+		}))), t), z(S(e, $(o), k(([l, { offsetTop: u }]) => ({
+			...l,
+			top: l.top + u
+		}))), r), {
+			customScrollParent: i,
+			useWindowScroll: s,
+			windowScrollContainerState: n,
+			windowScrollTo: r,
+			windowViewportRect: o
+		};
+	}, st(St));
+	var er = Y(([{ sizeRanges: t, sizes: e }, { headerHeight: n, scrollTop: o }, { initialTopMostItemIndex: r }, { didMount: s }, { useWindowScroll: i, windowScrollContainerState: l, windowViewportRect: u }]) => {
+		const d = U(), f = y(void 0), x = y(null), h = y(null);
+		return z(l, x), z(u, h), X(S(d, $(e, o, i, x, h, n)), ([m, v, R, g, T, a, C]) => {
+			const I = Go(v.sizeTree);
+			g && T !== null && a !== null && (R = T.scrollTop - a.offsetTop), R -= C, m({
+				ranges: I,
+				scrollTop: R
+			});
+		}), z(S(f, V(Ne), k(nr)), r), z(S(s, $(f), V(([, m]) => m !== void 0), ot(), k(([, m]) => m.ranges)), t), {
+			getState: d,
+			restoreStateFrom: f
+		};
+	}, st(zt, St, fe, At, Xe));
+	function nr(t) {
+		return {
+			align: "start",
+			index: 0,
+			offset: t.scrollTop
+		};
+	}
+	var or = Y(([{ topItemsIndexes: t }]) => {
+		const e = y(0);
+		return z(S(e, V((n) => n >= 0), k((n) => Array.from({ length: n }).map((o, r) => r))), t), { topItemCount: e };
+	}, st(qt));
+	function ro(t) {
+		let e = !1, n;
+		return (() => (e || (e = !0, n = t()), n));
+	}
+	var rr = ro(() => /iP(ad|od|hone)/i.test(navigator.userAgent) && /WebKit/i.test(navigator.userAgent));
+	var so = Y(([{ data: t, defaultItemSize: e, firstItemIndex: n, fixedItemSize: o, fixedGroupSize: r, gap: s, groupIndices: i, heightEstimates: l, itemSize: u, sizeRanges: d, sizes: f, statefulTotalCount: x, totalCount: h, trackItemSizes: m }, { initialItemFinalLocationReached: v, initialTopMostItemIndex: R, scrolledToInitialItem: g }, T, a, C, I, { scrollToIndex: w }, B, { topItemCount: N }, { groupCounts: c }, p]) => {
+		const { listState: b, minOverscanItemCount: O, topItemsIndexes: L, rangeChanged: F, ...G } = I;
+		return z(F, p.scrollSeekRangeChanged), z(S(mt(p.windowViewportRect, T.headerHeight, T.fixedHeaderHeight), k(([Z, W, ft]) => Math.max(W + ft + 1, Z.visibleHeight))), T.viewportHeight), {
+			data: t,
+			defaultItemHeight: e,
+			firstItemIndex: n,
+			fixedItemHeight: o,
+			fixedGroupHeight: r,
+			gap: s,
+			groupCounts: c,
+			heightEstimates: l,
+			initialItemFinalLocationReached: v,
+			initialTopMostItemIndex: R,
+			scrolledToInitialItem: g,
+			sizeRanges: d,
+			topItemCount: N,
+			topItemsIndexes: L,
+			totalCount: h,
+			...C,
+			groupIndices: i,
+			itemSize: u,
+			listState: b,
+			minOverscanItemCount: O,
+			scrollToIndex: w,
+			statefulTotalCount: x,
+			trackItemSizes: m,
+			rangeChanged: F,
+			...G,
+			...p,
+			...T,
+			sizes: f,
+			...a
+		};
+	}, st(zt, fe, St, er, Jo, qt, de, Y(([{ deviation: t, deviationCommitted: e, scrollBy: n, scrollingInProgress: o, scrollTop: r }, { isAtBottom: s, isScrolling: i, lastJumpDueToItemResize: l, scrollDirection: u }, { listState: d }, { beforeUnshiftWith: f, gap: x, shiftWithOffset: h, sizes: m }, { log: v }, { recalcInProgress: R }]) => {
+		const g = yt(S(d, $(l), Ht(([, I, w, B], [{ bottom: N, items: c, offsetBottom: p, totalCount: b }, O]) => {
+			const L = N + p;
+			let F = 0;
+			return w === b && I.length > 0 && c.length > 0 && (c[0].originalIndex === 0 && I[0].originalIndex === 0 || (F = L - B, F !== 0 && (F += O))), [
+				F,
+				c,
+				b,
+				L
+			];
+		}, [
+			0,
+			[],
+			0,
+			0
+		]), V(([I]) => I !== 0), $(r, u, o, s, v, R), V(([, I, w, B, , , N]) => !N && !B && I !== 0 && w === ce), k(([[I], , , , , w]) => (w("Upward scrolling compensation", { amount: I }, ht.DEBUG), I))));
+		function T(I) {
+			I > 0 ? (_(n, {
+				behavior: "auto",
+				top: -I
+			}), _(t, 0)) : (_(t, 0), _(n, {
+				behavior: "auto",
+				top: -I
+			}));
+		}
+		X(S(g, $(t, i)), ([I, w, B]) => {
+			B && rr() ? _(t, w - I) : T(-I);
+		}), X(S(mt(gt(i, !1), t, R), V(([I, w, B]) => !I && !B && w !== 0), k(([I, w]) => w), Wt(1)), T), z(S(h, k((I) => ({ top: -I }))), n);
+		let a = null;
+		function C() {
+			if (a === null) return;
+			const { offset: I } = a;
+			a = null, _(n, { top: I }), requestAnimationFrame(() => {
+				_(t, 0), _(R, !1);
+			});
+		}
+		return X(e, (I) => {
+			a === null || !a.acknowledgeable || I === a.offset && C();
+		}), X(S(f, $(m, x), k(([I, { groupIndices: w, lastSize: B, sizeTree: N }, c]) => {
+			function p(G) {
+				return G * (B + c);
+			}
+			if (w.length === 0) return p(I);
+			let b = 0;
+			const O = ie(N, 0);
+			let L = 0, F = 0;
+			for (; L < I;) {
+				L++, b += O;
+				let G = w.length === F + 1 ? 1 / 0 : w[F + 1] - w[F] - 1;
+				L + G > I && (b -= O, G = I - L + 1), L += G, b += p(G), F++;
+			}
+			return b;
+		})), (I) => {
+			a = {
+				acknowledgeable: tt(t) !== I,
+				offset: I
+			}, _(t, I), requestAnimationFrame(C);
+		}), { deviation: t };
+	}, st(St, me, qt, zt, Mt, Ke)), or, Zn, Y(([t, e, n, o, r, s, i, l, u, d, f]) => ({
+		...t,
+		...e,
+		...n,
+		...o,
+		...r,
+		...s,
+		...i,
+		...l,
+		...u,
+		...d,
+		...f
+	}), st(Ze, Qo, At, oo, to, tr, Yo, Xe, no, Mt, eo))));
+	function lr(t, e) {
+		const n = {}, o = {};
+		let r = 0;
+		const s = t.length;
+		for (; r < s;) o[t[r]] = 1, r += 1;
+		for (const i in e) Object.hasOwn(o, i) || (n[i] = e[i]);
+		return n;
+	}
+	var Ie = typeof document > "u" ? import_react.useEffect : import_react.useLayoutEffect;
+	function Je(t, e, n) {
+		const o = Object.keys(e.required || {}), r = Object.keys(e.optional || {}), s = Object.keys(e.methods || {}), i = Object.keys(e.events || {}), l = import_react.createContext({});
+		function u(T, a) {
+			T.propsReady !== void 0 && _(T.propsReady, !1);
+			for (const C of o) {
+				const I = T[e.required[C]];
+				_(I, a[C]);
+			}
+			for (const C of r) if (C in a) {
+				const I = T[e.optional[C]];
+				_(I, a[C]);
+			}
+			T.propsReady !== void 0 && _(T.propsReady, !0);
+		}
+		function d(T) {
+			return s.reduce((a, C) => (a[C] = (I) => {
+				const w = T[e.methods[C]];
+				_(w, I);
+			}, a), {});
+		}
+		function f(T) {
+			return i.reduce((a, C) => (a[C] = wo(T[e.events[C]]), a), {});
+		}
+		const x = import_react.forwardRef(function(a, C) {
+			const { children: I, ...w } = a, [B] = import_react.useState(() => be(Ro(t), (p) => {
+				u(p, w);
+			})), [N] = import_react.useState(pn(f, B));
+			Ie(() => {
+				for (const p of i) p in w && X(N[p], w[p]);
+				return () => {
+					Object.values(N).map(De);
+				};
+			}, [
+				w,
+				N,
+				B
+			]), Ie(() => {
+				u(B, w);
+			}), import_react.useImperativeHandle(C, mn(d(B)));
+			const c = n;
+			return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(l.Provider, {
+				value: B,
+				children: n === void 0 ? I : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(c, {
+					...lr([
+						...o,
+						...r,
+						...i
+					], w),
+					children: I
+				})
+			});
+		}), h = (T) => {
+			const a = import_react.useContext(l);
+			return import_react.useCallback((C) => {
+				_(a[T], C);
+			}, [a, T]);
+		}, m = (T) => {
+			const C = import_react.useContext(l)[T], I = import_react.useCallback((w) => X(C, w), [C]);
+			return import_react.useSyncExternalStore(I, () => tt(C), () => tt(C));
+		}, v = (T) => {
+			const C = import_react.useContext(l)[T], [I, w] = import_react.useState(pn(tt, C));
+			return Ie(() => X(C, (B) => {
+				B !== I && w(mn(B));
+			}), [C, I]), I;
+		};
+		return {
+			Component: x,
+			useEmitter: (T, a) => {
+				const I = import_react.useContext(l)[T];
+				Ie(() => X(I, a), [a, I]);
+			},
+			useEmitterValue: parseInt("19.3.1", 10) >= 18 ? m : v,
+			usePublisher: h
+		};
+	}
+	var Ee = import_react.createContext(void 0);
+	var io = import_react.createContext(void 0);
+	var ze = "-webkit-sticky";
+	var Hn = "sticky";
+	var Qe = ro(() => {
+		if (typeof document > "u") return Hn;
+		const t = document.createElement("div");
+		return t.style.position = ze, t.style.position === ze ? ze : Hn;
+	});
+	function Fe(t) {
+		return "self" in t;
+	}
+	function cr(t) {
+		return "body" in t;
+	}
+	function lo(t, e, n, o = te, r, s) {
+		const i = import_react.useRef(null), l = import_react.useRef(null), u = import_react.useRef(null), d = import_react.useCallback((h) => {
+			let m, v, R;
+			const g = h.target;
+			if (cr(g) || Fe(g)) {
+				const a = Fe(g) ? g : g.defaultView;
+				R = s === !0 ? Nt(a, a.scrollX) : a.scrollY, m = s === !0 ? a.document.documentElement.scrollWidth : a.document.documentElement.scrollHeight, v = s === !0 ? a.innerWidth : a.innerHeight;
+			} else R = s === !0 ? Nt(g, g.scrollLeft) : g.scrollTop, m = s === !0 ? g.scrollWidth : g.scrollHeight, v = s === !0 ? g.offsetWidth : g.offsetHeight;
+			const T = () => {
+				t({
+					scrollHeight: m,
+					scrollTop: Math.max(R, 0),
+					viewportHeight: v
+				});
+			};
+			h.suppressFlushSync === !0 ? T() : import_react_dom.flushSync(T), l.current !== null && (R === l.current || R <= 0 || R === m - v) && (l.current = null, e(!0), u.current && (clearTimeout(u.current), u.current = null));
+		}, [
+			t,
+			e,
+			s
+		]);
+		import_react.useEffect(() => {
+			const h = r ?? i.current;
+			return o(r ?? i.current), d({
+				suppressFlushSync: !0,
+				target: h
+			}), h.addEventListener("scroll", d, { passive: !0 }), () => {
+				o(null), h.removeEventListener("scroll", d);
+			};
+		}, [
+			i,
+			d,
+			n,
+			o,
+			r
+		]);
+		function f(h) {
+			const m = i.current;
+			if (!m || (s === !0 ? "offsetWidth" in m && m.offsetWidth === 0 : "offsetHeight" in m && m.offsetHeight === 0)) return;
+			const v = h.behavior === "smooth";
+			let R, g, T;
+			Fe(m) ? (g = Math.max(Bt(m.document.documentElement, s === !0 ? "width" : "height"), s === !0 ? m.document.documentElement.scrollWidth : m.document.documentElement.scrollHeight), R = s === !0 ? m.innerWidth : m.innerHeight, T = s === !0 ? Nt(m, m.scrollX) : m.scrollY) : (g = m[s === !0 ? "scrollWidth" : "scrollHeight"], R = Bt(m, s === !0 ? "width" : "height"), T = s === !0 ? Nt(m, m.scrollLeft) : m.scrollTop);
+			const a = g - R;
+			if (h.top === void 0) {
+				m.scrollTo(h);
+				return;
+			}
+			const C = Math.ceil(Math.max(Math.min(a, h.top), 0));
+			if (h.top = C, Jn(R, g) || C === T) {
+				t({
+					scrollHeight: g,
+					scrollTop: T,
+					viewportHeight: R
+				}), v && e(!0);
+				return;
+			}
+			v ? (l.current = C, u.current && clearTimeout(u.current), u.current = setTimeout(() => {
+				u.current = null, l.current = null, e(!0);
+			}, 1e3)) : l.current = null, s === !0 && (h = {
+				...h.behavior === void 0 ? {} : { behavior: h.behavior },
+				left: gn(m, C)
+			}), m.scrollTo(h);
+		}
+		return {
+			scrollByCallback: import_react.useCallback((h) => {
+				s === !0 && (h = {
+					...h.behavior === void 0 ? {} : { behavior: h.behavior },
+					...h.top === void 0 ? {} : { left: gn(i.current, h.top) }
+				}), i.current.scrollBy(h);
+			}, [s]),
+			scrollerRef: i,
+			scrollToCallback: f
+		};
+	}
+	function tn(t) {
+		return t;
+	}
+	var ar = /* @__PURE__ */ Y(([t, e]) => ({
+		...t,
+		...e
+	}), st(so, /* @__PURE__ */ Y(() => {
+		const t = y((l) => `Item ${l}`), e = y((l) => `Group ${l}`), n = y({}), o = y(tn), r = y("div"), s = y(te), i = (l, u = null) => gt(S(n, k((d) => d[l]), ot()), u);
+		return {
+			components: n,
+			computeItemKey: o,
+			EmptyPlaceholder: i("EmptyPlaceholder"),
+			FooterComponent: i("Footer"),
+			GroupComponent: i("Group", "div"),
+			groupContent: e,
+			HeaderComponent: i("Header"),
+			HeaderFooterTag: r,
+			ItemComponent: i("Item", "div"),
+			itemContent: t,
+			ListComponent: i("List", "div"),
+			ScrollerComponent: i("Scroller", "div"),
+			scrollerRef: s,
+			ScrollSeekPlaceholder: i("ScrollSeekPlaceholder"),
+			TopItemListComponent: i("TopItemList")
+		};
+	})));
+	var dr = ({ height: t }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { height: t } });
+	var fr = {
+		overflowAnchor: "none",
+		position: Qe(),
+		zIndex: 1
+	};
+	var co = { overflowAnchor: "none" };
+	var mr = {
+		...co,
+		display: "inline-block",
+		height: "100%"
+	};
+	var En = /* @__PURE__ */ import_react.memo(function({ showTopList: e = !1 }) {
+		const n = A("listState"), o = wt("sizeRanges"), r = A("useWindowScroll"), s = A("customScrollParent"), i = wt("windowScrollContainerState"), l = wt("scrollContainerState"), u = s || r ? i : l, d = A("itemContent"), f = A("context"), x = A("groupContent"), h = A("trackItemSizes"), m = A("itemSize"), v = A("log"), R = wt("gap"), g = A("horizontalDirection"), { callbackRef: T } = An(o, m, h, e ? te : u, v, R, s, g, A("skipAnimationFrameInResizeObserver")), [a, C] = import_react.useState(0);
+		rn("deviation", (W) => {
+			a !== W && C(W);
+		});
+		const I = wt("deviationCommitted");
+		Re(() => {
+			I(a);
+		}, [a, I]);
+		const w = A("EmptyPlaceholder"), B = A("ScrollSeekPlaceholder") ?? dr, N = A("ListComponent"), c = A("ItemComponent"), p = A("GroupComponent"), b = A("computeItemKey"), O = A("isSeeking"), L = A("groupIndices").length > 0, F = A("alignToBottom"), G = A("initialItemFinalLocationReached"), Z = e ? {} : {
+			boxSizing: "border-box",
+			...g ? {
+				display: "inline-block",
+				height: "100%",
+				marginInlineStart: a === 0 ? F ? "auto" : 0 : a,
+				paddingInlineEnd: n.offsetBottom,
+				paddingInlineStart: n.offsetTop,
+				whiteSpace: "nowrap"
+			} : {
+				marginTop: a === 0 ? F ? "auto" : 0 : a,
+				paddingBottom: n.offsetBottom,
+				paddingTop: n.offsetTop
+			},
+			...G ? {} : { visibility: "hidden" }
+		};
+		return !e && n.totalCount === 0 && w !== null && w !== void 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(w, { ...rt(w, f) }) : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(N, {
+			...rt(N, f),
+			"data-testid": e ? "virtuoso-top-item-list" : "virtuoso-item-list",
+			ref: T,
+			style: Z,
+			children: (e ? n.topItems : n.items).map((W) => {
+				const ft = W.originalIndex, K = b(ft + n.firstItemIndex, W.data, f);
+				return O ? /* @__PURE__ */ (0, import_react.createElement)(B, {
+					...rt(B, f),
+					height: W.size,
+					index: W.index,
+					key: K,
+					type: W.type || "item",
+					...W.type === "group" ? {} : { groupIndex: W.groupIndex }
+				}) : W.type === "group" ? /* @__PURE__ */ (0, import_react.createElement)(p, {
+					...rt(p, f),
+					"data-index": ft,
+					"data-item-index": W.index,
+					"data-known-size": W.size,
+					key: K,
+					style: fr
+				}, x(W.index, f)) : /* @__PURE__ */ (0, import_react.createElement)(c, {
+					...rt(c, f),
+					...uo(c, W.data),
+					"data-index": ft,
+					"data-item-group-index": W.groupIndex,
+					"data-item-index": W.index,
+					"data-known-size": W.size,
+					key: K,
+					style: g ? mr : co
+				}, L ? d(W.index, W.groupIndex, W.data, f) : d(W.index, W.data, f));
+			})
+		});
+	});
+	var pr = {
+		height: "100%",
+		outline: "none",
+		overflowY: "auto",
+		position: "relative",
+		WebkitOverflowScrolling: "touch"
+	};
+	var hr = {
+		outline: "none",
+		overflowX: "auto",
+		position: "relative"
+	};
+	var ke = (t) => ({
+		height: "100%",
+		position: "absolute",
+		top: 0,
+		width: "100%",
+		...t ? {
+			display: "flex",
+			flexDirection: "column"
+		} : void 0
+	});
+	var en = (t, e, n = 0) => ({
+		...ke(t),
+		position: e ? "relative" : "absolute",
+		top: e ? -n : 0
+	});
+	var gr = {
+		position: Qe(),
+		top: 0,
+		width: "100%",
+		zIndex: 1
+	};
+	function rt(t, e) {
+		if (typeof t != "string") return { context: e };
+	}
+	function uo(t, e) {
+		return { item: typeof t == "string" ? void 0 : e };
+	}
+	var Ir = /* @__PURE__ */ import_react.memo(function() {
+		const e = A("HeaderComponent"), n = wt("headerHeight"), o = A("HeaderFooterTag"), r = Lt(import_react.useMemo(() => (i) => {
+			n(Bt(i, "height"));
+		}, [n]), !0, A("skipAnimationFrameInResizeObserver")), s = A("context");
+		return e != null ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(o, {
+			ref: r,
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(e, { ...rt(e, s) })
+		}) : null;
+	});
+	var Sr = /* @__PURE__ */ import_react.memo(function() {
+		const e = A("FooterComponent"), n = wt("footerHeight"), o = A("HeaderFooterTag"), r = Lt(import_react.useMemo(() => (i) => {
+			n(Bt(i, "height"));
+		}, [n]), !0, A("skipAnimationFrameInResizeObserver")), s = A("context");
+		return e != null ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(o, {
+			ref: r,
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(e, { ...rt(e, s) })
+		}) : null;
+	});
+	function nn({ useEmitter: t, useEmitterValue: e, usePublisher: n }) {
+		return import_react.memo(function({ children: s, style: i, context: l, ...u }) {
+			const d = n("scrollContainerState"), f = e("ScrollerComponent"), x = n("smoothScrollTargetReached"), h = e("scrollerRef"), m = e("horizontalDirection") || !1, { scrollByCallback: v, scrollerRef: R, scrollToCallback: g } = lo(d, x, f, h, void 0, m);
+			return t("scrollTo", g), t("scrollBy", v), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(f, {
+				"data-testid": "virtuoso-scroller",
+				"data-virtuoso-scroller": !0,
+				ref: R,
+				style: {
+					...m ? hr : pr,
+					...i
+				},
+				tabIndex: 0,
+				...u,
+				...rt(f, l),
+				children: s
+			});
+		});
+	}
+	function on({ useEmitter: t, useEmitterValue: e, usePublisher: n }) {
+		return import_react.memo(function({ children: s, style: i, context: l, ...u }) {
+			const d = n("windowScrollContainerState"), f = e("ScrollerComponent"), x = n("smoothScrollTargetReached"), h = e("totalListHeight"), m = e("deviation"), v = e("customScrollParent"), R = import_react.useRef(null), { scrollByCallback: T, scrollerRef: a, scrollToCallback: C } = lo(d, x, f, e("scrollerRef"), v);
+			return Re(() => (a.current = v ?? R.current?.ownerDocument.defaultView, () => {
+				a.current = null;
+			}), [a, v]), t("windowScrollTo", C), t("scrollBy", T), /* @__PURE__ */ (0, import_jsx_runtime.jsx)(f, {
+				ref: R,
+				"data-virtuoso-scroller": !0,
+				style: {
+					position: "relative",
+					...i,
+					...h === 0 ? void 0 : { height: h + m }
+				},
+				...u,
+				...rt(f, l),
+				children: s
+			});
+		});
+	}
+	var xr = ({ children: t }) => {
+		const e = import_react.useContext(Ee), n = wt("viewportHeight"), o = wt("fixedItemHeight"), r = A("alignToBottom"), s = A("horizontalDirection"), l = Lt(import_react.useMemo(() => re(n, (u) => Bt(u, s ? "width" : "height")), [n, s]), !0, A("skipAnimationFrameInResizeObserver"));
+		return import_react.useEffect(() => {
+			e && (n(e.viewportHeight), o(e.itemHeight));
+		}, [
+			e,
+			n,
+			o
+		]), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			"data-viewport-type": "element",
+			ref: l,
+			style: ke(r),
+			children: t
+		});
+	}, vr = ({ children: t }) => {
+		const e = import_react.useContext(Ee), n = wt("windowViewportRect"), o = wt("fixedItemHeight"), r = A("customScrollParent"), s = A("useWindowScroll"), i = A("topListHeight"), l = Ue(n, r, A("skipAnimationFrameInResizeObserver")), u = A("alignToBottom");
+		return import_react.useEffect(() => {
+			e && (o(e.itemHeight), n({
+				listHeight: 0,
+				offsetTop: 0,
+				visibleHeight: e.viewportHeight,
+				visibleWidth: 100
+			}));
+		}, [
+			e,
+			n,
+			o
+		]), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			"data-viewport-type": "window",
+			ref: l,
+			style: en(u, s, i),
+			children: t
+		});
+	}, Tr = ({ children: t }) => {
+		const e = A("TopItemListComponent") ?? "div", n = A("headerHeight"), o = {
+			...gr,
+			marginTop: `${n}px`
+		}, r = A("context");
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(e, {
+			style: o,
+			...rt(e, r),
+			children: t
+		});
+	}, { Component: ao, useEmitter: rn, useEmitterValue: A, usePublisher: wt } = /* @__PURE__ */ Je(ar, {
+		optional: {
+			restoreStateFrom: "restoreStateFrom",
+			context: "context",
+			followOutput: "followOutput",
+			scrollIntoViewOnChange: "scrollIntoViewOnChange",
+			itemContent: "itemContent",
+			groupContent: "groupContent",
+			overscan: "overscan",
+			increaseViewportBy: "increaseViewportBy",
+			minOverscanItemCount: "minOverscanItemCount",
+			totalCount: "totalCount",
+			groupCounts: "groupCounts",
+			topItemCount: "topItemCount",
+			firstItemIndex: "firstItemIndex",
+			initialTopMostItemIndex: "initialTopMostItemIndex",
+			components: "components",
+			atBottomThreshold: "atBottomThreshold",
+			atTopThreshold: "atTopThreshold",
+			computeItemKey: "computeItemKey",
+			defaultItemHeight: "defaultItemHeight",
+			fixedGroupHeight: "fixedGroupHeight",
+			fixedItemHeight: "fixedItemHeight",
+			heightEstimates: "heightEstimates",
+			itemSize: "itemSize",
+			scrollSeekConfiguration: "scrollSeekConfiguration",
+			headerFooterTag: "HeaderFooterTag",
+			data: "data",
+			initialItemCount: "initialItemCount",
+			initialScrollTop: "initialScrollTop",
+			alignToBottom: "alignToBottom",
+			useWindowScroll: "useWindowScroll",
+			customScrollParent: "customScrollParent",
+			scrollerRef: "scrollerRef",
+			logLevel: "logLevel",
+			horizontalDirection: "horizontalDirection",
+			skipAnimationFrameInResizeObserver: "skipAnimationFrameInResizeObserver"
+		},
+		methods: {
+			scrollToIndex: "scrollToIndex",
+			scrollIntoView: "scrollIntoView",
+			scrollTo: "scrollTo",
+			scrollBy: "scrollBy",
+			autoscrollToBottom: "autoscrollToBottom",
+			getState: "getState"
+		},
+		events: {
+			isScrolling: "isScrolling",
+			endReached: "endReached",
+			startReached: "startReached",
+			rangeChanged: "rangeChanged",
+			atBottomStateChange: "atBottomStateChange",
+			atTopStateChange: "atTopStateChange",
+			totalListHeightChanged: "totalListHeightChanged",
+			itemsRendered: "itemsRendered",
+			groupIndices: "groupIndices"
+		}
+	}, /* @__PURE__ */ import_react.memo(function(e) {
+		const n = A("useWindowScroll"), o = A("topItemsIndexes").length > 0, r = A("customScrollParent"), s = A("context");
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(r || n ? yr : wr, {
+			...e,
+			context: s,
+			children: [o && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Tr, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(En, { showTopList: !0 }) }), /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(r || n ? vr : xr, { children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Ir, {}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(En, {}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Sr, {})
+			] })]
+		});
+	})), wr = /* @__PURE__ */ nn({
+		useEmitter: rn,
+		useEmitterValue: A,
+		usePublisher: wt
+	}), yr = /* @__PURE__ */ on({
+		useEmitter: rn,
+		useEmitterValue: A,
+		usePublisher: wt
+	}), es = ao, Rr = /* @__PURE__ */ Y(([t, e]) => ({
+		...t,
+		...e
+	}), st(so, /* @__PURE__ */ Y(() => {
+		const t = y((d) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", { children: ["Item $", d] })), e = y(null), n = y((d) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("td", {
+			colSpan: 1e3,
+			children: ["Group ", d]
+		})), o = y(null), r = y(null), s = y({}), i = y(tn), l = y(te), u = (d, f = null) => gt(S(s, k((x) => x[d]), ot()), f);
+		return {
+			components: s,
+			computeItemKey: i,
+			context: e,
+			EmptyPlaceholder: u("EmptyPlaceholder"),
+			FillerRow: u("FillerRow"),
+			fixedFooterContent: r,
+			fixedHeaderContent: o,
+			itemContent: t,
+			groupContent: n,
+			ScrollerComponent: u("Scroller", "div"),
+			scrollerRef: l,
+			ScrollSeekPlaceholder: u("ScrollSeekPlaceholder"),
+			TableBodyComponent: u("TableBody", "tbody"),
+			TableComponent: u("Table", "table"),
+			TableFooterComponent: u("TableFoot", "tfoot"),
+			TableHeadComponent: u("TableHead", "thead"),
+			TableRowComponent: u("TableRow", "tr"),
+			GroupComponent: u("Group", "tr")
+		};
+	}))), Hr = ({ height: t }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tr", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: { height: t } }) }), Er = ({ height: t }) => /* @__PURE__ */ (0, import_jsx_runtime.jsx)("tr", { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("td", { style: {
+		border: 0,
+		height: t,
+		padding: 0
+	} }) }), kr = { overflowAnchor: "none" }, kn = {
+		position: Qe(),
+		zIndex: 2,
+		overflowAnchor: "none"
+	}, Bn = /* @__PURE__ */ import_react.memo(function({ showTopList: e = !1 }) {
+		const n = D("listState"), o = D("computeItemKey"), r = D("firstItemIndex"), s = D("context"), i = D("isSeeking"), l = D("fixedHeaderHeight"), u = D("groupIndices").length > 0, d = D("itemContent"), f = D("groupContent"), x = D("ScrollSeekPlaceholder") ?? Hr, h = D("GroupComponent"), m = D("TableRowComponent"), v = (e ? n.topItems : []).reduce((g, T, a) => (a === 0 ? g.push(T.size) : g.push(g[a - 1] + T.size), g), []);
+		return (e ? n.topItems : n.items).map((g) => {
+			const T = g.originalIndex, a = o(T + r, g.data, s), C = e ? T === 0 ? 0 : v[T - 1] : 0;
+			return i ? /* @__PURE__ */ (0, import_react.createElement)(x, {
+				...rt(x, s),
+				height: g.size,
+				index: g.index,
+				key: a,
+				type: g.type || "item"
+			}) : g.type === "group" ? /* @__PURE__ */ (0, import_react.createElement)(h, {
+				...rt(h, s),
+				"data-index": T,
+				"data-item-index": g.index,
+				"data-known-size": g.size,
+				key: a,
+				style: {
+					...kn,
+					top: l
+				}
+			}, f(g.index, s)) : /* @__PURE__ */ (0, import_react.createElement)(m, {
+				...rt(m, s),
+				...uo(m, g.data),
+				"data-index": T,
+				"data-item-index": g.index,
+				"data-known-size": g.size,
+				"data-item-group-index": g.groupIndex,
+				key: a,
+				style: e ? {
+					...kn,
+					top: l + C
+				} : kr
+			}, u ? d(g.index, g.groupIndex, g.data, s) : d(g.index, g.data, s));
+		});
+	}), Br = /* @__PURE__ */ import_react.memo(function() {
+		const e = D("listState"), n = D("topItemsIndexes").length > 0, o = bt("sizeRanges"), r = D("useWindowScroll"), s = D("customScrollParent"), i = bt("windowScrollContainerState"), l = bt("scrollContainerState"), u = s || r ? i : l, d = D("trackItemSizes"), { callbackRef: h, ref: m } = An(o, D("itemSize"), d, u, D("log"), void 0, s, !1, D("skipAnimationFrameInResizeObserver")), [v, R] = import_react.useState(0);
+		sn("deviation", (L) => {
+			v !== L && (m.current.style.marginTop = `${L}px`, R(L));
+		});
+		const g = bt("deviationCommitted");
+		Re(() => {
+			g(v);
+		}, [v, g]);
+		const T = D("EmptyPlaceholder"), a = D("FillerRow") ?? Er, C = D("TableBodyComponent"), I = D("paddingTopAddition"), w = D("statefulTotalCount"), B = D("context");
+		if (w === 0 && T !== null && T !== void 0) return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(T, { ...rt(T, B) });
+		const N = (n ? e.topItems : []).reduce((L, F) => L + F.size, 0), c = e.offsetTop + I + v - N, p = e.offsetBottom, b = c > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(a, {
+			context: B,
+			height: c
+		}, "padding-top") : null, O = p > 0 ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(a, {
+			context: B,
+			height: p
+		}, "padding-bottom") : null;
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(C, {
+			"data-testid": "virtuoso-item-list",
+			ref: h,
+			...rt(C, B),
+			children: [
+				b,
+				n && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bn, { showTopList: !0 }),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Bn, {}),
+				O
+			]
+		});
+	}), Or = ({ children: t }) => {
+		const e = import_react.useContext(Ee), n = bt("viewportHeight"), o = bt("fixedItemHeight"), r = Lt(import_react.useMemo(() => re(n, (s) => Bt(s, "height")), [n]), !0, D("skipAnimationFrameInResizeObserver"));
+		return import_react.useEffect(() => {
+			e && (n(e.viewportHeight), o(e.itemHeight));
+		}, [
+			e,
+			n,
+			o
+		]), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			"data-viewport-type": "element",
+			ref: r,
+			style: ke(!1),
+			children: t
+		});
+	}, Lr = ({ children: t }) => {
+		const e = import_react.useContext(Ee), n = bt("windowViewportRect"), o = bt("fixedItemHeight"), r = D("customScrollParent"), s = D("useWindowScroll"), i = Ue(n, r, D("skipAnimationFrameInResizeObserver"));
+		return import_react.useEffect(() => {
+			e && (o(e.itemHeight), n({
+				listHeight: 0,
+				offsetTop: 0,
+				visibleHeight: e.viewportHeight,
+				visibleWidth: 100
+			}));
+		}, [
+			e,
+			n,
+			o
+		]), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			"data-viewport-type": "window",
+			ref: i,
+			style: en(!1, s),
+			children: t
+		});
+	}, { Component: fo, useEmitter: sn, useEmitterValue: D, usePublisher: bt } = /* @__PURE__ */ Je(Rr, {
+		optional: {
+			restoreStateFrom: "restoreStateFrom",
+			context: "context",
+			followOutput: "followOutput",
+			firstItemIndex: "firstItemIndex",
+			itemContent: "itemContent",
+			groupContent: "groupContent",
+			fixedHeaderContent: "fixedHeaderContent",
+			fixedFooterContent: "fixedFooterContent",
+			overscan: "overscan",
+			increaseViewportBy: "increaseViewportBy",
+			minOverscanItemCount: "minOverscanItemCount",
+			totalCount: "totalCount",
+			topItemCount: "topItemCount",
+			initialTopMostItemIndex: "initialTopMostItemIndex",
+			components: "components",
+			groupCounts: "groupCounts",
+			atBottomThreshold: "atBottomThreshold",
+			atTopThreshold: "atTopThreshold",
+			computeItemKey: "computeItemKey",
+			defaultItemHeight: "defaultItemHeight",
+			fixedGroupHeight: "fixedGroupHeight",
+			fixedItemHeight: "fixedItemHeight",
+			itemSize: "itemSize",
+			scrollSeekConfiguration: "scrollSeekConfiguration",
+			data: "data",
+			initialItemCount: "initialItemCount",
+			initialScrollTop: "initialScrollTop",
+			alignToBottom: "alignToBottom",
+			useWindowScroll: "useWindowScroll",
+			customScrollParent: "customScrollParent",
+			scrollerRef: "scrollerRef",
+			logLevel: "logLevel",
+			skipAnimationFrameInResizeObserver: "skipAnimationFrameInResizeObserver"
+		},
+		methods: {
+			scrollToIndex: "scrollToIndex",
+			scrollIntoView: "scrollIntoView",
+			scrollTo: "scrollTo",
+			scrollBy: "scrollBy",
+			getState: "getState"
+		},
+		events: {
+			isScrolling: "isScrolling",
+			endReached: "endReached",
+			startReached: "startReached",
+			rangeChanged: "rangeChanged",
+			atBottomStateChange: "atBottomStateChange",
+			atTopStateChange: "atTopStateChange",
+			totalListHeightChanged: "totalListHeightChanged",
+			itemsRendered: "itemsRendered",
+			groupIndices: "groupIndices"
+		}
+	}, /* @__PURE__ */ import_react.memo(function(e) {
+		const n = D("useWindowScroll"), o = D("customScrollParent"), r = bt("fixedHeaderHeight"), s = bt("fixedFooterHeight"), i = D("fixedHeaderContent"), l = D("fixedFooterContent"), u = D("context"), d = Lt(import_react.useMemo(() => re(r, (a) => Bt(a, "height")), [r]), !0, D("skipAnimationFrameInResizeObserver")), f = Lt(import_react.useMemo(() => re(s, (a) => Bt(a, "height")), [s]), !0, D("skipAnimationFrameInResizeObserver")), x = o || n ? Vr : Fr, h = o || n ? Lr : Or, m = D("TableComponent"), v = D("TableHeadComponent"), R = D("TableFooterComponent"), g = i ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(v, {
+			ref: d,
+			style: {
+				position: "sticky",
+				top: 0,
+				zIndex: 2
+			},
+			...rt(v, u),
+			children: i()
+		}, "TableHead") : null, T = l ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(R, {
+			ref: f,
+			style: {
+				bottom: 0,
+				position: "sticky",
+				zIndex: 1
+			},
+			...rt(R, u),
+			children: l()
+		}, "TableFoot") : null;
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(x, {
+			...e,
+			...rt(x, u),
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(h, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(m, {
+				style: {
+					borderSpacing: 0,
+					overflowAnchor: "none"
+				},
+				...rt(m, u),
+				children: [
+					g,
+					/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Br, {}, "TableBody"),
+					T
+				]
+			}) })
+		});
+	})), Fr = /* @__PURE__ */ nn({
+		useEmitter: sn,
+		useEmitterValue: D,
+		usePublisher: bt
+	}), Vr = /* @__PURE__ */ on({
+		useEmitter: sn,
+		useEmitterValue: D,
+		usePublisher: bt
+	}), On = {
+		bottom: 0,
+		itemHeight: 0,
+		items: [],
+		itemWidth: 0,
+		offsetBottom: 0,
+		offsetTop: 0,
+		top: 0
+	}, Wr = {
+		bottom: 0,
+		itemHeight: 0,
+		items: [{ index: 0 }],
+		itemWidth: 0,
+		offsetBottom: 0,
+		offsetTop: 0,
+		top: 0
+	}, { ceil: Ln, floor: we, max: oe, min: Ve, round: zn } = Math;
+	function Fn(t, e, n) {
+		return Array.from({ length: e - t + 1 }).map((o, r) => ({
+			data: n === null ? null : n[r + t],
+			index: r + t
+		}));
+	}
+	function Pr(t) {
+		return {
+			...Wr,
+			items: t
+		};
+	}
+	function Se(t, e) {
+		return t !== void 0 && t.width === e.width && t.height === e.height;
+	}
+	function Gr(t, e) {
+		return t !== void 0 && t.column === e.column && t.row === e.row;
+	}
+	var Mr = /* @__PURE__ */ Y(([{ increaseViewportBy: t, listBoundary: e, overscan: n, visibleRange: o }, { footerHeight: r, headerHeight: s, scrollBy: i, scrollContainerState: l, scrollTo: u, scrollTop: d, smoothScrollTargetReached: f, viewportHeight: x }, h, m, { didMount: v, propsReady: R }, { customScrollParent: g, useWindowScroll: T, windowScrollContainerState: a, windowScrollTo: C, windowViewportRect: I }, w]) => {
+		const B = y(0), N = y(0), c = y(On), p = y({
+			height: 0,
+			width: 0
+		}), b = y({
+			height: 0,
+			width: 0
+		}), O = U(), L = U(), F = y(0), G = y(null), Z = y({
+			column: 0,
+			row: 0
+		}), W = U(), ft = U(), K = y(!1), lt = y(0), ct = y(!0), It = y(!1), Ft = y(!1);
+		X(S(v, $(lt), V(([H, j]) => !Ae(j))), () => {
+			_(ct, !1);
+		}), X(S(mt(v, ct, b, p, lt, It), V(([H, j, q, Q, , ut]) => H && !j && q.height !== 0 && Q.height !== 0 && !ut)), ([, , , , H]) => {
+			if (H === void 0) {
+				_(ct, !0);
+				return;
+			}
+			_(It, !0), qe(1, () => {
+				_(O, H);
+			}), Et(S(d), () => {
+				_(e, [0, 0]), _(ct, !0);
+			});
+		}), z(S(ft, V((H) => H != null && H.scrollTop > 0), Ct(0)), N), X(S(v, $(ft), V(([, H]) => H != null)), ([, H]) => {
+			H && (_(p, H.viewport), _(b, H.item), _(Z, H.gap), H.scrollTop > 0 && (_(K, !0), Et(S(d, jt(1)), (j) => {
+				_(K, !1);
+			}), _(u, { top: H.scrollTop })));
+		}), z(S(p, k(({ height: H }) => H)), x), z(S(mt(P(p, Se), P(b, Se), P(Z, (H, j) => H !== void 0 && H.column === j.column && H.row === j.row), P(d)), k(([H, j, q, Q]) => ({
+			gap: q,
+			item: j,
+			scrollTop: Q,
+			viewport: H
+		}))), W), z(S(mt(P(B), o, P(Z, Gr), P(b, Se), P(p, Se), P(G), P(N), P(K), P(ct), P(lt)), V(([, , , , , , , H]) => !H), k(([H, [j, q], Q, ut, it, et, dt, , Tt, at]) => {
+			const { column: Pt, row: ee } = Q, { height: he, width: Be } = ut, { width: ln } = it;
+			if (dt === 0 && (H === 0 || ln === 0)) return On;
+			if (Be === 0) {
+				const fn = Ye(at, H);
+				return Pr(Fn(fn, fn + Math.max(dt - 1, 0), et));
+			}
+			const ge = mo(ln, Be, Pt);
+			let Zt, _t;
+			Tt ? j === 0 && q === 0 && dt > 0 ? (Zt = 0, _t = dt - 1) : (Zt = ge * we((j + ee) / (he + ee)), _t = ge * Ln((q + ee) / (he + ee)) - 1, _t = Ve(H - 1, oe(_t, ge - 1)), Zt = Ve(_t, oe(0, Zt))) : (Zt = 0, _t = -1);
+			const cn = Fn(Zt, _t, et), { bottom: un, top: an } = Vn(it, Q, ut, cn), dn = Ln(H / ge);
+			return {
+				bottom: un,
+				itemHeight: he,
+				items: cn,
+				itemWidth: Be,
+				offsetBottom: dn * he + (dn - 1) * ee - un,
+				offsetTop: an,
+				top: an
+			};
+		})), c), z(S(G, V((H) => H !== null), k((H) => H.length)), B), z(S(mt(p, b, c, Z), V(([H, j, { items: q }]) => q.length > 0 && j.height !== 0 && H.height !== 0), k(([H, j, { items: q }, Q]) => {
+			const { bottom: ut, top: it } = Vn(H, Q, j, q);
+			return [it, ut];
+		}), ot(Jt)), e);
+		const vt = y(!1);
+		z(S(d, $(vt), k(([H, j]) => j || H !== 0)), vt);
+		const Ot = yt(S(mt(c, B), V(([{ items: H }, j]) => {
+			const q = tt(G);
+			return H.length > 0 && (q === null || q.length === j);
+		}), $(vt), V(([[H, j], q]) => {
+			const ut = H.items[H.items.length - 1].index === j - 1;
+			return (q || H.bottom > 0 && H.itemHeight > 0 && H.offsetBottom === 0 && H.items.length === j) && ut;
+		}), k(([[, H]]) => [H - 1, tt(G)]), ot(Jt), k(([H]) => H))), pe = yt(S(P(c), V(({ items: H }) => H.length > 0 && H[0].index === 0), Ct(0), ot())), Yt = yt(S(P(c), $(K), V(([{ items: H }, j]) => H.length > 0 && !j), k(([{ items: H }]) => ({
+			endIndex: H[H.length - 1].index,
+			startIndex: H[0].index
+		})), ot(Kn), Wt(0)));
+		z(Yt, m.scrollSeekRangeChanged), z(S(O, $(p, b, B, Z), k(([H, j, q, Q, ut]) => {
+			const it = Xn(H), { align: et, behavior: dt, offset: Tt } = it;
+			let at = it.index;
+			at === "LAST" && (at = Q - 1), at = oe(0, Ve(Q - 1, at));
+			let Pt = _e(j, ut, q, at);
+			return et === "end" ? Pt = zn(Pt - j.height + q.height) : et === "center" && (Pt = zn(Pt - j.height / 2 + q.height / 2)), Tt !== void 0 && Tt !== 0 && (Pt += Tt), {
+				behavior: dt,
+				top: Pt
+			};
+		})), u);
+		const Vt = gt(S(c, k((H) => H.offsetBottom + H.bottom)), 0);
+		return z(S(I, k((H) => ({
+			height: H.visibleHeight,
+			width: H.visibleWidth
+		}))), p), {
+			customScrollParent: g,
+			data: G,
+			deviation: F,
+			footerHeight: r,
+			gap: Z,
+			headerHeight: s,
+			increaseViewportBy: t,
+			initialItemCount: N,
+			itemDimensions: b,
+			overscan: n,
+			restoreStateFrom: ft,
+			scrollBy: i,
+			scrollContainerState: l,
+			scrollHeight: L,
+			scrollTo: u,
+			scrollToIndex: O,
+			scrollTop: d,
+			smoothScrollTargetReached: f,
+			totalCount: B,
+			useWindowScroll: T,
+			viewportDimensions: p,
+			windowScrollContainerState: a,
+			windowScrollTo: C,
+			windowViewportRect: I,
+			...m,
+			gridState: c,
+			horizontalDirection: Ft,
+			initialTopMostItemIndex: lt,
+			totalListHeight: Vt,
+			...h,
+			endReached: Ot,
+			propsReady: R,
+			rangeChanged: Yt,
+			startReached: pe,
+			stateChanged: W,
+			stateRestoreInProgress: K,
+			...w
+		};
+	}, st(Ze, St, me, oo, At, Xe, Mt));
+	function mo(t, e, n) {
+		return oe(1, we((t + n) / (we(e) + n)));
+	}
+	function Vn(t, e, n, o) {
+		const { height: r } = n;
+		if (r === void 0 || o.length === 0) return {
+			bottom: 0,
+			top: 0
+		};
+		const s = _e(t, e, n, o[0].index);
+		return {
+			bottom: _e(t, e, n, o[o.length - 1].index) + r,
+			top: s
+		};
+	}
+	function _e(t, e, n, o) {
+		const s = we(o / mo(t.width, n.width, e.column)), i = s * n.height + oe(0, s - 1) * e.row;
+		return i > 0 ? i + e.row : i;
+	}
+	var _r = /* @__PURE__ */ Y(([t, e]) => ({
+		...t,
+		...e
+	}), st(Mr, /* @__PURE__ */ Y(() => {
+		const t = y((x) => `Item ${x}`), e = y({}), n = y(null), o = y("virtuoso-grid-item"), r = y("virtuoso-grid-list"), s = y(tn), i = y("div"), l = y(te), u = (x, h = null) => gt(S(e, k((m) => m[x]), ot()), h), d = y(!1), f = y(!1);
+		return z(P(f), d), {
+			components: e,
+			computeItemKey: s,
+			context: n,
+			FooterComponent: u("Footer"),
+			HeaderComponent: u("Header"),
+			headerFooterTag: i,
+			itemClassName: o,
+			ItemComponent: u("Item", "div"),
+			itemContent: t,
+			listClassName: r,
+			ListComponent: u("List", "div"),
+			readyStateChanged: d,
+			reportReadyState: f,
+			ScrollerComponent: u("Scroller", "div"),
+			scrollerRef: l,
+			ScrollSeekPlaceholder: u("ScrollSeekPlaceholder", "div")
+		};
+	}))), Nr = /* @__PURE__ */ import_react.memo(function() {
+		const e = nt("gridState"), n = nt("listClassName"), o = nt("itemClassName"), r = nt("itemContent"), s = nt("computeItemKey"), i = nt("isSeeking"), l = Rt("scrollHeight"), u = nt("ItemComponent"), d = nt("ListComponent"), f = nt("ScrollSeekPlaceholder"), x = nt("context"), h = Rt("itemDimensions"), m = Rt("gap"), v = nt("log"), R = nt("stateRestoreInProgress"), g = Rt("reportReadyState"), T = Lt(import_react.useMemo(() => (a) => {
+			const C = a.parentElement.parentElement.scrollHeight;
+			l(C);
+			const I = a.firstChild;
+			if (I !== null) {
+				const { height: w, width: B } = I.getBoundingClientRect();
+				h({
+					height: w,
+					width: B
+				});
+			}
+			m({
+				column: Wn("column-gap", getComputedStyle(a).columnGap, v),
+				row: Wn("row-gap", getComputedStyle(a).rowGap, v)
+			});
+		}, [
+			l,
+			h,
+			m,
+			v
+		]), !0, !1);
+		return Re(() => {
+			e.itemHeight > 0 && e.itemWidth > 0 && g(!0);
+		}, [e]), R ? null : /* @__PURE__ */ (0, import_jsx_runtime.jsx)(d, {
+			className: n,
+			ref: T,
+			...rt(d, x),
+			"data-testid": "virtuoso-item-list",
+			style: {
+				paddingBottom: e.offsetBottom,
+				paddingTop: e.offsetTop
+			},
+			children: e.items.map((a) => {
+				const C = s(a.index, a.data, x);
+				return i ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(f, {
+					...rt(f, x),
+					height: e.itemHeight,
+					index: a.index,
+					width: e.itemWidth
+				}, C) : /* @__PURE__ */ (0, import_react.createElement)(u, {
+					...rt(u, x),
+					className: o,
+					"data-index": a.index,
+					key: C
+				}, r(a.index, a.data, x));
+			})
+		});
+	}), Dr = import_react.memo(function() {
+		const e = nt("HeaderComponent"), n = Rt("headerHeight"), o = nt("headerFooterTag"), r = Lt(import_react.useMemo(() => (i) => {
+			n(Bt(i, "height"));
+		}, [n]), !0, !1), s = nt("context");
+		return e != null ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(o, {
+			ref: r,
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(e, { ...rt(e, s) })
+		}) : null;
+	}), $r = import_react.memo(function() {
+		const e = nt("FooterComponent"), n = Rt("footerHeight"), o = nt("headerFooterTag"), r = Lt(import_react.useMemo(() => (i) => {
+			n(Bt(i, "height"));
+		}, [n]), !0, !1), s = nt("context");
+		return e != null ? /* @__PURE__ */ (0, import_jsx_runtime.jsx)(o, {
+			ref: r,
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(e, { ...rt(e, s) })
+		}) : null;
+	}), Ur = ({ children: t }) => {
+		const e = import_react.useContext(io), n = Rt("itemDimensions"), o = Rt("viewportDimensions"), r = Lt(import_react.useMemo(() => (s) => {
+			o(s.getBoundingClientRect());
+		}, [o]), !0, !1);
+		return import_react.useEffect(() => {
+			e && (o({
+				height: e.viewportHeight,
+				width: e.viewportWidth
+			}), n({
+				height: e.itemHeight,
+				width: e.itemWidth
+			}));
+		}, [
+			e,
+			o,
+			n
+		]), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			ref: r,
+			style: ke(!1),
+			children: t
+		});
+	}, Kr = ({ children: t }) => {
+		const e = import_react.useContext(io), n = Rt("windowViewportRect"), o = Rt("itemDimensions"), r = nt("customScrollParent"), s = nt("useWindowScroll"), i = Ue(n, r, !1);
+		return import_react.useEffect(() => {
+			e && (o({
+				height: e.itemHeight,
+				width: e.itemWidth
+			}), n({
+				listHeight: 0,
+				offsetTop: 0,
+				visibleHeight: e.viewportHeight,
+				visibleWidth: e.viewportWidth
+			}));
+		}, [
+			e,
+			n,
+			o
+		]), /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", {
+			ref: i,
+			style: en(!1, s),
+			children: t
+		});
+	}, { Component: qr, useEmitter: po, useEmitterValue: nt, usePublisher: Rt } = /* @__PURE__ */ Je(_r, {
+		optional: {
+			context: "context",
+			totalCount: "totalCount",
+			overscan: "overscan",
+			itemContent: "itemContent",
+			components: "components",
+			computeItemKey: "computeItemKey",
+			data: "data",
+			initialItemCount: "initialItemCount",
+			scrollSeekConfiguration: "scrollSeekConfiguration",
+			headerFooterTag: "headerFooterTag",
+			listClassName: "listClassName",
+			itemClassName: "itemClassName",
+			useWindowScroll: "useWindowScroll",
+			customScrollParent: "customScrollParent",
+			scrollerRef: "scrollerRef",
+			logLevel: "logLevel",
+			restoreStateFrom: "restoreStateFrom",
+			initialTopMostItemIndex: "initialTopMostItemIndex",
+			increaseViewportBy: "increaseViewportBy"
+		},
+		methods: {
+			scrollTo: "scrollTo",
+			scrollBy: "scrollBy",
+			scrollToIndex: "scrollToIndex"
+		},
+		events: {
+			isScrolling: "isScrolling",
+			endReached: "endReached",
+			startReached: "startReached",
+			rangeChanged: "rangeChanged",
+			atBottomStateChange: "atBottomStateChange",
+			atTopStateChange: "atTopStateChange",
+			stateChanged: "stateChanged",
+			readyStateChanged: "readyStateChanged"
+		}
+	}, /* @__PURE__ */ import_react.memo(function({ ...e }) {
+		const n = nt("useWindowScroll"), o = nt("customScrollParent"), r = o || n ? Zr : Yr, s = o || n ? Kr : Ur, i = nt("context");
+		return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(r, {
+			...e,
+			...rt(r, i),
+			children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(s, { children: [
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Dr, {}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Nr, {}),
+				/* @__PURE__ */ (0, import_jsx_runtime.jsx)($r, {})
+			] })
+		});
+	})), Yr = /* @__PURE__ */ nn({
+		useEmitter: po,
+		useEmitterValue: nt,
+		usePublisher: Rt
+	}), Zr = /* @__PURE__ */ on({
+		useEmitter: po,
+		useEmitterValue: nt,
+		usePublisher: Rt
+	});
+	function Wn(t, e, n) {
+		return e !== "normal" && e?.endsWith("px") !== !0 && n(`${t} was not resolved to pixel value correctly`, e, ht.WARN), e === "normal" ? 0 : parseInt(e ?? "0", 10);
+	}
+	//#endregion
+	//#region src/utils/gbnAuth.ts
+	var onGbnIDReady = (callback) => {
+		window.gbnID = window.gbnID ?? [];
+		window.gbnID.push(["init", () => callback(window.gbnID)]);
+	};
+	var onGbnCEReady = (callback) => {
+		const gbnCE = window.gbnCE;
+		if (typeof gbnCE?.auth?.getUserProfile === "function") {
+			callback(gbnCE);
+			return;
+		}
+		window.gbnCE = gbnCE ?? [];
+		window.gbnCE.push(["init", callback]);
+	};
+	var getCurrentAccount = () => {
+		const gbnID = window.gbnID;
+		if (typeof gbnID?.getCurrentUser === "function") return gbnID.getCurrentUser().catch(() => null);
+		return Promise.resolve(gbnID?._currentUser ?? null);
+	};
+	var getUserProfile = (gbnCE) => {
+		if (typeof gbnCE.auth?.getUserProfile !== "function") return Promise.resolve(null);
+		return gbnCE.auth.getUserProfile();
+	};
+	var openGbnLogin = () => {
+		window.gbnID?.openLoginModal?.();
+	};
+	var logoutGbn = () => {
+		window.gbnID?.logout?.();
+	};
+	var getAccountName = (account) => {
+		return [account.name?.first, account.name?.last].map((part) => part?.trim()).filter(Boolean).join(" ") || account.displayName?.trim() || account.email?.split("@")[0] || "Member";
+	};
+	var getProfileTierId = (profile) => {
+		const tierId = Number(profile.tier?.tierId);
+		return Number.isInteger(tierId) && tierId > 0 ? tierId : null;
+	};
+	var getTierRank = (tierId) => tierId && RANK_BY_TIER_ID[tierId] || USER_RANK.FRIEND;
+	//#endregion
+	//#region src/store/createStore.ts
+	var createStore = (initialState) => {
+		let state = initialState;
+		const listeners = /* @__PURE__ */ new Set();
+		const getState = () => state;
+		const setState = (next) => {
+			state = {
+				...state,
+				...next
+			};
+			listeners.forEach((listener) => listener());
+		};
+		const subscribe = (listener) => {
+			listeners.add(listener);
+			return () => {
+				listeners.delete(listener);
+			};
+		};
+		const useStore = () => (0, import_react.useSyncExternalStore)(subscribe, getState);
+		return {
+			getState,
+			setState,
+			subscribe,
+			useStore
+		};
+	};
+	//#endregion
+	//#region src/store/authSlice.ts
+	var PROFILE_PENDING = {
+		tierId: null,
+		coins: null,
+		isLoaded: false
+	};
+	var store$2 = createStore({
+		status: AUTH_STATUS.CHECKING,
+		user: null,
+		profile: PROFILE_PENDING
+	});
+	var isStarted = false;
+	var latestRefresh = 0;
+	var latestProfileFetch = 0;
+	var knownUserId = null;
+	var setGuest = () => {
+		knownUserId = null;
+		latestProfileFetch += 1;
+		store$2.setState({
+			status: AUTH_STATUS.GUEST,
+			user: null,
+			profile: PROFILE_PENDING
+		});
+	};
+	var refreshProfile = async (gbnCE) => {
+		const fetchId = ++latestProfileFetch;
+		let profile;
+		try {
+			const gbnProfile = await getUserProfile(gbnCE);
+			profile = gbnProfile ? {
+				tierId: getProfileTierId(gbnProfile),
+				coins: gbnProfile.wallet?.coins ?? null,
+				isLoaded: true
+			} : PROFILE_PENDING;
+		} catch {
+			profile = {
+				tierId: null,
+				coins: null,
+				isLoaded: true
+			};
+		}
+		if (fetchId === latestProfileFetch) store$2.setState({ profile });
+	};
+	var refreshUser = async (isGbnIDReady) => {
+		const refreshId = ++latestRefresh;
+		const account = await getCurrentAccount();
+		if (refreshId !== latestRefresh) return;
+		if (!account?.id) {
+			if (isGbnIDReady) setGuest();
+			return;
+		}
+		if (knownUserId && knownUserId !== account.id) {
+			latestProfileFetch += 1;
+			store$2.setState({ profile: PROFILE_PENDING });
+			onGbnCEReady(refreshProfile);
+		}
+		knownUserId = account.id;
+		store$2.setState({
+			status: AUTH_STATUS.AUTHENTICATED,
+			user: {
+				id: account.id,
+				name: getAccountName(account)
+			}
+		});
+	};
+	var startAuth = () => {
+		if (isStarted) return;
+		isStarted = true;
+		refreshUser(false);
+		onGbnCEReady((gbnCE) => {
+			refreshProfile(gbnCE);
+			gbnCE.onLogin?.(() => refreshProfile(gbnCE));
+		});
+		onGbnIDReady((gbnID) => {
+			refreshUser(true);
+			gbnID.onLogin?.(() => refreshUser(true));
+			gbnID.onLogout?.(() => {
+				latestRefresh += 1;
+				setGuest();
+			});
+		});
+	};
+	var handleSessionExpired = () => {
+		if (store$2.getState().status !== AUTH_STATUS.AUTHENTICATED) return;
+		latestRefresh += 1;
+		setGuest();
+		openGbnLogin();
+	};
+	var useAuth = store$2.useStore;
+	//#endregion
+	//#region node_modules/axios/lib/helpers/bind.js
+	/**
+	* Create a bound version of a function with a specified `this` context
+	*
+	* @param {Function} fn - The function to bind
+	* @param {*} thisArg - The value to be passed as the `this` parameter
+	* @returns {Function} A new function that will call the original function with the specified `this` context
+	*/
+	function bind(fn, thisArg) {
+		return function wrap() {
+			return fn.apply(thisArg, arguments);
+		};
+	}
+	//#endregion
+	//#region node_modules/axios/lib/utils.js
+	var { toString } = Object.prototype;
+	var { getPrototypeOf } = Object;
+	var { iterator, toStringTag } = Symbol;
+	var hasOwnProperty = (({ hasOwnProperty }) => (obj, prop) => hasOwnProperty.call(obj, prop))(Object.prototype);
+	var isUnsafeObjectKey = (prop) => typeof prop === "string" && (prop === "__proto__" || prop === "constructor" || prop === "prototype");
+	/**
+	* Determine whether an inherited object must be treated as a shared-prototype
+	* boundary. Cross-realm Object.prototype objects cannot be distinguished
+	* reliably from application-created null-prototype objects because their
+	* properties are mutable, so all inherited terminal prototypes are excluded
+	* as a fail-closed boundary. A null-prototype source still keeps its own
+	* properties, as produced by mergeConfig and other safe materialization paths.
+	*
+	* @param {*} obj The object to inspect
+	* @param {*} prototype The object's prototype
+	* @param {boolean} source Whether obj is the original traversal source
+	*
+	* @returns {boolean} True when obj is a safe prototype traversal boundary
+	*/
+	var isPrototypeBoundary = (obj, prototype, source) => obj === Object.prototype || !source && prototype === null;
+	/**
+	* Determine whether an object can retain its identity through code paths that
+	* add, replace, and remove config properties without bypassing unsafe-key
+	* filtering. Immutable objects, unsafe-key-bearing objects, and objects with
+	* accessor or restricted data properties must be materialized instead.
+	*
+	* @param {*} obj The object to inspect
+	*
+	* @returns {boolean} True when every own property is safe and fully mutable
+	*/
+	var isSafeAndFullyMutable = (obj) => {
+		if (!Object.isExtensible(obj)) return false;
+		const props = Object.getOwnPropertyNames(obj);
+		if (Object.getOwnPropertySymbols) props.push(...Object.getOwnPropertySymbols(obj));
+		return props.every((prop) => {
+			if (isUnsafeObjectKey(prop)) return false;
+			const descriptor = Object.getOwnPropertyDescriptor(obj, prop);
+			return !!descriptor && descriptor.configurable && descriptor.writable === true;
+		});
+	};
+	/**
+	* Walk the prototype chain (excluding the source realm's Object.prototype)
+	* looking for an own `prop`. This distinguishes genuine own/inherited members
+	* — including class accessors and template prototypes — from members injected
+	* via Object.prototype pollution (e.g. `Object.prototype.username = '...'`),
+	* which live on Object.prototype itself and are therefore never matched.
+	*
+	* @param {*} thing The value whose chain to inspect
+	* @param {string|symbol} prop The property key to look for
+	*
+	* @returns {boolean} True when `prop` is owned below Object.prototype
+	*/
+	var hasOwnInPrototypeChain = (thing, prop) => {
+		let obj = thing;
+		const seen = [];
+		while (obj != null) {
+			if (seen.indexOf(obj) !== -1) return false;
+			seen.push(obj);
+			const prototype = getPrototypeOf(obj);
+			if (isPrototypeBoundary(obj, prototype, obj === thing)) return false;
+			if (hasOwnProperty(obj, prop)) return true;
+			obj = prototype;
+		}
+		return false;
+	};
+	/**
+	* Read `obj[prop]` only when it is safe from Object.prototype pollution. Own
+	* properties and members inherited from a non-Object.prototype source (a class
+	* instance or template object) are honored; a value reachable only through a
+	* polluted Object.prototype is ignored and `undefined` is returned.
+	*
+	* @param {*} obj The source object
+	* @param {string|symbol} prop The property key to read
+	*
+	* @returns {*} The resolved value, or undefined when unsafe/absent
+	*/
+	var getSafeProp = (obj, prop) => obj != null && hasOwnInPrototypeChain(obj, prop) ? obj[prop] : void 0;
+	/**
+	* Flatten an object and its application-defined prototype chain into a
+	* null-prototype object. Members inherited only from the source realm's
+	* Object.prototype are deliberately excluded, while class/template members
+	* below that boundary are preserved.
+	*
+	* @param {*} thing The value to flatten
+	*
+	* @returns {*} A null-prototype copy, or the original value when it is already
+	* structurally safe or is not an object
+	*/
+	var toSafeFlatObject = (thing) => {
+		if (thing == null || typeof thing !== "object" && typeof thing !== "function") return thing;
+		const sourcePrototype = getPrototypeOf(thing);
+		if (sourcePrototype === null && isSafeAndFullyMutable(thing)) return thing;
+		const result = Object.create(null);
+		const merged = Object.create(null);
+		const seen = [];
+		let current = thing;
+		while (current != null) {
+			if (seen.indexOf(current) !== -1) break;
+			seen.push(current);
+			const prototype = current === thing ? sourcePrototype : getPrototypeOf(current);
+			if (isPrototypeBoundary(current, prototype, current === thing)) break;
+			const props = Object.getOwnPropertyNames(current);
+			if (Object.getOwnPropertySymbols) props.push(...Object.getOwnPropertySymbols(current));
+			for (const prop of props) {
+				if (isUnsafeObjectKey(prop)) continue;
+				if (!hasOwnProperty(merged, prop)) {
+					result[prop] = thing[prop];
+					merged[prop] = true;
+				}
+			}
+			current = prototype;
+		}
+		return result;
+	};
+	var kindOf = ((cache) => (thing) => {
+		const str = toString.call(thing);
+		return cache[str] || (cache[str] = str.slice(8, -1).toLowerCase());
+	})(Object.create(null));
+	var kindOfTest = (type) => {
+		type = type.toLowerCase();
+		return (thing) => kindOf(thing) === type;
+	};
+	var typeOfTest = (type) => (thing) => typeof thing === type;
+	/**
+	* Determine if a value is a non-null object
+	*
+	* @param {Object} val The value to test
+	*
+	* @returns {boolean} True if value is an Array, otherwise false
+	*/
+	var { isArray } = Array;
+	/**
+	* Determine if a value is undefined
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if the value is undefined, otherwise false
+	*/
+	var isUndefined = typeOfTest("undefined");
+	/**
+	* Determine if a value is a Buffer
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a Buffer, otherwise false
+	*/
+	function isBuffer(val) {
+		return val !== null && !isUndefined(val) && val.constructor !== null && !isUndefined(val.constructor) && isFunction$1(val.constructor.isBuffer) && val.constructor.isBuffer(val);
+	}
+	/**
+	* Determine if a value is an ArrayBuffer
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is an ArrayBuffer, otherwise false
+	*/
+	var isArrayBuffer = kindOfTest("ArrayBuffer");
+	/**
+	* Determine if a value is a view on an ArrayBuffer
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a view on an ArrayBuffer, otherwise false
+	*/
+	function isArrayBufferView(val) {
+		let result;
+		if (typeof ArrayBuffer !== "undefined" && ArrayBuffer.isView) result = ArrayBuffer.isView(val);
+		else result = val && val.buffer && isArrayBuffer(val.buffer);
+		return result;
+	}
+	/**
+	* Determine if a value is a String
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a String, otherwise false
+	*/
+	var isString = typeOfTest("string");
+	/**
+	* Determine if a value is a Function
+	*
+	* @param {*} val The value to test
+	* @returns {boolean} True if value is a Function, otherwise false
+	*/
+	var isFunction$1 = typeOfTest("function");
+	/**
+	* Determine if a value is a Number
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a Number, otherwise false
+	*/
+	var isNumber = typeOfTest("number");
+	/**
+	* Determine if a value is an Object
+	*
+	* @param {*} thing The value to test
+	*
+	* @returns {boolean} True if value is an Object, otherwise false
+	*/
+	var isObject = (thing) => thing !== null && typeof thing === "object";
+	/**
+	* Determine if a value is a Boolean
+	*
+	* @param {*} thing The value to test
+	* @returns {boolean} True if value is a Boolean, otherwise false
+	*/
+	var isBoolean = (thing) => thing === true || thing === false;
+	/**
+	* Determine if a value is a plain Object
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a plain Object, otherwise false
+	*/
+	var isPlainObject = (val) => {
+		if (!isObject(val)) return false;
+		const prototype = getPrototypeOf(val);
+		return (prototype === null || prototype === Object.prototype || getPrototypeOf(prototype) === null) && !hasOwnInPrototypeChain(val, toStringTag) && !hasOwnInPrototypeChain(val, iterator);
+	};
+	/**
+	* Determine if a value is an empty object (safely handles Buffers)
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is an empty object, otherwise false
+	*/
+	var isEmptyObject = (val) => {
+		if (!isObject(val) || isBuffer(val)) return false;
+		try {
+			return Object.keys(val).length === 0 && Object.getPrototypeOf(val) === Object.prototype;
+		} catch (e) {
+			return false;
+		}
+	};
+	/**
+	* Determine if a value is a Date
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a Date, otherwise false
+	*/
+	var isDate = kindOfTest("Date");
+	/**
+	* Determine if a value is a File
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a File, otherwise false
+	*/
+	var isFile = kindOfTest("File");
+	/**
+	* Determine if a value is a React Native Blob
+	* React Native "blob": an object with a `uri` attribute. Optionally, it can
+	* also have a `name` and `type` attribute to specify filename and content type
+	*
+	* @see https://github.com/facebook/react-native/blob/26684cf3adf4094eb6c405d345a75bf8c7c0bf88/Libraries/Network/FormData.js#L68-L71
+	*
+	* @param {*} value The value to test
+	*
+	* @returns {boolean} True if value is a React Native Blob, otherwise false
+	*/
+	var isReactNativeBlob = (value) => {
+		return !!(value && typeof value.uri !== "undefined");
+	};
+	/**
+	* Determine if environment is React Native
+	* ReactNative `FormData` has a non-standard `getParts()` method
+	*
+	* @param {*} formData The formData to test
+	*
+	* @returns {boolean} True if environment is React Native, otherwise false
+	*/
+	var isReactNative = (formData) => formData && typeof formData.getParts !== "undefined";
+	/**
+	* Determine if a value is a Blob
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a Blob, otherwise false
+	*/
+	var isBlob = kindOfTest("Blob");
+	/**
+	* Determine if a value is a FileList
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a FileList, otherwise false
+	*/
+	var isFileList = kindOfTest("FileList");
+	var isSet = kindOfTest("Set");
+	/**
+	* Determine if a value is a Stream
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a Stream, otherwise false
+	*/
+	var isStream = (val) => isObject(val) && isFunction$1(val.pipe);
+	/**
+	* Determine if a value is a FormData
+	*
+	* @param {*} thing The value to test
+	*
+	* @returns {boolean} True if value is an FormData, otherwise false
+	*/
+	function getGlobal() {
+		if (typeof globalThis !== "undefined") return globalThis;
+		if (typeof self !== "undefined") return self;
+		if (typeof window !== "undefined") return window;
+		if (typeof global !== "undefined") return global;
+		return {};
+	}
+	var G = getGlobal();
+	var FormDataCtor = typeof G.FormData !== "undefined" ? G.FormData : void 0;
+	var isFormData = (thing) => {
+		if (!thing) return false;
+		if (FormDataCtor && thing instanceof FormDataCtor) return true;
+		const proto = getPrototypeOf(thing);
+		if (!proto || proto === Object.prototype) return false;
+		if (!isFunction$1(thing.append)) return false;
+		const kind = kindOf(thing);
+		return kind === "formdata" || kind === "object" && isFunction$1(thing.toString) && thing.toString() === "[object FormData]";
+	};
+	/**
+	* Determine if a value is a URLSearchParams object
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a URLSearchParams object, otherwise false
+	*/
+	var isURLSearchParams = kindOfTest("URLSearchParams");
+	var [isReadableStream, isRequest, isResponse, isHeaders] = [
+		"ReadableStream",
+		"Request",
+		"Response",
+		"Headers"
+	].map(kindOfTest);
+	/**
+	* Trim excess whitespace off the beginning and end of a string
+	*
+	* @param {String} str The String to trim
+	*
+	* @returns {String} The String freed of excess whitespace
+	*/
+	var trim = (str) => {
+		return str.trim ? str.trim() : str.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, "");
+	};
+	/**
+	* Iterate over an Array or an Object invoking a function for each item.
+	*
+	* If `obj` is an Array callback will be called passing
+	* the value, index, and complete array for each item.
+	*
+	* If 'obj' is an Object callback will be called passing
+	* the value, key, and complete object for each property.
+	*
+	* @param {Object|Array<unknown>} obj The object to iterate
+	* @param {Function} fn The callback to invoke for each item
+	*
+	* @param {Object} [options]
+	* @param {Boolean} [options.allOwnKeys = false]
+	* @returns {any}
+	*/
+	function forEach(obj, fn, { allOwnKeys = false } = {}) {
+		if (obj === null || typeof obj === "undefined") return;
+		let i;
+		let l;
+		if (typeof obj !== "object") obj = [obj];
+		if (isArray(obj)) for (i = 0, l = obj.length; i < l; i++) fn.call(null, obj[i], i, obj);
+		else {
+			if (isBuffer(obj)) return;
+			const keys = allOwnKeys ? Object.getOwnPropertyNames(obj) : Object.keys(obj);
+			const len = keys.length;
+			let key;
+			for (i = 0; i < len; i++) {
+				key = keys[i];
+				fn.call(null, obj[key], key, obj);
+			}
+		}
+	}
+	/**
+	* Finds a key in an object, case-insensitive, returning the actual key name.
+	* Returns null if the object is a Buffer or if no match is found.
+	*
+	* @param {Object} obj - The object to search.
+	* @param {string} key - The key to find (case-insensitive).
+	* @returns {?string} The actual key name if found, otherwise null.
+	*/
+	function findKey(obj, key) {
+		if (isBuffer(obj)) return null;
+		key = key.toLowerCase();
+		const keys = Object.keys(obj);
+		let i = keys.length;
+		let _key;
+		while (i-- > 0) {
+			_key = keys[i];
+			if (key === _key.toLowerCase()) return _key;
+		}
+		return null;
+	}
+	var _global = (() => {
+		if (typeof globalThis !== "undefined") return globalThis;
+		return typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : global;
+	})();
+	var isContextDefined = (context) => !isUndefined(context) && context !== _global;
+	/**
+	* Accepts varargs expecting each argument to be an object, then
+	* immutably merges the properties of each object and returns result.
+	*
+	* When multiple objects contain the same key the later object in
+	* the arguments list will take precedence.
+	*
+	* Example:
+	*
+	* ```js
+	* const result = merge({foo: 123}, {foo: 456});
+	* console.log(result.foo); // outputs 456
+	* ```
+	*
+	* @param {Object} obj1 Object to merge
+	*
+	* @returns {Object} Result of all merge properties
+	*/
+	function merge(...objs) {
+		const { caseless, skipUndefined } = isContextDefined(this) && this || {};
+		const result = {};
+		const assignValue = (val, key) => {
+			if (key === "__proto__" || key === "constructor" || key === "prototype") return;
+			const targetKey = caseless && typeof key === "string" && findKey(result, key) || key;
+			const existing = hasOwnProperty(result, targetKey) ? result[targetKey] : void 0;
+			if (isPlainObject(existing) && isPlainObject(val)) result[targetKey] = merge(existing, val);
+			else if (isPlainObject(val)) result[targetKey] = merge({}, val);
+			else if (isArray(val)) result[targetKey] = val.slice();
+			else if (!skipUndefined || !isUndefined(val)) result[targetKey] = val;
+		};
+		for (let i = 0, l = objs.length; i < l; i++) {
+			const source = objs[i];
+			if (!source || isBuffer(source)) continue;
+			forEach(source, assignValue);
+			if (typeof source !== "object" || isArray(source)) continue;
+			const symbols = Object.getOwnPropertySymbols(source);
+			for (let j = 0; j < symbols.length; j++) {
+				const symbol = symbols[j];
+				if (propertyIsEnumerable.call(source, symbol)) assignValue(source[symbol], symbol);
+			}
+		}
+		return result;
+	}
+	/**
+	* Extends object a by mutably adding to it the properties of object b.
+	*
+	* @param {Object} a The object to be extended
+	* @param {Object} b The object to copy properties from
+	* @param {Object} thisArg The object to bind function to
+	*
+	* @param {Object} [options]
+	* @param {Boolean} [options.allOwnKeys]
+	* @returns {Object} The resulting value of object a
+	*/
+	var extend = (a, b, thisArg, { allOwnKeys } = {}) => {
+		forEach(b, (val, key) => {
+			if (thisArg && isFunction$1(val)) Object.defineProperty(a, key, {
+				__proto__: null,
+				value: bind(val, thisArg),
+				writable: true,
+				enumerable: true,
+				configurable: true
+			});
+			else Object.defineProperty(a, key, {
+				__proto__: null,
+				value: val,
+				writable: true,
+				enumerable: true,
+				configurable: true
+			});
+		}, { allOwnKeys });
+		return a;
+	};
+	/**
+	* Remove byte order marker. This catches EF BB BF (the UTF-8 BOM)
+	*
+	* @param {string} content with BOM
+	*
+	* @returns {string} content value without BOM
+	*/
+	var stripBOM = (content) => {
+		if (content.charCodeAt(0) === 65279) content = content.slice(1);
+		return content;
+	};
+	/**
+	* Inherit the prototype methods from one constructor into another
+	* @param {function} constructor
+	* @param {function} superConstructor
+	* @param {object} [props]
+	* @param {object} [descriptors]
+	*
+	* @returns {void}
+	*/
+	var inherits = (constructor, superConstructor, props, descriptors) => {
+		constructor.prototype = Object.create(superConstructor.prototype, descriptors);
+		Object.defineProperty(constructor.prototype, "constructor", {
+			__proto__: null,
+			value: constructor,
+			writable: true,
+			enumerable: false,
+			configurable: true
+		});
+		Object.defineProperty(constructor, "super", {
+			__proto__: null,
+			value: superConstructor.prototype
+		});
+		props && Object.assign(constructor.prototype, props);
+	};
+	/**
+	* Resolve object with deep prototype chain to a flat object
+	* @param {Object} sourceObj source object
+	* @param {Object} [destObj]
+	* @param {Function|Boolean} [filter]
+	* @param {Function} [propFilter]
+	*
+	* @returns {Object}
+	*/
+	var toFlatObject = (sourceObj, destObj, filter, propFilter) => {
+		let props;
+		let i;
+		let prop;
+		const merged = {};
+		destObj = destObj || {};
+		if (sourceObj == null) return destObj;
+		do {
+			props = Object.getOwnPropertyNames(sourceObj);
+			i = props.length;
+			while (i-- > 0) {
+				prop = props[i];
+				if ((!propFilter || propFilter(prop, sourceObj, destObj)) && !merged[prop]) {
+					destObj[prop] = sourceObj[prop];
+					merged[prop] = true;
+				}
+			}
+			sourceObj = filter !== false && getPrototypeOf(sourceObj);
+		} while (sourceObj && (!filter || filter(sourceObj, destObj)) && sourceObj !== Object.prototype);
+		return destObj;
+	};
+	/**
+	* Determines whether a string ends with the characters of a specified string
+	*
+	* @param {String} str
+	* @param {String} searchString
+	* @param {Number} [position= 0]
+	*
+	* @returns {boolean}
+	*/
+	var endsWith = (str, searchString, position) => {
+		str = String(str);
+		if (position === void 0 || position > str.length) position = str.length;
+		position -= searchString.length;
+		const lastIndex = str.indexOf(searchString, position);
+		return lastIndex !== -1 && lastIndex === position;
+	};
+	/**
+	* Returns new array from array like object or null if failed
+	*
+	* @param {*} [thing]
+	*
+	* @returns {?Array}
+	*/
+	var toArray = (thing) => {
+		if (!thing) return null;
+		if (isArray(thing)) return thing;
+		let i = thing.length;
+		if (!isNumber(i)) return null;
+		const arr = new Array(i);
+		while (i-- > 0) arr[i] = thing[i];
+		return arr;
+	};
+	/**
+	* Checking if the Uint8Array exists and if it does, it returns a function that checks if the
+	* thing passed in is an instance of Uint8Array
+	*
+	* @param {TypedArray}
+	*
+	* @returns {Array}
+	*/
+	var isTypedArray = ((TypedArray) => {
+		return (thing) => {
+			return TypedArray && thing instanceof TypedArray;
+		};
+	})(typeof Uint8Array !== "undefined" && getPrototypeOf(Uint8Array));
+	/**
+	* For each entry in the object, call the function with the key and value.
+	*
+	* @param {Object<any, any>} obj - The object to iterate over.
+	* @param {Function} fn - The function to call for each entry.
+	*
+	* @returns {void}
+	*/
+	var forEachEntry = (obj, fn) => {
+		const _iterator = (obj && obj[iterator]).call(obj);
+		let result;
+		while ((result = _iterator.next()) && !result.done) {
+			const pair = result.value;
+			fn.call(obj, pair[0], pair[1]);
+		}
+	};
+	/**
+	* It takes a regular expression and a string, and returns an array of all the matches
+	*
+	* @param {string} regExp - The regular expression to match against.
+	* @param {string} str - The string to search.
+	*
+	* @returns {Array<boolean>}
+	*/
+	var matchAll = (regExp, str) => {
+		let matches;
+		const arr = [];
+		while ((matches = regExp.exec(str)) !== null) arr.push(matches);
+		return arr;
+	};
+	var isHTMLForm = kindOfTest("HTMLFormElement");
+	var toCamelCase = (str) => {
+		return str.toLowerCase().replace(/[-_\s]([a-z\d])(\w*)/g, function replacer(m, p1, p2) {
+			return p1.toUpperCase() + p2;
+		});
+	};
+	var { propertyIsEnumerable } = Object.prototype;
+	/**
+	* Determine if a value is a RegExp object
+	*
+	* @param {*} val The value to test
+	*
+	* @returns {boolean} True if value is a RegExp object, otherwise false
+	*/
+	var isRegExp = kindOfTest("RegExp");
+	var reduceDescriptors = (obj, reducer) => {
+		const descriptors = Object.getOwnPropertyDescriptors(obj);
+		const reducedDescriptors = {};
+		forEach(descriptors, (descriptor, name) => {
+			let ret;
+			if ((ret = reducer(descriptor, name, obj)) !== false) reducedDescriptors[name] = ret || descriptor;
+		});
+		Object.defineProperties(obj, reducedDescriptors);
+	};
+	/**
+	* Makes all methods read-only
+	* @param {Object} obj
+	*/
+	var freezeMethods = (obj) => {
+		reduceDescriptors(obj, (descriptor, name) => {
+			if (isFunction$1(obj) && [
+				"arguments",
+				"caller",
+				"callee"
+			].includes(name)) return false;
+			const value = obj[name];
+			if (!isFunction$1(value)) return;
+			descriptor.enumerable = false;
+			if ("writable" in descriptor) {
+				descriptor.writable = false;
+				return;
+			}
+			if (!descriptor.set) descriptor.set = () => {
+				throw Error("Can not rewrite read-only method '" + name + "'");
+			};
+		});
+	};
+	/**
+	* Converts an array or a delimited string into an object set with values as keys and true as values.
+	* Useful for fast membership checks.
+	*
+	* @param {Array|string} arrayOrString - The array or string to convert.
+	* @param {string} delimiter - The delimiter to use if input is a string.
+	* @returns {Object} An object with keys from the array or string, values set to true.
+	*/
+	var toObjectSet = (arrayOrString, delimiter) => {
+		const obj = {};
+		const define = (arr) => {
+			arr.forEach((value) => {
+				obj[value] = true;
+			});
+		};
+		isArray(arrayOrString) ? define(arrayOrString) : define(String(arrayOrString).split(delimiter));
+		return obj;
+	};
+	var noop = () => {};
+	var toFiniteNumber = (value, defaultValue) => {
+		return value != null && Number.isFinite(value = +value) ? value : defaultValue;
+	};
+	/**
+	* If the thing is a FormData object, return true, otherwise return false.
+	*
+	* @param {unknown} thing - The thing to check.
+	*
+	* @returns {boolean}
+	*/
+	function isSpecCompliantForm(thing) {
+		return !!(thing && isFunction$1(thing.append) && thing[toStringTag] === "FormData" && thing[iterator]);
+	}
+	/**
+	* Recursively converts an object to a JSON-compatible object, handling circular references and Buffers.
+	*
+	* @param {Object} obj - The object to convert.
+	* @returns {Object} The JSON-compatible object.
+	*/
+	var toJSONObject = (obj) => {
+		const visited = /* @__PURE__ */ new WeakSet();
+		const visit = (source) => {
+			if (isObject(source)) {
+				if (visited.has(source)) return;
+				if (isBuffer(source)) return source;
+				if (!("toJSON" in source)) {
+					visited.add(source);
+					let target;
+					if (isSet(source)) {
+						target = [];
+						for (const value of source) {
+							const reducedValue = visit(value);
+							!isUndefined(reducedValue) && target.push(reducedValue);
+						}
+					} else {
+						target = isArray(source) ? [] : {};
+						forEach(source, (value, key) => {
+							const reducedValue = visit(value);
+							!isUndefined(reducedValue) && (target[key] = reducedValue);
+						});
+					}
+					visited.delete(source);
+					return target;
+				}
+			}
+			return source;
+		};
+		return visit(obj);
+	};
+	/**
+	* Determines if a value is an async function.
+	*
+	* @param {*} thing - The value to test.
+	* @returns {boolean} True if value is an async function, otherwise false.
+	*/
+	var isAsyncFn = kindOfTest("AsyncFunction");
+	/**
+	* Determines if a value is thenable (has then and catch methods).
+	*
+	* @param {*} thing - The value to test.
+	* @returns {boolean} True if value is thenable, otherwise false.
+	*/
+	var isThenable = (thing) => thing && (isObject(thing) || isFunction$1(thing)) && isFunction$1(thing.then) && isFunction$1(thing.catch);
+	/**
+	* Provides a cross-platform setImmediate implementation.
+	* Uses native setImmediate if available, otherwise falls back to postMessage or setTimeout.
+	*
+	* @param {boolean} setImmediateSupported - Whether setImmediate is supported.
+	* @param {boolean} postMessageSupported - Whether postMessage is supported.
+	* @returns {Function} A function to schedule a callback asynchronously.
+	*/
+	var _setImmediate = ((setImmediateSupported, postMessageSupported) => {
+		if (setImmediateSupported) return setImmediate;
+		return postMessageSupported ? ((token, callbacks) => {
+			_global.addEventListener("message", ({ source, data }) => {
+				if (source === _global && data === token) callbacks.length && callbacks.shift()();
+			}, false);
+			return (cb) => {
+				callbacks.push(cb);
+				_global.postMessage(token, "*");
+			};
+		})(`axios@${Math.random()}`, []) : (cb) => setTimeout(cb);
+	})(typeof setImmediate === "function", isFunction$1(_global.postMessage));
+	/**
+	* Schedules a microtask or asynchronous callback as soon as possible.
+	* Uses queueMicrotask if available, otherwise falls back to process.nextTick or _setImmediate.
+	*
+	* @type {Function}
+	*/
+	var asap = typeof queueMicrotask !== "undefined" ? queueMicrotask.bind(_global) : typeof process !== "undefined" && process.nextTick || _setImmediate;
+	var isIterable = (thing) => thing != null && isFunction$1(thing[iterator]);
+	/**
+	* Determine if a value is iterable via an iterator that is NOT sourced solely
+	* from a polluted Object.prototype. Use this instead of `isIterable` whenever
+	* the iterable comes from untrusted input (e.g. user-supplied header sources),
+	* so `Object.prototype[Symbol.iterator] = ...` cannot turn an ordinary object
+	* into an attacker-controlled entries iterator.
+	*
+	* @param {*} thing The value to test
+	*
+	* @returns {boolean} True if value has a non-polluted iterator
+	*/
+	var isSafeIterable = (thing) => thing != null && hasOwnInPrototypeChain(thing, iterator) && isIterable(thing);
+	var utils_default = {
+		isArray,
+		isArrayBuffer,
+		isBuffer,
+		isFormData,
+		isArrayBufferView,
+		isString,
+		isNumber,
+		isBoolean,
+		isObject,
+		isPlainObject,
+		isEmptyObject,
+		isReadableStream,
+		isRequest,
+		isResponse,
+		isHeaders,
+		isUndefined,
+		isDate,
+		isFile,
+		isReactNativeBlob,
+		isReactNative,
+		isBlob,
+		isRegExp,
+		isFunction: isFunction$1,
+		isStream,
+		isURLSearchParams,
+		isTypedArray,
+		isFileList,
+		forEach,
+		merge,
+		extend,
+		trim,
+		stripBOM,
+		inherits,
+		toFlatObject,
+		kindOf,
+		kindOfTest,
+		endsWith,
+		toArray,
+		forEachEntry,
+		matchAll,
+		isHTMLForm,
+		hasOwnProperty,
+		hasOwnProp: hasOwnProperty,
+		hasOwnInPrototypeChain,
+		getSafeProp,
+		toSafeFlatObject,
+		reduceDescriptors,
+		freezeMethods,
+		toObjectSet,
+		toCamelCase,
+		noop,
+		toFiniteNumber,
+		findKey,
+		global: _global,
+		isContextDefined,
+		isSpecCompliantForm,
+		toJSONObject,
+		isAsyncFn,
+		isThenable,
+		setImmediate: _setImmediate,
+		asap,
+		isIterable,
+		isSafeIterable
+	};
+	//#endregion
+	//#region node_modules/axios/lib/helpers/parseHeaders.js
+	var ignoreDuplicateOf = utils_default.toObjectSet([
+		"age",
+		"authorization",
+		"content-length",
+		"content-type",
+		"etag",
+		"expires",
+		"from",
+		"host",
+		"if-modified-since",
+		"if-unmodified-since",
+		"last-modified",
+		"location",
+		"max-forwards",
+		"proxy-authorization",
+		"referer",
+		"retry-after",
+		"user-agent"
+	]);
+	/**
+	* Parse headers into an object
+	*
+	* ```
+	* Date: Wed, 27 Aug 2014 08:58:49 GMT
+	* Content-Type: application/json
+	* Connection: keep-alive
+	* Transfer-Encoding: chunked
+	* ```
+	*
+	* @param {String} rawHeaders Headers needing to be parsed
+	*
+	* @returns {Object} Headers parsed into an object
+	*/
+	var parseHeaders_default = (rawHeaders) => {
+		const parsed = {};
+		let key;
+		let val;
+		let i;
+		rawHeaders && rawHeaders.split("\n").forEach(function parser(line) {
+			i = line.indexOf(":");
+			key = line.substring(0, i).trim().toLowerCase();
+			val = line.substring(i + 1).trim();
+			const hasKey = utils_default.hasOwnProp(parsed, key);
+			if (!key || hasKey && utils_default.hasOwnProp(ignoreDuplicateOf, key)) return;
+			if (key === "set-cookie") {
+				if (hasKey) parsed[key].push(val);
+				else parsed[key] = [val];
+			} else parsed[key] = hasKey ? parsed[key] + ", " + val : val;
+		});
+		return parsed;
+	};
+	//#endregion
+	//#region node_modules/axios/lib/helpers/sanitizeHeaderValue.js
+	function trimSPorHTAB(str) {
+		let start = 0;
+		let end = str.length;
+		while (start < end) {
+			const code = str.charCodeAt(start);
+			if (code !== 9 && code !== 32) break;
+			start += 1;
+		}
+		while (end > start) {
+			const code = str.charCodeAt(end - 1);
+			if (code !== 9 && code !== 32) break;
+			end -= 1;
+		}
+		return start === 0 && end === str.length ? str : str.slice(start, end);
+	}
+	var INVALID_UNICODE_HEADER_VALUE_CHARS = /* @__PURE__ */ new RegExp("[\\u0000-\\u0008\\u000a-\\u001f\\u007f]+", "g");
+	var INVALID_BYTE_STRING_HEADER_VALUE_CHARS = /* @__PURE__ */ new RegExp("[^\\u0009\\u0020-\\u007e\\u0080-\\u00ff]+", "g");
+	function sanitizeValue(value, invalidChars) {
+		if (utils_default.isArray(value)) return value.map((item) => sanitizeValue(item, invalidChars));
+		return trimSPorHTAB(String(value).replace(invalidChars, ""));
+	}
+	var sanitizeHeaderValue = (value) => sanitizeValue(value, INVALID_UNICODE_HEADER_VALUE_CHARS);
+	var sanitizeByteStringHeaderValue = (value) => sanitizeValue(value, INVALID_BYTE_STRING_HEADER_VALUE_CHARS);
+	function toByteStringHeaderObject(headers) {
+		const byteStringHeaders = Object.create(null);
+		utils_default.forEach(headers.toJSON(), (value, header) => {
+			byteStringHeaders[header] = sanitizeByteStringHeaderValue(value);
+		});
+		return byteStringHeaders;
+	}
+	//#endregion
+	//#region node_modules/axios/lib/core/AxiosHeaders.js
+	var $internals$1 = Symbol("internals");
+	function normalizeHeader(header) {
+		return header && String(header).trim().toLowerCase();
+	}
+	function normalizeValue(value) {
+		if (value === false || value == null) return value;
+		return utils_default.isArray(value) ? value.map(normalizeValue) : sanitizeHeaderValue(String(value));
+	}
+	function parseTokens(str) {
+		const tokens = Object.create(null);
+		const tokensRE = /([^\s,;=]+)\s*(?:=\s*([^,;]+))?/g;
+		let match;
+		while (match = tokensRE.exec(str)) tokens[match[1]] = match[2];
+		return tokens;
+	}
+	var parameterNameRE = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/;
+	function trimOWS(value) {
+		let start = 0;
+		let end = value.length;
+		while (start < end) {
+			const code = value.charCodeAt(start);
+			if (code !== 9 && code !== 32) break;
+			start += 1;
+		}
+		while (end > start) {
+			const code = value.charCodeAt(end - 1);
+			if (code !== 9 && code !== 32) break;
+			end -= 1;
+		}
+		return start === 0 && end === value.length ? value : value.slice(start, end);
+	}
+	function decodeQuotedString(value) {
+		const last = value.length - 1;
+		if (last < 1 || value.charCodeAt(0) !== 34 || value.charCodeAt(last) !== 34) return value;
+		let decoded = "";
+		for (let i = 1; i < last; i++) {
+			const code = value.charCodeAt(i);
+			if (code === 34) return value;
+			if (code === 92) {
+				i += 1;
+				if (i >= last) return value;
+			}
+			decoded += value[i];
+		}
+		return decoded;
+	}
+	function parseParameters(value) {
+		const parameters = Object.create(null);
+		const str = String(value);
+		let start = 0;
+		let quoted = false;
+		let escaped = false;
+		function parseParameter(end) {
+			const part = trimOWS(str.slice(start, end));
+			const equals = part.indexOf("=");
+			if (equals < 1) return;
+			const name = trimOWS(part.slice(0, equals));
+			if (!parameterNameRE.test(name)) return;
+			const normalizedName = name.toLowerCase();
+			if (normalizedName === "__proto__" || normalizedName === "constructor" || normalizedName === "prototype") return;
+			const parameterValue = trimOWS(part.slice(equals + 1));
+			parameters[normalizedName] = decodeQuotedString(parameterValue);
+		}
+		for (let i = 0; i < str.length; i++) {
+			const code = str.charCodeAt(i);
+			if (quoted) {
+				if (escaped) escaped = false;
+				else if (code === 92) escaped = true;
+				else if (code === 34) quoted = false;
+			} else if (code === 34) quoted = true;
+			else if (code === 44 || code === 59) {
+				parseParameter(i);
+				start = i + 1;
+			}
+		}
+		parseParameter(str.length);
+		return parameters;
+	}
+	var isValidHeaderName = (str) => /^[-_a-zA-Z0-9^`|~,!#$%&'*+.]+$/.test(str.trim());
+	function matchHeaderValue(context, value, header, filter, isHeaderNameFilter) {
+		if (utils_default.isFunction(filter)) return filter.call(this, value, header);
+		if (isHeaderNameFilter) value = header;
+		if (!utils_default.isString(value)) return;
+		if (utils_default.isString(filter)) return value.indexOf(filter) !== -1;
+		if (utils_default.isRegExp(filter)) return filter.test(value);
+	}
+	function formatHeader(header) {
+		return header.trim().toLowerCase().replace(/([a-z\d])(\w*)/g, (w, char, str) => {
+			return char.toUpperCase() + str;
+		});
+	}
+	function buildAccessors(obj, header) {
+		const accessorName = utils_default.toCamelCase(" " + header);
+		[
+			"get",
+			"set",
+			"has"
+		].forEach((methodName) => {
+			Object.defineProperty(obj, methodName + accessorName, {
+				__proto__: null,
+				value: function(arg1, arg2, arg3) {
+					return this[methodName].call(this, header, arg1, arg2, arg3);
+				},
+				configurable: true
+			});
+		});
+	}
+	var AxiosHeaders = class {
+		constructor(headers) {
+			headers && this.set(headers);
+		}
+		set(header, valueOrRewrite, rewrite) {
+			const self = this;
+			function setHeader(_value, _header, _rewrite) {
+				const lHeader = normalizeHeader(_header);
+				if (!lHeader) return;
+				const key = utils_default.findKey(self, lHeader);
+				if (!key || self[key] === void 0 || _rewrite === true || _rewrite === void 0 && self[key] !== false) self[key || _header] = normalizeValue(_value);
+			}
+			const setHeaders = (headers, _rewrite) => utils_default.forEach(headers, (_value, _header) => setHeader(_value, _header, _rewrite));
+			if (utils_default.isPlainObject(header) || header instanceof this.constructor) setHeaders(header, valueOrRewrite);
+			else if (utils_default.isString(header) && (header = header.trim()) && !isValidHeaderName(header)) setHeaders(parseHeaders_default(header), valueOrRewrite);
+			else if (utils_default.isObject(header) && utils_default.isSafeIterable(header)) {
+				let obj = Object.create(null), dest, key;
+				for (const entry of header) {
+					if (!utils_default.isArray(entry)) throw new TypeError("Object iterator must return a key-value pair");
+					key = entry[0];
+					if (utils_default.hasOwnProp(obj, key)) {
+						dest = obj[key];
+						obj[key] = utils_default.isArray(dest) ? [...dest, entry[1]] : [dest, entry[1]];
+					} else obj[key] = entry[1];
+				}
+				setHeaders(obj, valueOrRewrite);
+			} else header != null && setHeader(valueOrRewrite, header, rewrite);
+			return this;
+		}
+		get(header, parser) {
+			header = normalizeHeader(header);
+			if (header) {
+				const key = utils_default.findKey(this, header);
+				if (key) {
+					const value = this[key];
+					if (!parser) return value;
+					if (parser === true) return parseTokens(value);
+					if (utils_default.isFunction(parser)) return parser.call(this, value, key);
+					if (utils_default.isRegExp(parser)) return parser.exec(value);
+					throw new TypeError("parser must be boolean|regexp|function");
+				}
+			}
+		}
+		has(header, matcher) {
+			header = normalizeHeader(header);
+			if (header) {
+				const key = utils_default.findKey(this, header);
+				return !!(key && this[key] !== void 0 && (!matcher || matchHeaderValue(this, this[key], key, matcher)));
+			}
+			return false;
+		}
+		delete(header, matcher) {
+			const self = this;
+			let deleted = false;
+			function deleteHeader(_header) {
+				_header = normalizeHeader(_header);
+				if (_header) {
+					const key = utils_default.findKey(self, _header);
+					if (key && (!matcher || matchHeaderValue(self, self[key], key, matcher))) {
+						delete self[key];
+						deleted = true;
+					}
+				}
+			}
+			if (utils_default.isArray(header)) header.forEach(deleteHeader);
+			else deleteHeader(header);
+			return deleted;
+		}
+		clear(matcher) {
+			const keys = Object.keys(this);
+			let i = keys.length;
+			let deleted = false;
+			while (i--) {
+				const key = keys[i];
+				if (!matcher || matchHeaderValue(this, this[key], key, matcher, true)) {
+					delete this[key];
+					deleted = true;
+				}
+			}
+			return deleted;
+		}
+		normalize(format) {
+			const self = this;
+			const headers = {};
+			utils_default.forEach(this, (value, header) => {
+				const key = utils_default.findKey(headers, header);
+				if (key) {
+					self[key] = normalizeValue(value);
+					delete self[header];
+					return;
+				}
+				const normalized = format ? formatHeader(header) : String(header).trim();
+				if (normalized !== header) delete self[header];
+				self[normalized] = normalizeValue(value);
+				headers[normalized] = true;
+			});
+			return this;
+		}
+		concat(...targets) {
+			return this.constructor.concat(this, ...targets);
+		}
+		toJSON(asStrings) {
+			const obj = Object.create(null);
+			utils_default.forEach(this, (value, header) => {
+				value != null && value !== false && (obj[header] = asStrings && utils_default.isArray(value) ? value.join(", ") : value);
+			});
+			return obj;
+		}
+		[Symbol.iterator]() {
+			return Object.entries(this.toJSON())[Symbol.iterator]();
+		}
+		toString() {
+			return Object.entries(this.toJSON()).map(([header, value]) => header + ": " + value).join("\n");
+		}
+		getSetCookie() {
+			const value = this.get("set-cookie");
+			return utils_default.isArray(value) ? value : value == null || value === false ? [] : [value];
+		}
+		get [Symbol.toStringTag]() {
+			return "AxiosHeaders";
+		}
+		static from(thing) {
+			return thing instanceof this ? thing : new this(thing);
+		}
+		static parseParameters(value) {
+			return parseParameters(value);
+		}
+		static concat(first, ...targets) {
+			const computed = new this(first);
+			targets.forEach((target) => computed.set(target));
+			return computed;
+		}
+		static accessor(header) {
+			const accessors = (this[$internals$1] = this[$internals$1] = { accessors: {} }).accessors;
+			const prototype = this.prototype;
+			function defineAccessor(_header) {
+				const lHeader = normalizeHeader(_header);
+				if (!accessors[lHeader]) {
+					buildAccessors(prototype, _header);
+					accessors[lHeader] = true;
+				}
+			}
+			utils_default.isArray(header) ? header.forEach(defineAccessor) : defineAccessor(header);
+			return this;
+		}
+	};
+	AxiosHeaders.accessor([
+		"Content-Type",
+		"Content-Length",
+		"Accept",
+		"Accept-Encoding",
+		"User-Agent",
+		"Authorization"
+	]);
+	utils_default.reduceDescriptors(AxiosHeaders.prototype, ({ value }, key) => {
+		let mapped = key[0].toUpperCase() + key.slice(1);
+		return {
+			get: () => value,
+			set(headerValue) {
+				this[mapped] = headerValue;
+			}
+		};
+	});
+	utils_default.freezeMethods(AxiosHeaders);
+	//#endregion
+	//#region node_modules/axios/lib/core/AxiosError.js
+	var REDACTED = "[REDACTED ****]";
+	function hasOwnOrPrototypeToJSON(source) {
+		if (utils_default.hasOwnProp(source, "toJSON")) return true;
+		let prototype = Object.getPrototypeOf(source);
+		while (prototype && prototype !== Object.prototype) {
+			if (utils_default.hasOwnProp(prototype, "toJSON")) return true;
+			prototype = Object.getPrototypeOf(prototype);
+		}
+		return false;
+	}
+	function redactConfig(config, redactKeys) {
+		const lowerKeys = new Set(redactKeys.map((k) => String(k).toLowerCase()));
+		const seen = [];
+		const visit = (source) => {
+			if (source === null || typeof source !== "object") return source;
+			if (utils_default.isBuffer(source)) return source;
+			if (seen.indexOf(source) !== -1) return void 0;
+			if (source instanceof AxiosHeaders) source = source.toJSON();
+			seen.push(source);
+			let result;
+			if (utils_default.isArray(source)) {
+				result = [];
+				source.forEach((v, i) => {
+					const reducedValue = visit(v);
+					if (!utils_default.isUndefined(reducedValue)) result[i] = reducedValue;
+				});
+			} else {
+				if (!utils_default.isPlainObject(source) && hasOwnOrPrototypeToJSON(source)) {
+					seen.pop();
+					return source;
+				}
+				result = Object.create(null);
+				for (const [key, value] of Object.entries(source)) {
+					const reducedValue = lowerKeys.has(key.toLowerCase()) ? REDACTED : visit(value);
+					if (!utils_default.isUndefined(reducedValue)) result[key] = reducedValue;
+				}
+			}
+			seen.pop();
+			return result;
+		};
+		return visit(config);
+	}
+	function stringifySafely$1(value) {
+		try {
+			return String(value);
+		} catch (err) {
+			return "";
+		}
+	}
+	function aggregateErrorMessage(error) {
+		return error.errors.map((entry) => {
+			try {
+				return entry && entry.message ? stringifySafely$1(entry.message) : stringifySafely$1(entry);
+			} catch (err) {
+				return "";
+			}
+		}).filter(Boolean).join("; ") || error.name || "AggregateError";
+	}
+	var AxiosError = class AxiosError extends Error {
+		static from(error, code, config, request, response, customProps) {
+			let message = error.message;
+			if (!message && utils_default.isArray(error.errors) && error.errors.length) message = aggregateErrorMessage(error);
+			const axiosError = new AxiosError(message, code || error.code, config, request, response);
+			Object.defineProperty(axiosError, "cause", {
+				__proto__: null,
+				value: error,
+				writable: true,
+				enumerable: false,
+				configurable: true
+			});
+			axiosError.name = error.name;
+			if (error.status != null && axiosError.status == null) axiosError.status = error.status;
+			customProps && Object.assign(axiosError, customProps);
+			return axiosError;
+		}
+		/**
+		* Create an Error with the specified message, config, error code, request and response.
+		*
+		* @param {string} message The error message.
+		* @param {string} [code] The error code (for example, 'ECONNABORTED').
+		* @param {Object} [config] The config.
+		* @param {Object} [request] The request.
+		* @param {Object} [response] The response.
+		*
+		* @returns {Error} The created error.
+		*/
+		constructor(message, code, config, request, response) {
+			super(message);
+			Object.defineProperty(this, "message", {
+				__proto__: null,
+				value: message,
+				enumerable: true,
+				writable: true,
+				configurable: true
+			});
+			this.name = "AxiosError";
+			this.isAxiosError = true;
+			code && (this.code = code);
+			config && (this.config = config);
+			request && (this.request = request);
+			if (response) {
+				this.response = response;
+				this.status = response.status;
+			}
+		}
+		toJSON() {
+			const config = this.config;
+			const redactKeys = config && utils_default.hasOwnProp(config, "redact") ? config.redact : void 0;
+			const serializedConfig = utils_default.isArray(redactKeys) && redactKeys.length > 0 ? redactConfig(config, redactKeys) : utils_default.toJSONObject(config);
+			return {
+				message: this.message,
+				name: this.name,
+				description: this.description,
+				number: this.number,
+				fileName: this.fileName,
+				lineNumber: this.lineNumber,
+				columnNumber: this.columnNumber,
+				stack: this.stack,
+				config: serializedConfig,
+				code: this.code,
+				status: this.status
+			};
+		}
+	};
+	AxiosError.ERR_BAD_OPTION_VALUE = "ERR_BAD_OPTION_VALUE";
+	AxiosError.ERR_BAD_OPTION = "ERR_BAD_OPTION";
+	AxiosError.ECONNABORTED = "ECONNABORTED";
+	AxiosError.ETIMEDOUT = "ETIMEDOUT";
+	AxiosError.ECONNREFUSED = "ECONNREFUSED";
+	AxiosError.ERR_NETWORK = "ERR_NETWORK";
+	AxiosError.ERR_FR_TOO_MANY_REDIRECTS = "ERR_FR_TOO_MANY_REDIRECTS";
+	AxiosError.ERR_DEPRECATED = "ERR_DEPRECATED";
+	AxiosError.ERR_BAD_RESPONSE = "ERR_BAD_RESPONSE";
+	AxiosError.ERR_BAD_REQUEST = "ERR_BAD_REQUEST";
+	AxiosError.ERR_CANCELED = "ERR_CANCELED";
+	AxiosError.ERR_NOT_SUPPORT = "ERR_NOT_SUPPORT";
+	AxiosError.ERR_INVALID_URL = "ERR_INVALID_URL";
+	AxiosError.ERR_FORM_DATA_DEPTH_EXCEEDED = "ERR_FORM_DATA_DEPTH_EXCEEDED";
+	/**
+	* Determines if the given thing is a array or js object.
+	*
+	* @param {string} thing - The object or array to be visited.
+	*
+	* @returns {boolean}
+	*/
+	function isVisitable(thing) {
+		return utils_default.isPlainObject(thing) || utils_default.isArray(thing);
+	}
+	/**
+	* It removes the brackets from the end of a string
+	*
+	* @param {string} key - The key of the parameter.
+	*
+	* @returns {string} the key without the brackets.
+	*/
+	function removeBrackets(key) {
+		return utils_default.endsWith(key, "[]") ? key.slice(0, -2) : key;
+	}
+	/**
+	* It takes a path, a key, and a boolean, and returns a string
+	*
+	* @param {string} path - The path to the current key.
+	* @param {string} key - The key of the current object being iterated over.
+	* @param {string} dots - If true, the key will be rendered with dots instead of brackets.
+	*
+	* @returns {string} The path to the current key.
+	*/
+	function renderKey(path, key, dots) {
+		if (!path) return key;
+		return path.concat(key).map(function each(token, i) {
+			token = removeBrackets(token);
+			return !dots && i ? "[" + token + "]" : token;
+		}).join(dots ? "." : "");
+	}
+	/**
+	* If the array is an array and none of its elements are visitable, then it's a flat array.
+	*
+	* @param {Array<any>} arr - The array to check
+	*
+	* @returns {boolean}
+	*/
+	function isFlatArray(arr) {
+		return utils_default.isArray(arr) && !arr.some(isVisitable);
+	}
+	var predicates = utils_default.toFlatObject(utils_default, {}, null, function filter(prop) {
+		return /^is[A-Z]/.test(prop);
+	});
+	/**
+	* Convert a data object to FormData
+	*
+	* @param {Object} obj
+	* @param {?Object} [formData]
+	* @param {?Object} [options]
+	* @param {Function} [options.visitor]
+	* @param {Boolean} [options.metaTokens = true]
+	* @param {Boolean} [options.dots = false]
+	* @param {?Boolean} [options.indexes = false]
+	*
+	* @returns {Object}
+	**/
+	/**
+	* It converts an object into a FormData object
+	*
+	* @param {Object<any, any>} obj - The object to convert to form data.
+	* @param {string} formData - The FormData object to append to.
+	* @param {Object<string, any>} options
+	*
+	* @returns
+	*/
+	function toFormData(obj, formData, options) {
+		if (!utils_default.isObject(obj)) throw new TypeError("target must be an object");
+		formData = formData || new FormData();
+		const option = (name, fallback) => {
+			const value = utils_default.getSafeProp(options, name);
+			return utils_default.isUndefined(value) ? fallback : value;
+		};
+		const metaTokens = option("metaTokens", true);
+		const visitor = option("visitor") || defaultVisitor;
+		const dots = option("dots", false);
+		const indexes = option("indexes", false);
+		const _Blob = option("Blob") || typeof Blob !== "undefined" && Blob;
+		const maxDepth = option("maxDepth", 100);
+		const useBlob = _Blob && utils_default.isSpecCompliantForm(formData);
+		const stack = [];
+		if (!utils_default.isFunction(visitor)) throw new TypeError("visitor must be a function");
+		function convertValue(value) {
+			if (value === null) return "";
+			if (utils_default.isDate(value)) return value.toISOString();
+			if (utils_default.isBoolean(value)) return value.toString();
+			if (!useBlob && utils_default.isBlob(value)) throw new AxiosError("Blob is not supported. Use a Buffer instead.");
+			if (utils_default.isArrayBuffer(value) || utils_default.isTypedArray(value)) {
+				if (useBlob && typeof _Blob === "function") return new _Blob([value]);
+				throw new AxiosError("Blob is not supported. Use a Buffer instead.", AxiosError.ERR_NOT_SUPPORT);
+			}
+			return value;
+		}
+		function throwIfMaxDepthExceeded(depth) {
+			if (depth > maxDepth) throw new AxiosError("Object is too deeply nested (" + depth + " levels). Max depth: " + maxDepth, AxiosError.ERR_FORM_DATA_DEPTH_EXCEEDED);
+		}
+		function stringifyWithDepthLimit(value, depth) {
+			if (maxDepth === Infinity) return JSON.stringify(value);
+			const ancestors = [];
+			return JSON.stringify(value, function limitDepth(_key, currentValue) {
+				if (!utils_default.isObject(currentValue)) return currentValue;
+				while (ancestors.length && ancestors[ancestors.length - 1] !== this) ancestors.pop();
+				ancestors.push(currentValue);
+				throwIfMaxDepthExceeded(depth + ancestors.length - 1);
+				return currentValue;
+			});
+		}
+		/**
+		* Default visitor.
+		*
+		* @param {*} value
+		* @param {String|Number} key
+		* @param {Array<String|Number>} path
+		* @this {FormData}
+		*
+		* @returns {boolean} return true to visit the each prop of the value recursively
+		*/
+		function defaultVisitor(value, key, path) {
+			let arr = value;
+			if (utils_default.isReactNative(formData) && utils_default.isReactNativeBlob(value)) {
+				formData.append(renderKey(path, key, dots), convertValue(value));
+				return false;
+			}
+			if (value && !path && typeof value === "object") {
+				if (utils_default.endsWith(key, "{}")) {
+					key = metaTokens ? key : key.slice(0, -2);
+					value = stringifyWithDepthLimit(value, 1);
+				} else if (utils_default.isArray(value) && isFlatArray(value) || (utils_default.isFileList(value) || utils_default.endsWith(key, "[]")) && (arr = utils_default.toArray(value))) {
+					key = removeBrackets(key);
+					arr.forEach(function each(el, index) {
+						!(utils_default.isUndefined(el) || el === null) && formData.append(indexes === true ? renderKey([key], index, dots) : indexes === null ? key : key + "[]", convertValue(el));
+					});
+					return false;
+				}
+			}
+			if (isVisitable(value)) return true;
+			formData.append(renderKey(path, key, dots), convertValue(value));
+			return false;
+		}
+		const exposedHelpers = Object.assign(predicates, {
+			defaultVisitor,
+			convertValue,
+			isVisitable
+		});
+		function build(value, path, depth = 0) {
+			if (utils_default.isUndefined(value)) return;
+			throwIfMaxDepthExceeded(depth);
+			if (stack.indexOf(value) !== -1) throw new Error("Circular reference detected in " + path.join("."));
+			stack.push(value);
+			utils_default.forEach(value, function each(el, key) {
+				if ((!(utils_default.isUndefined(el) || el === null) && visitor.call(formData, el, utils_default.isString(key) ? key.trim() : key, path, exposedHelpers)) === true) build(el, path ? path.concat(key) : [key], depth + 1);
+			});
+			stack.pop();
+		}
+		if (!utils_default.isObject(obj)) throw new TypeError("data must be an object");
+		build(obj);
+		return formData;
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/AxiosURLSearchParams.js
+	/**
+	* It encodes a string by replacing all characters that are not in the unreserved set with
+	* their percent-encoded equivalents
+	*
+	* @param {string} str - The string to encode.
+	*
+	* @returns {string} The encoded string.
+	*/
+	function encode$1(str) {
+		const charMap = {
+			"!": "%21",
+			"'": "%27",
+			"(": "%28",
+			")": "%29",
+			"~": "%7E",
+			"%20": "+"
+		};
+		return encodeURIComponent(str).replace(/[!'()~]|%20/g, function replacer(match) {
+			return charMap[match];
+		});
+	}
+	/**
+	* It takes a params object and converts it to a FormData object
+	*
+	* @param {Object<string, any>} params - The parameters to be converted to a FormData object.
+	* @param {Object<string, any>} options - The options object passed to the Axios constructor.
+	*
+	* @returns {void}
+	*/
+	function AxiosURLSearchParams(params, options) {
+		this._pairs = [];
+		params && toFormData(params, this, options);
+	}
+	var prototype = AxiosURLSearchParams.prototype;
+	prototype.append = function append(name, value) {
+		this._pairs.push([name, value]);
+	};
+	prototype.toString = function toString(encoder) {
+		const _encode = encoder ? (value) => encoder.call(this, value, encode$1) : encode$1;
+		return this._pairs.map(function each(pair) {
+			return _encode(pair[0]) + "=" + _encode(pair[1]);
+		}, "").join("&");
+	};
+	//#endregion
+	//#region node_modules/axios/lib/helpers/buildURL.js
+	/**
+	* It replaces URL-encoded forms of `:`, `$`, `,`, and spaces with
+	* their plain counterparts (`:`, `$`, `,`, `+`).
+	*
+	* @param {string} val The value to be encoded.
+	*
+	* @returns {string} The encoded value.
+	*/
+	function encode(val) {
+		return encodeURIComponent(val).replace(/%3A/gi, ":").replace(/%24/g, "$").replace(/%2C/gi, ",").replace(/%20/g, "+");
+	}
+	/**
+	* Build a URL by appending params to the end
+	*
+	* @param {string} url The base of the url (e.g., http://www.google.com)
+	* @param {object} [params] The params to be appended
+	* @param {?(object|Function)} options
+	*
+	* @returns {string} The formatted url
+	*/
+	function buildURL(url, params, options) {
+		if (!params) return url;
+		url = url || "";
+		const _options = utils_default.isFunction(options) ? { serialize: options } : options;
+		const _encode = utils_default.getSafeProp(_options, "encode") || encode;
+		const serializeFn = utils_default.getSafeProp(_options, "serialize");
+		let serializedParams;
+		if (serializeFn) serializedParams = serializeFn(params, _options);
+		else serializedParams = utils_default.isURLSearchParams(params) ? params.toString() : new AxiosURLSearchParams(params, _options).toString(_encode);
+		if (serializedParams) {
+			const hashmarkIndex = url.indexOf("#");
+			if (hashmarkIndex !== -1) url = url.slice(0, hashmarkIndex);
+			url += (url.indexOf("?") === -1 ? "?" : "&") + serializedParams;
+		}
+		return url;
+	}
+	//#endregion
+	//#region node_modules/axios/lib/core/InterceptorManager.js
+	var $internals = Symbol("internals");
+	function countHandlers(handlers) {
+		return handlers ? handlers.length : 0;
+	}
+	function trimHandlers(handlers) {
+		if (!handlers) return;
+		while (handlers.length && handlers[handlers.length - 1] === null) handlers.pop();
+	}
+	function syncHandlerEntries(manager, internals) {
+		const handlers = manager.handlers;
+		const length = countHandlers(handlers);
+		if (handlers !== internals.handlersRef) {
+			internals.handlersRef = handlers;
+			internals.handlerEntries.clear();
+		} else if (length !== internals.handlersLength) {
+			if (!length) internals.handlerEntries.clear();
+			else internals.handlerEntries.forEach(function removeStaleEntry(entry, id) {
+				if (handlers[entry.index] !== entry.handler) internals.handlerEntries.delete(id);
+			});
+		}
+		internals.handlersLength = length;
+	}
+	var InterceptorManager = class {
+		constructor() {
+			this.handlers = [];
+			this[$internals] = {
+				handlersRef: this.handlers,
+				handlersLength: this.handlers.length,
+				handlerEntries: /* @__PURE__ */ new Map(),
+				iterationDepth: 0,
+				nextId: 0
+			};
+		}
+		/**
+		* Add a new interceptor to the stack
+		*
+		* @param {Function} fulfilled The function to handle `then` for a `Promise`
+		* @param {Function} rejected The function to handle `reject` for a `Promise`
+		* @param {Object} options The options for the interceptor, synchronous and runWhen
+		*
+		* @return {Number} An ID used to remove interceptor later
+		*/
+		use(fulfilled, rejected, options) {
+			const handler = {
+				fulfilled,
+				rejected,
+				synchronous: options ? options.synchronous : false,
+				runWhen: options ? options.runWhen : null
+			};
+			const internals = this[$internals];
+			if (this.handlers == null) this.handlers = [];
+			syncHandlerEntries(this, internals);
+			const id = internals.nextId++;
+			this.handlers.push(handler);
+			internals.handlerEntries.set(id, {
+				handler,
+				index: this.handlers.length - 1
+			});
+			internals.handlersLength = this.handlers.length;
+			return id;
+		}
+		/**
+		* Remove an interceptor from the stack
+		*
+		* @param {Number} id The ID that was returned by `use`
+		*
+		* @returns {void}
+		*/
+		eject(id) {
+			const internals = this[$internals];
+			syncHandlerEntries(this, internals);
+			const entry = internals.handlerEntries.get(id);
+			if (entry) {
+				internals.handlerEntries.delete(id);
+				if (this.handlers[entry.index] !== entry.handler) return;
+				this.handlers[entry.index] = null;
+				if (!internals.iterationDepth) {
+					trimHandlers(this.handlers);
+					internals.handlersLength = this.handlers.length;
+				}
+			}
+		}
+		/**
+		* Clear all interceptors from the stack
+		*
+		* @returns {void}
+		*/
+		clear() {
+			if (this.handlers) {
+				this.handlers = [];
+				syncHandlerEntries(this, this[$internals]);
+			}
+		}
+		/**
+		* Iterate over all the registered interceptors
+		*
+		* This method is particularly useful for skipping over any
+		* interceptors that may have become `null` calling `eject`.
+		*
+		* @param {Function} fn The function to call for each interceptor
+		*
+		* @returns {void}
+		*/
+		forEach(fn) {
+			const internals = this[$internals];
+			syncHandlerEntries(this, internals);
+			internals.iterationDepth++;
+			try {
+				utils_default.forEach(this.handlers, function forEachHandler(h) {
+					if (h !== null) fn(h);
+				});
+			} finally {
+				if (!--internals.iterationDepth) {
+					syncHandlerEntries(this, internals);
+					trimHandlers(this.handlers);
+					internals.handlersLength = countHandlers(this.handlers);
+				}
+			}
+		}
+	};
+	//#endregion
+	//#region node_modules/axios/lib/defaults/transitional.js
+	var transitional_default = {
+		silentJSONParsing: true,
+		forcedJSONParsing: true,
+		clarifyTimeoutError: false,
+		legacyInterceptorReqResOrdering: true,
+		advertiseZstdAcceptEncoding: false,
+		validateStatusUndefinedResolves: true
+	};
+	//#endregion
+	//#region node_modules/axios/lib/platform/browser/index.js
+	var browser_default = {
+		isBrowser: true,
+		classes: {
+			URLSearchParams: typeof URLSearchParams !== "undefined" ? URLSearchParams : AxiosURLSearchParams,
+			FormData: typeof FormData !== "undefined" ? FormData : null,
+			Blob: typeof Blob !== "undefined" ? Blob : null
+		},
+		protocols: [
+			"http",
+			"https",
+			"file",
+			"blob",
+			"url",
+			"data"
+		]
+	};
+	//#endregion
+	//#region node_modules/axios/lib/platform/common/utils.js
+	var utils_exports = /* @__PURE__ */ __exportAll({
+		hasBrowserEnv: () => hasBrowserEnv,
+		hasStandardBrowserEnv: () => hasStandardBrowserEnv,
+		hasStandardBrowserWebWorkerEnv: () => hasStandardBrowserWebWorkerEnv,
+		navigator: () => _navigator,
+		origin: () => origin
+	});
+	var hasBrowserEnv = typeof window !== "undefined" && typeof document !== "undefined";
+	var _navigator = typeof navigator === "object" && navigator || void 0;
+	/**
+	* Determine if we're running in a standard browser environment
+	*
+	* This allows axios to run in a web worker, and react-native.
+	* Both environments support XMLHttpRequest, but not fully standard globals.
+	*
+	* web workers:
+	*  typeof window -> undefined
+	*  typeof document -> undefined
+	*
+	* react-native:
+	*  navigator.product -> 'ReactNative'
+	* nativescript
+	*  navigator.product -> 'NativeScript' or 'NS'
+	*
+	* @returns {boolean}
+	*/
+	var hasStandardBrowserEnv = hasBrowserEnv && (!_navigator || [
+		"ReactNative",
+		"NativeScript",
+		"NS"
+	].indexOf(_navigator.product) < 0);
+	/**
+	* Determine if we're running in a standard browser webWorker environment
+	*
+	* Although the `isStandardBrowserEnv` method indicates that
+	* `allows axios to run in a web worker`, the WebWorker will still be
+	* filtered out due to its judgment standard
+	* `typeof window !== 'undefined' && typeof document !== 'undefined'`.
+	* This leads to a problem when axios post `FormData` in webWorker
+	*/
+	var hasStandardBrowserWebWorkerEnv = (() => {
+		return typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope && typeof self.importScripts === "function";
+	})();
+	var origin = hasBrowserEnv && window.location.href || "http://localhost";
+	//#endregion
+	//#region node_modules/axios/lib/platform/index.js
+	var platform_default = {
+		...utils_exports,
+		...browser_default
+	};
+	//#endregion
+	//#region node_modules/axios/lib/helpers/toURLEncodedForm.js
+	function toURLEncodedForm(data, options) {
+		return toFormData(data, new platform_default.classes.URLSearchParams(), {
+			visitor: function(value, key, path, helpers) {
+				if (platform_default.isNode && utils_default.isBuffer(value)) {
+					this.append(key, value.toString("base64"));
+					return false;
+				}
+				return helpers.defaultVisitor.apply(this, arguments);
+			},
+			...options
+		});
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/formDataToJSON.js
+	var MAX_DEPTH = 100;
+	function throwIfDepthExceeded(index) {
+		if (index > MAX_DEPTH) throw new AxiosError("FormData field is too deeply nested (" + index + " levels). Max depth: " + MAX_DEPTH, AxiosError.ERR_FORM_DATA_DEPTH_EXCEEDED);
+	}
+	/**
+	* It takes a string like `foo[x][y][z]` and returns an array like `['foo', 'x', 'y', 'z']
+	*
+	* @param {string} name - The name of the property to get.
+	*
+	* @returns An array of strings.
+	*/
+	function parsePropPath(name) {
+		const path = [];
+		const pattern = /[^.[\]]+|\[([^.[\]]*)]/g;
+		let match;
+		while ((match = pattern.exec(name)) !== null) {
+			throwIfDepthExceeded(path.length);
+			path.push(match[0] === "[]" ? "" : match[1] || match[0]);
+		}
+		return path;
+	}
+	/**
+	* Convert an array to an object.
+	*
+	* @param {Array<any>} arr - The array to convert to an object.
+	*
+	* @returns An object with the same keys and values as the array.
+	*/
+	function arrayToObject(arr) {
+		const obj = {};
+		const keys = Object.keys(arr);
+		let i;
+		const len = keys.length;
+		let key;
+		for (i = 0; i < len; i++) {
+			key = keys[i];
+			obj[key] = arr[key];
+		}
+		return obj;
+	}
+	/**
+	* It takes a FormData object and returns a JavaScript object
+	*
+	* @param {string} formData The FormData object to convert to JSON.
+	*
+	* @returns {Object<string, any> | null} The converted object.
+	*/
+	function formDataToJSON(formData) {
+		function buildPath(path, value, target, index) {
+			throwIfDepthExceeded(index);
+			let name = path[index++];
+			if (name === "__proto__") return true;
+			const isNumericKey = Number.isFinite(+name);
+			const isLast = index >= path.length;
+			name = !name && utils_default.isArray(target) ? target.length : name;
+			if (isLast) {
+				if (utils_default.hasOwnProp(target, name)) target[name] = utils_default.isArray(target[name]) ? target[name].concat(value) : [target[name], value];
+				else target[name] = value;
+				return !isNumericKey;
+			}
+			if (!utils_default.hasOwnProp(target, name) || !utils_default.isObject(target[name])) target[name] = [];
+			if (buildPath(path, value, target[name], index) && utils_default.isArray(target[name])) target[name] = arrayToObject(target[name]);
+			return !isNumericKey;
+		}
+		if (utils_default.isFormData(formData) && utils_default.isFunction(formData.entries)) {
+			const obj = {};
+			utils_default.forEachEntry(formData, (name, value) => {
+				buildPath(parsePropPath(name), value, obj, 0);
+			});
+			return obj;
+		}
+		return null;
+	}
+	//#endregion
+	//#region node_modules/axios/lib/core/methodList.js
+	var methodList = Object.freeze([
+		"get",
+		"delete",
+		"head",
+		"options",
+		"post",
+		"put",
+		"patch",
+		"purge",
+		"link",
+		"unlink",
+		"query"
+	]);
+	//#endregion
+	//#region node_modules/axios/lib/defaults/index.js
+	var own = (obj, key) => obj != null && utils_default.hasOwnProp(obj, key) ? obj[key] : void 0;
+	/**
+	* It takes a string, tries to parse it, and if it fails, it returns the stringified version
+	* of the input
+	*
+	* @param {any} rawValue - The value to be stringified.
+	* @param {Function} parser - A function that parses a string into a JavaScript object.
+	* @param {Function} encoder - A function that takes a value and returns a string.
+	*
+	* @returns {string} A stringified version of the rawValue.
+	*/
+	function stringifySafely(rawValue, parser, encoder) {
+		if (utils_default.isString(rawValue)) try {
+			(parser || JSON.parse)(rawValue);
+			return utils_default.trim(rawValue);
+		} catch (e) {
+			if (e.name !== "SyntaxError") throw e;
+		}
+		return (encoder || JSON.stringify)(rawValue);
+	}
+	var defaults = {
+		transitional: transitional_default,
+		adapter: [
+			"xhr",
+			"http",
+			"fetch"
+		],
+		transformRequest: [function transformRequest(data, headers) {
+			const contentType = headers.getContentType() || "";
+			const hasJSONContentType = contentType.indexOf("application/json") > -1;
+			const isObjectPayload = utils_default.isObject(data);
+			if (isObjectPayload && utils_default.isHTMLForm(data)) data = new FormData(data);
+			if (utils_default.isFormData(data)) return hasJSONContentType ? JSON.stringify(formDataToJSON(data)) : data;
+			if (utils_default.isArrayBuffer(data) || utils_default.isBuffer(data) || utils_default.isStream(data) || utils_default.isFile(data) || utils_default.isBlob(data) || utils_default.isReadableStream(data)) return data;
+			if (utils_default.isArrayBufferView(data)) return data.buffer;
+			if (utils_default.isURLSearchParams(data)) {
+				headers.setContentType("application/x-www-form-urlencoded;charset=utf-8", false);
+				return data.toString();
+			}
+			let isFileList;
+			if (isObjectPayload) {
+				const formSerializer = own(this, "formSerializer");
+				if (contentType.indexOf("application/x-www-form-urlencoded") > -1) return toURLEncodedForm(data, formSerializer).toString();
+				if ((isFileList = utils_default.isFileList(data)) || contentType.indexOf("multipart/form-data") > -1) {
+					const env = own(this, "env");
+					const _FormData = env && env.FormData;
+					return toFormData(isFileList ? { "files[]": data } : data, _FormData && new _FormData(), formSerializer);
+				}
+			}
+			if (isObjectPayload || hasJSONContentType) {
+				headers.setContentType("application/json", false);
+				return stringifySafely(data);
+			}
+			return data;
+		}],
+		transformResponse: [function transformResponse(data) {
+			const transitional = own(this, "transitional") || defaults.transitional;
+			const forcedJSONParsing = transitional && transitional.forcedJSONParsing;
+			const responseType = own(this, "responseType");
+			const JSONRequested = responseType === "json";
+			if (utils_default.isResponse(data) || utils_default.isReadableStream(data)) return data;
+			if (data && utils_default.isString(data) && (forcedJSONParsing && !responseType || JSONRequested)) {
+				const strictJSONParsing = !(transitional && transitional.silentJSONParsing) && JSONRequested;
+				try {
+					return JSON.parse(data, own(this, "parseReviver"));
+				} catch (e) {
+					if (strictJSONParsing) {
+						if (e.name === "SyntaxError") throw AxiosError.from(e, AxiosError.ERR_BAD_RESPONSE, this, null, own(this, "response"));
+						throw e;
+					}
+				}
+			}
+			return data;
+		}],
+		/**
+		* A timeout in milliseconds to abort a request. If set to 0 (default) a
+		* timeout is not created.
+		*/
+		timeout: 0,
+		xsrfCookieName: "XSRF-TOKEN",
+		xsrfHeaderName: "X-XSRF-TOKEN",
+		maxContentLength: -1,
+		maxBodyLength: -1,
+		env: {
+			FormData: platform_default.classes.FormData,
+			Blob: platform_default.classes.Blob
+		},
+		validateStatus: function validateStatus(status) {
+			return status >= 200 && status < 300;
+		},
+		headers: { common: {
+			Accept: "application/json, text/plain, */*",
+			"Content-Type": void 0
+		} }
+	};
+	utils_default.forEach(methodList, (method) => {
+		defaults.headers[method] = {};
+	});
+	//#endregion
+	//#region node_modules/axios/lib/core/transformData.js
+	/**
+	* Transform the data for a request or a response
+	*
+	* @param {Array|Function} fns A single function or Array of functions
+	* @param {?Object} response The response object
+	*
+	* @returns {*} The resulting transformed data
+	*/
+	function transformData(fns, response) {
+		const config = this || defaults;
+		const context = response || config;
+		const headers = AxiosHeaders.from(context.headers);
+		let data = context.data;
+		utils_default.forEach(fns, function transform(fn) {
+			data = fn.call(config, data, headers.normalize(), response ? response.status : void 0);
+		});
+		headers.normalize();
+		return data;
+	}
+	//#endregion
+	//#region node_modules/axios/lib/cancel/isCancel.js
+	function isCancel(value) {
+		return !!(value && value.__CANCEL__);
+	}
+	//#endregion
+	//#region node_modules/axios/lib/cancel/CanceledError.js
+	var CanceledError = class extends AxiosError {
+		/**
+		* A `CanceledError` is an object that is thrown when an operation is canceled.
+		*
+		* @param {string=} message The message.
+		* @param {Object=} config The config.
+		* @param {Object=} request The request.
+		*
+		* @returns {CanceledError} The created error.
+		*/
+		constructor(message, config, request) {
+			super(message == null ? "canceled" : message, AxiosError.ERR_CANCELED, config, request);
+			this.name = "CanceledError";
+			this.__CANCEL__ = true;
+		}
+	};
+	//#endregion
+	//#region node_modules/axios/lib/core/settle.js
+	/**
+	* Resolve or reject a Promise based on response status.
+	*
+	* @param {Function} resolve A function that resolves the promise.
+	* @param {Function} reject A function that rejects the promise.
+	* @param {object} response The response.
+	*
+	* @returns {object} The response.
+	*/
+	function settle(resolve, reject, response) {
+		const validateStatus = response.config.validateStatus;
+		if (!response.status || !validateStatus || validateStatus(response.status)) resolve(response);
+		else reject(new AxiosError("Request failed with status code " + response.status, response.status >= 400 && response.status < 500 ? AxiosError.ERR_BAD_REQUEST : AxiosError.ERR_BAD_RESPONSE, response.config, response.request, response));
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/normalizeURLForProtocolCheck.js
+	var urlParserControlCharacters = /[\t\n\r]/g;
+	/**
+	* Match WHATWG URL preprocessing before checking a URL's protocol.
+	*
+	* @param {string} url
+	*
+	* @returns {string}
+	*/
+	function normalizeURLForProtocolCheck(url) {
+		if (typeof url !== "string") return url;
+		let start = 0;
+		while (start < url.length && url.charCodeAt(start) <= 32) start++;
+		return url.slice(start).replace(urlParserControlCharacters, "");
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/parseProtocol.js
+	function parseProtocol(url) {
+		const match = /^([-+\w]{1,25}):(?:\/\/)?/.exec(url);
+		return match && match[1] || "";
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/speedometer.js
+	/**
+	* Calculate data maxRate
+	* @param {Number} [samplesCount= 10]
+	* @param {Number} [min= 1000]
+	* @returns {Function}
+	*/
+	function speedometer(samplesCount, min) {
+		samplesCount = samplesCount || 10;
+		const bytes = new Array(samplesCount);
+		const timestamps = new Array(samplesCount);
+		let head = 0;
+		let tail = 0;
+		let firstSampleTS;
+		min = min !== void 0 ? min : 1e3;
+		return function push(chunkLength) {
+			const now = Date.now();
+			const startedAt = timestamps[tail];
+			if (!firstSampleTS) firstSampleTS = now;
+			bytes[head] = chunkLength;
+			timestamps[head] = now;
+			let i = tail;
+			let bytesCount = 0;
+			while (i !== head) {
+				bytesCount += bytes[i++];
+				i = i % samplesCount;
+			}
+			head = (head + 1) % samplesCount;
+			if (head === tail) tail = (tail + 1) % samplesCount;
+			if (now - firstSampleTS < min) return;
+			const passed = startedAt && now - startedAt;
+			return passed ? Math.round(bytesCount * 1e3 / passed) : void 0;
+		};
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/throttle.js
+	/**
+	* Throttle decorator
+	* @param {Function} fn
+	* @param {Number} freq
+	* @return {Array<Function>}
+	*/
+	function throttle(fn, freq) {
+		let timestamp = 0;
+		let threshold = 1e3 / freq;
+		let lastArgs;
+		let timer;
+		const invoke = (args, now = Date.now()) => {
+			timestamp = now;
+			lastArgs = null;
+			if (timer) {
+				clearTimeout(timer);
+				timer = null;
+			}
+			fn(...args);
+		};
+		const throttled = (...args) => {
+			const now = Date.now();
+			const passed = now - timestamp;
+			if (passed >= threshold) invoke(args, now);
+			else {
+				lastArgs = args;
+				if (!timer) timer = setTimeout(() => {
+					timer = null;
+					invoke(lastArgs);
+				}, threshold - passed);
+			}
+		};
+		const flush = () => lastArgs && invoke(lastArgs);
+		const flushWith = (...args) => invoke(args);
+		return [
+			throttled,
+			flush,
+			flushWith
+		];
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/progressEventReducer.js
+	var progressEventReducer = (listener, isDownloadStream, freq = 3) => {
+		let bytesNotified = 0;
+		const _speedometer = speedometer(50, 250);
+		return throttle((e) => {
+			if (!e || !utils_default.isNumber(e.loaded)) return;
+			const rawLoaded = e.loaded;
+			const total = e.lengthComputable ? e.total : void 0;
+			const loaded = Math.max(0, total != null ? Math.min(rawLoaded, total) : rawLoaded);
+			const progressBytes = Math.max(0, loaded - bytesNotified);
+			const rate = _speedometer(progressBytes);
+			bytesNotified = Math.max(bytesNotified, loaded);
+			listener({
+				loaded,
+				total,
+				progress: total ? loaded / total : void 0,
+				bytes: progressBytes,
+				rate: rate ? rate : void 0,
+				estimated: rate && total ? (total - loaded) / rate : void 0,
+				event: e,
+				lengthComputable: total != null,
+				[isDownloadStream ? "download" : "upload"]: true
+			});
+		}, freq);
+	};
+	var progressEventDecorator = (total, throttled) => {
+		const lengthComputable = total != null;
+		return [(loaded) => throttled[0]({
+			lengthComputable,
+			total,
+			loaded
+		}), throttled[1]];
+	};
+	var asyncDecorator = (fn, scheduler = utils_default.asap) => (...args) => scheduler(() => fn(...args));
+	//#endregion
+	//#region node_modules/axios/lib/helpers/isURLSameOrigin.js
+	var isURLSameOrigin_default = platform_default.hasStandardBrowserEnv ? ((origin, isMSIE) => (url) => {
+		url = new URL(url, platform_default.origin);
+		return origin.protocol === url.protocol && origin.host === url.host && (isMSIE || origin.port === url.port);
+	})(new URL(platform_default.origin), platform_default.navigator && /(msie|trident)/i.test(platform_default.navigator.userAgent)) : () => true;
+	//#endregion
+	//#region node_modules/axios/lib/helpers/cookies.js
+	var cookies_default = platform_default.hasStandardBrowserEnv ? {
+		write(name, value, expires, path, domain, secure, sameSite) {
+			if (typeof document === "undefined") return;
+			const cookie = [`${name}=${encodeURIComponent(value)}`];
+			if (utils_default.isNumber(expires)) cookie.push(`expires=${new Date(expires).toUTCString()}`);
+			if (utils_default.isString(path)) cookie.push(`path=${path}`);
+			if (utils_default.isString(domain)) cookie.push(`domain=${domain}`);
+			if (secure === true) cookie.push("secure");
+			if (utils_default.isString(sameSite)) cookie.push(`SameSite=${sameSite}`);
+			document.cookie = cookie.join("; ");
+		},
+		read(name) {
+			if (typeof document === "undefined") return null;
+			const cookies = document.cookie.split(";");
+			for (let i = 0; i < cookies.length; i++) {
+				const cookie = cookies[i].replace(/^\s+/, "");
+				const eq = cookie.indexOf("=");
+				if (eq !== -1 && cookie.slice(0, eq) === name) try {
+					return decodeURIComponent(cookie.slice(eq + 1));
+				} catch (e) {
+					return cookie.slice(eq + 1);
+				}
+			}
+			return null;
+		},
+		remove(name) {
+			this.write(name, "", Date.now() - 864e5, "/");
+		}
+	} : {
+		write() {},
+		read() {
+			return null;
+		},
+		remove() {}
+	};
+	//#endregion
+	//#region node_modules/axios/lib/helpers/isAbsoluteURL.js
+	/**
+	* Determines whether the specified URL is absolute
+	*
+	* @param {string} url The URL to test
+	*
+	* @returns {boolean} True if the specified URL is absolute, otherwise false
+	*/
+	function isAbsoluteURL(url) {
+		if (typeof url !== "string") return false;
+		return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url);
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/combineURLs.js
+	/**
+	* Creates a new URL by combining the specified URLs
+	*
+	* @param {string} baseURL The base URL
+	* @param {string} relativeURL The relative URL
+	*
+	* @returns {string} The combined URL
+	*/
+	function combineURLs(baseURL, relativeURL) {
+		if (!relativeURL) return baseURL;
+		let end = baseURL.length;
+		while (end > 0 && baseURL.charCodeAt(end - 1) === 47) end--;
+		return baseURL.slice(0, end) + "/" + relativeURL.replace(/^\/+/, "");
+	}
+	//#endregion
+	//#region node_modules/axios/lib/core/buildFullPath.js
+	var malformedHttpProtocol = /^https?:(?!\/\/)/i;
+	function redactFragment(fragment) {
+		if (!fragment) return fragment;
+		return fragment.replace(/(^|&)([^=&]*=)?[^&]+/g, (match, separator, parameterName = "") => {
+			return `${separator}${parameterName}${REDACTED}`;
+		});
+	}
+	function redactSensitiveURLParts(url) {
+		const redactedURL = url.replace(/^(https?:\/{0,2})[^/?#]*@/i, `$1${REDACTED}@`);
+		const fragmentIndex = redactedURL.indexOf("#");
+		const redactedURLWithoutFragment = (fragmentIndex === -1 ? redactedURL : redactedURL.slice(0, fragmentIndex)).replace(/([?&][^=&#]*=)[^&#]*/g, `$1${REDACTED}`);
+		if (fragmentIndex === -1) return redactedURLWithoutFragment;
+		return `${redactedURLWithoutFragment}#${redactFragment(redactedURL.slice(fragmentIndex + 1))}`;
+	}
+	function assertValidHttpProtocolURL(url, config) {
+		if (typeof url === "string") {
+			const normalizedURL = normalizeURLForProtocolCheck(url);
+			if (malformedHttpProtocol.test(normalizedURL)) throw new AxiosError(`Invalid URL ${JSON.stringify(redactSensitiveURLParts(normalizedURL))}: missing "//" after protocol`, AxiosError.ERR_INVALID_URL, config);
+		}
+	}
+	/**
+	* Creates a new URL by combining the baseURL with the requestedURL,
+	* only when the requestedURL is not already an absolute URL.
+	* If the requestURL is absolute, this function returns the requestedURL untouched.
+	*
+	* @param {string} baseURL The base URL
+	* @param {string} requestedURL Absolute or relative URL to combine
+	*
+	* @returns {string} The combined full path
+	*/
+	function buildFullPath(baseURL, requestedURL, allowAbsoluteUrls, config) {
+		assertValidHttpProtocolURL(requestedURL, config);
+		let isRelativeUrl = !isAbsoluteURL(requestedURL);
+		if (baseURL && (isRelativeUrl || allowAbsoluteUrls === false)) {
+			assertValidHttpProtocolURL(baseURL, config);
+			return combineURLs(baseURL, requestedURL);
+		}
+		return requestedURL;
+	}
+	//#endregion
+	//#region node_modules/axios/lib/core/mergeConfig.js
+	var headersToObject = (thing) => thing instanceof AxiosHeaders ? { ...thing } : thing;
+	var ownEnumerableKeys = (thing) => {
+		if (Object.getOwnPropertySymbols && Object.getOwnPropertyDescriptor) return Object.keys(thing).concat(Object.getOwnPropertySymbols(thing).filter((symbol) => Object.getOwnPropertyDescriptor(thing, symbol).enumerable));
+		return Object.keys(thing);
+	};
+	/**
+	* Config-specific merge-function which creates a new config-object
+	* by merging two configuration objects together.
+	*
+	* @param {Object} config1
+	* @param {Object} config2
+	*
+	* @returns {Object} New object resulting from merging config2 to config1
+	*/
+	function mergeConfig(config1, config2) {
+		config1 = config1 || {};
+		config2 = config2 || {};
+		const config = Object.create(null);
+		Object.defineProperty(config, "hasOwnProperty", {
+			__proto__: null,
+			value: Object.prototype.hasOwnProperty,
+			enumerable: false,
+			writable: true,
+			configurable: true
+		});
+		function getMergedValue(target, source, prop, caseless) {
+			if (utils_default.isPlainObject(target) && utils_default.isPlainObject(source)) return utils_default.merge.call({ caseless }, target, source);
+			else if (utils_default.isPlainObject(source)) return utils_default.merge({}, source);
+			else if (utils_default.isArray(source)) return source.slice();
+			return source;
+		}
+		function mergeDeepProperties(a, b, prop, caseless) {
+			if (!utils_default.isUndefined(b)) return getMergedValue(a, b, prop, caseless);
+			else if (!utils_default.isUndefined(a)) return getMergedValue(void 0, a, prop, caseless);
+		}
+		function valueFromConfig2(a, b) {
+			if (!utils_default.isUndefined(b)) return getMergedValue(void 0, b);
+		}
+		function defaultToConfig2(a, b) {
+			if (!utils_default.isUndefined(b)) return getMergedValue(void 0, b);
+			else if (!utils_default.isUndefined(a)) return getMergedValue(void 0, a);
+		}
+		function getMergedTransitionalOption(prop) {
+			const transitional2 = utils_default.hasOwnProp(config2, "transitional") ? config2.transitional : void 0;
+			if (!utils_default.isUndefined(transitional2)) {
+				if (utils_default.isPlainObject(transitional2)) {
+					if (utils_default.hasOwnProp(transitional2, prop)) return transitional2[prop];
+				} else return;
+			}
+			const transitional1 = utils_default.hasOwnProp(config1, "transitional") ? config1.transitional : void 0;
+			if (utils_default.isPlainObject(transitional1) && utils_default.hasOwnProp(transitional1, prop)) return transitional1[prop];
+		}
+		function mergeDirectKeys(a, b, prop) {
+			if (utils_default.hasOwnProp(config2, prop)) return getMergedValue(a, b);
+			else if (utils_default.hasOwnProp(config1, prop)) return getMergedValue(void 0, a);
+		}
+		const mergeMap = {
+			url: valueFromConfig2,
+			method: valueFromConfig2,
+			data: valueFromConfig2,
+			baseURL: defaultToConfig2,
+			transformRequest: defaultToConfig2,
+			transformResponse: defaultToConfig2,
+			paramsSerializer: defaultToConfig2,
+			timeout: defaultToConfig2,
+			timeoutErrorMessage: defaultToConfig2,
+			withCredentials: defaultToConfig2,
+			withXSRFToken: defaultToConfig2,
+			adapter: defaultToConfig2,
+			responseType: defaultToConfig2,
+			xsrfCookieName: defaultToConfig2,
+			xsrfHeaderName: defaultToConfig2,
+			onUploadProgress: defaultToConfig2,
+			onDownloadProgress: defaultToConfig2,
+			decompress: defaultToConfig2,
+			maxContentLength: defaultToConfig2,
+			maxBodyLength: defaultToConfig2,
+			beforeRedirect: defaultToConfig2,
+			transport: defaultToConfig2,
+			httpAgent: defaultToConfig2,
+			httpsAgent: defaultToConfig2,
+			cancelToken: defaultToConfig2,
+			socketPath: defaultToConfig2,
+			allowedSocketPaths: defaultToConfig2,
+			responseEncoding: defaultToConfig2,
+			validateStatus: mergeDirectKeys,
+			headers: (a, b, prop) => mergeDeepProperties(headersToObject(a), headersToObject(b), prop, true)
+		};
+		utils_default.forEach(ownEnumerableKeys({
+			...config1,
+			...config2
+		}), function computeConfigValue(prop) {
+			if (prop === "__proto__" || prop === "constructor" || prop === "prototype") return;
+			const merge = utils_default.hasOwnProp(mergeMap, prop) ? mergeMap[prop] : mergeDeepProperties;
+			const configValue = merge(utils_default.hasOwnProp(config1, prop) ? config1[prop] : void 0, utils_default.hasOwnProp(config2, prop) ? config2[prop] : void 0, prop);
+			utils_default.isUndefined(configValue) && merge !== mergeDirectKeys || (config[prop] = configValue);
+		});
+		if (utils_default.hasOwnProp(config2, "validateStatus") && utils_default.isUndefined(config2.validateStatus) && getMergedTransitionalOption("validateStatusUndefinedResolves") === false) {
+			if (utils_default.hasOwnProp(config1, "validateStatus")) config.validateStatus = getMergedValue(void 0, config1.validateStatus);
+			else delete config.validateStatus;
+		}
+		return config;
+	}
+	//#endregion
+	//#region node_modules/axios/lib/core/setFormDataHeaders.js
+	var FORM_DATA_CONTENT_HEADERS = ["content-type", "content-length"];
+	/**
+	* Apply the headers generated by a FormData implementation to the request headers,
+	* honoring the `formDataHeaderPolicy` option: with 'content-only', copy only the
+	* content-* headers; otherwise merge all of them.
+	*
+	* @param {AxiosHeaders} headers - the request headers to mutate
+	* @param {Object | null | undefined} formHeaders - headers produced by the FormData implementation
+	* @param {String} [policy] - the resolved `formDataHeaderPolicy` config value
+	*
+	* @returns {void}
+	*/
+	function setFormDataHeaders(headers, formHeaders, policy) {
+		if (policy !== "content-only") {
+			headers.set(formHeaders);
+			return;
+		}
+		Object.entries(formHeaders || {}).forEach(([key, val]) => {
+			if (FORM_DATA_CONTENT_HEADERS.includes(key.toLowerCase())) headers.set(key, val);
+		});
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/resolveConfig.js
+	/**
+	* Encode a UTF-8 string to a Latin-1 byte string for use with btoa().
+	* This is a modern replacement for the deprecated unescape(encodeURIComponent(str)) pattern.
+	*
+	* @param {string} str The string to encode
+	*
+	* @returns {string} UTF-8 bytes as a Latin-1 string
+	*/
+	var encodeUTF8$1 = (str) => encodeURIComponent(str).replace(/%([0-9A-F]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+	function resolveConfig(config) {
+		const newConfig = mergeConfig({}, config);
+		const own = (key) => utils_default.hasOwnProp(newConfig, key) ? newConfig[key] : void 0;
+		const data = own("data");
+		let withXSRFToken = own("withXSRFToken");
+		const xsrfHeaderName = own("xsrfHeaderName");
+		const xsrfCookieName = own("xsrfCookieName");
+		let headers = own("headers");
+		const auth = own("auth");
+		const baseURL = own("baseURL");
+		const allowAbsoluteUrls = own("allowAbsoluteUrls");
+		const url = own("url");
+		newConfig.headers = headers = AxiosHeaders.from(headers);
+		newConfig.url = buildURL(buildFullPath(baseURL, url, allowAbsoluteUrls, newConfig), own("params"), own("paramsSerializer"));
+		if (auth) {
+			const username = utils_default.getSafeProp(auth, "username") || "";
+			const password = utils_default.getSafeProp(auth, "password") || "";
+			try {
+				headers.set("Authorization", "Basic " + btoa(username + ":" + (password ? encodeUTF8$1(password) : "")));
+			} catch (e) {
+				throw AxiosError.from(e, AxiosError.ERR_BAD_OPTION_VALUE, config);
+			}
+		}
+		if (utils_default.isFormData(data)) {
+			const getHeaders = utils_default.getSafeProp(data, "getHeaders");
+			if (platform_default.hasStandardBrowserEnv || platform_default.hasStandardBrowserWebWorkerEnv || utils_default.isReactNative(data)) headers.setContentType(void 0);
+			else if (utils_default.isFunction(getHeaders)) setFormDataHeaders(headers, getHeaders.call(data), own("formDataHeaderPolicy"));
+		}
+		if (platform_default.hasStandardBrowserEnv) {
+			if (utils_default.isFunction(withXSRFToken)) withXSRFToken = withXSRFToken(newConfig);
+			if (withXSRFToken === true || withXSRFToken == null && isURLSameOrigin_default(newConfig.url)) {
+				const xsrfValue = xsrfHeaderName && xsrfCookieName && cookies_default.read(xsrfCookieName);
+				if (xsrfValue) headers.set(xsrfHeaderName, xsrfValue);
+			}
+		}
+		return newConfig;
+	}
+	var xhr_default = typeof XMLHttpRequest !== "undefined" && function(config) {
+		return new Promise(function dispatchXhrRequest(resolve, reject) {
+			const _config = resolveConfig(config);
+			let requestData = _config.data;
+			const requestHeaders = AxiosHeaders.from(_config.headers).normalize();
+			let { responseType, onUploadProgress, onDownloadProgress } = _config;
+			let onCanceled;
+			let uploadThrottled, downloadThrottled;
+			let flushUpload, flushDownload, flushDownloadWithEvent;
+			function done() {
+				flushUpload && flushUpload();
+				flushDownload && flushDownload();
+				_config.cancelToken && _config.cancelToken.unsubscribe(onCanceled);
+				_config.signal && _config.signal.removeEventListener("abort", onCanceled);
+			}
+			let request = new XMLHttpRequest();
+			request.open(_config.method.toUpperCase(), _config.url, true);
+			request.timeout = _config.timeout;
+			function onloadend(event) {
+				if (!request) return;
+				if (request.status === 0 && (parseProtocol(normalizeURLForProtocolCheck(_config.url)) || parseProtocol(platform_default.origin)) !== "file" && !(request.responseURL && request.responseURL.startsWith("file:"))) {
+					reject(new AxiosError("Request aborted", AxiosError.ECONNABORTED, config, request));
+					done();
+					request = null;
+					return;
+				}
+				try {
+					if (event) flushDownloadWithEvent && flushDownloadWithEvent(event);
+					else flushDownload && flushDownload();
+				} catch (err) {
+					setTimeout(() => {
+						throw err;
+					});
+				}
+				if (!request) return;
+				const responseHeaders = AxiosHeaders.from("getAllResponseHeaders" in request && request.getAllResponseHeaders());
+				settle(function _resolve(value) {
+					resolve(value);
+					done();
+				}, function _reject(err) {
+					reject(err);
+					done();
+				}, {
+					data: !responseType || responseType === "text" || responseType === "json" ? request.responseText : request.response,
+					status: request.status,
+					statusText: request.statusText,
+					headers: responseHeaders,
+					config,
+					request
+				});
+				request = null;
+			}
+			if ("onloadend" in request) request.onloadend = onloadend;
+			else request.onreadystatechange = function handleLoad() {
+				if (!request || request.readyState !== 4) return;
+				if (request.status === 0 && !(request.responseURL && request.responseURL.startsWith("file:"))) return;
+				setTimeout(onloadend);
+			};
+			request.onabort = function handleAbort() {
+				if (!request) return;
+				reject(new AxiosError("Request aborted", AxiosError.ECONNABORTED, config, request));
+				done();
+				request = null;
+			};
+			request.onerror = function handleError(event) {
+				const err = new AxiosError(event && event.message ? event.message : "Network Error", AxiosError.ERR_NETWORK, config, request);
+				err.event = event || null;
+				reject(err);
+				done();
+				request = null;
+			};
+			request.ontimeout = function handleTimeout() {
+				let timeoutErrorMessage = _config.timeout ? "timeout of " + _config.timeout + "ms exceeded" : "timeout exceeded";
+				const transitional = _config.transitional || transitional_default;
+				if (_config.timeoutErrorMessage) timeoutErrorMessage = _config.timeoutErrorMessage;
+				reject(new AxiosError(timeoutErrorMessage, transitional.clarifyTimeoutError ? AxiosError.ETIMEDOUT : AxiosError.ECONNABORTED, config, request));
+				done();
+				request = null;
+			};
+			requestData === void 0 && requestHeaders.setContentType(null);
+			if ("setRequestHeader" in request) utils_default.forEach(toByteStringHeaderObject(requestHeaders), function setRequestHeader(val, key) {
+				request.setRequestHeader(key, val);
+			});
+			if (!utils_default.isUndefined(_config.withCredentials)) request.withCredentials = !!_config.withCredentials;
+			if (responseType && responseType !== "json") request.responseType = _config.responseType;
+			if (onDownloadProgress) {
+				[downloadThrottled, flushDownload, flushDownloadWithEvent] = progressEventReducer(onDownloadProgress, true);
+				request.addEventListener("progress", downloadThrottled);
+			}
+			if (onUploadProgress && request.upload) {
+				[uploadThrottled, flushUpload] = progressEventReducer(onUploadProgress);
+				request.upload.addEventListener("progress", uploadThrottled);
+				request.upload.addEventListener("loadend", flushUpload);
+			}
+			if (_config.cancelToken || _config.signal) {
+				onCanceled = (cancel) => {
+					if (!request) return;
+					reject(!cancel || cancel.type ? new CanceledError(null, config, request) : cancel);
+					request.abort();
+					done();
+					request = null;
+				};
+				_config.cancelToken && _config.cancelToken.subscribe(onCanceled);
+				if (_config.signal) _config.signal.aborted ? onCanceled() : _config.signal.addEventListener("abort", onCanceled);
+			}
+			const protocol = parseProtocol(_config.url);
+			if (protocol && !platform_default.protocols.includes(protocol)) {
+				reject(new AxiosError("Unsupported protocol " + protocol + ":", AxiosError.ERR_BAD_REQUEST, config));
+				done();
+				return;
+			}
+			request.send(requestData || null);
+		});
+	};
+	//#endregion
+	//#region node_modules/axios/lib/helpers/composeSignals.js
+	var composeSignals = (signals, timeout) => {
+		signals = signals ? signals.filter(Boolean) : [];
+		if (!timeout && !signals.length) return;
+		const controller = new AbortController();
+		let aborted = false;
+		const onabort = function(reason) {
+			if (!aborted) {
+				aborted = true;
+				unsubscribe();
+				const err = reason instanceof Error ? reason : this.reason;
+				controller.abort(err instanceof AxiosError ? err : new CanceledError(err instanceof Error ? err.message : err));
+			}
+		};
+		let timer = timeout && setTimeout(() => {
+			timer = null;
+			onabort(new AxiosError(`timeout of ${timeout}ms exceeded`, AxiosError.ETIMEDOUT));
+		}, timeout);
+		const unsubscribe = () => {
+			if (!signals) return;
+			timer && clearTimeout(timer);
+			timer = null;
+			signals.forEach((signal) => {
+				signal.unsubscribe ? signal.unsubscribe(onabort) : signal.removeEventListener("abort", onabort);
+			});
+			signals = null;
+		};
+		signals.forEach((signal) => {
+			if (aborted) return;
+			if (signal.aborted) {
+				onabort.call(signal);
+				return;
+			}
+			signal.addEventListener("abort", onabort, { once: true });
+		});
+		const { signal } = controller;
+		signal.unsubscribe = () => utils_default.asap(unsubscribe);
+		return signal;
+	};
+	//#endregion
+	//#region node_modules/axios/lib/helpers/trackStream.js
+	var streamChunk = function* (chunk, chunkSize) {
+		let len = chunk.byteLength;
+		if (!chunkSize || len < chunkSize) {
+			yield chunk;
+			return;
+		}
+		let pos = 0;
+		let end;
+		while (pos < len) {
+			end = pos + chunkSize;
+			yield chunk.slice(pos, end);
+			pos = end;
+		}
+	};
+	var readBytes = async function* (iterable, chunkSize) {
+		for await (const chunk of readStream(iterable)) yield* streamChunk(chunk, chunkSize);
+	};
+	var readStream = async function* (stream) {
+		if (stream[Symbol.asyncIterator]) {
+			yield* stream;
+			return;
+		}
+		const reader = stream.getReader();
+		try {
+			for (;;) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				yield value;
+			}
+		} finally {
+			await reader.cancel();
+		}
+	};
+	var trackStream = (stream, chunkSize, onProgress, onFinish) => {
+		const iterator = readBytes(stream, chunkSize);
+		let bytes = 0;
+		let done;
+		let _onFinish = (e) => {
+			if (!done) {
+				done = true;
+				onFinish && onFinish(e);
+			}
+		};
+		return new ReadableStream({
+			async pull(controller) {
+				try {
+					const { done, value } = await iterator.next();
+					if (done) {
+						_onFinish();
+						controller.close();
+						return;
+					}
+					let len = value.byteLength;
+					if (onProgress) onProgress(bytes += len);
+					controller.enqueue(new Uint8Array(value));
+				} catch (err) {
+					_onFinish(err);
+					throw err;
+				}
+			},
+			cancel(reason) {
+				_onFinish(reason);
+				return iterator.return();
+			}
+		}, { highWaterMark: 2 });
+	};
+	//#endregion
+	//#region node_modules/axios/lib/helpers/estimateDataURLDecodedBytes.js
+	/**
+	* Estimate data: URL byte lengths *without* allocating large buffers.
+	* - Fetch percent-decodes a base64 body before decoding it.
+	* - Node's Buffer.from(body, 'base64') sizes its backing allocation from the
+	*   raw body, including ignored characters and content after padding.
+	* - Non-base64 data is percent-decoded and then encoded as UTF-8.
+	*/
+	var isHexDigit = (charCode) => charCode >= 48 && charCode <= 57 || charCode >= 65 && charCode <= 70 || charCode >= 97 && charCode <= 102;
+	var isPercentEncodedByte = (str, i, len) => i + 2 < len && isHexDigit(str.charCodeAt(i + 1)) && isHexDigit(str.charCodeAt(i + 2));
+	var hexValue = (charCode) => charCode <= 57 ? charCode - 48 : (charCode & 223) - 55;
+	var isBase64Char = (charCode) => charCode >= 65 && charCode <= 90 || charCode >= 97 && charCode <= 122 || charCode >= 48 && charCode <= 57 || charCode === 43 || charCode === 47 || charCode === 45 || charCode === 95;
+	var isBase64Whitespace = (charCode) => charCode === 9 || charCode === 10 || charCode === 12 || charCode === 13 || charCode === 32;
+	var base64Bytes = (significant) => {
+		const groups = Math.floor(significant / 4);
+		const remainder = significant % 4;
+		return groups * 3 + (remainder === 2 ? 1 : remainder === 3 ? 2 : 0);
+	};
+	var estimateBase64BufferAllocation = (body) => {
+		const len = body.length;
+		let padding = 0;
+		if (len > 0 && body.charCodeAt(len - 1) === 61) {
+			padding++;
+			if (len > 1 && body.charCodeAt(len - 2) === 61) padding++;
+		}
+		return Math.floor((len - padding) * 3 / 4);
+	};
+	var estimatePercentDecodedBase64Bytes = (body) => {
+		const len = body.length;
+		let significant = 0;
+		let padding = 0;
+		let invalid = false;
+		for (let i = 0; i < len; i++) {
+			let code = body.charCodeAt(i);
+			if (code === 37 && isPercentEncodedByte(body, i, len)) {
+				code = hexValue(body.charCodeAt(i + 1)) * 16 + hexValue(body.charCodeAt(i + 2));
+				i += 2;
+			}
+			if (isBase64Whitespace(code)) continue;
+			if (code === 61) {
+				padding++;
+				continue;
+			}
+			if (!isBase64Char(code) || padding > 0) {
+				invalid = true;
+				continue;
+			}
+			significant++;
+		}
+		if (invalid || padding > 2 || padding > 0 && (significant + padding) % 4 !== 0 || significant % 4 === 1) return estimateBase64BufferAllocation(body);
+		return base64Bytes(significant);
+	};
+	var estimateDataURLBytes = (url, estimateBase64) => {
+		if (!url || typeof url !== "string") return 0;
+		if (!url.startsWith("data:")) return 0;
+		const comma = url.indexOf(",");
+		if (comma < 0) return 0;
+		const meta = url.slice(5, comma);
+		const body = url.slice(comma + 1);
+		if (/;base64/i.test(meta)) return estimateBase64(body);
+		let bytes = 0;
+		for (let i = 0, len = body.length; i < len; i++) {
+			const c = body.charCodeAt(i);
+			if (c === 37 && isPercentEncodedByte(body, i, len)) {
+				bytes += 1;
+				i += 2;
+			} else if (c < 128) bytes += 1;
+			else if (c < 2048) bytes += 2;
+			else if (c >= 55296 && c <= 56319 && i + 1 < len) {
+				const next = body.charCodeAt(i + 1);
+				if (next >= 56320 && next <= 57343) {
+					bytes += 4;
+					i++;
+				} else bytes += 3;
+			} else bytes += 3;
+		}
+		return bytes;
+	};
+	/**
+	* Estimate the percent-decoded payload size used by Fetch data: URLs.
+	*
+	* @param {string} url
+	* @returns {number}
+	*/
+	function estimateDataURLDecodedBytes(url) {
+		const fragmentIndex = typeof url === "string" ? url.indexOf("#") : -1;
+		return estimateDataURLBytes(fragmentIndex === -1 ? url : url.slice(0, fragmentIndex), estimatePercentDecodedBase64Bytes);
+	}
+	//#endregion
+	//#region node_modules/axios/lib/env/data.js
+	var VERSION = "1.20.0";
+	//#endregion
+	//#region node_modules/axios/lib/adapters/fetch.js
+	var DEFAULT_CHUNK_SIZE = 65536;
+	var DEFAULT_REQUEST_OPTIONS = {
+		cache: "default",
+		redirect: "follow",
+		referrer: "about:client",
+		referrerPolicy: "",
+		mode: "cors",
+		integrity: "",
+		keepalive: false,
+		priority: "auto",
+		window: null
+	};
+	var { isFunction } = utils_default;
+	/**
+	* Encode a UTF-8 string to a Latin-1 byte string for use with btoa().
+	* This is a modern replacement for the deprecated unescape(encodeURIComponent(str)) pattern.
+	*
+	* @param {string} str The string to encode
+	*
+	* @returns {string} UTF-8 bytes as a Latin-1 string
+	*/
+	var encodeUTF8 = (str) => encodeURIComponent(str).replace(/%([0-9A-F]{2})/gi, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+	var decodeURIComponentSafe = (value) => {
+		if (!utils_default.isString(value)) return value;
+		try {
+			return decodeURIComponent(value);
+		} catch (error) {
+			return value;
+		}
+	};
+	var test = (fn, ...args) => {
+		try {
+			return !!fn(...args);
+		} catch (e) {
+			return false;
+		}
+	};
+	var maybeWithAuthCredentials = (url) => {
+		const protocolIndex = url.indexOf("://");
+		let urlToCheck = url;
+		if (protocolIndex !== -1) urlToCheck = urlToCheck.slice(protocolIndex + 3);
+		return urlToCheck.includes("@") || urlToCheck.includes(":");
+	};
+	var factory = (env) => {
+		const globalObject = utils_default.global !== void 0 && utils_default.global !== null ? utils_default.global : globalThis;
+		const { ReadableStream, TextEncoder } = globalObject;
+		env = utils_default.merge.call({ skipUndefined: true }, {
+			Request: globalObject.Request,
+			Response: globalObject.Response
+		}, env);
+		const { fetch: envFetch, Request, Response } = env;
+		const isFetchSupported = envFetch ? isFunction(envFetch) : typeof fetch === "function";
+		const isRequestSupported = isFunction(Request);
+		const isResponseSupported = isFunction(Response);
+		if (!isFetchSupported) return false;
+		const isReadableStreamSupported = isFetchSupported && isFunction(ReadableStream);
+		const encodeText = isFetchSupported && (typeof TextEncoder === "function" ? ((encoder) => (str) => encoder.encode(str))(new TextEncoder()) : async (str) => new Uint8Array(await new Request(str).arrayBuffer()));
+		const supportsRequestStream = isRequestSupported && isReadableStreamSupported && test(() => {
+			let duplexAccessed = false;
+			const request = new Request(platform_default.origin, {
+				body: new ReadableStream(),
+				method: "POST",
+				get duplex() {
+					duplexAccessed = true;
+					return "half";
+				}
+			});
+			const hasContentType = request.headers.has("Content-Type");
+			if (request.body != null) request.body.cancel();
+			return duplexAccessed && !hasContentType;
+		});
+		const supportsResponseStream = isResponseSupported && isReadableStreamSupported && test(() => utils_default.isReadableStream(new Response("").body));
+		const resolvers = { stream: supportsResponseStream && ((res) => res.body) };
+		isFetchSupported && (() => {
+			[
+				"text",
+				"arrayBuffer",
+				"blob",
+				"formData",
+				"stream"
+			].forEach((type) => {
+				!resolvers[type] && (resolvers[type] = (res, config) => {
+					let method = res && res[type];
+					if (method) return method.call(res);
+					throw new AxiosError(`Response type '${type}' is not supported`, AxiosError.ERR_NOT_SUPPORT, config);
+				});
+			});
+		})();
+		const getBodyLength = async (body) => {
+			if (body == null) return 0;
+			if (utils_default.isBlob(body)) return body.size;
+			if (utils_default.isSpecCompliantForm(body)) return (await new Request(platform_default.origin, {
+				method: "POST",
+				body
+			}).arrayBuffer()).byteLength;
+			if (utils_default.isArrayBufferView(body) || utils_default.isArrayBuffer(body)) return body.byteLength;
+			if (utils_default.isURLSearchParams(body)) body = body + "";
+			if (utils_default.isString(body)) return (await encodeText(body)).byteLength;
+		};
+		const resolveBodyLength = async (headers, body) => {
+			const length = utils_default.toFiniteNumber(headers.getContentLength());
+			return length == null ? getBodyLength(body) : length;
+		};
+		return async (config) => {
+			let { url, method, data, signal, cancelToken, timeout, onDownloadProgress, onUploadProgress, responseType, headers, withCredentials = "same-origin", fetchOptions, maxContentLength, maxBodyLength, maxRedirects } = resolveConfig(config);
+			const hasMaxContentLength = utils_default.isNumber(maxContentLength) && maxContentLength > -1;
+			const hasMaxBodyLength = utils_default.isNumber(maxBodyLength) && maxBodyLength > -1;
+			const own = (key) => utils_default.hasOwnProp(config, key) ? config[key] : void 0;
+			let _fetch = envFetch || fetch;
+			responseType = responseType ? (responseType + "").toLowerCase() : "text";
+			let composedSignal = composeSignals([signal, cancelToken && cancelToken.toAbortSignal()], timeout);
+			let request = null;
+			const unsubscribe = composedSignal && composedSignal.unsubscribe && (() => {
+				composedSignal.unsubscribe();
+			});
+			let requestContentLength;
+			let pendingBodyError = null;
+			const maxBodyLengthError = () => new AxiosError("Request body larger than maxBodyLength limit", AxiosError.ERR_BAD_REQUEST, config, request);
+			try {
+				let auth = void 0;
+				const configAuth = own("auth");
+				if (configAuth) auth = {
+					username: utils_default.getSafeProp(configAuth, "username") || "",
+					password: utils_default.getSafeProp(configAuth, "password") || ""
+				};
+				if (maybeWithAuthCredentials(url)) {
+					const parsedURL = new URL(url, platform_default.origin);
+					if (!auth && (parsedURL.username || parsedURL.password)) auth = {
+						username: decodeURIComponentSafe(parsedURL.username),
+						password: decodeURIComponentSafe(parsedURL.password)
+					};
+					if (parsedURL.username || parsedURL.password) {
+						parsedURL.username = "";
+						parsedURL.password = "";
+						url = parsedURL.href;
+					}
+				}
+				if (auth) {
+					headers.delete("authorization");
+					headers.set("Authorization", "Basic " + btoa(encodeUTF8((auth.username || "") + ":" + (auth.password || ""))));
+				}
+				if (hasMaxContentLength && typeof url === "string" && url.startsWith("data:")) {
+					if (estimateDataURLDecodedBytes(url) > maxContentLength) throw new AxiosError("maxContentLength size of " + maxContentLength + " exceeded", AxiosError.ERR_BAD_RESPONSE, config, request);
+				}
+				if (hasMaxBodyLength && method !== "get" && method !== "head") {
+					const outboundLength = await getBodyLength(data);
+					if (typeof outboundLength === "number" && isFinite(outboundLength)) {
+						requestContentLength = outboundLength;
+						if (outboundLength > maxBodyLength) throw maxBodyLengthError();
+					}
+				}
+				const mustEnforceStreamBody = hasMaxBodyLength && (utils_default.isReadableStream(data) || utils_default.isStream(data));
+				const trackRequestStream = (stream, onProgress, flush) => trackStream(stream, DEFAULT_CHUNK_SIZE, (loadedBytes) => {
+					if (hasMaxBodyLength && loadedBytes > maxBodyLength) throw pendingBodyError = maxBodyLengthError();
+					onProgress && onProgress(loadedBytes);
+				}, flush);
+				if (supportsRequestStream && method !== "get" && method !== "head" && (onUploadProgress || mustEnforceStreamBody)) {
+					requestContentLength = requestContentLength == null ? await resolveBodyLength(headers, data) : requestContentLength;
+					if (requestContentLength !== 0 || mustEnforceStreamBody) {
+						let _request = new Request(url, {
+							method: "POST",
+							body: data,
+							duplex: "half"
+						});
+						let contentTypeHeader;
+						if (utils_default.isFormData(data) && (contentTypeHeader = _request.headers.get("content-type"))) headers.setContentType(contentTypeHeader);
+						if (_request.body) {
+							const [onProgress, flush] = onUploadProgress && progressEventDecorator(requestContentLength, progressEventReducer(asyncDecorator(onUploadProgress))) || [];
+							data = trackRequestStream(_request.body, onProgress, flush);
+						}
+					}
+				} else if (mustEnforceStreamBody && !isRequestSupported && isReadableStreamSupported && method !== "get" && method !== "head") data = trackRequestStream(data);
+				else if (mustEnforceStreamBody && isRequestSupported && !supportsRequestStream && method !== "get" && method !== "head") throw new AxiosError("Stream request bodies are not supported by the current fetch implementation", AxiosError.ERR_NOT_SUPPORT, config, request);
+				if (!utils_default.isString(withCredentials)) withCredentials = withCredentials ? "include" : "omit";
+				const isCredentialsSupported = isRequestSupported && "credentials" in Request.prototype;
+				if (utils_default.isFormData(data)) {
+					const contentType = headers.getContentType();
+					if (contentType && /^multipart\/form-data/i.test(contentType) && !/boundary=/i.test(contentType)) headers.delete("content-type");
+				}
+				headers.set("User-Agent", "axios/" + VERSION, false);
+				const safeFetchOptions = fetchOptions == null ? fetchOptions : Object.assign(Object.create(null), fetchOptions);
+				if (safeFetchOptions) {
+					delete safeFetchOptions.body;
+					delete safeFetchOptions.headers;
+					delete safeFetchOptions.method;
+					delete safeFetchOptions.signal;
+					delete safeFetchOptions.duplex;
+					delete safeFetchOptions.credentials;
+				}
+				const resolvedOptions = Object.assign(Object.create(null), safeFetchOptions, {
+					signal: composedSignal,
+					method: method.toUpperCase(),
+					headers: toByteStringHeaderObject(headers.normalize()),
+					body: data,
+					duplex: "half",
+					credentials: isCredentialsSupported ? withCredentials : void 0
+				});
+				if (isRequestSupported) {
+					utils_default.forEach(DEFAULT_REQUEST_OPTIONS, (value, key) => {
+						if (resolvedOptions[key] === void 0) resolvedOptions[key] = value;
+					});
+					if (resolvedOptions.signal === void 0) resolvedOptions.signal = null;
+					if (resolvedOptions.body === void 0) resolvedOptions.body = null;
+				}
+				if (maxRedirects === 0) {
+					resolvedOptions.redirect = "manual";
+					if (safeFetchOptions) safeFetchOptions.redirect = "manual";
+				}
+				request = isRequestSupported && new Request(url, resolvedOptions);
+				let response = await (isRequestSupported ? _fetch(request, safeFetchOptions) : _fetch(url, resolvedOptions));
+				const responseHeaders = AxiosHeaders.from(response.headers);
+				if (hasMaxContentLength) {
+					const declaredLength = utils_default.toFiniteNumber(responseHeaders.getContentLength());
+					if (declaredLength != null && declaredLength > maxContentLength) throw new AxiosError("maxContentLength size of " + maxContentLength + " exceeded", AxiosError.ERR_BAD_RESPONSE, config, request);
+				}
+				const isStreamResponse = supportsResponseStream && (responseType === "stream" || responseType === "response");
+				if (supportsResponseStream && response.body && (onDownloadProgress || hasMaxContentLength || isStreamResponse && unsubscribe)) {
+					const options = {};
+					[
+						"status",
+						"statusText",
+						"headers"
+					].forEach((prop) => {
+						options[prop] = response[prop];
+					});
+					const responseContentLength = utils_default.toFiniteNumber(responseHeaders.getContentLength());
+					const [onProgress, flush] = onDownloadProgress && progressEventDecorator(responseContentLength, progressEventReducer(asyncDecorator(onDownloadProgress), true)) || [];
+					let bytesRead = 0;
+					const onChunkProgress = (loadedBytes) => {
+						if (hasMaxContentLength) {
+							bytesRead = loadedBytes;
+							if (bytesRead > maxContentLength) throw new AxiosError("maxContentLength size of " + maxContentLength + " exceeded", AxiosError.ERR_BAD_RESPONSE, config, request);
+						}
+						onProgress && onProgress(loadedBytes);
+					};
+					response = new Response(trackStream(response.body, DEFAULT_CHUNK_SIZE, onChunkProgress, () => {
+						flush && flush();
+						unsubscribe && unsubscribe();
+					}), options);
+				}
+				responseType = responseType || "text";
+				let responseData = await resolvers[utils_default.findKey(resolvers, responseType) || "text"](response, config);
+				if (hasMaxContentLength && !supportsResponseStream && !isStreamResponse) {
+					let materializedSize;
+					if (responseData != null) {
+						if (typeof responseData.byteLength === "number") materializedSize = responseData.byteLength;
+						else if (typeof responseData.size === "number") materializedSize = responseData.size;
+						else if (typeof responseData === "string") materializedSize = typeof TextEncoder === "function" ? new TextEncoder().encode(responseData).byteLength : responseData.length;
+					}
+					if (typeof materializedSize === "number" && materializedSize > maxContentLength) throw new AxiosError("maxContentLength size of " + maxContentLength + " exceeded", AxiosError.ERR_BAD_RESPONSE, config, request);
+				}
+				!isStreamResponse && unsubscribe && unsubscribe();
+				return await new Promise((resolve, reject) => {
+					settle(resolve, reject, {
+						data: responseData,
+						headers: AxiosHeaders.from(response.headers),
+						status: response.status,
+						statusText: response.statusText,
+						config,
+						request
+					});
+				});
+			} catch (err) {
+				unsubscribe && unsubscribe();
+				if (composedSignal && composedSignal.aborted && composedSignal.reason instanceof AxiosError) {
+					const canceledError = composedSignal.reason;
+					canceledError.config = config;
+					request && (canceledError.request = request);
+					if (err !== canceledError) Object.defineProperty(canceledError, "cause", {
+						__proto__: null,
+						value: err,
+						writable: true,
+						enumerable: false,
+						configurable: true
+					});
+					throw canceledError;
+				}
+				if (pendingBodyError) {
+					request && !pendingBodyError.request && (pendingBodyError.request = request);
+					throw pendingBodyError;
+				}
+				if (err instanceof AxiosError) {
+					request && !err.request && (err.request = request);
+					throw err;
+				}
+				if (err && err.name === "TypeError" && /Load failed|fetch/i.test(err.message)) {
+					const networkError = new AxiosError("Network Error", AxiosError.ERR_NETWORK, config, request, err && err.response);
+					Object.defineProperty(networkError, "cause", {
+						__proto__: null,
+						value: err.cause || err,
+						writable: true,
+						enumerable: false,
+						configurable: true
+					});
+					throw networkError;
+				}
+				throw AxiosError.from(err, err && err.code, config, request, err && err.response);
+			}
+		};
+	};
+	var seedCache = /* @__PURE__ */ new Map();
+	var getFetch = (config) => {
+		let env = config && config.env || {};
+		const { fetch, Request, Response } = env;
+		const seeds = [
+			Request,
+			Response,
+			fetch
+		];
+		let i = seeds.length, seed, target, map = seedCache;
+		while (i--) {
+			seed = seeds[i];
+			target = map.get(seed);
+			target === void 0 && map.set(seed, target = i ? /* @__PURE__ */ new Map() : factory(env));
+			map = target;
+		}
+		return target;
+	};
+	getFetch();
+	//#endregion
+	//#region node_modules/axios/lib/adapters/adapters.js
+	/**
+	* Known adapters mapping.
+	* Provides environment-specific adapters for Axios:
+	* - `http` for Node.js
+	* - `xhr` for browsers
+	* - `fetch` for fetch API-based requests
+	*
+	* @type {Object<string, Function|Object>}
+	*/
+	var knownAdapters = {
+		http: null,
+		xhr: xhr_default,
+		fetch: { get: getFetch }
+	};
+	utils_default.forEach(knownAdapters, (fn, value) => {
+		if (fn) {
+			try {
+				Object.defineProperty(fn, "name", {
+					__proto__: null,
+					value
+				});
+			} catch (e) {}
+			Object.defineProperty(fn, "adapterName", {
+				__proto__: null,
+				value
+			});
+		}
+	});
+	/**
+	* Render a rejection reason string for unknown or unsupported adapters
+	*
+	* @param {string} reason
+	* @returns {string}
+	*/
+	var renderReason = (reason) => `- ${reason}`;
+	/**
+	* Check if the adapter is resolved (function, null, or false)
+	*
+	* @param {Function|null|false} adapter
+	* @returns {boolean}
+	*/
+	var isResolvedHandle = (adapter) => utils_default.isFunction(adapter) || adapter === null || adapter === false;
+	/**
+	* Get the first suitable adapter from the provided list.
+	* Tries each adapter in order until a supported one is found.
+	* Throws an AxiosError if no adapter is suitable.
+	*
+	* @param {Array<string|Function>|string|Function} adapters - Adapter(s) by name or function.
+	* @param {Object} config - Axios request configuration
+	* @throws {AxiosError} If no suitable adapter is available
+	* @returns {Function} The resolved adapter function
+	*/
+	function getAdapter(adapters, config) {
+		adapters = utils_default.isArray(adapters) ? adapters : [adapters];
+		const { length } = adapters;
+		let nameOrAdapter;
+		let adapter;
+		const rejectedReasons = {};
+		for (let i = 0; i < length; i++) {
+			nameOrAdapter = adapters[i];
+			let id;
+			adapter = nameOrAdapter;
+			if (!isResolvedHandle(nameOrAdapter)) {
+				adapter = knownAdapters[(id = String(nameOrAdapter)).toLowerCase()];
+				if (adapter === void 0) throw new AxiosError(`Unknown adapter '${id}'`);
+			}
+			if (adapter && (utils_default.isFunction(adapter) || (adapter = adapter.get(config)))) break;
+			rejectedReasons[id || "#" + i] = adapter;
+		}
+		if (!adapter) {
+			const reasons = Object.entries(rejectedReasons).map(([id, state]) => `adapter ${id} ` + (state === false ? "is not supported by the environment" : "is not available in the build"));
+			throw new AxiosError(`There is no suitable adapter to dispatch the request ` + (length ? reasons.length > 1 ? "since :\n" + reasons.map(renderReason).join("\n") : " " + renderReason(reasons[0]) : "as no adapter specified"), AxiosError.ERR_NOT_SUPPORT);
+		}
+		return adapter;
+	}
+	/**
+	* Exports Axios adapters and utility to resolve an adapter
+	*/
+	var adapters_default = {
+		/**
+		* Resolve an adapter from a list of adapter names or functions.
+		* @type {Function}
+		*/
+		getAdapter,
+		/**
+		* Exposes all known adapters
+		* @type {Object<string, Function|Object>}
+		*/
+		adapters: knownAdapters
+	};
+	//#endregion
+	//#region node_modules/axios/lib/core/dispatchRequest.js
+	/**
+	* Throws a `CanceledError` if cancellation has been requested.
+	*
+	* @param {Object} config The config that is to be used for the request
+	*
+	* @returns {void}
+	*/
+	function throwIfCancellationRequested(config) {
+		if (config.cancelToken) config.cancelToken.throwIfRequested();
+		if (config.signal && config.signal.aborted) throw new CanceledError(null, config);
+	}
+	/**
+	* Dispatch a request to the server using the configured adapter.
+	*
+	* @param {object} config The config that is to be used for the request
+	*
+	* @returns {Promise} The Promise to be fulfilled
+	*/
+	function dispatchRequest(_config) {
+		const config = utils_default.toSafeFlatObject(_config);
+		throwIfCancellationRequested(config);
+		config.headers = AxiosHeaders.from(utils_default.getSafeProp(config, "headers"));
+		config.data = transformData.call(config, config.transformRequest);
+		if ([
+			"post",
+			"put",
+			"patch"
+		].indexOf(config.method) !== -1) config.headers.setContentType("application/x-www-form-urlencoded", false);
+		return adapters_default.getAdapter(config.adapter || defaults.adapter, config)(config).then(function onAdapterResolution(response) {
+			throwIfCancellationRequested(config);
+			config.response = response;
+			try {
+				response.data = transformData.call(config, config.transformResponse, response);
+			} finally {
+				delete config.response;
+			}
+			response.headers = AxiosHeaders.from(response.headers);
+			return response;
+		}, function onAdapterRejection(reason) {
+			if (!isCancel(reason)) {
+				throwIfCancellationRequested(config);
+				if (reason && reason.response) {
+					config.response = reason.response;
+					try {
+						reason.response.data = transformData.call(config, config.transformResponse, reason.response);
+					} finally {
+						delete config.response;
+					}
+					reason.response.headers = AxiosHeaders.from(reason.response.headers);
+				}
+			}
+			return Promise.reject(reason);
+		});
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/validator.js
+	var validators$1 = {};
+	[
+		"object",
+		"boolean",
+		"number",
+		"function",
+		"string",
+		"symbol"
+	].forEach((type, i) => {
+		validators$1[type] = function validator(thing) {
+			return typeof thing === type || "a" + (i < 1 ? "n " : " ") + type;
+		};
+	});
+	var deprecatedWarnings = {};
+	/**
+	* Transitional option validator
+	*
+	* @param {function|boolean?} validator - set to false if the transitional option has been removed
+	* @param {string?} version - deprecated version / removed since version
+	* @param {string?} message - some message with additional info
+	*
+	* @returns {function}
+	*/
+	validators$1.transitional = function transitional(validator, version, message) {
+		function formatMessage(opt, desc) {
+			return "[Axios v" + VERSION + "] Transitional option '" + opt + "'" + desc + (message ? ". " + message : "");
+		}
+		return (value, opt, opts) => {
+			if (validator === false) throw new AxiosError(formatMessage(opt, " has been removed" + (version ? " in " + version : "")), AxiosError.ERR_DEPRECATED);
+			if (version && !deprecatedWarnings[opt]) {
+				deprecatedWarnings[opt] = true;
+				console.warn(formatMessage(opt, " has been deprecated since v" + version + " and will be removed in the near future"));
+			}
+			return validator ? validator(value, opt, opts) : true;
+		};
+	};
+	validators$1.spelling = function spelling(correctSpelling) {
+		return (value, opt) => {
+			console.warn(`${opt} is likely a misspelling of ${correctSpelling}`);
+			return true;
+		};
+	};
+	/**
+	* Assert object's properties type
+	*
+	* @param {object} options
+	* @param {object} schema
+	* @param {boolean?} allowUnknown
+	*
+	* @returns {object}
+	*/
+	function assertOptions(options, schema, allowUnknown) {
+		if (typeof options !== "object" || options === null) throw new AxiosError("options must be an object", AxiosError.ERR_BAD_OPTION_VALUE);
+		const keys = Object.keys(options);
+		let i = keys.length;
+		while (i-- > 0) {
+			const opt = keys[i];
+			const validator = Object.prototype.hasOwnProperty.call(schema, opt) ? schema[opt] : void 0;
+			if (validator) {
+				const value = options[opt];
+				const result = value === void 0 || validator(value, opt, options);
+				if (result !== true) throw new AxiosError("option " + opt + " must be " + result, AxiosError.ERR_BAD_OPTION_VALUE);
+				continue;
+			}
+			if (allowUnknown !== true) throw new AxiosError("Unknown option " + opt, AxiosError.ERR_BAD_OPTION);
+		}
+	}
+	var validator_default = {
+		assertOptions,
+		validators: validators$1
+	};
+	//#endregion
+	//#region node_modules/axios/lib/core/Axios.js
+	var validators = validator_default.validators;
+	/**
+	* Create a new instance of Axios
+	*
+	* @param {Object} instanceConfig The default config for the instance
+	*
+	* @return {Axios} A new instance of Axios
+	*/
+	var Axios = class {
+		constructor(instanceConfig) {
+			this.defaults = instanceConfig || {};
+			this.interceptors = {
+				request: new InterceptorManager(),
+				response: new InterceptorManager()
+			};
+		}
+		/**
+		* Dispatch a request
+		*
+		* @param {String|Object} configOrUrl The config specific for this request (merged with this.defaults)
+		* @param {?Object} config
+		*
+		* @returns {Promise} The Promise to be fulfilled
+		*/
+		async request(configOrUrl, config) {
+			try {
+				return await this._request(configOrUrl, config);
+			} catch (err) {
+				if (err instanceof Error) try {
+					let dummy = {};
+					Error.captureStackTrace ? Error.captureStackTrace(dummy) : dummy = /* @__PURE__ */ new Error();
+					const dummyStack = dummy.stack;
+					let stack = "";
+					if (typeof dummyStack === "string") {
+						const firstNewlineIndex = dummyStack.indexOf("\n");
+						stack = firstNewlineIndex === -1 ? "" : dummyStack.slice(firstNewlineIndex + 1);
+					}
+					if (!err.stack) err.stack = stack;
+					else if (stack) {
+						const firstNewlineIndex = stack.indexOf("\n");
+						const secondNewlineIndex = firstNewlineIndex === -1 ? -1 : stack.indexOf("\n", firstNewlineIndex + 1);
+						const stackWithoutTwoTopLines = secondNewlineIndex === -1 ? "" : stack.slice(secondNewlineIndex + 1);
+						if (!String(err.stack).endsWith(stackWithoutTwoTopLines)) err.stack += "\n" + stack;
+					}
+				} catch (e) {}
+				throw err;
+			}
+		}
+		_request(configOrUrl, config) {
+			if (typeof configOrUrl === "string") {
+				config = config || {};
+				config.url = configOrUrl;
+			} else config = configOrUrl || {};
+			config = mergeConfig(this.defaults, config);
+			const { transitional, paramsSerializer, headers } = config;
+			if (transitional !== void 0) validator_default.assertOptions(transitional, {
+				silentJSONParsing: validators.transitional(validators.boolean),
+				forcedJSONParsing: validators.transitional(validators.boolean),
+				clarifyTimeoutError: validators.transitional(validators.boolean),
+				legacyInterceptorReqResOrdering: validators.transitional(validators.boolean),
+				advertiseZstdAcceptEncoding: validators.transitional(validators.boolean),
+				validateStatusUndefinedResolves: validators.transitional(validators.boolean)
+			}, false);
+			if (paramsSerializer != null) {
+				if (utils_default.isFunction(paramsSerializer)) config.paramsSerializer = { serialize: paramsSerializer };
+				else validator_default.assertOptions(paramsSerializer, {
+					encode: validators.function,
+					serialize: validators.function
+				}, true);
+			}
+			if (config.allowAbsoluteUrls !== void 0) {} else if (this.defaults.allowAbsoluteUrls !== void 0) config.allowAbsoluteUrls = this.defaults.allowAbsoluteUrls;
+			else config.allowAbsoluteUrls = true;
+			validator_default.assertOptions(config, {
+				baseUrl: validators.spelling("baseURL"),
+				withXsrfToken: validators.spelling("withXSRFToken")
+			}, true);
+			config.method = (utils_default.getSafeProp(config, "method") || utils_default.getSafeProp(this.defaults, "method") || "get").toLowerCase();
+			let contextHeaders = headers && utils_default.merge(headers.common, headers[config.method]);
+			headers && utils_default.forEach(methodList.concat("common"), (method) => {
+				delete headers[method];
+			});
+			config.headers = AxiosHeaders.concat(contextHeaders, headers);
+			const requestInterceptorChain = [];
+			let synchronousRequestInterceptors = true;
+			this.interceptors.request.forEach(function unshiftRequestInterceptors(interceptor) {
+				if (typeof interceptor.runWhen === "function" && interceptor.runWhen(config) === false) return;
+				synchronousRequestInterceptors = synchronousRequestInterceptors && interceptor.synchronous;
+				const transitional = config.transitional || transitional_default;
+				if (transitional && transitional.legacyInterceptorReqResOrdering) requestInterceptorChain.unshift(interceptor.fulfilled, interceptor.rejected);
+				else requestInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+			});
+			const responseInterceptorChain = [];
+			this.interceptors.response.forEach(function pushResponseInterceptors(interceptor) {
+				responseInterceptorChain.push(interceptor.fulfilled, interceptor.rejected);
+			});
+			let promise;
+			let i = 0;
+			let len;
+			if (!synchronousRequestInterceptors) {
+				const chain = [dispatchRequest.bind(this), void 0];
+				chain.unshift(...requestInterceptorChain);
+				chain.push(...responseInterceptorChain);
+				len = chain.length;
+				promise = Promise.resolve(config);
+				while (i < len) promise = promise.then(chain[i++], chain[i++]);
+				return promise;
+			}
+			len = requestInterceptorChain.length;
+			let newConfig = config;
+			while (i < len) {
+				const onFulfilled = requestInterceptorChain[i++];
+				const onRejected = requestInterceptorChain[i++];
+				try {
+					newConfig = onFulfilled ? onFulfilled(newConfig) : newConfig;
+				} catch (error) {
+					if (!onRejected) {
+						promise = Promise.reject(error);
+						break;
+					}
+					try {
+						const rejectedResult = onRejected.call(this, error);
+						if (utils_default.isThenable(rejectedResult)) promise = Promise.resolve(rejectedResult).then(() => dispatchRequest.call(this, newConfig));
+					} catch (rejectedError) {
+						promise = Promise.reject(rejectedError);
+					}
+					break;
+				}
+			}
+			if (!promise) try {
+				promise = dispatchRequest.call(this, newConfig);
+			} catch (error) {
+				promise = Promise.reject(error);
+			}
+			i = 0;
+			len = responseInterceptorChain.length;
+			while (i < len) promise = promise.then(responseInterceptorChain[i++], responseInterceptorChain[i++]);
+			return promise;
+		}
+		getUri(config) {
+			config = mergeConfig(this.defaults, config);
+			return buildURL(buildFullPath(config.baseURL, config.url, config.allowAbsoluteUrls, config), config.params, config.paramsSerializer);
+		}
+	};
+	utils_default.forEach([
+		"delete",
+		"get",
+		"head",
+		"options"
+	], function forEachMethodNoData(method) {
+		Axios.prototype[method] = function(url, config) {
+			return this.request(mergeConfig(config || {}, {
+				method,
+				url,
+				data: config && utils_default.hasOwnProp(config, "data") ? config.data : void 0
+			}));
+		};
+	});
+	utils_default.forEach([
+		"post",
+		"put",
+		"patch",
+		"query"
+	], function forEachMethodWithData(method) {
+		function generateHTTPMethod(isForm) {
+			return function httpMethod(url, data, config) {
+				return this.request(mergeConfig(config || {}, {
+					method,
+					headers: isForm ? { "Content-Type": "multipart/form-data" } : {},
+					url,
+					data
+				}));
+			};
+		}
+		Axios.prototype[method] = generateHTTPMethod();
+		if (method !== "query") Axios.prototype[method + "Form"] = generateHTTPMethod(true);
+	});
+	//#endregion
+	//#region node_modules/axios/lib/cancel/CancelToken.js
+	/**
+	* A `CancelToken` is an object that can be used to request cancellation of an operation.
+	*
+	* @param {Function} executor The executor function.
+	*
+	* @returns {CancelToken}
+	*/
+	var CancelToken = class CancelToken {
+		constructor(executor) {
+			if (typeof executor !== "function") throw new TypeError("executor must be a function.");
+			let resolvePromise;
+			this.promise = new Promise(function promiseExecutor(resolve) {
+				resolvePromise = resolve;
+			});
+			const token = this;
+			this.promise.then((cancel) => {
+				if (!token._listeners) return;
+				let i = token._listeners.length;
+				while (i-- > 0) token._listeners[i](cancel);
+				token._listeners = null;
+			});
+			this.promise.then = (onfulfilled) => {
+				let _resolve;
+				const promise = new Promise((resolve) => {
+					token.subscribe(resolve);
+					_resolve = resolve;
+				}).then(onfulfilled);
+				promise.cancel = function reject() {
+					token.unsubscribe(_resolve);
+				};
+				return promise;
+			};
+			executor(function cancel(message, config, request) {
+				if (token.reason) return;
+				token.reason = new CanceledError(message, config, request);
+				resolvePromise(token.reason);
+			});
+		}
+		/**
+		* Throws a `CanceledError` if cancellation has been requested.
+		*/
+		throwIfRequested() {
+			if (this.reason) throw this.reason;
+		}
+		/**
+		* Subscribe to the cancel signal
+		*/
+		subscribe(listener) {
+			if (this.reason) {
+				listener(this.reason);
+				return;
+			}
+			if (this._listeners) this._listeners.push(listener);
+			else this._listeners = [listener];
+		}
+		/**
+		* Unsubscribe from the cancel signal
+		*/
+		unsubscribe(listener) {
+			if (!this._listeners) return;
+			const index = this._listeners.indexOf(listener);
+			if (index !== -1) this._listeners.splice(index, 1);
+		}
+		toAbortSignal() {
+			const controller = new AbortController();
+			const abort = (err) => {
+				controller.abort(err);
+			};
+			this.subscribe(abort);
+			controller.signal.unsubscribe = () => this.unsubscribe(abort);
+			return controller.signal;
+		}
+		/**
+		* Returns an object that contains a new `CancelToken` and a function that, when called,
+		* cancels the `CancelToken`.
+		*/
+		static source() {
+			let cancel;
+			return {
+				token: new CancelToken(function executor(c) {
+					cancel = c;
+				}),
+				cancel
+			};
+		}
+	};
+	//#endregion
+	//#region node_modules/axios/lib/helpers/spread.js
+	/**
+	* Syntactic sugar for invoking a function and expanding an array for arguments.
+	*
+	* Common use case would be to use `Function.prototype.apply`.
+	*
+	*  ```js
+	*  function f(x, y, z) {}
+	*  const args = [1, 2, 3];
+	*  f.apply(null, args);
+	*  ```
+	*
+	* With `spread` this example can be re-written.
+	*
+	*  ```js
+	*  spread(function(x, y, z) {})([1, 2, 3]);
+	*  ```
+	*
+	* @param {Function} callback
+	*
+	* @returns {Function}
+	*/
+	function spread(callback) {
+		return function wrap(arr) {
+			return callback.apply(null, arr);
+		};
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/isAxiosError.js
+	/**
+	* Determines whether the payload is an error thrown by Axios
+	*
+	* @param {*} payload The value to test
+	*
+	* @returns {boolean} True if the payload is an error thrown by Axios, otherwise false
+	*/
+	function isAxiosError(payload) {
+		return utils_default.isObject(payload) && payload.isAxiosError === true;
+	}
+	//#endregion
+	//#region node_modules/axios/lib/helpers/HttpStatusCode.js
+	var HttpStatusCode = {
+		Continue: 100,
+		SwitchingProtocols: 101,
+		Processing: 102,
+		EarlyHints: 103,
+		Ok: 200,
+		Created: 201,
+		Accepted: 202,
+		NonAuthoritativeInformation: 203,
+		NoContent: 204,
+		ResetContent: 205,
+		PartialContent: 206,
+		MultiStatus: 207,
+		AlreadyReported: 208,
+		ImUsed: 226,
+		MultipleChoices: 300,
+		MovedPermanently: 301,
+		Found: 302,
+		SeeOther: 303,
+		NotModified: 304,
+		UseProxy: 305,
+		Unused: 306,
+		TemporaryRedirect: 307,
+		PermanentRedirect: 308,
+		BadRequest: 400,
+		Unauthorized: 401,
+		PaymentRequired: 402,
+		Forbidden: 403,
+		NotFound: 404,
+		MethodNotAllowed: 405,
+		NotAcceptable: 406,
+		ProxyAuthenticationRequired: 407,
+		RequestTimeout: 408,
+		Conflict: 409,
+		Gone: 410,
+		LengthRequired: 411,
+		PreconditionFailed: 412,
+		/**
+		* @deprecated Use `ContentTooLarge` instead.
+		*/
+		PayloadTooLarge: 413,
+		ContentTooLarge: 413,
+		UriTooLong: 414,
+		UnsupportedMediaType: 415,
+		RangeNotSatisfiable: 416,
+		ExpectationFailed: 417,
+		ImATeapot: 418,
+		MisdirectedRequest: 421,
+		/**
+		* @deprecated Use `UnprocessableContent` instead.
+		*/
+		UnprocessableEntity: 422,
+		UnprocessableContent: 422,
+		Locked: 423,
+		FailedDependency: 424,
+		TooEarly: 425,
+		UpgradeRequired: 426,
+		PreconditionRequired: 428,
+		TooManyRequests: 429,
+		RequestHeaderFieldsTooLarge: 431,
+		UnavailableForLegalReasons: 451,
+		InternalServerError: 500,
+		NotImplemented: 501,
+		BadGateway: 502,
+		ServiceUnavailable: 503,
+		GatewayTimeout: 504,
+		HttpVersionNotSupported: 505,
+		VariantAlsoNegotiates: 506,
+		InsufficientStorage: 507,
+		LoopDetected: 508,
+		NotExtended: 510,
+		NetworkAuthenticationRequired: 511,
+		WebServerReturnsAnUnknownError: 520,
+		WebServerIsDown: 521,
+		ConnectionTimedOut: 522,
+		OriginIsUnreachable: 523,
+		TimeoutOccurred: 524,
+		SslHandshakeFailed: 525,
+		InvalidSslCertificate: 526
+	};
+	Object.entries(HttpStatusCode).forEach(([key, value]) => {
+		if (HttpStatusCode[value] === void 0) HttpStatusCode[value] = key;
+	});
+	//#endregion
+	//#region node_modules/axios/lib/axios.js
+	/**
+	* Create an instance of Axios
+	*
+	* @param {Object} defaultConfig The default config for the instance
+	*
+	* @returns {Axios} A new instance of Axios
+	*/
+	function createInstance(defaultConfig) {
+		const context = new Axios(defaultConfig);
+		const instance = bind(Axios.prototype.request, context);
+		utils_default.extend(instance, Axios.prototype, context, { allOwnKeys: true });
+		utils_default.extend(instance, context, null, { allOwnKeys: true });
+		instance.create = function create(instanceConfig) {
+			return createInstance(mergeConfig(defaultConfig, instanceConfig));
+		};
+		return instance;
+	}
+	var axios = createInstance(defaults);
+	axios.Axios = Axios;
+	axios.CanceledError = CanceledError;
+	axios.CancelToken = CancelToken;
+	axios.isCancel = isCancel;
+	axios.VERSION = VERSION;
+	axios.toFormData = toFormData;
+	axios.AxiosError = AxiosError;
+	axios.Cancel = axios.CanceledError;
+	axios.all = function all(promises) {
+		return Promise.all(promises);
+	};
+	axios.spread = spread;
+	axios.isAxiosError = isAxiosError;
+	axios.mergeConfig = mergeConfig;
+	axios.AxiosHeaders = AxiosHeaders;
+	axios.formToJSON = (thing) => formDataToJSON(utils_default.isHTMLForm(thing) ? new FormData(thing) : thing);
+	axios.getAdapter = adapters_default.getAdapter;
+	axios.HttpStatusCode = HttpStatusCode;
+	axios.default = axios;
+	//#endregion
+	//#region src/axiosWrapper/index.ts
+	var axiosInstance = axios.create({
+		baseURL: GBNID_API_BASE_URL,
+		withCredentials: true
+	});
+	axiosInstance.interceptors.response.use(void 0, (error) => {
+		const { config, response } = error;
+		const isUserAction = config?.method !== "get" && config?.url !== COMMENTS_API.TICKETS;
+		if (response?.status === HTTP_STATUS.UNAUTHORIZED && isUserAction) handleSessionExpired();
+		return Promise.reject(error);
+	});
+	var getErrorStatus = (error) => axios.isAxiosError(error) ? error.response?.status : void 0;
+	var toErrorMessage = (error, fallback) => {
+		if (axios.isAxiosError(error)) return error.response?.data?.detail ?? fallback;
+		return fallback;
+	};
+	var axiosGet = async (url, params) => {
+		const { data } = await axiosInstance.get(url, { params });
+		return data;
+	};
+	var axiosPost = async (url, body, config) => {
+		const { data } = await axiosInstance.post(url, body, config);
+		return data;
+	};
+	var axiosPut = async (url, body, config) => {
+		const { data } = await axiosInstance.put(url, body, config);
+		return data;
+	};
+	var axiosPatch = async (url, body, config) => {
+		const { data } = await axiosInstance.patch(url, body, config);
+		return data;
+	};
+	var axiosDelete = async (url, config) => {
+		const { data } = await axiosInstance.delete(url, config);
+		return data;
+	};
+	//#endregion
+	//#region src/api/comments.ts
+	var idempotencyHeaders = () => ({ headers: { [IDEMPOTENCY_HEADER]: crypto.randomUUID() } });
+	var fetchRoomSettings = (roomId) => axiosGet(COMMENTS_API.ROOM(roomId));
+	var fetchRoomMessages = (roomId, filter, cursor) => axiosGet(COMMENTS_API.MESSAGES(roomId), {
+		sort: COMMENTS_SORT,
+		limit: 30,
+		...filter,
+		cursor
+	});
+	var fetchUserMessages = (userId, cursor) => axiosGet(COMMENTS_API.USER_MESSAGES(userId), {
+		limit: 30,
+		cursor
+	});
+	var fetchMyActivity = (cursor, status) => axiosGet(COMMENTS_API.MY_ACTIVITY, {
+		limit: 30,
+		cursor,
+		status
+	});
+	var fetchRoomThread = async (roomId, rootId) => {
+		const { items } = await axiosGet(COMMENTS_API.THREAD(roomId, rootId));
+		return items;
+	};
+	var postRoomMessage = (roomId, body, parentId) => axiosPost(COMMENTS_API.MESSAGES(roomId), {
+		body,
+		parent_id: parentId
+	}, idempotencyHeaders());
+	var editRoomMessage = async (roomId, messageId, body) => {
+		await axiosPatch(COMMENTS_API.MESSAGE(roomId, messageId), { body });
+	};
+	var reportRoomMessage = async (roomId, messageId, reason) => {
+		await axiosPost(COMMENTS_API.MESSAGE_REPORTS(roomId, messageId), { reason }, idempotencyHeaders());
+	};
+	var buySuperChat = (roomId, body, parentId) => axiosPost(COMMENTS_API.SUPERCHATS(roomId), {
+		body,
+		parent_id: parentId
+	}, idempotencyHeaders());
+	var addReaction = async (roomId, messageId, reaction) => {
+		await axiosPut(COMMENTS_API.MESSAGE_REACTION(roomId, messageId, reaction));
+	};
+	var removeReaction = async (roomId, messageId, reaction) => {
+		await axiosDelete(COMMENTS_API.MESSAGE_REACTION(roomId, messageId, reaction));
+	};
+	var createCommentsTicket = async () => {
+		const { data } = await axiosPost(COMMENTS_API.TICKETS);
+		return data;
 	};
 	//#endregion
 	//#region src/utils/dom.ts
@@ -22217,65 +24650,636 @@
 		link.href = href;
 		document.head.append(link);
 	};
-	var defineElement = (tagName, Component) => {
-		if (!customElements.get(tagName)) customElements.define(tagName, createWidgetElement(Component));
+	var getQueryParam = (name) => new URLSearchParams(window.location.search).get(name);
+	var setQueryParam = (name, value) => {
+		const url = new URL(window.location.href);
+		url.searchParams.set(name, value);
+		window.history.replaceState(window.history.state, "", url);
 	};
-	/**
-	* True when `event` started inside `element`. Inside a shadow root a document
-	* listener sees `event.target` retargeted to the host element, so the composed
-	* path is checked instead.
-	*/
-	var isEventInside = (event, element) => element !== null && event.composedPath().includes(element);
 	//#endregion
-	//#region src/hooks/useDismiss.ts
-	/** Calls `onEscape` on Escape while `isActive`. */
-	function useEscapeKey(isActive, onEscape) {
-		const handleEscape = (0, import_react.useEffectEvent)(onEscape);
+	//#region src/store/commentsSlice.ts
+	var createFeed = () => ({
+		status: REQUEST_STATUS.IDLE,
+		messages: [],
+		error: null,
+		hasMore: false,
+		isLoadingMore: false
+	});
+	var getInitialTab = () => {
+		return CHAT_TABS.find(({ id }) => id === getQueryParam("commentsTab"))?.id ?? CHAT_TAB.SUPER;
+	};
+	var TAB_FILTER = {
+		[CHAT_TAB.SUPER]: { kind: MESSAGE_KIND.SUPERCHAT },
+		[CHAT_TAB.FEATURED]: { from: MESSAGES_FROM_MEMBERS },
+		[CHAT_TAB.NORMAL]: {}
+	};
+	var commentsStore = createStore({
+		roomId: "",
+		activeTab: getInitialTab(),
+		feeds: {
+			[CHAT_TAB.SUPER]: createFeed(),
+			[CHAT_TAB.FEATURED]: createFeed(),
+			[CHAT_TAB.NORMAL]: createFeed()
+		},
+		counts: {
+			[CHAT_TAB.SUPER]: 0,
+			[CHAT_TAB.FEATURED]: 0,
+			[CHAT_TAB.NORMAL]: 0
+		},
+		settings: null,
+		threads: {},
+		threadStack: [],
+		lastSent: null
+	});
+	var cursors = {
+		next: {},
+		live: null
+	};
+	var { getState: getState$2, setState: setState$2 } = commentsStore;
+	var setActiveTab = (activeTab) => setState$2({ activeTab });
+	var setFeed = (tab, next) => setState$2({ feeds: {
+		...getState$2().feeds,
+		[tab]: {
+			...getState$2().feeds[tab],
+			...next
+		}
+	} });
+	var updateIn = (list, id, update) => list.map((message) => message.id === id ? update(message) : message);
+	var updateMessage = (id, update) => {
+		const { feeds, threads } = getState$2();
+		setState$2({
+			feeds: {
+				[CHAT_TAB.SUPER]: {
+					...feeds[CHAT_TAB.SUPER],
+					messages: updateIn(feeds[CHAT_TAB.SUPER].messages, id, update)
+				},
+				[CHAT_TAB.FEATURED]: {
+					...feeds[CHAT_TAB.FEATURED],
+					messages: updateIn(feeds[CHAT_TAB.FEATURED].messages, id, update)
+				},
+				[CHAT_TAB.NORMAL]: {
+					...feeds[CHAT_TAB.NORMAL],
+					messages: updateIn(feeds[CHAT_TAB.NORMAL].messages, id, update)
+				}
+			},
+			threads: Object.fromEntries(Object.entries(threads).map(([rootId, thread]) => [rootId, {
+				...thread,
+				replies: updateIn(thread.replies, id, update)
+			}]))
+		});
+	};
+	var parseLiveCursor = (cursor) => {
+		const [roomCursor, meCursor] = cursor.split(".");
+		return {
+			[LIVE_CHANNEL.ROOM]: roomCursor,
+			[LIVE_CHANNEL.ME]: meCursor ?? ""
+		};
+	};
+	var loadRoomSettings = async () => {
+		try {
+			setState$2({ settings: await fetchRoomSettings(getState$2().roomId) });
+		} catch {
+			setState$2({ settings: null });
+		}
+	};
+	var joinRoom = (roomId) => {
+		if (getState$2().roomId === roomId) return;
+		setState$2({ roomId });
+		loadRoomSettings();
+	};
+	var loadSnapshot = async (tab) => {
+		if (getState$2().feeds[tab].status !== REQUEST_STATUS.SUCCEEDED) setFeed(tab, {
+			status: REQUEST_STATUS.LOADING,
+			error: null
+		});
+		try {
+			const page = await fetchRoomMessages(getState$2().roomId, TAB_FILTER[tab]);
+			if (!cursors.live && page.stream_cursor) cursors.live = parseLiveCursor(page.stream_cursor);
+			cursors.next[tab] = page.next_cursor;
+			setFeed(tab, {
+				messages: page.items,
+				status: REQUEST_STATUS.SUCCEEDED,
+				hasMore: Boolean(page.next_cursor)
+			});
+			setState$2({ counts: {
+				[CHAT_TAB.SUPER]: page.superchat_count,
+				[CHAT_TAB.FEATURED]: page.member_count,
+				[CHAT_TAB.NORMAL]: page.total_count
+			} });
+			if (page.items.length === 0) loadMoreComments(tab);
+		} catch (error) {
+			setFeed(tab, {
+				status: REQUEST_STATUS.FAILED,
+				error: toErrorMessage(error, ERROR_MESSAGE.LOAD_COMMENTS)
+			});
+		}
+	};
+	var loadComments = (tab) => {
+		if (getState$2().feeds[tab].status === REQUEST_STATUS.IDLE) loadSnapshot(tab);
+	};
+	var loadMoreComments = async (tab) => {
+		if (!cursors.next[tab] || getState$2().feeds[tab].isLoadingMore) return;
+		setFeed(tab, { isLoadingMore: true });
+		try {
+			while (cursors.next[tab]) {
+				const page = await fetchRoomMessages(getState$2().roomId, TAB_FILTER[tab], cursors.next[tab]);
+				cursors.next[tab] = page.next_cursor;
+				if (page.items.length > 0) {
+					setFeed(tab, { messages: [...getState$2().feeds[tab].messages, ...page.items] });
+					break;
+				}
+			}
+		} catch {
+			return;
+		} finally {
+			setFeed(tab, {
+				isLoadingMore: false,
+				hasMore: Boolean(cursors.next[tab])
+			});
+		}
+	};
+	var setThread = (rootId, next) => {
+		const { threads } = getState$2();
+		const thread = threads[rootId] ?? {
+			isOpen: false,
+			status: REQUEST_STATUS.IDLE,
+			replies: []
+		};
+		setState$2({ threads: {
+			...threads,
+			[rootId]: {
+				...thread,
+				...next
+			}
+		} });
+	};
+	var loadThread = async (rootId) => {
+		const status = getState$2().threads[rootId]?.status;
+		if (status === REQUEST_STATUS.SUCCEEDED || status === REQUEST_STATUS.LOADING) return;
+		setThread(rootId, { status: REQUEST_STATUS.LOADING });
+		try {
+			const items = await fetchRoomThread(getState$2().roomId, rootId);
+			setThread(rootId, {
+				status: REQUEST_STATUS.SUCCEEDED,
+				replies: items.filter((item) => item.id !== rootId)
+			});
+		} catch {
+			setThread(rootId, { status: REQUEST_STATUS.FAILED });
+		}
+	};
+	var toggleThread = (rootId) => {
+		const isOpen = !getState$2().threads[rootId]?.isOpen;
+		setThread(rootId, { isOpen });
+		if (isOpen) loadThread(rootId);
+	};
+	var openThread = (message) => {
+		const rootId = message.depth === 0 ? message.id : message.root_id;
+		setState$2({ threadStack: [...getState$2().threadStack, {
+			id: message.id,
+			rootId
+		}] });
+		loadThread(rootId);
+	};
+	var closeThreadLevel = () => setState$2({ threadStack: getState$2().threadStack.slice(0, -1) });
+	var closeThreads = () => setState$2({ threadStack: [] });
+	var markSent = (tab) => setState$2({ lastSent: {
+		tab,
+		id: (getState$2().lastSent?.id ?? 0) + 1
+	} });
+	var sendComment = async (body, parentId) => {
+		await postRoomMessage(getState$2().roomId, body, parentId);
+		if (!parentId) markSent(CHAT_TAB.NORMAL);
+	};
+	var sendSuperChat = async (body, parentId) => {
+		await buySuperChat(getState$2().roomId, body, parentId);
+		markSent(CHAT_TAB.SUPER);
+	};
+	var editComment = (messageId, body) => editRoomMessage(getState$2().roomId, messageId, body);
+	var reportComment = (messageId, reason) => reportRoomMessage(getState$2().roomId, messageId, reason);
+	var reactionsInFlight = /* @__PURE__ */ new Map();
+	var changeCount = (counts, kind, change) => ({
+		...counts,
+		[kind]: Math.max((counts[kind] ?? 0) + change, 0)
+	});
+	var toggleReaction = async (message, reaction) => {
+		const { roomId } = getState$2();
+		const mine = message.my_reactions ?? [];
+		const isRemoving = mine.includes(reaction);
+		const previous = isRemoving || reaction === "1f44d" ? void 0 : mine.find((kind) => kind !== LIKE_REACTION);
+		let counts = changeCount(message.reaction_counts, reaction, isRemoving ? -1 : 1);
+		if (previous) counts = changeCount(counts, previous, -1);
+		const myReactions = mine.filter((kind) => kind !== reaction && kind !== previous);
+		if (!isRemoving) myReactions.push(reaction);
+		updateMessage(message.id, (current) => ({
+			...current,
+			my_reactions: myReactions,
+			reaction_counts: counts
+		}));
+		reactionsInFlight.set(message.id, (reactionsInFlight.get(message.id) ?? 0) + 1);
+		try {
+			if (previous) await removeReaction(roomId, message.id, previous);
+			if (isRemoving) await removeReaction(roomId, message.id, reaction);
+			else await addReaction(roomId, message.id, reaction);
+		} catch (error) {
+			updateMessage(message.id, (current) => ({
+				...current,
+				my_reactions: mine,
+				reaction_counts: message.reaction_counts
+			}));
+			throw error;
+		} finally {
+			const running = (reactionsInFlight.get(message.id) ?? 1) - 1;
+			if (running > 0) reactionsInFlight.set(message.id, running);
+			else reactionsInFlight.delete(message.id);
+		}
+	};
+	var useComments = commentsStore.useStore;
+	//#endregion
+	//#region src/api/liveSocket.ts
+	var openLiveSocket = (roomId, { getCursor, onMessage }) => {
+		let isClosed = false;
+		let socket = null;
+		let failures = 0;
+		let retryTimer;
+		const scheduleReconnect = () => {
+			if (isClosed) return;
+			failures += 1;
+			const delay = Math.min(LIVE_MAX_RETRY_DELAY_MS, LIVE_BASE_RETRY_DELAY_MS * 2 ** failures) * (.5 + Math.random());
+			retryTimer = window.setTimeout(connect, delay);
+		};
+		const connect = async () => {
+			try {
+				const { ticket, transportUrl } = await createCommentsTicket();
+				if (isClosed) return;
+				const url = new URL(`${transportUrl.replace(/^http/, "ws")}${LIVE_API.ROOM_SOCKET(roomId)}`);
+				url.searchParams.set(LIVE_SOCKET_PARAM.TICKET, ticket);
+				const cursor = getCursor();
+				if (cursor) url.searchParams.set(LIVE_SOCKET_PARAM.CURSOR, cursor);
+				const ws = new WebSocket(url);
+				socket = ws;
+				ws.onmessage = (event) => {
+					failures = 0;
+					const message = JSON.parse(event.data);
+					if (message.type === LIVE_MESSAGE_TYPE.GOAWAY) window.setTimeout(() => ws.close(), message.reconnect_after_ms);
+					onMessage(message);
+				};
+				ws.onclose = () => {
+					if (socket === ws) socket = null;
+					scheduleReconnect();
+				};
+			} catch {
+				scheduleReconnect();
+			}
+		};
+		connect();
+		return () => {
+			isClosed = true;
+			window.clearTimeout(retryTimer);
+			socket?.close();
+		};
+	};
+	//#endregion
+	//#region src/store/liveComments.ts
+	var { getState: getState$1, setState: setState$1 } = commentsStore;
+	var reactionSeqs = /* @__PURE__ */ new Map();
+	var pendingCounts = /* @__PURE__ */ new Map();
+	var hasMessage = (id) => {
+		const { feeds, threads } = getState$1();
+		return [...Object.values(feeds).map((feed) => feed.messages), ...Object.values(threads).map((thread) => thread.replies)].some((list) => list.some((message) => message.id === id));
+	};
+	var insertReply = (replies, reply) => {
+		const parentIndex = replies.findIndex((message) => message.id === reply.parent_id);
+		if (parentIndex === -1) return [...replies, reply];
+		let index = parentIndex + 1;
+		while (index < replies.length && replies[index].depth > replies[parentIndex].depth) index += 1;
+		return [
+			...replies.slice(0, index),
+			reply,
+			...replies.slice(index)
+		];
+	};
+	var addReply = (reply) => {
+		updateMessage(reply.parent_id ?? reply.root_id, (parent) => ({
+			...parent,
+			reply_count: parent.reply_count + 1
+		}));
+		const { threads } = getState$1();
+		const thread = threads[reply.root_id];
+		if (thread?.status === REQUEST_STATUS.SUCCEEDED) setState$1({ threads: {
+			...threads,
+			[reply.root_id]: {
+				...thread,
+				replies: insertReply(thread.replies, reply)
+			}
+		} });
+	};
+	var getTabs = (message) => {
+		const tabs = [CHAT_TAB.NORMAL];
+		if (message.kind === MESSAGE_KIND.SUPERCHAT) tabs.push(CHAT_TAB.SUPER);
+		if (message.from_member) tabs.push(CHAT_TAB.FEATURED);
+		return tabs;
+	};
+	var changeCounts = (message, change) => {
+		const counts = { ...getState$1().counts };
+		getTabs(message).forEach((tab) => {
+			counts[tab] += change;
+		});
+		setState$1({ counts });
+	};
+	var addTopLevel = (message) => {
+		getTabs(message).forEach((tab) => {
+			const feed = getState$1().feeds[tab];
+			if (feed.status === REQUEST_STATUS.SUCCEEDED) setFeed(tab, { messages: [message, ...feed.messages] });
+		});
+		changeCounts(message, 1);
+	};
+	var findTopLevel = (id) => Object.values(getState$1().feeds).flatMap((feed) => feed.messages).find((message) => message.id === id);
+	var applyFrame = (frame) => {
+		switch (frame.type) {
+			case LIVE_FRAME_TYPE.MESSAGE_NEW: {
+				const counts = pendingCounts.get(frame.data.id);
+				pendingCounts.delete(frame.data.id);
+				const message = counts ? {
+					...frame.data,
+					reaction_counts: counts
+				} : frame.data;
+				if (hasMessage(message.id)) updateMessage(message.id, () => message);
+				else if (message.depth > 0) addReply(message);
+				else addTopLevel(message);
+				break;
+			}
+			case LIVE_FRAME_TYPE.MESSAGE_UPDATE: {
+				const { id, body, body_version } = frame.data;
+				updateMessage(id, (message) => message.status === MESSAGE_STATUS.PUBLISHED && body_version > message.body_version ? {
+					...message,
+					body,
+					body_version
+				} : message);
+				break;
+			}
+			case LIVE_FRAME_TYPE.MESSAGE_REMOVE:
+			case LIVE_FRAME_TYPE.MESSAGE_STATUS: {
+				const { id, status } = frame.data;
+				const message = findTopLevel(id);
+				if (message && status === MESSAGE_STATUS.REMOVED && message.status !== MESSAGE_STATUS.REMOVED) changeCounts(message, -1);
+				updateMessage(id, (message) => ({
+					...message,
+					status,
+					body: status === MESSAGE_STATUS.REMOVED ? "" : message.body
+				}));
+				break;
+			}
+			case LIVE_FRAME_TYPE.REACTION_COUNT:
+				frame.data.messages.forEach(({ message_id, seq, counts }) => {
+					if (Number(seq) <= (reactionSeqs.get(message_id) ?? -1)) return;
+					reactionSeqs.set(message_id, Number(seq));
+					if (reactionsInFlight.has(message_id)) return;
+					if (hasMessage(message_id)) updateMessage(message_id, (message) => ({
+						...message,
+						reaction_counts: counts
+					}));
+					else pendingCounts.set(message_id, counts);
+				});
+				break;
+			case LIVE_FRAME_TYPE.ROOM_MODE: {
+				const { settings } = getState$1();
+				if (settings) setState$1({ settings: {
+					...settings,
+					mode: frame.data.mode
+				} });
+				break;
+			}
+		}
+	};
+	var applyLiveMessage = (message) => {
+		switch (message.type) {
+			case LIVE_MESSAGE_TYPE.HELLO:
+				cursors.live ??= parseLiveCursor(message.cursor);
+				break;
+			case LIVE_MESSAGE_TYPE.FRAMES:
+				message.frames.forEach(applyFrame);
+				if (cursors.live) cursors.live[message.channel] = message.cursor;
+				break;
+			case LIVE_MESSAGE_TYPE.RESYNC:
+				if (cursors.live) cursors.live[message.channel] = message.cursor;
+				Object.values(CHAT_TAB).forEach((tab) => {
+					if (getState$1().feeds[tab].status !== REQUEST_STATUS.IDLE) loadSnapshot(tab);
+				});
+		}
+	};
+	var startLiveComments = () => openLiveSocket(getState$1().roomId, {
+		getCursor: () => cursors.live ? `${cursors.live.room}.${cursors.live.me}` : null,
+		onMessage: applyLiveMessage
+	});
+	//#endregion
+	//#region src/store/superChatSlice.ts
+	var store$1 = createStore({
+		isOpen: false,
+		text: "",
+		approvedText: null,
+		needsModeration: false,
+		sentCount: 0
+	});
+	var setSuperChatText = (text) => store$1.setState(text.trim() ? { text } : {
+		text,
+		isOpen: false
+	});
+	var openSuperChatSheet = (approvedText = null) => store$1.setState({
+		isOpen: true,
+		approvedText,
+		needsModeration: false
+	});
+	var closeSuperChatSheet = () => store$1.setState({ isOpen: false });
+	var requestSuperChatModeration = () => store$1.setState({
+		isOpen: false,
+		needsModeration: true
+	});
+	var cancelSuperChatModeration = () => store$1.setState({ needsModeration: false });
+	var markSuperChatSent = () => store$1.setState({
+		isOpen: false,
+		approvedText: null,
+		sentCount: store$1.getState().sentCount + 1
+	});
+	var useSuperChat = store$1.useStore;
+	//#endregion
+	//#region src/store/userMessagesSlice.ts
+	var INITIAL_STATE = {
+		userId: null,
+		userName: "",
+		activityTab: ACTIVITY_TAB.ALL,
+		status: REQUEST_STATUS.IDLE,
+		items: [],
+		error: null,
+		hasMore: false,
+		isLoadingMore: false
+	};
+	var { getState, setState, useStore } = createStore(INITIAL_STATE);
+	var nextCursor = null;
+	var isSelf = false;
+	var isShowing = (userId, tab) => getState().userId === userId && getState().activityTab === tab;
+	var toActivity = (message) => ({
+		type: message.depth > 0 ? ACTIVITY_TYPE.REPLY : ACTIVITY_TYPE.COMMENT,
+		at: message.created_at,
+		message
+	});
+	var fetchPage = async (userId, tab, cursor) => {
+		if (isSelf) return fetchMyActivity(cursor, tab === ACTIVITY_TAB.REMOVED ? MESSAGE_STATUS.REMOVED : void 0);
+		const page = await fetchUserMessages(userId, cursor);
+		return {
+			items: page.items.map(toActivity),
+			next_cursor: page.next_cursor
+		};
+	};
+	var loadFirstPage = async (userId, tab) => {
+		try {
+			const page = await fetchPage(userId, tab);
+			if (!isShowing(userId, tab)) return;
+			nextCursor = page.next_cursor;
+			setState({
+				items: page.items,
+				status: REQUEST_STATUS.SUCCEEDED,
+				hasMore: Boolean(nextCursor)
+			});
+		} catch (error) {
+			if (getErrorStatus(error) === HTTP_STATUS.UNAUTHORIZED) {
+				handleSessionExpired();
+				return;
+			}
+			if (isShowing(userId, tab)) setState({
+				status: REQUEST_STATUS.FAILED,
+				error: toErrorMessage(error, ERROR_MESSAGE.LOAD_USER_MESSAGES)
+			});
+		}
+	};
+	var openUserMessages = (userId, userName, self = false) => {
+		nextCursor = null;
+		isSelf = self;
+		setState({
+			...INITIAL_STATE,
+			userId,
+			userName,
+			status: REQUEST_STATUS.LOADING
+		});
+		loadFirstPage(userId, ACTIVITY_TAB.ALL);
+	};
+	var setActivityTab = (activityTab) => {
+		const { userId, userName } = getState();
+		if (!userId) return;
+		nextCursor = null;
+		setState({
+			...INITIAL_STATE,
+			userId,
+			userName,
+			activityTab,
+			status: REQUEST_STATUS.LOADING
+		});
+		loadFirstPage(userId, activityTab);
+	};
+	var loadMoreUserMessages = async () => {
+		const { userId, activityTab, isLoadingMore } = getState();
+		if (!userId || !nextCursor || isLoadingMore) return;
+		setState({ isLoadingMore: true });
+		try {
+			const page = await fetchPage(userId, activityTab, nextCursor);
+			if (isShowing(userId, activityTab)) {
+				nextCursor = page.next_cursor;
+				setState({
+					items: [...getState().items, ...page.items],
+					hasMore: Boolean(nextCursor)
+				});
+			}
+		} catch {
+			if (isShowing(userId, activityTab)) setState({ hasMore: false });
+		} finally {
+			if (isShowing(userId, activityTab)) setState({ isLoadingMore: false });
+		}
+	};
+	var closeUserMessages = () => {
+		nextCursor = null;
+		setState(INITIAL_STATE);
+	};
+	var useUserMessages = useStore;
+	//#endregion
+	//#region src/utils/message.ts
+	var getReplyParentId = (message, maxDepth = 1) => message.depth < maxDepth ? message.id : message.parent_id ?? message.root_id;
+	var isVisibleMessage = (message) => message.status === MESSAGE_STATUS.PUBLISHED || message.status === MESSAGE_STATUS.HELD;
+	var getVisibleReplies = (replies, parentId) => replies.filter((reply) => reply.parent_id === parentId && isVisibleMessage(reply));
+	var getSuperChatTier = (extraCoins) => SUPERCHAT_TIERS.findLast((tier) => extraCoins >= tier.extraCoins) ?? SUPERCHAT_TIERS[0];
+	var getAuthorName = (author, authorId = "") => {
+		return [author?.first_name, author?.last_name].map((part) => part?.trim()).filter(Boolean).join(" ") || author?.display_name?.trim() || authorId;
+	};
+	var getAuthorRank = (author) => Object.values(USER_RANK).find((rank) => rank === author?.membership_tier?.toLowerCase()) ?? USER_RANK.FRIEND;
+	//#endregion
+	//#region src/store/replySlice.ts
+	var store = createStore({ replyTo: null });
+	var startReply = (replyTo) => store.setState({ replyTo });
+	var cancelReply = () => store.setState({ replyTo: null });
+	var useReply = store.useStore;
+	//#endregion
+	//#region src/utils/format.ts
+	var formatRelativeTime = (isoDate) => {
+		const seconds = Math.floor(Math.max(0, Date.now() - new Date(isoDate).getTime()) / 1e3);
+		if (seconds < 60) return `${seconds}s`;
+		const minutes = Math.floor(seconds / 60);
+		if (minutes < 60) return `${minutes}m`;
+		const hours = Math.floor(minutes / 60);
+		if (hours < 24) return `${hours}h`;
+		return `${Math.floor(hours / 24)}d`;
+	};
+	var formatCountdown = (ms) => {
+		const totalSeconds = Math.ceil(Math.max(0, ms) / 1e3);
+		return `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, "0")}`;
+	};
+	var formatDuration = (seconds) => {
+		if (seconds >= 60 && seconds % 60 === 0) {
+			const minutes = seconds / 60;
+			return `${minutes} ${minutes === 1 ? "minute" : "minutes"}`;
+		}
+		return `${seconds} ${seconds === 1 ? "second" : "seconds"}`;
+	};
+	var formatCoins = (coins) => `${coins.toLocaleString(LOCALE)} ${coins === 1 ? "Coin" : "Coins"}`;
+	var formatNextMonthStart = () => {
+		const now = /* @__PURE__ */ new Date();
+		return `1st ${new Date(now.getFullYear(), now.getMonth() + 1, 1).toLocaleString(LOCALE, {
+			month: "short",
+			year: "2-digit"
+		})}`;
+	};
+	//#endregion
+	//#region src/hooks/useClickOutside.ts
+	var useClickOutside = (ref, isActive, onOutside) => {
 		(0, import_react.useEffect)(() => {
 			if (!isActive) return;
-			const handleKeyDown = (event) => {
-				if (event.key === "Escape") handleEscape();
+			const handlePointerDown = (event) => {
+				if (ref.current && !event.composedPath().includes(ref.current)) onOutside();
 			};
-			document.addEventListener("keydown", handleKeyDown);
-			return () => document.removeEventListener("keydown", handleKeyDown);
-		}, [isActive]);
-	}
-	/** Closes a popup on Escape or on a click outside `ref`, while it's open. */
-	function useDismiss(ref, isOpen, onDismiss) {
-		const handleDismiss = (0, import_react.useEffectEvent)(onDismiss);
-		useEscapeKey(isOpen, onDismiss);
-		(0, import_react.useEffect)(() => {
-			if (!isOpen) return;
-			const handleMouseDown = (event) => {
-				if (!isEventInside(event, ref.current)) handleDismiss();
+			document.addEventListener("pointerdown", handlePointerDown);
+			return () => {
+				document.removeEventListener("pointerdown", handlePointerDown);
 			};
-			document.addEventListener("mousedown", handleMouseDown);
-			return () => document.removeEventListener("mousedown", handleMouseDown);
-		}, [ref, isOpen]);
-	}
+		}, [
+			ref,
+			isActive,
+			onOutside
+		]);
+	};
 	//#endregion
-	//#region src/components/MessageActions.tsx
-	var _jsxFileName$25 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/MessageActions.tsx";
-	/**
-	* "More" menu on a comment: Share, plus Remove on the viewer's own comments or
-	* Report on everyone else's. Remove asks for a second click to confirm.
-	*/
-	function MessageActions({ message }) {
-		const { userId, requireLogin } = useUser();
-		const { removeMessage, reportMessage } = useChat();
-		const isSelf = message.user.id === userId;
-		const [open, setOpen] = (0, import_react.useState)(false);
+	//#region src/components/messageItem/MessageActions.tsx
+	var _jsxFileName$15 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageActions.tsx";
+	var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, onEdit }) => {
+		const { status } = useAuth();
+		const [isOpen, setIsOpen] = (0, import_react.useState)(false);
+		const [isPickingReason, setIsPickingReason] = (0, import_react.useState)(false);
 		const [feedback, setFeedback] = (0, import_react.useState)(null);
-		const [isConfirmingRemove, setIsConfirmingRemove] = (0, import_react.useState)(false);
-		const [isReported, setIsReported] = (0, import_react.useState)(false);
-		const [isBusy, setIsBusy] = (0, import_react.useState)(false);
+		const [isReporting, setIsReporting] = (0, import_react.useState)(false);
+		const [now, setNow] = (0, import_react.useState)(Date.now);
 		const containerRef = (0, import_react.useRef)(null);
 		const closeTimer = (0, import_react.useRef)(void 0);
 		const close = () => {
 			window.clearTimeout(closeTimer.current);
-			setOpen(false);
+			setIsOpen(false);
+			setIsPickingReason(false);
 			setFeedback(null);
-			setIsConfirmingRemove(false);
 		};
 		const flash = (text) => {
 			setFeedback(text);
@@ -22283,51 +25287,43 @@
 			closeTimer.current = window.setTimeout(close, MESSAGE_ACTION_FEEDBACK_MS);
 		};
 		(0, import_react.useEffect)(() => () => window.clearTimeout(closeTimer.current), []);
-		useDismiss(containerRef, open, close);
-		const handleShare = async () => {
-			const text = `${message.user.name}: ${message.message}`;
-			const url = window.location.href;
-			try {
-				if (navigator.share) {
-					await navigator.share({
-						title: "GB News comment",
-						text,
-						url
-					});
-					close();
-				} else {
-					await navigator.clipboard.writeText(`${text}\n${url}`);
-					flash("Link copied");
-				}
-			} catch (err) {
-				if (err instanceof DOMException && err.name === "AbortError") close();
-				else flash("Couldn't share");
-			}
+		(0, import_react.useEffect)(() => {
+			if (!isOpen || editableUntil === null) return;
+			const interval = window.setInterval(() => setNow(Date.now()), 1e3);
+			return () => {
+				window.clearInterval(interval);
+			};
+		}, [isOpen, editableUntil]);
+		useClickOutside(containerRef, isOpen, close);
+		const isSuper = message.kind === MESSAGE_KIND.SUPERCHAT;
+		const editTimeLeft = editableUntil === null ? 0 : editableUntil - now;
+		const canEdit = !isSuper && editTimeLeft > 0;
+		let editDisabledReason = EDIT_DISABLED_REASON.EXPIRED(formatDuration(editWindowSec));
+		if (isSuper) editDisabledReason = EDIT_DISABLED_REASON.SUPERCHAT;
+		else if (editableUntil === null) editDisabledReason = EDIT_DISABLED_REASON.ROOM;
+		const handleEdit = () => {
+			if (!canEdit) return;
+			close();
+			onEdit();
 		};
-		const handleReport = async () => {
-			if (!requireLogin()) return;
-			setIsBusy(true);
-			try {
-				await reportMessage(message.id, userId);
-				setIsReported(true);
-				flash("Reported, thanks");
-			} catch {
-				flash("Couldn't report, try again");
-			} finally {
-				setIsBusy(false);
-			}
-		};
-		const handleRemove = async () => {
-			if (!isConfirmingRemove) {
-				setIsConfirmingRemove(true);
+		const handleReport = () => {
+			if (status !== AUTH_STATUS.AUTHENTICATED) {
+				close();
+				openGbnLogin();
 				return;
 			}
-			setIsBusy(true);
+			setIsPickingReason(true);
+		};
+		const handlePickReason = async (reason) => {
+			setIsReporting(true);
 			try {
-				await removeMessage(message.id, userId);
-			} catch {
-				setIsBusy(false);
-				flash("Couldn't remove, try again");
+				await reportComment(message.id, reason);
+				flash("Reported, thanks");
+			} catch (error) {
+				const isDuplicate = getErrorStatus(error) === HTTP_STATUS.CONFLICT;
+				flash(isDuplicate ? ERROR_MESSAGE.ALREADY_REPORTED : ERROR_MESSAGE.REPORT_MESSAGE);
+			} finally {
+				setIsReporting(false);
 			}
 		};
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -22337,2710 +25333,1847 @@
 				type: "button",
 				className: "message-actions__trigger",
 				"aria-label": "Message actions",
-				"aria-expanded": open,
+				"aria-expanded": isOpen,
 				"aria-haspopup": "menu",
-				onClick: () => open ? close() : setOpen(true),
+				onClick: () => {
+					if (isOpen) {
+						close();
+						return;
+					}
+					setNow(Date.now());
+					setIsOpen(true);
+				},
 				children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-					src: more_default,
+					src: isSuper ? moreWhite_default : more_default,
 					alt: "",
 					className: "message-actions__icon"
 				}, void 0, false, {
-					fileName: _jsxFileName$25,
-					lineNumber: 104,
+					fileName: _jsxFileName$15,
+					lineNumber: 124,
 					columnNumber: 9
-				}, this)
+				}, void 0)
 			}, void 0, false, {
-				fileName: _jsxFileName$25,
-				lineNumber: 96,
+				fileName: _jsxFileName$15,
+				lineNumber: 109,
 				columnNumber: 7
-			}, this), open && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			}, void 0), isOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 				className: "message-actions__menu",
 				role: "menu",
-				children: feedback ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-					className: "message-actions__feedback",
-					role: "status",
-					children: feedback
-				}, void 0, false, {
-					fileName: _jsxFileName$25,
-					lineNumber: 109,
-					columnNumber: 13
-				}, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-					type: "button",
-					role: "menuitem",
-					onClick: handleShare,
-					children: "Share"
-				}, void 0, false, {
-					fileName: _jsxFileName$25,
-					lineNumber: 114,
-					columnNumber: 15
-				}, this), isSelf ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-					type: "button",
-					role: "menuitem",
-					className: "message-actions__danger",
-					onClick: handleRemove,
-					disabled: isBusy,
-					children: isConfirmingRemove ? "Confirm remove" : "Remove"
-				}, void 0, false, {
-					fileName: _jsxFileName$25,
-					lineNumber: 118,
-					columnNumber: 17
-				}, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-					type: "button",
-					role: "menuitem",
-					className: "message-actions__danger",
-					onClick: handleReport,
-					disabled: isBusy || isReported,
-					children: isReported ? "Reported" : "Report"
-				}, void 0, false, {
-					fileName: _jsxFileName$25,
-					lineNumber: 128,
-					columnNumber: 17
-				}, this)] }, void 0, true, {
-					fileName: _jsxFileName$25,
-					lineNumber: 113,
-					columnNumber: 13
-				}, this)
-			}, void 0, false, {
-				fileName: _jsxFileName$25,
-				lineNumber: 107,
+				children: [
+					feedback && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						className: "message-actions__feedback",
+						role: "status",
+						children: feedback
+					}, void 0, false, {
+						fileName: _jsxFileName$15,
+						lineNumber: 129,
+						columnNumber: 13
+					}, void 0),
+					!feedback && isPickingReason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "message-actions__reasons",
+						children: REPORT_REASONS.map(({ reason, label }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							role: "menuitem",
+							className: "message-actions__item",
+							onClick: () => handlePickReason(reason),
+							disabled: isReporting,
+							children: label
+						}, reason, false, {
+							fileName: _jsxFileName$15,
+							lineNumber: 136,
+							columnNumber: 17
+						}, void 0))
+					}, void 0, false, {
+						fileName: _jsxFileName$15,
+						lineNumber: 134,
+						columnNumber: 13
+					}, void 0),
+					!feedback && !isPickingReason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [isOwn && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						role: "menuitem",
+						className: "message-actions__item",
+						onClick: handleEdit,
+						"aria-disabled": !canEdit,
+						title: canEdit ? void 0 : editDisabledReason,
+						children: [
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+								src: MESSAGE_ACTION.EDIT.icon,
+								alt: "",
+								className: "message-actions__item-icon"
+							}, void 0, false, {
+								fileName: _jsxFileName$15,
+								lineNumber: 160,
+								columnNumber: 19
+							}, void 0),
+							MESSAGE_ACTION.EDIT.label,
+							canEdit && ` (${formatCountdown(editTimeLeft)})`
+						]
+					}, void 0, true, {
+						fileName: _jsxFileName$15,
+						lineNumber: 152,
+						columnNumber: 17
+					}, void 0), !isOwn && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						role: "menuitem",
+						className: "message-actions__item",
+						onClick: handleReport,
+						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+							src: MESSAGE_ACTION.REPORT.icon,
+							alt: "",
+							className: "message-actions__item-icon"
+						}, void 0, false, {
+							fileName: _jsxFileName$15,
+							lineNumber: 173,
+							columnNumber: 19
+						}, void 0), MESSAGE_ACTION.REPORT.label]
+					}, void 0, true, {
+						fileName: _jsxFileName$15,
+						lineNumber: 172,
+						columnNumber: 17
+					}, void 0)] }, void 0, true, {
+						fileName: _jsxFileName$15,
+						lineNumber: 150,
+						columnNumber: 13
+					}, void 0)
+				]
+			}, void 0, true, {
+				fileName: _jsxFileName$15,
+				lineNumber: 127,
 				columnNumber: 9
-			}, this)]
+			}, void 0)]
 		}, void 0, true, {
-			fileName: _jsxFileName$25,
-			lineNumber: 95,
+			fileName: _jsxFileName$15,
+			lineNumber: 108,
 			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/ReactionIcon.tsx
-	var _jsxFileName$24 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/ReactionIcon.tsx";
-	var FACE_STROKE = "#4A2C12";
-	var FACE_GRADIENTS = {
-		[REACTION_KIND.HAPPY]: ["#FEDB52", "#F5B52B"],
-		[REACTION_KIND.LAUGH]: ["#FEDB52", "#F5B52B"],
-		[REACTION_KIND.SAD]: ["#FEDB52", "#F5B52B"],
-		[REACTION_KIND.CONFUSED]: ["#FEDB52", "#F5B52B"],
-		[REACTION_KIND.ANGRY]: ["#E8563A", "#F5B52B"]
+		}, void 0);
 	};
-	/**
-	* Flat, Facebook-style reaction faces. Drawn as SVG rather than native emoji so
-	* they look the same on every platform.
-	*/
-	function ReactionIcon({ kind, size = 32, className }) {
-		const gradientId = `reaction-${(0, import_react.useId)().replace(/[^a-zA-Z0-9_-]/g, "")}`;
-		const [gradientTop, gradientBottom] = FACE_GRADIENTS[kind];
-		const stroke = {
-			fill: "none",
-			stroke: FACE_STROKE,
-			strokeWidth: 2.4,
-			strokeLinecap: "round"
+	//#endregion
+	//#region src/components/messageItem/MessageEditor.tsx
+	var _jsxFileName$14 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageEditor.tsx";
+	var MessageEditor = ({ message, onClose }) => {
+		const [draft, setDraft] = (0, import_react.useState)(message.body);
+		const [isSaving, setIsSaving] = (0, import_react.useState)(false);
+		const [error, setError] = (0, import_react.useState)(null);
+		const body = draft.trim();
+		const canSave = Boolean(body) && body !== message.body && !isSaving;
+		const save = async () => {
+			if (!canSave) return;
+			setIsSaving(true);
+			setError(null);
+			try {
+				await editComment(message.id, body);
+				onClose();
+			} catch (saveError) {
+				setError(toErrorMessage(saveError, ERROR_MESSAGE.EDIT_MESSAGE));
+				setIsSaving(false);
+			}
 		};
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
-			className,
-			width: size,
-			height: size,
-			viewBox: "0 0 40 40",
-			"aria-hidden": "true",
-			focusable: "false",
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "message-editor",
 			children: [
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("defs", { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("linearGradient", {
-					id: gradientId,
-					x1: "0",
-					y1: "0",
-					x2: "0",
-					y2: "1",
-					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("stop", {
-						offset: "0",
-						stopColor: gradientTop
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
+					className: "message-editor__input",
+					"aria-label": "Edit your message",
+					rows: 2,
+					value: draft,
+					onChange: (event) => {
+						setDraft(event.target.value);
+						setError(null);
+					},
+					onKeyDown: (event) => {
+						if (event.key === "Enter" && !event.shiftKey) {
+							event.preventDefault();
+							save();
+						}
+					},
+					readOnly: isSaving,
+					autoFocus: true
+				}, void 0, false, {
+					fileName: _jsxFileName$14,
+					lineNumber: 36,
+					columnNumber: 7
+				}, void 0),
+				error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+					className: "message-editor__error",
+					role: "alert",
+					children: error
+				}, void 0, false, {
+					fileName: _jsxFileName$14,
+					lineNumber: 55,
+					columnNumber: 9
+				}, void 0),
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+					className: "message-editor__actions",
+					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						className: "message-editor__btn message-editor__btn--cancel",
+						onClick: onClose,
+						children: "Cancel"
 					}, void 0, false, {
-						fileName: _jsxFileName$24,
-						lineNumber: 48,
-						columnNumber: 11
-					}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("stop", {
-						offset: "1",
-						stopColor: gradientBottom
+						fileName: _jsxFileName$14,
+						lineNumber: 60,
+						columnNumber: 9
+					}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						className: "message-editor__btn",
+						onClick: save,
+						disabled: !canSave,
+						children: isSaving ? "Saving..." : "Save"
 					}, void 0, false, {
-						fileName: _jsxFileName$24,
-						lineNumber: 49,
-						columnNumber: 11
-					}, this)]
+						fileName: _jsxFileName$14,
+						lineNumber: 63,
+						columnNumber: 9
+					}, void 0)]
 				}, void 0, true, {
-					fileName: _jsxFileName$24,
-					lineNumber: 47,
-					columnNumber: 9
-				}, this) }, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 46,
-					columnNumber: 7
-				}, this),
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("circle", {
-					cx: "20",
-					cy: "20",
-					r: "20",
-					fill: `url(#${gradientId})`
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 52,
-					columnNumber: 7
-				}, this),
-				kind === REACTION_KIND.HAPPY || kind === REACTION_KIND.LAUGH ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-					d: "M11.5 17.5q3-4 6 0M22.5 17.5q3-4 6 0",
-					...stroke
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 56,
-					columnNumber: 9
-				}, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("ellipse", {
-					cx: "14",
-					cy: "19",
-					rx: "2.1",
-					ry: "2.7",
-					fill: FACE_STROKE
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
+					fileName: _jsxFileName$14,
 					lineNumber: 59,
-					columnNumber: 11
-				}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("ellipse", {
-					cx: "26",
-					cy: "19",
-					rx: "2.1",
-					ry: "2.7",
-					fill: FACE_STROKE
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 60,
-					columnNumber: 11
-				}, this)] }, void 0, true, {
-					fileName: _jsxFileName$24,
-					lineNumber: 58,
-					columnNumber: 9
-				}, this),
-				kind === REACTION_KIND.HAPPY && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-					d: "M12 23.5q8 8.5 16 0",
-					...stroke
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 64,
-					columnNumber: 40
-				}, this),
-				kind === REACTION_KIND.LAUGH && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-					d: "M10.5 21.5h19c0 6-4.2 10-9.5 10s-9.5-4-9.5-10Z",
-					fill: FACE_STROKE
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 68,
-					columnNumber: 11
-				}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-					d: "M11.4 22.5h17.2q-.2 2-.8 2.8H12.2q-.6-.8-.8-2.8Z",
-					fill: "#fff"
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 69,
-					columnNumber: 11
-				}, this)] }, void 0, true, {
-					fileName: _jsxFileName$24,
-					lineNumber: 67,
-					columnNumber: 9
-				}, this),
-				kind === REACTION_KIND.SAD && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-						d: "M10.5 13.5 16 11.2M29.5 13.5 24 11.2",
-						...stroke
-					}, void 0, false, {
-						fileName: _jsxFileName$24,
-						lineNumber: 76,
-						columnNumber: 11
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-						d: "M14 30q6-5.5 12 0",
-						...stroke
-					}, void 0, false, {
-						fileName: _jsxFileName$24,
-						lineNumber: 77,
-						columnNumber: 11
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-						d: "M12.6 23.5q-2.2 3.4 0 4.8 2.2-1.4 0-4.8Z",
-						fill: "#5AA9F0"
-					}, void 0, false, {
-						fileName: _jsxFileName$24,
-						lineNumber: 78,
-						columnNumber: 11
-					}, this)
-				] }, void 0, true, {
-					fileName: _jsxFileName$24,
-					lineNumber: 74,
-					columnNumber: 9
-				}, this),
-				kind === REACTION_KIND.ANGRY && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-					d: "M10.5 12 17 14.8M29.5 12 23 14.8",
-					...stroke
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 85,
-					columnNumber: 11
-				}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-					d: "M15 29q5-3.5 10 0",
-					...stroke
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 86,
-					columnNumber: 11
-				}, this)] }, void 0, true, {
-					fileName: _jsxFileName$24,
-					lineNumber: 83,
-					columnNumber: 9
-				}, this),
-				kind === REACTION_KIND.CONFUSED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-					d: "M10.5 13.2h6M23.5 12q3-2.6 6-.6",
-					...stroke
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 93,
-					columnNumber: 11
-				}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-					d: "M13.5 27.5q3.25-2.6 6.5 0t6.5 0",
-					...stroke
-				}, void 0, false, {
-					fileName: _jsxFileName$24,
-					lineNumber: 94,
-					columnNumber: 11
-				}, this)] }, void 0, true, {
-					fileName: _jsxFileName$24,
-					lineNumber: 91,
-					columnNumber: 9
-				}, this)
+					columnNumber: 7
+				}, void 0)
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$24,
-			lineNumber: 38,
+			fileName: _jsxFileName$14,
+			lineNumber: 35,
 			columnNumber: 5
-		}, this);
-	}
+		}, void 0);
+	};
 	//#endregion
-	//#region src/components/MessageReactions.tsx
-	var _jsxFileName$23 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/MessageReactions.tsx";
-	/**
-	* "React" button with an emoji picker, followed by a chip per emoji in use.
-	* Each user has at most one reaction per message; picking another emoji replaces it.
-	*/
-	function MessageReactions({ messageId, reactions = {} }) {
-		const { authStatus, userId, requireLogin } = useUser();
-		const { toggleMessageReaction } = useChat();
+	//#region src/hooks/useEscapeKey.ts
+	var useEscapeKey = (isActive, onEscape) => {
+		(0, import_react.useEffect)(() => {
+			if (!isActive) return;
+			const handleKeyDown = (event) => {
+				if (event.key === "Escape") onEscape();
+			};
+			document.addEventListener("keydown", handleKeyDown);
+			return () => {
+				document.removeEventListener("keydown", handleKeyDown);
+			};
+		}, [isActive, onEscape]);
+	};
+	//#endregion
+	//#region src/components/messageItem/MessageReactions.tsx
+	var _jsxFileName$13 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageReactions.tsx";
+	var MessageReactions = ({ message, isOwn }) => {
+		const { status } = useAuth();
+		const { settings } = useComments();
+		const isLoggedIn = status === AUTH_STATUS.AUTHENTICATED;
 		const [isPickerOpen, setIsPickerOpen] = (0, import_react.useState)(false);
 		const [opensDown, setOpensDown] = (0, import_react.useState)(false);
 		const containerRef = (0, import_react.useRef)(null);
-		useDismiss(containerRef, isPickerOpen, () => setIsPickerOpen(false));
-		const toggle = (emoji) => {
-			if (!requireLogin()) return;
-			toggleMessageReaction(messageId, userId, emoji).catch(() => {});
+		const counts = message.reaction_counts;
+		const mine = message.my_reactions ?? [];
+		const reactionsInUse = REACTION_OPTIONS.filter(({ kind }) => counts[kind]);
+		const pickable = REACTION_OPTIONS.filter(({ kind }) => settings?.reactions.includes(kind));
+		const myReaction = pickable.find(({ kind }) => mine.includes(kind));
+		const otherReactions = reactionsInUse.filter(({ kind }) => kind !== myReaction?.kind);
+		const closePicker = () => setIsPickerOpen(false);
+		useClickOutside(containerRef, isPickerOpen, closePicker);
+		useEscapeKey(isPickerOpen, closePicker);
+		const handleReact = (reaction) => {
+			setIsPickerOpen(false);
+			if (!isLoggedIn) {
+				openGbnLogin();
+				return;
+			}
+			toggleReaction(message, reaction).catch(() => {});
 		};
 		const handleOpenPicker = () => {
 			if (isPickerOpen) {
 				setIsPickerOpen(false);
 				return;
 			}
-			if (!requireLogin()) return;
-			const button = containerRef.current;
-			const list = button?.closest(".panel__list");
-			if (button && list) {
-				const spaceAbove = button.getBoundingClientRect().top - list.getBoundingClientRect().top;
+			if (!isLoggedIn) {
+				openGbnLogin();
+				return;
+			}
+			const container = containerRef.current;
+			const list = container?.closest(".comment-list");
+			if (container && list) {
+				const spaceAbove = container.getBoundingClientRect().top - list.getBoundingClientRect().top;
 				setOpensDown(spaceAbove < 48);
 			}
 			setIsPickerOpen(true);
 		};
-		const handlePick = (emoji) => {
-			setIsPickerOpen(false);
-			toggle(emoji);
-		};
-		const myReaction = authStatus === AUTH_STATUS.AUTHENTICATED ? REACTION_OPTIONS.find(({ emoji }) => reactions[emoji]?.includes(userId)) : void 0;
-		const myEmoji = myReaction?.emoji;
-		const otherInUse = REACTION_OPTIONS.filter(({ emoji }) => emoji !== myEmoji && reactions[emoji]?.length);
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 			className: "message-reactions",
-			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			children: [pickable.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 				className: "message-reactions__react",
 				ref: containerRef,
 				children: [myReaction ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 					type: "button",
 					className: "reaction-chip reaction-chip--mine",
 					onClick: handleOpenPicker,
+					disabled: isOwn,
 					"aria-expanded": isPickerOpen,
 					"aria-haspopup": "true",
-					"aria-label": `${myReaction.label}: ${reactions[myReaction.emoji].length}. Change your reaction`,
-					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ReactionIcon, {
-						kind: myReaction.kind,
-						size: 14,
+					"aria-label": `${myReaction.label}: ${counts[myReaction.kind] ?? 0}`,
+					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+						src: myReaction.icon,
+						alt: "",
 						className: "reaction-chip__icon"
 					}, void 0, false, {
-						fileName: _jsxFileName$23,
-						lineNumber: 77,
-						columnNumber: 13
-					}, this), reactions[myReaction.emoji].length]
+						fileName: _jsxFileName$13,
+						lineNumber: 76,
+						columnNumber: 15
+					}, void 0), counts[myReaction.kind] ?? 0]
 				}, void 0, true, {
-					fileName: _jsxFileName$23,
-					lineNumber: 69,
-					columnNumber: 11
-				}, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+					fileName: _jsxFileName$13,
+					lineNumber: 67,
+					columnNumber: 13
+				}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 					type: "button",
-					className: "react-button",
+					className: "message-item__action",
 					onClick: handleOpenPicker,
+					disabled: isOwn,
 					"aria-expanded": isPickerOpen,
 					"aria-haspopup": "true",
 					"aria-label": "React",
-					children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MaskIcon, {
-						src: react_default,
-						className: "react-button__icon"
+					children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+						src: "data:image/svg+xml,%3csvg%20width='14'%20height='14'%20viewBox='0%200%2014%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M14%207C14%203.13918%2010.8607%200%207%200C3.13932%200%200%203.13932%200%207C0%2010.8607%203.13932%2014%207%2014C10.8607%2014%2014%2010.8607%2014%207ZM7%2012.9234C3.73145%2012.9234%201.0766%2010.2687%201.0766%207C1.0766%203.73128%203.73128%201.07661%207%201.07661C10.2687%201.07661%2012.9234%203.73128%2012.9234%207C12.9234%2010.2687%2010.2687%2012.9234%207%2012.9234Z'%20fill='%23898989'/%3e%3cpath%20d='M10.8937%208.44558C10.6298%208.30558%2010.3067%208.40789%2010.1667%208.67174C9.54745%209.85101%208.33589%2010.5779%207.00047%2010.5779C5.66505%2010.5779%204.45349%209.8456%203.83424%208.67174C3.69423%208.40789%203.37113%208.30558%203.10729%208.44558C2.84344%208.58559%202.74113%208.90869%202.88113%209.17253C3.68345%2010.7072%205.26117%2011.6603%207.00042%2011.6603C8.73967%2011.6603%2010.3174%2010.7072%2011.1197%209.17253C11.2597%208.90868%2011.1575%208.5856%2010.8937%208.44558Z'%20fill='%23898989'/%3e%3cpath%20d='M5.23769%206.36902C5.53386%206.36902%205.77617%206.12671%205.77617%205.83055V4.06972C5.77617%203.77356%205.53386%203.53125%205.23769%203.53125C4.94153%203.53125%204.69922%203.77356%204.69922%204.06972V5.83055C4.69922%206.12671%204.94153%206.36902%205.23769%206.36902Z'%20fill='%23898989'/%3e%3cpath%20d='M8.76113%206.36902C9.05729%206.36902%209.29961%206.12671%209.29961%205.83055V4.06972C9.29961%203.77356%209.05729%203.53125%208.76113%203.53125C8.46497%203.53125%208.22266%203.77356%208.22266%204.06972V5.83055C8.22266%206.12671%208.46497%206.36902%208.76113%206.36902Z'%20fill='%23898989'/%3e%3c/svg%3e",
+						alt: "",
+						className: "message-item__react-icon"
 					}, void 0, false, {
-						fileName: _jsxFileName$23,
+						fileName: _jsxFileName$13,
 						lineNumber: 89,
-						columnNumber: 13
-					}, this)
+						columnNumber: 15
+					}, void 0)
 				}, void 0, false, {
-					fileName: _jsxFileName$23,
-					lineNumber: 81,
-					columnNumber: 11
-				}, this), isPickerOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-					className: `reaction-picker ${opensDown ? "reaction-picker--down" : ""}`,
+					fileName: _jsxFileName$13,
+					lineNumber: 80,
+					columnNumber: 13
+				}, void 0), isPickerOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+					className: `reaction-picker${opensDown ? " reaction-picker--down" : ""}`,
 					role: "group",
 					"aria-label": "Pick a reaction",
-					children: REACTION_OPTIONS.map(({ emoji, kind, label }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+					children: pickable.map(({ kind, label, icon }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 						type: "button",
-						className: `reaction-picker__option ${emoji === myEmoji ? "reaction-picker__option--mine" : ""}`,
-						onClick: () => handlePick(emoji),
-						"aria-pressed": emoji === myEmoji,
+						className: `reaction-picker__option${kind === myReaction?.kind ? " reaction-picker__option--selected" : ""}`,
+						onClick: () => handleReact(kind),
 						"aria-label": label,
-						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ReactionIcon, {
-							kind,
-							size: 24,
+						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+							src: icon,
+							alt: "",
 							className: "reaction-picker__icon"
 						}, void 0, false, {
-							fileName: _jsxFileName$23,
-							lineNumber: 110,
-							columnNumber: 17
-						}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+							fileName: _jsxFileName$13,
+							lineNumber: 107,
+							columnNumber: 19
+						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 							className: "reaction-picker__label",
 							"aria-hidden": "true",
 							children: label
 						}, void 0, false, {
-							fileName: _jsxFileName$23,
-							lineNumber: 111,
-							columnNumber: 17
-						}, this)]
-					}, emoji, true, {
-						fileName: _jsxFileName$23,
+							fileName: _jsxFileName$13,
+							lineNumber: 108,
+							columnNumber: 19
+						}, void 0)]
+					}, kind, true, {
+						fileName: _jsxFileName$13,
 						lineNumber: 100,
-						columnNumber: 15
-					}, this))
+						columnNumber: 17
+					}, void 0))
 				}, void 0, false, {
-					fileName: _jsxFileName$23,
+					fileName: _jsxFileName$13,
 					lineNumber: 94,
-					columnNumber: 11
-				}, this)]
+					columnNumber: 13
+				}, void 0)]
 			}, void 0, true, {
-				fileName: _jsxFileName$23,
-				lineNumber: 67,
-				columnNumber: 7
-			}, this), otherInUse.map(({ emoji, kind, label }) => {
-				const users = reactions[emoji];
-				return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-					type: "button",
-					className: "reaction-chip",
-					onClick: () => toggle(emoji),
-					"aria-label": `${label}: ${users.length}`,
-					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ReactionIcon, {
-						kind,
-						size: 14,
-						className: "reaction-chip__icon"
-					}, void 0, false, {
-						fileName: _jsxFileName$23,
-						lineNumber: 130,
-						columnNumber: 13
-					}, this), users.length]
-				}, emoji, true, {
-					fileName: _jsxFileName$23,
-					lineNumber: 123,
-					columnNumber: 11
-				}, this);
-			})]
-		}, void 0, true, {
-			fileName: _jsxFileName$23,
-			lineNumber: 66,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/MessageText.tsx
-	var _jsxFileName$22 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/MessageText.tsx";
-	function splitMention(text, knownNames) {
-		if (!text.startsWith("@")) return null;
-		let best = "";
-		knownNames?.forEach((name) => {
-			if (name.length <= best.length || !text.startsWith(`@${name}`)) return;
-			const next = text.charAt(name.length + 1);
-			if (next === "" || /[\s,.:;!?]/.test(next)) best = name;
-		});
-		if (best) return [`@${best}`, text.slice(best.length + 1)];
-		const match = /^@\S+/.exec(text);
-		return match ? [match[0], text.slice(match[0].length)] : null;
-	}
-	function MessageText({ text, className, knownNames }) {
-		const parts = splitMention(text, knownNames);
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-			className,
-			children: parts ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
-				className: "message-text__mention",
-				children: parts[0]
-			}, void 0, false, {
-				fileName: _jsxFileName$22,
-				lineNumber: 30,
-				columnNumber: 11
-			}, this), parts[1]] }, void 0, true, {
-				fileName: _jsxFileName$22,
-				lineNumber: 29,
+				fileName: _jsxFileName$13,
+				lineNumber: 65,
 				columnNumber: 9
-			}, this) : text
-		}, void 0, false, {
-			fileName: _jsxFileName$22,
-			lineNumber: 27,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/ReplyButton.tsx
-	var _jsxFileName$21 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/ReplyButton.tsx";
-	function ReplyButton({ onReply }) {
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-			type: "button",
-			className: "reply-button",
-			onClick: onReply,
-			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MaskIcon, {
-				src: reply_default,
-				className: "reply-button__icon"
-			}, void 0, false, {
-				fileName: _jsxFileName$21,
-				lineNumber: 11,
-				columnNumber: 7
-			}, this), "Reply"]
+			}, void 0), otherReactions.map(({ kind, label, icon }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+				type: "button",
+				className: "reaction-chip",
+				onClick: () => handleReact(kind),
+				disabled: isOwn,
+				"aria-label": `${label}: ${counts[kind]}`,
+				children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+					src: icon,
+					alt: "",
+					className: "reaction-chip__icon"
+				}, void 0, false, {
+					fileName: _jsxFileName$13,
+					lineNumber: 127,
+					columnNumber: 11
+				}, void 0), counts[kind]]
+			}, kind, true, {
+				fileName: _jsxFileName$13,
+				lineNumber: 119,
+				columnNumber: 9
+			}, void 0))]
 		}, void 0, true, {
-			fileName: _jsxFileName$21,
-			lineNumber: 10,
+			fileName: _jsxFileName$13,
+			lineNumber: 63,
 			columnNumber: 5
-		}, this);
-	}
+		}, void 0);
+	};
 	//#endregion
-	//#region src/components/RelativeTime.tsx
-	var _jsxFileName$20 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/RelativeTime.tsx";
-	function RelativeTime({ isoDate }) {
-		const [, forceTick] = (0, import_react.useState)(0);
-		(0, import_react.useEffect)(() => {
-			const interval = window.setInterval(() => forceTick((n) => n + 1), RELATIVE_TIME_REFRESH_MS);
-			return () => window.clearInterval(interval);
-		}, []);
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-			className: "relative-time",
-			children: formatRelativeTime(isoDate)
-		}, void 0, false, {
-			fileName: _jsxFileName$20,
-			lineNumber: 17,
-			columnNumber: 10
-		}, this);
-	}
-	//#endregion
-	//#region src/components/NameBadge.tsx
-	var _jsxFileName$19 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/NameBadge.tsx";
-	function NameBadge({ name, rank, className }) {
+	//#region src/components/nameBadge/index.tsx
+	var _jsxFileName$12 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/nameBadge/index.tsx";
+	var NameBadge = ({ name, rank }) => {
 		if (rank === USER_RANK.FRIEND) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-			className: `name-plain ${className ?? ""}`,
+			className: "name-plain",
 			children: name
 		}, void 0, false, {
-			fileName: _jsxFileName$19,
-			lineNumber: 13,
+			fileName: _jsxFileName$12,
+			lineNumber: 11,
 			columnNumber: 12
-		}, this);
-		const { icon } = getRankInfo(rank);
+		}, void 0);
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-			className: `name-badge name-badge--${rank} ${className ?? ""}`,
+			className: `name-badge name-badge--${rank}`,
 			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-				src: icon,
+				src: RANK_ICONS[rank],
 				alt: "",
 				className: "name-badge__icon"
 			}, void 0, false, {
-				fileName: _jsxFileName$19,
-				lineNumber: 20,
+				fileName: _jsxFileName$12,
+				lineNumber: 16,
 				columnNumber: 7
-			}, this), name]
+			}, void 0), name]
 		}, void 0, true, {
-			fileName: _jsxFileName$19,
-			lineNumber: 19,
+			fileName: _jsxFileName$12,
+			lineNumber: 15,
 			columnNumber: 5
-		}, this);
-	}
+		}, void 0);
+	};
 	//#endregion
-	//#region src/components/NormalMessageItem.tsx
-	var _jsxFileName$18 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/NormalMessageItem.tsx";
-	function NormalMessageItem({ message, onReply, knownNames }) {
-		const { userId } = useUser();
-		const isSelf = message.user.id === userId;
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "normal-message-item",
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "normal-message-item__body",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "normal-message-item__header",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(NameBadge, {
-								name: message.user.name,
-								rank: message.user.rank,
-								className: "normal-message-item__name"
-							}, void 0, false, {
-								fileName: _jsxFileName$18,
-								lineNumber: 25,
-								columnNumber: 11
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RelativeTime, { isoDate: message.createdAt }, void 0, false, {
-								fileName: _jsxFileName$18,
-								lineNumber: 30,
-								columnNumber: 11
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageActions, { message }, void 0, false, {
-								fileName: _jsxFileName$18,
-								lineNumber: 31,
-								columnNumber: 11
-							}, this)
-						]
-					}, void 0, true, {
-						fileName: _jsxFileName$18,
-						lineNumber: 24,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageText, {
-						className: "normal-message-item__message",
-						text: message.message,
-						knownNames
-					}, void 0, false, {
-						fileName: _jsxFileName$18,
-						lineNumber: 33,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "normal-message-item__footer",
-						children: [
-							!isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ReplyButton, { onReply: () => onReply(message) }, void 0, false, {
-								fileName: _jsxFileName$18,
-								lineNumber: 39,
-								columnNumber: 23
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(LikeButton, {
-								messageId: message.id,
-								likeCount: message.likeCount,
-								likedBy: message.likedBy
-							}, void 0, false, {
-								fileName: _jsxFileName$18,
-								lineNumber: 40,
-								columnNumber: 11
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageReactions, {
-								messageId: message.id,
-								reactions: message.reactions
-							}, void 0, false, {
-								fileName: _jsxFileName$18,
-								lineNumber: 45,
-								columnNumber: 11
-							}, this)
-						]
-					}, void 0, true, {
-						fileName: _jsxFileName$18,
-						lineNumber: 38,
-						columnNumber: 9
-					}, this)
-				]
-			}, void 0, true, {
-				fileName: _jsxFileName$18,
-				lineNumber: 23,
-				columnNumber: 7
-			}, this)
-		}, void 0, false, {
-			fileName: _jsxFileName$18,
-			lineNumber: 22,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/utils/superChat.ts
-	function getSuperChatCost(extraCoins, commentBalance) {
-		return commentBalance > 0 ? {
-			comments: 1,
-			coins: extraCoins
-		} : {
-			comments: 0,
-			coins: 20 + extraCoins
-		};
-	}
-	/** The highest tier a Superchat's extra coins reach (the base tier for none). */
-	function getSuperChatTier(extraCoins) {
-		return SUPERCHAT_TIERS.findLast((tier) => extraCoins >= tier.extraCoins) ?? SUPERCHAT_TIERS[0];
-	}
-	function formatCoins(coins) {
-		return `${coins.toLocaleString("en-GB")} ${coins === 1 ? "Coin" : "Coins"}`;
-	}
-	function formatComments(comments) {
-		return `${comments.toLocaleString("en-GB")} ${comments === 1 ? "Comment" : "Comments"}`;
-	}
-	//#endregion
-	//#region src/components/SuperChatItem.tsx
-	var _jsxFileName$17 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/SuperChatItem.tsx";
-	function SuperChatItem({ superChat, onReply, knownNames }) {
-		const { userId } = useUser();
-		const isSelf = superChat.user.id === userId;
-		const tier = getSuperChatTier(superChat.extraCoins);
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "super-chat-item",
-			style: { "--super-chat-item-bg": tier.bg },
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "super-chat-item__body",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "super-chat-item__header",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(NameBadge, {
-								name: superChat.user.name,
-								rank: superChat.user.rank,
-								className: "super-chat-item__name"
-							}, void 0, false, {
-								fileName: _jsxFileName$17,
-								lineNumber: 31,
-								columnNumber: 11
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RelativeTime, { isoDate: superChat.createdAt }, void 0, false, {
-								fileName: _jsxFileName$17,
-								lineNumber: 36,
-								columnNumber: 11
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageActions, { message: superChat }, void 0, false, {
-								fileName: _jsxFileName$17,
-								lineNumber: 37,
-								columnNumber: 11
-							}, this)
-						]
-					}, void 0, true, {
-						fileName: _jsxFileName$17,
-						lineNumber: 30,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageText, {
-						className: "super-chat-item__message",
-						text: superChat.message,
-						knownNames
-					}, void 0, false, {
-						fileName: _jsxFileName$17,
-						lineNumber: 39,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "super-chat-item__footer",
-						children: [
-							!isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ReplyButton, { onReply: () => onReply(superChat) }, void 0, false, {
-								fileName: _jsxFileName$17,
-								lineNumber: 45,
-								columnNumber: 23
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(LikeButton, {
-								messageId: superChat.id,
-								likeCount: superChat.likeCount,
-								likedBy: superChat.likedBy
-							}, void 0, false, {
-								fileName: _jsxFileName$17,
-								lineNumber: 46,
-								columnNumber: 11
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageReactions, {
-								messageId: superChat.id,
-								reactions: superChat.reactions
-							}, void 0, false, {
-								fileName: _jsxFileName$17,
-								lineNumber: 51,
-								columnNumber: 11
-							}, this),
-							superChat.extraCoins > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								className: "super-chat-item__coins",
-								children: ["+", formatCoins(superChat.extraCoins)]
-							}, void 0, true, {
-								fileName: _jsxFileName$17,
-								lineNumber: 53,
-								columnNumber: 13
-							}, this)
-						]
-					}, void 0, true, {
-						fileName: _jsxFileName$17,
-						lineNumber: 44,
-						columnNumber: 9
-					}, this)
-				]
-			}, void 0, true, {
-				fileName: _jsxFileName$17,
-				lineNumber: 29,
-				columnNumber: 7
-			}, this)
-		}, void 0, false, {
-			fileName: _jsxFileName$17,
-			lineNumber: 25,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/NormalChatList.tsx
-	var _jsxFileName$16 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/NormalChatList.tsx";
-	function NormalChatList({ scrollRef, showGoToTop, newCount, onGoToTop }) {
-		const { normal, super: superFeed, loadNormalMessages, loadSuperChats } = useChat();
-		const { setReplyTo } = useReply();
-		const { requireLogin } = useUser();
-		(0, import_react.useEffect)(() => {
-			if (normal.status === REQUEST_STATUS.IDLE) loadNormalMessages(1);
-			if (superFeed.status === REQUEST_STATUS.IDLE) loadSuperChats(1);
-		}, []);
-		const knownNames = (0, import_react.useMemo)(() => new Set(normal.items.map((item) => item.user.name)), [normal.items]);
-		const handleReply = (message) => {
-			if (!requireLogin()) return;
-			setReplyTo({
-				messageId: message.id,
-				userName: message.user.name,
-				isSuperChat: message.type === MESSAGE_TYPE.SUPER
-			});
-		};
-		const hasMoreOlder = normal.page * normal.limit < normal.total;
-		const isLoadingMore = normal.status === REQUEST_STATUS.LOADING;
-		const isInitialLoading = (normal.status === REQUEST_STATUS.IDLE || normal.status === REQUEST_STATUS.LOADING) && normal.items.length === 0;
-		const sentinelRef = useInfiniteScroll(scrollRef, {
-			hasMore: hasMoreOlder,
-			isLoading: isLoadingMore,
-			onLoadMore: (0, import_react.useCallback)(() => {
-				loadNormalMessages(normal.page + 1);
-			}, [loadNormalMessages, normal.page])
-		});
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "panel",
-			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "panel__list",
-				ref: scrollRef,
-				children: [
-					isInitialLoading && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageSkeletonList, { count: 5 }, void 0, false, {
-						fileName: _jsxFileName$16,
-						lineNumber: 68,
-						columnNumber: 30
-					}, this),
-					normal.error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-						className: "panel__status panel__status--error",
-						children: normal.error
-					}, void 0, false, {
-						fileName: _jsxFileName$16,
-						lineNumber: 69,
-						columnNumber: 26
-					}, this),
-					!isInitialLoading && normal.items.length === 0 && !normal.error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-						className: "panel__status",
-						children: "No messages yet. Say hello!"
-					}, void 0, false, {
-						fileName: _jsxFileName$16,
-						lineNumber: 71,
-						columnNumber: 11
-					}, this),
-					normal.items.map((message) => message.type === MESSAGE_TYPE.SUPER ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatItem, {
-						superChat: message,
-						onReply: handleReply,
-						knownNames
-					}, message.id, false, {
-						fileName: _jsxFileName$16,
-						lineNumber: 76,
-						columnNumber: 13
-					}, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(NormalMessageItem, {
-						message,
-						onReply: handleReply,
-						knownNames
-					}, message.id, false, {
-						fileName: _jsxFileName$16,
-						lineNumber: 83,
-						columnNumber: 13
-					}, this)),
-					hasMoreOlder && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						ref: sentinelRef,
-						className: "panel__sentinel",
-						"aria-hidden": "true"
-					}, void 0, false, {
-						fileName: _jsxFileName$16,
-						lineNumber: 92,
-						columnNumber: 26
-					}, this),
-					isLoadingMore && normal.items.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-						className: "panel__status panel__status--loading-more",
-						children: "Loading more..."
-					}, void 0, false, {
-						fileName: _jsxFileName$16,
-						lineNumber: 94,
-						columnNumber: 11
-					}, this)
-				]
-			}, void 0, true, {
-				fileName: _jsxFileName$16,
-				lineNumber: 67,
-				columnNumber: 7
-			}, this), showGoToTop && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(GoToTopButton, {
-				newCount,
-				onClick: onGoToTop
-			}, void 0, false, {
-				fileName: _jsxFileName$16,
-				lineNumber: 98,
-				columnNumber: 23
-			}, this)]
-		}, void 0, true, {
-			fileName: _jsxFileName$16,
-			lineNumber: 66,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/SuperChatList.tsx
-	var _jsxFileName$15 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/SuperChatList.tsx";
-	function SuperChatList({ scrollRef, showGoToTop, newCount, onGoToTop }) {
-		const { super: superFeed, loadSuperChats } = useChat();
-		const { items, status, page, limit, total, error } = superFeed;
-		const { setReplyTo } = useReply();
-		const { requireLogin } = useUser();
-		(0, import_react.useEffect)(() => {
-			if (status === REQUEST_STATUS.IDLE) loadSuperChats(1);
-		}, [status]);
-		const knownNames = (0, import_react.useMemo)(() => new Set(items.map((item) => item.user.name)), [items]);
-		const handleReply = (superChat) => {
-			if (!requireLogin()) return;
-			setReplyTo({
-				messageId: superChat.id,
-				userName: superChat.user.name,
-				isSuperChat: true
-			});
-		};
-		const hasMore = page * limit < total;
-		const isLoadingMore = status === REQUEST_STATUS.LOADING;
-		const isInitialLoading = (status === REQUEST_STATUS.IDLE || status === REQUEST_STATUS.LOADING) && items.length === 0;
-		const sentinelRef = useInfiniteScroll(scrollRef, {
-			hasMore,
-			isLoading: isLoadingMore,
-			onLoadMore: (0, import_react.useCallback)(() => {
-				loadSuperChats(page + 1);
-			}, [loadSuperChats, page])
-		});
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "panel",
-			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "panel__list",
-				ref: scrollRef,
-				children: [
-					isInitialLoading && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageSkeletonList, {
-						count: 5,
-						variant: MESSAGE_TYPE.SUPER
-					}, void 0, false, {
-						fileName: _jsxFileName$15,
-						lineNumber: 58,
-						columnNumber: 30
-					}, this),
-					error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-						className: "panel__status panel__status--error",
-						children: error
-					}, void 0, false, {
-						fileName: _jsxFileName$15,
-						lineNumber: 59,
-						columnNumber: 19
-					}, this),
-					!isInitialLoading && items.length === 0 && !error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-						className: "panel__status",
-						children: "No Super Chats yet. Be the first to send one!"
-					}, void 0, false, {
-						fileName: _jsxFileName$15,
-						lineNumber: 61,
-						columnNumber: 11
-					}, this),
-					items.map((superChat) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatItem, {
-						superChat,
-						onReply: handleReply,
-						knownNames
-					}, superChat.id, false, {
-						fileName: _jsxFileName$15,
-						lineNumber: 65,
-						columnNumber: 11
-					}, this)),
-					hasMore && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						ref: sentinelRef,
-						className: "panel__sentinel",
-						"aria-hidden": "true"
-					}, void 0, false, {
-						fileName: _jsxFileName$15,
-						lineNumber: 73,
-						columnNumber: 21
-					}, this),
-					isLoadingMore && items.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-						className: "panel__status panel__status--loading-more",
-						children: "Loading more..."
-					}, void 0, false, {
-						fileName: _jsxFileName$15,
-						lineNumber: 75,
-						columnNumber: 11
-					}, this)
-				]
-			}, void 0, true, {
-				fileName: _jsxFileName$15,
-				lineNumber: 57,
-				columnNumber: 7
-			}, this), showGoToTop && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(GoToTopButton, {
-				newCount,
-				onClick: onGoToTop
-			}, void 0, false, {
-				fileName: _jsxFileName$15,
-				lineNumber: 79,
-				columnNumber: 23
-			}, this)]
-		}, void 0, true, {
-			fileName: _jsxFileName$15,
-			lineNumber: 56,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/ChatTabs.tsx
-	var _jsxFileName$14 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/ChatTabs.tsx";
-	var TABS = [{
-		id: CHAT_TAB.SUPER,
-		label: "Superchat"
-	}, {
-		id: CHAT_TAB.NORMAL,
-		label: "All Comments"
-	}];
-	function ChatTabs({ activeTab, superCount, normalCount, onChange }) {
-		const counts = {
-			[CHAT_TAB.SUPER]: superCount,
-			[CHAT_TAB.NORMAL]: normalCount
-		};
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "chat-tabs",
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "chat-tabs__list",
-				role: "tablist",
-				children: TABS.map(({ id, label }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-					type: "button",
-					role: "tab",
-					"aria-selected": activeTab === id,
-					className: `chat-tabs__tab ${activeTab === id ? "chat-tabs__tab--active" : ""}`,
-					onClick: () => onChange(id),
-					children: [
-						label,
-						" ",
-						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-							className: "chat-tabs__count",
-							children: [
-								"(",
-								counts[id],
-								")"
-							]
-						}, void 0, true, {
-							fileName: _jsxFileName$14,
-							lineNumber: 34,
-							columnNumber: 21
-						}, this)
-					]
-				}, id, true, {
-					fileName: _jsxFileName$14,
-					lineNumber: 26,
-					columnNumber: 11
-				}, this))
-			}, void 0, false, {
-				fileName: _jsxFileName$14,
-				lineNumber: 24,
-				columnNumber: 7
-			}, this)
-		}, void 0, false, {
-			fileName: _jsxFileName$14,
-			lineNumber: 23,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/ChatFeed.tsx
-	var _jsxFileName$13 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/ChatFeed.tsx";
-	/** Tabs + the active message list. */
-	function ChatFeed() {
-		const [activeTab, setActiveTab] = (0, import_react.useState)(CHAT_TAB.SUPER);
-		const [showGoToTop, setShowGoToTop] = (0, import_react.useState)(false);
-		const [newCount, setNewCount] = (0, import_react.useState)(0);
-		const { normal, super: superFeed, lastSent } = useChat();
-		const scrollRef = (0, import_react.useRef)(null);
-		const activeItems = activeTab === CHAT_TAB.SUPER ? superFeed.items : normal.items;
-		(0, import_react.useEffect)(() => {
-			const el = scrollRef.current;
-			if (!el) return;
-			const handleScroll = () => {
-				const awayFromTop = el.scrollTop > 200;
-				setShowGoToTop(awayFromTop);
-				if (!awayFromTop) setNewCount(0);
-			};
-			handleScroll();
-			el.addEventListener("scroll", handleScroll);
-			return () => el.removeEventListener("scroll", handleScroll);
-		}, [activeTab]);
-		const newestId = activeItems[0]?.id;
-		const prevNewestRef = (0, import_react.useRef)({ tab: activeTab });
-		(0, import_react.useEffect)(() => {
-			const prev = prevNewestRef.current;
-			prevNewestRef.current = {
-				tab: activeTab,
-				id: newestId
-			};
-			if (prev.tab !== activeTab) {
-				setNewCount(0);
+	//#region src/components/messageItem/index.tsx
+	var _jsxFileName$11 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/index.tsx";
+	var MessageItem = ({ message, authorName = getAuthorName(message.author, message.author_id), authorRank = getAuthorRank(message.author), extraCoins = 0, onReply }) => {
+		const { status, user } = useAuth();
+		const { settings } = useComments();
+		const [isEditing, setIsEditing] = (0, import_react.useState)(false);
+		const isLoggedIn = status === AUTH_STATUS.AUTHENTICATED;
+		const isOwn = user?.id === message.author_id;
+		const canEdit = isOwn && settings?.edit_mode === EDIT_MODE.WINDOW;
+		const editWindowSec = settings?.edit_window_sec ?? 0;
+		const editableUntil = canEdit ? Date.parse(message.created_at) + editWindowSec * 1e3 : null;
+		const likeCount = message.reaction_counts["1f44d"] ?? 0;
+		const isLiked = Boolean(message.my_reactions?.includes(LIKE_REACTION));
+		const canLike = Boolean(settings?.reactions.includes(LIKE_REACTION));
+		const isSuper = message.kind === MESSAGE_KIND.SUPERCHAT;
+		const style = isSuper ? { backgroundColor: getSuperChatTier(extraCoins).color } : void 0;
+		const handleReply = () => {
+			if (!isLoggedIn) {
+				openGbnLogin();
 				return;
 			}
-			if (!prev.id || prev.id === newestId) return;
-			const el = scrollRef.current;
-			if (!el || el.scrollTop <= 200) return;
-			const added = activeItems.findIndex((item) => item.id === prev.id);
-			if (added > 0) setNewCount((count) => count + added);
-		}, [newestId, activeTab]);
-		const handleGoToTop = () => {
-			scrollRef.current?.scrollTo({
-				top: 0,
-				behavior: "smooth"
-			});
-		};
-		const [handledSentId, setHandledSentId] = (0, import_react.useState)(lastSent?.id);
-		const [scrollToTopRequest, setScrollToTopRequest] = (0, import_react.useState)(0);
-		if (lastSent && lastSent.id !== handledSentId) {
-			setHandledSentId(lastSent.id);
-			const targetTab = lastSent.type === MESSAGE_TYPE.SUPER ? CHAT_TAB.SUPER : CHAT_TAB.NORMAL;
-			if (activeTab !== targetTab) setActiveTab(targetTab);
-			else setScrollToTopRequest((count) => count + 1);
-		}
-		(0, import_react.useEffect)(() => {
-			if (scrollToTopRequest > 0) scrollRef.current?.scrollTo({
-				top: 0,
-				behavior: "smooth"
-			});
-		}, [scrollToTopRequest]);
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ChatTabs, {
-			activeTab,
-			superCount: superFeed.total,
-			normalCount: normal.total,
-			onChange: setActiveTab
-		}, void 0, false, {
-			fileName: _jsxFileName$13,
-			lineNumber: 76,
-			columnNumber: 7
-		}, this), activeTab === CHAT_TAB.SUPER ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatList, {
-			scrollRef,
-			showGoToTop,
-			newCount,
-			onGoToTop: handleGoToTop
-		}, void 0, false, {
-			fileName: _jsxFileName$13,
-			lineNumber: 84,
-			columnNumber: 9
-		}, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(NormalChatList, {
-			scrollRef,
-			showGoToTop,
-			newCount,
-			onGoToTop: handleGoToTop
-		}, void 0, false, {
-			fileName: _jsxFileName$13,
-			lineNumber: 91,
-			columnNumber: 9
-		}, this)] }, void 0, true, {
-			fileName: _jsxFileName$13,
-			lineNumber: 75,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/Comments.tsx
-	var _jsxFileName$12 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/Comments.tsx";
-	/** Rendered by <gbn-comments>: the tabs and message lists. */
-	function Comments() {
-		const { setSheetHost } = useSheetHost();
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "comments",
-			ref: setSheetHost,
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ChatFeed, {}, void 0, false, {
-				fileName: _jsxFileName$12,
-				lineNumber: 10,
-				columnNumber: 7
-			}, this)
-		}, void 0, false, {
-			fileName: _jsxFileName$12,
-			lineNumber: 9,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/utils/profanityWordList.ts
-	var PROFANITY_WORD_LIST = [
-		"fuck",
-		"fucker",
-		"fucking",
-		"fucked",
-		"motherfucker",
-		"fk",
-		"fuk",
-		"shit",
-		"shitty",
-		"bullshit",
-		"shithead",
-		"horseshit",
-		"damn",
-		"goddamn",
-		"dammit",
-		"hell",
-		"crap",
-		"crappy",
-		"piss",
-		"pissed",
-		"pissoff",
-		"bastard",
-		"bitch",
-		"bitches",
-		"bitchy",
-		"asshole",
-		"ass",
-		"arse",
-		"arsehole",
-		"dumbass",
-		"jackass",
-		"smartass",
-		"dick",
-		"dickhead",
-		"dickwad",
-		"cock",
-		"cocksucker",
-		"pussy",
-		"cunt",
-		"twat",
-		"wanker",
-		"wank",
-		"bollocks",
-		"bugger",
-		"tosser",
-		"prick",
-		"douche",
-		"douchebag",
-		"slut",
-		"slutty",
-		"whore",
-		"hoe",
-		"skank",
-		"tramp",
-		"jerkoff",
-		"jackoff",
-		"nutsack",
-		"numbnuts",
-		"bellend",
-		"knob",
-		"knobhead",
-		"minger",
-		"munter",
-		"pillock",
-		"prat",
-		"sod",
-		"twit",
-		"clunge",
-		"gash",
-		"porn",
-		"pornography",
-		"boob",
-		"boobs",
-		"tit",
-		"tits",
-		"titty",
-		"penis",
-		"vagina",
-		"orgasm",
-		"handjob",
-		"blowjob",
-		"anal",
-		"cum",
-		"cumming",
-		"jizz",
-		"deepthroat",
-		"masturbate",
-		"masturbating",
-		"horny",
-		"nudes",
-		"sext",
-		"sexting",
-		"idiot",
-		"moron",
-		"imbecile",
-		"cretin",
-		"retard",
-		"retarded",
-		"stupid",
-		"loser",
-		"scum",
-		"scumbag",
-		"trash",
-		"garbage",
-		"pathetic",
-		"worthless",
-		"freak",
-		"psycho",
-		"psychopath",
-		"creep",
-		"creepy",
-		"clown",
-		"pig",
-		"rat",
-		"snake",
-		"leech",
-		"parasite",
-		"vermin",
-		"filth",
-		"filthy",
-		"kys",
-		"kill yourself",
-		"killyourself",
-		"die",
-		"hopeyoudie",
-		"suicide",
-		"selfharm",
-		"cutting",
-		"kill you",
-		"killyou",
-		"murder",
-		"murderer",
-		"gonnakillyou",
-		"beatyouup",
-		"stab",
-		"stabbed",
-		"shoot you",
-		"terrorist",
-		"terrorism",
-		"bomb threat",
-		"nazi",
-		"hitler",
-		"bigot",
-		"racist",
-		"sexist",
-		"homophobe",
-		"homophobic",
-		"xenophobe",
-		"spastic",
-		"spaz",
-		"junkie",
-		"crackhead",
-		"druggie",
-		"dealer",
-		"meth",
-		"cocaine",
-		"heroin",
-		"scammer",
-		"fraudster",
-		"cheater",
-		"liar",
-		"thief",
-		"suck",
-		"sucks",
-		"sucker",
-		"screwyou",
-		"shutup",
-		"shut up",
-		"stfu",
-		"gtfo",
-		"wtf",
-		"af",
-		"omfg",
-		"lmfao"
-	];
-	//#endregion
-	//#region src/utils/profanityFilter.ts
-	var LEET_MAP = {
-		"0": "o",
-		"1": "i",
-		"!": "i",
-		"3": "e",
-		"4": "a",
-		"@": "a",
-		"5": "s",
-		"$": "s",
-		"7": "t",
-		"+": "t",
-		"8": "b",
-		"9": "g"
-	};
-	function applyLeetMap(input) {
-		return input.replace(/!+(?![a-z0-9])/gi, " ").split("").map((char) => LEET_MAP[char] ?? char).join("");
-	}
-	function collapseRepeats(input) {
-		return input.replace(/(.)\1{2,}/g, "$1");
-	}
-	function normalize(input) {
-		return collapseRepeats(applyLeetMap(input.toLowerCase()));
-	}
-	function escapeRegExp(input) {
-		return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-	}
-	function buildWholeWordPattern(word) {
-		return new RegExp(`\\b${escapeRegExp(word)}\\b`, "i");
-	}
-	function buildFuzzyPattern(word) {
-		const fuzzy = word.replace(/\s+/g, "").split("").map((char) => `${escapeRegExp(char)}+`).join("[\\s._\\-*|/\\\\]*");
-		return new RegExp(`\\b${fuzzy}\\b`, "i");
-	}
-	var MASK_CHARS = `*"#%?~^\``;
-	var MASK_CLASS = `[${escapeRegExp(MASK_CHARS)}]`;
-	var MIN_MASKED_WORD_LENGTH = 4;
-	function buildMaskedPattern(word) {
-		if (word.length < MIN_MASKED_WORD_LENGTH || /\s/.test(word)) return null;
-		const [first, ...rest] = word.split("");
-		const body = rest.map((char) => `(?:${escapeRegExp(char)}|${MASK_CLASS})`).join("");
-		return new RegExp(`(?<![a-z0-9])${escapeRegExp(first)}${body}(?![a-z0-9])`, "gi");
-	}
-	function matchesMasked(pattern, text, word) {
-		const maxMasked = Math.floor(word.length / 2);
-		for (const match of text.matchAll(pattern)) {
-			const masked = match[0].split("").filter((char) => MASK_CHARS.includes(char)).length;
-			if (masked >= 1 && masked <= maxMasked) return true;
-		}
-		return false;
-	}
-	var COMPILED_LIST = PROFANITY_WORD_LIST.map((word) => ({
-		word,
-		wholeWordPattern: buildWholeWordPattern(word),
-		fuzzyPattern: buildFuzzyPattern(word),
-		maskedPattern: buildMaskedPattern(word)
-	}));
-	function checkProfanity(text) {
-		if (!text || !text.trim()) return {
-			isFlagged: false,
-			matchedTerm: null
-		};
-		const normalized = normalize(text);
-		const leetMapped = applyLeetMap(text.toLowerCase());
-		for (const entry of COMPILED_LIST) if (entry.wholeWordPattern.test(normalized) || entry.fuzzyPattern.test(leetMapped) || entry.maskedPattern !== null && matchesMasked(entry.maskedPattern, leetMapped, entry.word)) return {
-			isFlagged: true,
-			matchedTerm: entry.word
-		};
-		return {
-			isFlagged: false,
-			matchedTerm: null
-		};
-	}
-	/**
-	* Drops the words that trip the filter and tidies the spacing left behind.
-	* A crude offline stand-in for the AI rewrite; it works word by word, so
-	* spaced-out evasions ("f u c k") are not removed.
-	*/
-	function removeProfanity(text) {
-		return text.split(/(\s+)/).filter((part) => /^\s+$/.test(part) || !checkProfanity(part).isFlagged).join("").replace(/\s{2,}/g, " ").replace(/\s+([.,!?;:])/g, "$1").trim();
-	}
-	//#endregion
-	//#region src/utils/text.ts
-	/** A stable, non-cryptographic hash, e.g. to pick a colour per user. */
-	function hashString(input) {
-		let hash = 0;
-		for (let i = 0; i < input.length; i += 1) hash = hash * 31 + input.charCodeAt(i) >>> 0;
-		return hash;
-	}
-	//#endregion
-	//#region src/components/Avatar.tsx
-	var _jsxFileName$11 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/Avatar.tsx";
-	function Avatar({ name, seed, size = 40 }) {
-		const color = AVATAR_PALETTE[hashString(seed ?? name) % AVATAR_PALETTE.length];
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "avatar",
-			style: {
-				width: size,
-				height: size,
-				backgroundColor: color,
-				fontSize: size * .38
-			},
-			"aria-hidden": "true",
-			children: getInitials(name, "?")
-		}, void 0, false, {
-			fileName: _jsxFileName$11,
-			lineNumber: 16,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/TierAvatar.tsx
-	var _jsxFileName$10 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/TierAvatar.tsx";
-	/** The viewer's membership badge with their initials, as in the site header. */
-	function TierAvatar({ name, seed, tierId, size = 40 }) {
-		const tier = tierId ? TIER_AVATARS[tierId] : void 0;
-		if (!tier) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Avatar, {
-			name,
-			seed,
-			size
-		}, void 0, false, {
-			fileName: _jsxFileName$10,
-			lineNumber: 22,
-			columnNumber: 21
-		}, this);
-		const badgeSize = tierId === 1 ? size : size * TIER_AVATAR_BADGE_SCALE;
-		const scale = badgeSize / 30;
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: `tier-avatar tier-avatar--tier-${tierId}`,
-			style: {
-				width: size,
-				height: size
-			},
-			"aria-hidden": "true",
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "tier-avatar__badge",
-				style: {
-					width: badgeSize,
-					height: badgeSize,
-					backgroundImage: `url("${tier.icon}")`
-				},
-				children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-					className: "tier-avatar__initials",
-					style: {
-						marginTop: tier.initialsTop * scale,
-						fontSize: 11 * scale
-					},
-					children: getInitials(name)
-				}, void 0, false, {
-					fileName: _jsxFileName$10,
-					lineNumber: 39,
-					columnNumber: 9
-				}, this)
-			}, void 0, false, {
-				fileName: _jsxFileName$10,
-				lineNumber: 35,
-				columnNumber: 7
-			}, this)
-		}, void 0, false, {
-			fileName: _jsxFileName$10,
-			lineNumber: 30,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/UserAvatar.tsx
-	var _jsxFileName$9 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/UserAvatar.tsx";
-	/**
-	* The signed-in viewer's avatar: their membership badge, or a placeholder while
-	* the tier is still loading so the plain initials don't flash up first.
-	*/
-	function UserAvatar({ size = 40 }) {
-		const { userId, userName, userTierId, isTierLoading } = useUser();
-		if (isTierLoading) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "skeleton skeleton--avatar",
-			style: {
-				width: size,
-				height: size
-			},
-			"aria-hidden": "true"
-		}, void 0, false, {
-			fileName: _jsxFileName$9,
-			lineNumber: 17,
-			columnNumber: 7
-		}, this);
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(TierAvatar, {
-			name: userName,
-			seed: userId,
-			tierId: userTierId,
-			size
-		}, void 0, false, {
-			fileName: _jsxFileName$9,
-			lineNumber: 24,
-			columnNumber: 10
-		}, this);
-	}
-	//#endregion
-	//#region src/components/EnhanceWithAI.tsx
-	var _jsxFileName$8 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/EnhanceWithAI.tsx";
-	/**
-	* "Enhance With AI" under the composer. Members get an AI-polished version of
-	* their comment to use; everyone else sees the button blurred, with an upgrade
-	* note they can dismiss.
-	*/
-	function EnhanceWithAI({ message, userRank, onUse }) {
-		const isMember$2 = isMember(userRank);
-		const [state, setState] = (0, import_react.useState)({ status: "idle" });
-		const [isUpsellDismissed, setIsUpsellDismissed] = (0, import_react.useState)(() => readStorage(STORAGE_KEY.ENHANCE_UPSELL_DISMISSED, false));
-		const requestCounter = (0, import_react.useRef)(0);
-		const [prevMessage, setPrevMessage] = (0, import_react.useState)(message);
-		if (message !== prevMessage) {
-			setPrevMessage(message);
-			if (!message.trim() && state.status !== "idle") setState({ status: "idle" });
-		}
-		const trimmed = message.trim();
-		const handleEnhance = async () => {
-			if (!trimmed) return;
-			const requestId = ++requestCounter.current;
-			setState({
-				status: "loading",
-				requestId
-			});
-			let next;
-			try {
-				const { suggestion } = await fetchCommentSuggestion(trimmed, userRank, SUGGESTION_KIND.ENHANCE);
-				const text = suggestion.trim();
-				next = text && !checkProfanity(text).isFlagged ? {
-					status: "ready",
-					suggestion: text
-				} : { status: "failed" };
-			} catch {
-				next = { status: "failed" };
+			if (onReply) {
+				onReply();
+				return;
 			}
-			setState((current) => current.status === "loading" && current.requestId === requestId ? next : current);
+			startReply({
+				messageId: message.id,
+				parentId: getReplyParentId(message, settings?.max_depth),
+				userName: authorName,
+				isSuperChat: isSuper
+			});
 		};
-		const handleClose = () => setState({ status: "idle" });
-		const handleDismissUpsell = () => {
-			setIsUpsellDismissed(true);
-			writeStorage(STORAGE_KEY.ENHANCE_UPSELL_DISMISSED, true);
+		const handleAuthorClick = () => {
+			if (!isLoggedIn) {
+				openGbnLogin();
+				return;
+			}
+			openUserMessages(message.author_id, authorName, isOwn);
 		};
-		const label = /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: ["Enhance With", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-			src: sparkle_default,
-			alt: "AI",
-			className: "enhance-ai__icon"
-		}, void 0, false, {
-			fileName: _jsxFileName$8,
-			lineNumber: 78,
-			columnNumber: 7
-		}, this)] }, void 0, true, {
-			fileName: _jsxFileName$8,
-			lineNumber: 76,
+		const handleLike = () => {
+			if (!isLoggedIn) {
+				openGbnLogin();
+				return;
+			}
+			toggleReaction(message, LIKE_REACTION).catch(() => {});
+		};
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: `message-item${isSuper ? " message-item--super" : ""}`,
+			style,
+			children: [
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+					className: "message-item__header",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							className: "message-item__author",
+							onClick: handleAuthorClick,
+							children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(NameBadge, {
+								name: authorName,
+								rank: authorRank
+							}, void 0, false, {
+								fileName: _jsxFileName$11,
+								lineNumber: 84,
+								columnNumber: 11
+							}, void 0)
+						}, void 0, false, {
+							fileName: _jsxFileName$11,
+							lineNumber: 83,
+							columnNumber: 9
+						}, void 0),
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+							className: "message-item__time",
+							children: formatRelativeTime(message.created_at)
+						}, void 0, false, {
+							fileName: _jsxFileName$11,
+							lineNumber: 86,
+							columnNumber: 9
+						}, void 0),
+						message.status === MESSAGE_STATUS.HELD && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+							className: "message-item__review-tag",
+							children: "Under review"
+						}, void 0, false, {
+							fileName: _jsxFileName$11,
+							lineNumber: 87,
+							columnNumber: 52
+						}, void 0),
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageActions, {
+							message,
+							isOwn,
+							editableUntil,
+							editWindowSec,
+							onEdit: () => setIsEditing(true)
+						}, void 0, false, {
+							fileName: _jsxFileName$11,
+							lineNumber: 88,
+							columnNumber: 9
+						}, void 0)
+					]
+				}, void 0, true, {
+					fileName: _jsxFileName$11,
+					lineNumber: 82,
+					columnNumber: 7
+				}, void 0),
+				isEditing ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageEditor, {
+					message,
+					onClose: () => setIsEditing(false)
+				}, void 0, false, {
+					fileName: _jsxFileName$11,
+					lineNumber: 98,
+					columnNumber: 9
+				}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+					className: "message-item__text",
+					children: [message.parent_author_id && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
+						className: "message-text__mention",
+						children: ["@", getAuthorName(message.parent_author, message.parent_author_id)]
+					}, void 0, true, {
+						fileName: _jsxFileName$11,
+						lineNumber: 102,
+						columnNumber: 13
+					}, void 0), message.body]
+				}, void 0, true, {
+					fileName: _jsxFileName$11,
+					lineNumber: 100,
+					columnNumber: 9
+				}, void 0),
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+					className: "message-item__footer",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							className: "message-item__action",
+							onClick: handleReply,
+							disabled: isOwn,
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+								src: reply_default,
+								alt: "",
+								className: "message-item__reply-icon"
+							}, void 0, false, {
+								fileName: _jsxFileName$11,
+								lineNumber: 112,
+								columnNumber: 11
+							}, void 0), "Reply"]
+						}, void 0, true, {
+							fileName: _jsxFileName$11,
+							lineNumber: 111,
+							columnNumber: 9
+						}, void 0),
+						canLike && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							className: "message-item__action",
+							onClick: handleLike,
+							disabled: isOwn,
+							"aria-label": `${likeCount} ${likeCount === 1 ? "Like" : "Likes"}`,
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+								src: isLiked ? "data:image/svg+xml,%3csvg%20width='16'%20height='14'%20viewBox='0%200%2016%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M7.99999%201.60047C9.61378%20-0.302475%2012.4986%20-0.55847%2014.4242%201.10192C16.4213%202.82419%2016.5355%205.87886%2014.6789%207.74656L8.78523%2013.6752C8.35455%2014.1083%207.64542%2014.1083%207.21475%2013.6752L1.3211%207.74656C-0.535492%205.87886%20-0.421305%202.82419%201.57576%201.10192C3.50133%20-0.558478%206.38622%20-0.302481%207.99999%201.60047Z'%20fill='%23EB0000'/%3e%3c/svg%3e" : "data:image/svg+xml,%3csvg%20width='16'%20height='14'%20viewBox='0%200%2016%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M7.99999%201.52786C9.64197%20-0.311643%2012.4945%20-0.537954%2014.4092%201.10999C16.425%202.84543%2016.5408%205.92351%2014.6667%207.80544L8.84586%2013.6507C8.3819%2014.1164%207.61808%2014.1164%207.15411%2013.6507L1.3333%207.80544C-0.540726%205.92351%20-0.425033%202.84543%201.59082%201.10999C3.50539%20-0.537952%206.35803%20-0.311654%207.99999%201.52786ZM13.6048%201.97461C12.1302%200.705344%209.89715%200.944339%208.72241%202.51667L8.48996%202.82766C8.37605%202.9801%208.19309%203.06933%207.99999%203.06933C7.80688%203.06933%207.62393%202.9801%207.51002%202.82766L7.27757%202.51667C6.10286%200.944324%203.86978%200.705346%202.39522%201.97461C0.890555%203.26999%200.79939%205.59161%202.20425%207.00245L7.99999%2012.8217L13.7957%207.00245C15.2006%205.59161%2015.1094%203.26999%2013.6048%201.97461Z'%20fill='%23909090'/%3e%3c/svg%3e",
+								alt: "",
+								className: "message-item__like-icon"
+							}, void 0, false, {
+								fileName: _jsxFileName$11,
+								lineNumber: 123,
+								columnNumber: 13
+							}, void 0), likeCount]
+						}, void 0, true, {
+							fileName: _jsxFileName$11,
+							lineNumber: 116,
+							columnNumber: 11
+						}, void 0),
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageReactions, {
+							message,
+							isOwn
+						}, void 0, false, {
+							fileName: _jsxFileName$11,
+							lineNumber: 127,
+							columnNumber: 9
+						}, void 0),
+						isSuper && extraCoins > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+							className: "message-item__coins",
+							children: ["+", formatCoins(extraCoins)]
+						}, void 0, true, {
+							fileName: _jsxFileName$11,
+							lineNumber: 129,
+							columnNumber: 11
+						}, void 0)
+					]
+				}, void 0, true, {
+					fileName: _jsxFileName$11,
+					lineNumber: 110,
+					columnNumber: 7
+				}, void 0)
+			]
+		}, void 0, true, {
+			fileName: _jsxFileName$11,
+			lineNumber: 81,
 			columnNumber: 5
-		}, this);
-		if (!isMember$2) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "enhance-ai",
+		}, void 0);
+	};
+	//#endregion
+	//#region src/sections/comments/RepliesButton.tsx
+	var _jsxFileName$10 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/RepliesButton.tsx";
+	var RepliesButton = ({ message, count }) => {
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+			type: "button",
+			className: "replies-button",
+			onClick: () => openThread(message),
+			children: [
+				count,
+				" ",
+				count === 1 ? "reply" : "replies"
+			]
+		}, void 0, true, {
+			fileName: _jsxFileName$10,
+			lineNumber: 11,
+			columnNumber: 5
+		}, void 0);
+	};
+	//#endregion
+	//#region src/sections/comments/MessageThread.tsx
+	var _jsxFileName$9 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/MessageThread.tsx";
+	var MessageThread = ({ root }) => {
+		const { threads } = useComments();
+		const thread = threads[root.id];
+		const isOpen = thread?.isOpen ?? false;
+		const replies = thread?.replies ?? [];
+		const directReplies = getVisibleReplies(replies, root.id);
+		const count = root.reply_count;
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "message-thread",
 			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 				type: "button",
-				className: "enhance-ai__button",
-				onClick: () => {
-					setIsUpsellDismissed(false);
-					writeStorage(STORAGE_KEY.ENHANCE_UPSELL_DISMISSED, false);
-				},
-				children: label
+				className: "replies-button",
+				onClick: () => toggleThread(root.id),
+				"aria-expanded": isOpen,
+				children: isOpen ? "Hide replies" : `View ${count} ${count === 1 ? "reply" : "replies"}`
 			}, void 0, false, {
-				fileName: _jsxFileName$8,
-				lineNumber: 86,
-				columnNumber: 9
-			}, this), !isUpsellDismissed && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UpsellPill, { onClose: handleDismissUpsell }, void 0, false, {
-				fileName: _jsxFileName$8,
-				lineNumber: 96,
-				columnNumber: 32
-			}, this)]
-		}, void 0, true, {
-			fileName: _jsxFileName$8,
-			lineNumber: 85,
-			columnNumber: 7
-		}, this);
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "enhance-ai",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-					type: "button",
-					className: "enhance-ai__button",
-					onClick: handleEnhance,
-					disabled: !trimmed || state.status === "loading",
-					children: label
-				}, void 0, false, {
-					fileName: _jsxFileName$8,
-					lineNumber: 103,
-					columnNumber: 7
-				}, this),
-				state.status === "loading" && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-					className: "enhance-ai__pill enhance-ai__pill--loading",
-					role: "status",
-					children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-						className: "enhance-ai__text",
-						children: "Generating AI Comment…"
+				fileName: _jsxFileName$9,
+				lineNumber: 22,
+				columnNumber: 7
+			}, void 0), isOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: "message-thread__replies",
+				children: [
+					thread.status === REQUEST_STATUS.LOADING && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						className: "message-thread__status",
+						children: "Loading replies..."
 					}, void 0, false, {
-						fileName: _jsxFileName$8,
-						lineNumber: 114,
-						columnNumber: 11
-					}, this)
-				}, void 0, false, {
-					fileName: _jsxFileName$8,
-					lineNumber: 113,
-					columnNumber: 9
-				}, this),
-				state.status === "ready" && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-					className: "enhance-ai__pill enhance-ai__pill--info",
-					role: "status",
-					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-						className: "enhance-ai__text enhance-ai__text--suggestion",
-						children: [
-							state.suggestion,
-							" ",
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-								type: "button",
-								className: "enhance-ai__use",
-								onClick: () => {
-									onUse(state.suggestion);
-									handleClose();
-								},
-								children: "Use This"
+						fileName: _jsxFileName$9,
+						lineNumber: 27,
+						columnNumber: 56
+					}, void 0),
+					thread.status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						className: "message-thread__status",
+						children: ERROR_MESSAGE.LOAD_REPLIES
+					}, void 0, false, {
+						fileName: _jsxFileName$9,
+						lineNumber: 28,
+						columnNumber: 55
+					}, void 0),
+					directReplies.map((reply) => {
+						const replyCount = getVisibleReplies(replies, reply.id).length;
+						return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, { message: reply }, void 0, false, {
+							fileName: _jsxFileName$9,
+							lineNumber: 33,
+							columnNumber: 17
+						}, void 0), replyCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RepliesButton, {
+							message: reply,
+							count: replyCount
+						}, void 0, false, {
+							fileName: _jsxFileName$9,
+							lineNumber: 34,
+							columnNumber: 36
+						}, void 0)] }, reply.id, true, {
+							fileName: _jsxFileName$9,
+							lineNumber: 32,
+							columnNumber: 15
+						}, void 0);
+					})
+				]
+			}, void 0, true, {
+				fileName: _jsxFileName$9,
+				lineNumber: 26,
+				columnNumber: 9
+			}, void 0)]
+		}, void 0, true, {
+			fileName: _jsxFileName$9,
+			lineNumber: 21,
+			columnNumber: 5
+		}, void 0);
+	};
+	//#endregion
+	//#region src/sections/comments/ThreadModal.tsx
+	var _jsxFileName$8 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/ThreadModal.tsx";
+	var ThreadModal = () => {
+		const { status } = useAuth();
+		const { threads, threadStack, settings } = useComments();
+		const current = threadStack[threadStack.length - 1];
+		const thread = threads[current.rootId];
+		const replies = thread?.replies ?? [];
+		const focused = replies.find((reply) => reply.id === current.id);
+		const directReplies = focused ? getVisibleReplies(replies, focused.id) : [];
+		const [replyTarget, setReplyTarget] = (0, import_react.useState)(null);
+		const [text, setText] = (0, import_react.useState)("");
+		const [isSending, setIsSending] = (0, import_react.useState)(false);
+		const [error, setError] = (0, import_react.useState)(null);
+		const inputRef = (0, import_react.useRef)(null);
+		const isLoggedIn = status === AUTH_STATUS.AUTHENTICATED;
+		const handleItemReply = (message) => {
+			setReplyTarget(message);
+			inputRef.current?.focus();
+		};
+		const send = async () => {
+			const body = text.trim();
+			if (!body || !replyTarget || isSending) return;
+			setIsSending(true);
+			setError(null);
+			try {
+				await sendComment(body, getReplyParentId(replyTarget, settings?.max_depth));
+				setText("");
+				setReplyTarget(null);
+			} catch (sendError) {
+				setError(toErrorMessage(sendError, ERROR_MESSAGE.SEND_COMMENT));
+			} finally {
+				setIsSending(false);
+			}
+		};
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
+			className: "thread-modal",
+			role: "dialog",
+			"aria-modal": "true",
+			"aria-labelledby": "thread-modal-title",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("header", {
+					className: "thread-modal__header",
+					children: [
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							className: "thread-modal__back",
+							onClick: closeThreadLevel,
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+								className: "thread-modal__back-icon",
+								"aria-hidden": "true",
+								children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
+									viewBox: "0 0 24 24",
+									children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
+										d: "M19 12H5M11 6l-6 6 6 6",
+										fill: "none",
+										stroke: "currentColor",
+										strokeWidth: "2",
+										strokeLinecap: "round",
+										strokeLinejoin: "round"
+									}, void 0, false, {
+										fileName: _jsxFileName$8,
+										lineNumber: 58,
+										columnNumber: 15
+									}, void 0)
+								}, void 0, false, {
+									fileName: _jsxFileName$8,
+									lineNumber: 57,
+									columnNumber: 13
+								}, void 0)
 							}, void 0, false, {
 								fileName: _jsxFileName$8,
-								lineNumber: 122,
-								columnNumber: 13
-							}, this)
-						]
+								lineNumber: 56,
+								columnNumber: 11
+							}, void 0), "Back"]
+						}, void 0, true, {
+							fileName: _jsxFileName$8,
+							lineNumber: 55,
+							columnNumber: 9
+						}, void 0),
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
+							id: "thread-modal-title",
+							className: "thread-modal__title",
+							children: "Reply thread"
+						}, void 0, false, {
+							fileName: _jsxFileName$8,
+							lineNumber: 63,
+							columnNumber: 9
+						}, void 0),
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							className: "thread-modal__close",
+							onClick: closeThreads,
+							"aria-label": "Close",
+							children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
+								viewBox: "0 0 18 18",
+								"aria-hidden": "true",
+								children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
+									d: "M3 3l12 12M15 3L3 15",
+									fill: "none",
+									stroke: "currentColor",
+									strokeWidth: "2",
+									strokeLinecap: "round"
+								}, void 0, false, {
+									fileName: _jsxFileName$8,
+									lineNumber: 68,
+									columnNumber: 13
+								}, void 0)
+							}, void 0, false, {
+								fileName: _jsxFileName$8,
+								lineNumber: 67,
+								columnNumber: 11
+							}, void 0)
+						}, void 0, false, {
+							fileName: _jsxFileName$8,
+							lineNumber: 66,
+							columnNumber: 9
+						}, void 0)
+					]
+				}, void 0, true, {
+					fileName: _jsxFileName$8,
+					lineNumber: 54,
+					columnNumber: 7
+				}, void 0),
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+					className: "thread-modal__body",
+					children: [
+						thread?.status === REQUEST_STATUS.LOADING && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+							className: "thread-modal__status",
+							children: "Loading replies..."
+						}, void 0, false, {
+							fileName: _jsxFileName$8,
+							lineNumber: 74,
+							columnNumber: 55
+						}, void 0),
+						thread?.status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+							className: "thread-modal__status",
+							children: ERROR_MESSAGE.LOAD_REPLIES
+						}, void 0, false, {
+							fileName: _jsxFileName$8,
+							lineNumber: 75,
+							columnNumber: 54
+						}, void 0),
+						focused && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, {
+							message: focused,
+							onReply: () => handleItemReply(focused)
+						}, void 0, false, {
+							fileName: _jsxFileName$8,
+							lineNumber: 76,
+							columnNumber: 21
+						}, void 0),
+						directReplies.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "message-thread__replies",
+							children: directReplies.map((reply) => {
+								const replyCount = getVisibleReplies(replies, reply.id).length;
+								return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, {
+									message: reply,
+									onReply: () => handleItemReply(reply)
+								}, void 0, false, {
+									fileName: _jsxFileName$8,
+									lineNumber: 83,
+									columnNumber: 19
+								}, void 0), replyCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RepliesButton, {
+									message: reply,
+									count: replyCount
+								}, void 0, false, {
+									fileName: _jsxFileName$8,
+									lineNumber: 84,
+									columnNumber: 38
+								}, void 0)] }, reply.id, true, {
+									fileName: _jsxFileName$8,
+									lineNumber: 82,
+									columnNumber: 17
+								}, void 0);
+							})
+						}, void 0, false, {
+							fileName: _jsxFileName$8,
+							lineNumber: 78,
+							columnNumber: 11
+						}, void 0)
+					]
+				}, void 0, true, {
+					fileName: _jsxFileName$8,
+					lineNumber: 73,
+					columnNumber: 7
+				}, void 0),
+				replyTarget && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("footer", {
+					className: "thread-modal__footer",
+					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "thread-modal__field",
+						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+							className: "thread-modal__mention",
+							children: ["@", getAuthorName(replyTarget.author, replyTarget.author_id)]
+						}, void 0, true, {
+							fileName: _jsxFileName$8,
+							lineNumber: 96,
+							columnNumber: 13
+						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
+							ref: inputRef,
+							autoFocus: true,
+							className: "thread-modal__input",
+							placeholder: isLoggedIn ? "Add your reply" : "Log in to reply",
+							"aria-label": "Add your reply",
+							rows: 1,
+							value: text,
+							onChange: (event) => {
+								setText(event.target.value);
+								setError(null);
+							},
+							onKeyDown: (event) => {
+								if (event.key === "Enter" && !event.shiftKey) {
+									event.preventDefault();
+									send();
+								}
+							},
+							readOnly: isSending,
+							disabled: !isLoggedIn
+						}, void 0, false, {
+							fileName: _jsxFileName$8,
+							lineNumber: 97,
+							columnNumber: 13
+						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$8,
+						lineNumber: 94,
+						columnNumber: 11
+					}, void 0), error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						className: "thread-modal__error",
+						role: "alert",
+						children: error
+					}, void 0, false, {
+						fileName: _jsxFileName$8,
 						lineNumber: 120,
-						columnNumber: 11
-					}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(CloseButton, {
-						label: "Dismiss suggestion",
-						onClick: handleClose
-					}, void 0, false, {
-						fileName: _jsxFileName$8,
-						lineNumber: 133,
-						columnNumber: 11
-					}, this)]
+						columnNumber: 13
+					}, void 0)]
 				}, void 0, true, {
 					fileName: _jsxFileName$8,
-					lineNumber: 119,
+					lineNumber: 93,
 					columnNumber: 9
-				}, this),
-				state.status === "failed" && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-					className: "enhance-ai__pill enhance-ai__pill--info",
-					role: "alert",
-					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-						className: "enhance-ai__text",
-						children: "Couldn't enhance this one. Try again in a moment."
-					}, void 0, false, {
-						fileName: _jsxFileName$8,
-						lineNumber: 139,
-						columnNumber: 11
-					}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(CloseButton, {
-						label: "Dismiss",
-						onClick: handleClose
-					}, void 0, false, {
-						fileName: _jsxFileName$8,
-						lineNumber: 140,
-						columnNumber: 11
-					}, this)]
-				}, void 0, true, {
-					fileName: _jsxFileName$8,
-					lineNumber: 138,
-					columnNumber: 9
-				}, this)
+				}, void 0)
 			]
 		}, void 0, true, {
 			fileName: _jsxFileName$8,
-			lineNumber: 102,
+			lineNumber: 53,
 			columnNumber: 5
-		}, this);
-	}
-	function UpsellPill({ onClose }) {
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "enhance-ai__pill enhance-ai__pill--upsell",
-			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-				className: "enhance-ai__text enhance-ai__text--upsell",
-				children: [
-					"Upgrade your membership for AI suggestions",
-					" ",
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("a", {
-						className: "enhance-ai__link",
-						href: MEMBERSHIP_URL,
-						target: "_blank",
-						rel: "noopener noreferrer",
-						children: "Upgrade Now"
-					}, void 0, false, {
-						fileName: _jsxFileName$8,
-						lineNumber: 152,
-						columnNumber: 9
-					}, this)
-				]
-			}, void 0, true, {
-				fileName: _jsxFileName$8,
-				lineNumber: 150,
-				columnNumber: 7
-			}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(CloseButton, {
-				label: "Hide",
-				onClick: onClose
-			}, void 0, false, {
-				fileName: _jsxFileName$8,
-				lineNumber: 156,
-				columnNumber: 7
-			}, this)]
-		}, void 0, true, {
-			fileName: _jsxFileName$8,
-			lineNumber: 149,
-			columnNumber: 5
-		}, this);
-	}
-	function CloseButton({ label, onClick }) {
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-			type: "button",
-			className: "enhance-ai__close",
-			onClick,
-			"aria-label": label,
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-				src: close_default,
-				alt: ""
-			}, void 0, false, {
-				fileName: _jsxFileName$8,
-				lineNumber: 164,
-				columnNumber: 7
-			}, this)
-		}, void 0, false, {
-			fileName: _jsxFileName$8,
-			lineNumber: 163,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/ModerationDialog.tsx
-	var _jsxFileName$7 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/ModerationDialog.tsx";
-	var LOCKED_PLACEHOLDER = "Members get a rewritten version of their message that is far more likely to pass moderation.";
-	var NOUN = {
-		[MODERATION_KIND.SUPER]: "Superchat",
-		[MODERATION_KIND.NORMAL]: "Comment"
+		}, void 0);
 	};
-	/**
-	* Shown before sending (or, for a Superchat, before the coin sheet) when the
-	* message trips the profanity filter. Nothing is blocked: the viewer can send
-	* it anyway, take the suggested rewrite (members only — friends see it
-	* blurred), or go back and edit.
-	*/
-	function ModerationDialog({ kind, message, userRank, onSendOriginal, onUseSuggestion, onCancel }) {
-		const container = useWidgetRoot();
-		const noun = NOUN[kind];
-		const isMember$1 = isMember(userRank);
-		const [suggestion, setSuggestion] = (0, import_react.useState)(null);
-		const isLoading = isMember$1 && suggestion === null;
-		const canUseSuggestion = isMember$1 && Boolean(suggestion);
-		(0, import_react.useEffect)(() => {
-			if (!isMember$1) return;
-			let isCurrent = true;
-			fetchCommentSuggestion(message, userRank).then(({ suggestion: rewrite }) => rewrite).catch(() => null).then((rewrite) => {
-				if (!isCurrent) return;
-				const isUsable = rewrite !== null && !checkProfanity(rewrite).isFlagged;
-				setSuggestion(isUsable ? rewrite : removeProfanity(message));
-			});
-			return () => {
-				isCurrent = false;
-			};
-		}, [
-			isMember$1,
-			message,
-			userRank
-		]);
-		useEscapeKey(true, onCancel);
-		return (0, import_react_dom.createPortal)(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "mod-dialog__backdrop",
-			onClick: (event) => {
-				if (event.target === event.currentTarget) onCancel();
-			},
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "mod-dialog",
-				role: "dialog",
-				"aria-modal": "true",
-				"aria-labelledby": "mod-dialog-own-title",
-				"aria-describedby": "mod-dialog-own-status",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
-						className: "mod-dialog__card",
-						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "mod-dialog__heading",
-							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
-								id: "mod-dialog-own-title",
-								className: "mod-dialog__title",
-								children: ["Your ", noun]
-							}, void 0, true, {
-								fileName: _jsxFileName$7,
-								lineNumber: 90,
-								columnNumber: 13
-							}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								id: "mod-dialog-own-status",
-								className: "mod-dialog__pill mod-dialog__pill--warning",
-								children: "It might not pass moderation"
-							}, void 0, false, {
-								fileName: _jsxFileName$7,
-								lineNumber: 93,
-								columnNumber: 13
-							}, this)]
-						}, void 0, true, {
-							fileName: _jsxFileName$7,
-							lineNumber: 89,
-							columnNumber: 11
-						}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "mod-dialog__row",
-							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-								className: "mod-dialog__message",
-								children: message
-							}, void 0, false, {
-								fileName: _jsxFileName$7,
-								lineNumber: 98,
-								columnNumber: 13
-							}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-								type: "button",
-								className: "mod-dialog__action",
-								onClick: onSendOriginal,
-								children: ["Send", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-									src: send_default,
-									alt: "",
-									className: "mod-dialog__action-icon"
-								}, void 0, false, {
-									fileName: _jsxFileName$7,
-									lineNumber: 101,
-									columnNumber: 15
-								}, this)]
-							}, void 0, true, {
-								fileName: _jsxFileName$7,
-								lineNumber: 99,
-								columnNumber: 13
-							}, this)]
-						}, void 0, true, {
-							fileName: _jsxFileName$7,
-							lineNumber: 97,
-							columnNumber: 11
-						}, this)]
-					}, void 0, true, {
-						fileName: _jsxFileName$7,
-						lineNumber: 88,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
-						className: "mod-dialog__card",
-						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "mod-dialog__heading",
-							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
-								className: "mod-dialog__title mod-dialog__title--ai",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-										src: sparkle_default,
-										alt: "AI",
-										className: "mod-dialog__ai"
-									}, void 0, false, {
-										fileName: _jsxFileName$7,
-										lineNumber: 109,
-										columnNumber: 15
-									}, this),
-									"Suggested ",
-									noun
-								]
-							}, void 0, true, {
-								fileName: _jsxFileName$7,
-								lineNumber: 108,
-								columnNumber: 13
-							}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								className: "mod-dialog__pill mod-dialog__pill--recommended",
-								children: "Recommended"
-							}, void 0, false, {
-								fileName: _jsxFileName$7,
-								lineNumber: 112,
-								columnNumber: 13
-							}, this)]
-						}, void 0, true, {
-							fileName: _jsxFileName$7,
-							lineNumber: 107,
-							columnNumber: 11
-						}, this), isMember$1 ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "mod-dialog__row",
-							"aria-busy": isLoading,
-							children: [isLoading ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-								className: "mod-dialog__message mod-dialog__loading",
-								role: "status",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-										className: "mod-dialog__visually-hidden",
-										children: "Writing a suggestion…"
-									}, void 0, false, {
-										fileName: _jsxFileName$7,
-										lineNumber: 119,
-										columnNumber: 19
-									}, this),
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-										className: "skeleton skeleton--line",
-										"aria-hidden": "true"
-									}, void 0, false, {
-										fileName: _jsxFileName$7,
-										lineNumber: 120,
-										columnNumber: 19
-									}, this),
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-										className: "skeleton skeleton--line skeleton--line-short",
-										"aria-hidden": "true"
-									}, void 0, false, {
-										fileName: _jsxFileName$7,
-										lineNumber: 121,
-										columnNumber: 19
-									}, this)
-								]
-							}, void 0, true, {
-								fileName: _jsxFileName$7,
-								lineNumber: 118,
-								columnNumber: 17
-							}, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-								className: "mod-dialog__message",
-								children: suggestion || "We couldn't suggest a version of this one. Try rewording it."
-							}, void 0, false, {
-								fileName: _jsxFileName$7,
-								lineNumber: 124,
-								columnNumber: 17
-							}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-								type: "button",
-								className: "mod-dialog__action",
-								onClick: () => suggestion && onUseSuggestion(suggestion),
-								disabled: !canUseSuggestion,
-								children: ["Use This", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-									src: send_default,
-									alt: "",
-									className: "mod-dialog__action-icon"
-								}, void 0, false, {
-									fileName: _jsxFileName$7,
-									lineNumber: 135,
-									columnNumber: 17
-								}, this)]
-							}, void 0, true, {
-								fileName: _jsxFileName$7,
-								lineNumber: 128,
-								columnNumber: 15
-							}, this)]
-						}, void 0, true, {
-							fileName: _jsxFileName$7,
-							lineNumber: 116,
-							columnNumber: 13
-						}, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "mod-dialog__row mod-dialog__row--locked",
-							"aria-hidden": "true",
-							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-								className: "mod-dialog__message",
-								children: LOCKED_PLACEHOLDER
-							}, void 0, false, {
-								fileName: _jsxFileName$7,
-								lineNumber: 141,
-								columnNumber: 17
-							}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-								type: "button",
-								className: "mod-dialog__action",
-								disabled: true,
-								tabIndex: -1,
-								children: ["Use This", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-									src: send_default,
-									alt: "",
-									className: "mod-dialog__action-icon"
-								}, void 0, false, {
-									fileName: _jsxFileName$7,
-									lineNumber: 144,
-									columnNumber: 19
-								}, this)]
-							}, void 0, true, {
-								fileName: _jsxFileName$7,
-								lineNumber: 142,
-								columnNumber: 17
-							}, this)]
-						}, void 0, true, {
-							fileName: _jsxFileName$7,
-							lineNumber: 140,
-							columnNumber: 15
-						}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-							className: "mod-dialog__upsell",
-							children: "Upgrade your membership for AI suggestions"
-						}, void 0, false, {
-							fileName: _jsxFileName$7,
-							lineNumber: 147,
-							columnNumber: 15
-						}, this)] }, void 0, true, {
-							fileName: _jsxFileName$7,
-							lineNumber: 139,
-							columnNumber: 13
-						}, this)]
-					}, void 0, true, {
-						fileName: _jsxFileName$7,
-						lineNumber: 106,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "mod-dialog__footer",
-						children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-							type: "button",
-							className: "mod-dialog__cancel",
-							onClick: onCancel,
-							autoFocus: true,
-							children: "Cancel, I’ll write it again"
-						}, void 0, false, {
-							fileName: _jsxFileName$7,
-							lineNumber: 153,
-							columnNumber: 11
-						}, this)
-					}, void 0, false, {
-						fileName: _jsxFileName$7,
-						lineNumber: 152,
-						columnNumber: 9
-					}, this)
-				]
-			}, void 0, true, {
-				fileName: _jsxFileName$7,
-				lineNumber: 81,
-				columnNumber: 7
-			}, this)
+	//#endregion
+	//#region src/utils/string.ts
+	var escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	var getInitials = (name) => {
+		const words = name.trim().split(/\s+/);
+		return (words[0].charAt(0) + (words.length > 1 ? words[words.length - 1].charAt(0) : "")).toUpperCase();
+	};
+	var hashString = (input) => {
+		let hash = 0;
+		for (const char of input) hash = hash * 31 + char.charCodeAt(0) >>> 0;
+		return hash;
+	};
+	//#endregion
+	//#region src/components/userAvatar/index.tsx
+	var _jsxFileName$7 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/userAvatar/index.tsx";
+	var UserAvatar = () => {
+		const { user, profile } = useAuth();
+		if (!user) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+			src: guestAvatar_default,
+			alt: "",
+			className: "user-avatar"
 		}, void 0, false, {
 			fileName: _jsxFileName$7,
-			lineNumber: 75,
-			columnNumber: 5
-		}, this), container);
-	}
-	//#endregion
-	//#region src/components/RollingNumber.tsx
-	var _jsxFileName$6 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/RollingNumber.tsx";
-	/** A number that rolls up or down to its new value. */
-	function RollingNumber({ value }) {
-		const [roll, setRoll] = (0, import_react.useState)({
-			current: value,
-			previous: null,
-			direction: "up"
-		});
-		if (value !== roll.current) setRoll({
-			current: value,
-			previous: roll.current,
-			direction: value > roll.current ? "up" : "down"
-		});
-		const isRolling = roll.previous !== null;
-		(0, import_react.useEffect)(() => {
-			if (!isRolling) return;
-			const timer = window.setTimeout(() => setRoll((r) => ({
-				...r,
-				previous: null
-			})), 550);
-			return () => window.clearTimeout(timer);
-		}, [isRolling, roll.current]);
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-			className: `rolling-number rolling-number--${roll.direction}`,
-			children: [isRolling && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-				className: "rolling-number__digits rolling-number__digits--out",
+			lineNumber: 18,
+			columnNumber: 12
+		}, void 0);
+		if (!profile.isLoaded) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "skeleton user-avatar",
+			"aria-hidden": "true"
+		}, void 0, false, {
+			fileName: _jsxFileName$7,
+			lineNumber: 22,
+			columnNumber: 12
+		}, void 0);
+		const tierAvatar = profile.tierId ? TIER_AVATARS[profile.tierId] : void 0;
+		if (!tierAvatar) {
+			const color = AVATAR_COLORS[hashString(user.id) % AVATAR_COLORS.length];
+			return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: "user-avatar user-avatar--initials",
+				style: {
+					backgroundColor: color,
+					fontSize: 15.2
+				},
 				"aria-hidden": "true",
-				onAnimationEnd: () => setRoll((r) => ({
-					...r,
-					previous: null
-				})),
-				children: roll.previous.toLocaleString("en-GB")
-			}, `out-${roll.previous}-${roll.current}`, false, {
-				fileName: _jsxFileName$6,
-				lineNumber: 33,
-				columnNumber: 9
-			}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-				className: `rolling-number__digits ${isRolling ? "rolling-number__digits--in" : ""}`,
-				children: roll.current.toLocaleString("en-GB")
-			}, `in-${roll.current}`, false, {
+				children: getInitials(user.name)
+			}, void 0, false, {
+				fileName: _jsxFileName$7,
+				lineNumber: 30,
+				columnNumber: 7
+			}, void 0);
+		}
+		const badgeSize = profile.tierId === 1 ? 40 : 40 * TIER_AVATAR_BADGE_SCALE;
+		const scale = badgeSize / 30;
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: `user-avatar user-avatar--tier-${profile.tierId}`,
+			"aria-hidden": "true",
+			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: "user-avatar__badge",
+				style: {
+					width: badgeSize,
+					height: badgeSize,
+					backgroundImage: `url("${tierAvatar.icon}")`
+				},
+				children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+					className: "user-avatar__initials",
+					style: {
+						marginTop: tierAvatar.initialsTop * scale,
+						fontSize: 11 * scale
+					},
+					children: getInitials(user.name)
+				}, void 0, false, {
+					fileName: _jsxFileName$7,
+					lineNumber: 49,
+					columnNumber: 9
+				}, void 0)
+			}, void 0, false, {
+				fileName: _jsxFileName$7,
+				lineNumber: 45,
+				columnNumber: 7
+			}, void 0)
+		}, void 0, false, {
+			fileName: _jsxFileName$7,
+			lineNumber: 44,
+			columnNumber: 5
+		}, void 0);
+	};
+	//#endregion
+	//#region src/sections/comments/UserMessagesPanel.tsx
+	var _jsxFileName$6 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/UserMessagesPanel.tsx";
+	var LOAD_MORE_OFFSET = 200;
+	var getActivityIcon = ({ type, reaction }) => {
+		if (type === ACTIVITY_TYPE.COMMENT) return {
+			src: comment_default,
+			alt: ""
+		};
+		if (type === ACTIVITY_TYPE.REPLY) return {
+			src: reply_default,
+			alt: ""
+		};
+		if (reaction === "1f44d") return {
+			src: heartFilled_default,
+			alt: ""
+		};
+		const option = REACTION_OPTIONS.find(({ kind }) => kind === reaction);
+		return {
+			src: option?.icon ?? "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M3%204.5C3%203.67%203.67%203%204.5%203H15.5C16.33%203%2017%203.67%2017%204.5V12.5C17%2013.33%2016.33%2014%2015.5%2014H8L4.5%2017V14H4.5C3.67%2014%203%2013.33%203%2012.5V4.5Z'%20stroke='%23898989'%20stroke-width='1.5'%20stroke-linejoin='round'/%3e%3c/svg%3e",
+			alt: option?.label ?? ""
+		};
+	};
+	var getActivityText = ({ type, reaction, message }) => {
+		if (type === ACTIVITY_TYPE.REPLY) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
+			ACTIVITY_LABEL[type],
+			" ",
+			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: getAuthorName(message.parent_author, message.parent_author_id) }, void 0, false, {
 				fileName: _jsxFileName$6,
 				lineNumber: 42,
-				columnNumber: 7
-			}, this)]
-		}, void 0, true, {
+				columnNumber: 32
+			}, void 0)
+		] }, void 0, true, {
 			fileName: _jsxFileName$6,
-			lineNumber: 31,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/SuperChatPreview.tsx
-	var _jsxFileName$5 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/SuperChatPreview.tsx";
-	/** The viewer's Superchat as it will look in the feed, shown on the sheet. */
-	function SuperChatPreview({ message, extraCoins }) {
-		const { userName, userRank } = useUser();
-		const tier = getSuperChatTier(extraCoins);
+			lineNumber: 41,
+			columnNumber: 7
+		}, void 0);
+		if (type === ACTIVITY_TYPE.REACTION && reaction === "1f44d") return LIKED_LABEL;
+		return ACTIVITY_LABEL[type];
+	};
+	var UserMessagesPanel = () => {
+		const { user } = useAuth();
+		const { userId, userName, activityTab, status, items, error, hasMore, isLoadingMore } = useUserMessages();
+		const bodyRef = (0, import_react.useRef)(null);
+		const [isClosing, setIsClosing] = (0, import_react.useState)(false);
+		const isSelf = userId === user?.id;
+		const emptyText = ACTIVITY_TABS.find(({ id }) => id === activityTab)?.emptyText;
+		const loadMoreNearBottom = () => {
+			const body = bodyRef.current;
+			if (body && hasMore && body.scrollHeight - body.scrollTop - body.clientHeight < LOAD_MORE_OFFSET) loadMoreUserMessages();
+		};
+		(0, import_react.useEffect)(loadMoreNearBottom);
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "super-chat-item super-chat-item--preview",
-			style: { "--super-chat-item-bg": tier.bg },
-			role: "img",
-			"aria-label": `Preview of your Superchat: ${message}`,
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "super-chat-item__body",
-				"aria-hidden": "true",
+			className: `user-panel__backdrop${isClosing ? " user-panel__backdrop--closing" : ""}`,
+			onClick: (event) => {
+				if (event.target === event.currentTarget) setIsClosing(true);
+			},
+			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
+				className: `user-panel${isClosing ? " user-panel--closing" : ""}`,
+				onAnimationEnd: (event) => {
+					if (isClosing && event.target === event.currentTarget) closeUserMessages();
+				},
+				role: "dialog",
+				"aria-modal": "true",
+				"aria-labelledby": "user-panel-title",
 				children: [
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "super-chat-item__header",
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("header", {
+						className: "user-panel__header",
 						children: [
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(NameBadge, {
-								name: userName,
-								rank: userRank,
-								className: "super-chat-item__name"
+							isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
+								fileName: _jsxFileName$6,
+								lineNumber: 92,
+								columnNumber: 22
+							}, void 0),
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
+								id: "user-panel-title",
+								className: "user-panel__title",
+								children: userName
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
-								lineNumber: 29,
+								fileName: _jsxFileName$6,
+								lineNumber: 93,
 								columnNumber: 11
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								className: "relative-time",
-								children: "Just now"
-							}, void 0, false, {
-								fileName: _jsxFileName$5,
-								lineNumber: 30,
-								columnNumber: 11
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								className: "message-actions",
-								children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-									className: "message-actions__trigger",
-									children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-										src: more_default,
-										alt: "",
-										className: "message-actions__icon"
+							}, void 0),
+							isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+								type: "button",
+								className: "user-panel__signout",
+								onClick: logoutGbn,
+								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
+									viewBox: "0 0 24 24",
+									"aria-hidden": "true",
+									children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
+										d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9",
+										fill: "none",
+										stroke: "currentColor",
+										strokeWidth: "2",
+										strokeLinecap: "round",
+										strokeLinejoin: "round"
 									}, void 0, false, {
-										fileName: _jsxFileName$5,
-										lineNumber: 33,
-										columnNumber: 15
-									}, this)
+										fileName: _jsxFileName$6,
+										lineNumber: 99,
+										columnNumber: 17
+									}, void 0)
 								}, void 0, false, {
-									fileName: _jsxFileName$5,
-									lineNumber: 32,
-									columnNumber: 13
-								}, this)
-							}, void 0, false, {
-								fileName: _jsxFileName$5,
-								lineNumber: 31,
-								columnNumber: 11
-							}, this)
-						]
-					}, void 0, true, {
-						fileName: _jsxFileName$5,
-						lineNumber: 28,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageText, {
-						className: "super-chat-item__message",
-						text: message
-					}, void 0, false, {
-						fileName: _jsxFileName$5,
-						lineNumber: 37,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "super-chat-item__footer",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								className: "reply-button",
-								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MaskIcon, {
-									src: reply_default,
-									className: "reply-button__icon"
-								}, void 0, false, {
-									fileName: _jsxFileName$5,
-									lineNumber: 40,
-									columnNumber: 13
-								}, this), "Reply"]
+									fileName: _jsxFileName$6,
+									lineNumber: 98,
+									columnNumber: 15
+								}, void 0), "Sign out"]
 							}, void 0, true, {
-								fileName: _jsxFileName$5,
-								lineNumber: 39,
-								columnNumber: 11
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								className: "like-button",
-								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MaskIcon, {
-									src: heart_default,
-									className: "like-button__icon"
-								}, void 0, false, {
-									fileName: _jsxFileName$5,
-									lineNumber: 44,
-									columnNumber: 13
-								}, this), "0"]
-							}, void 0, true, {
-								fileName: _jsxFileName$5,
-								lineNumber: 43,
-								columnNumber: 11
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								className: "react-button",
-								children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MaskIcon, {
-									src: react_default,
-									className: "react-button__icon"
-								}, void 0, false, {
-									fileName: _jsxFileName$5,
-									lineNumber: 47,
-									columnNumber: 13
-								}, this)
-							}, void 0, false, {
-								fileName: _jsxFileName$5,
-								lineNumber: 46,
-								columnNumber: 11
-							}, this),
-							extraCoins > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								className: "super-chat-item__coins",
-								children: [
-									"+",
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RollingNumber, { value: extraCoins }, void 0, false, {
-										fileName: _jsxFileName$5,
-										lineNumber: 51,
-										columnNumber: 16
-									}, this),
-									"\xA0",
-									"Coins"
-								]
-							}, void 0, true, {
-								fileName: _jsxFileName$5,
-								lineNumber: 50,
+								fileName: _jsxFileName$6,
+								lineNumber: 97,
 								columnNumber: 13
-							}, this)
+							}, void 0),
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+								type: "button",
+								className: "user-panel__close",
+								onClick: () => setIsClosing(true),
+								"aria-label": "Close",
+								children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
+									viewBox: "0 0 18 18",
+									"aria-hidden": "true",
+									children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
+										d: "M3 3l12 12M15 3L3 15",
+										fill: "none",
+										stroke: "currentColor",
+										strokeWidth: "2",
+										strokeLinecap: "round"
+									}, void 0, false, {
+										fileName: _jsxFileName$6,
+										lineNumber: 113,
+										columnNumber: 15
+									}, void 0)
+								}, void 0, false, {
+									fileName: _jsxFileName$6,
+									lineNumber: 112,
+									columnNumber: 13
+								}, void 0)
+							}, void 0, false, {
+								fileName: _jsxFileName$6,
+								lineNumber: 111,
+								columnNumber: 11
+							}, void 0)
 						]
 					}, void 0, true, {
-						fileName: _jsxFileName$5,
-						lineNumber: 38,
+						fileName: _jsxFileName$6,
+						lineNumber: 91,
 						columnNumber: 9
-					}, this)
-				]
-			}, void 0, true, {
-				fileName: _jsxFileName$5,
-				lineNumber: 27,
-				columnNumber: 7
-			}, this)
-		}, void 0, false, {
-			fileName: _jsxFileName$5,
-			lineNumber: 21,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/SuperChatConfirmDialog.tsx
-	var _jsxFileName$4 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/SuperChatConfirmDialog.tsx";
-	/**
-	* Final step before a Superchat is paid for, on a navy-to-red panel. Members see
-	* their comment balance (one comment covers the base price) on a card in their
-	* membership's colour; non-members see that card locked behind a membership
-	* upsell. The coin balance sits on the panel itself: with the coins this takes
-	* on its right when it spends any, or beside the Send button when it doesn't.
-	*/
-	function SuperChatConfirmDialog({ extraCoins, isSending, error, onConfirm, onSendNormal, onCancel }) {
-		const container = useWidgetRoot();
-		const { hasCommentBalance, isTierLoading, commentBalance, coinBalance, userName, userRank } = useUser();
-		const cost = getSuperChatCost(extraCoins, commentBalance);
-		const hasEnoughCoins = cost.coins <= coinBalance;
-		const spendsCoins = cost.coins > 0;
-		const canUpgrade = userRank !== USER_RANK.CHAMPION;
-		const coinsSection = /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
-			className: "sc-confirm__coins",
-			"aria-label": "Coin balance",
-			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-				className: "sc-confirm__label",
-				children: "Available Coin Balance:"
-			}, void 0, false, {
-				fileName: _jsxFileName$4,
-				lineNumber: 50,
-				columnNumber: 7
-			}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "sc-confirm__row",
-				children: [
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
-						className: "sc-confirm__value",
-						children: formatCoins(coinBalance)
+					}, void 0),
+					isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "chat-tabs",
+						role: "tablist",
+						children: ACTIVITY_TABS.map(({ id, label }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							role: "tab",
+							"aria-selected": activityTab === id,
+							className: `chat-tabs__tab${activityTab === id ? " chat-tabs__tab--active" : ""}`,
+							onClick: () => setActivityTab(id),
+							children: label
+						}, id, false, {
+							fileName: _jsxFileName$6,
+							lineNumber: 121,
+							columnNumber: 15
+						}, void 0))
 					}, void 0, false, {
-						fileName: _jsxFileName$4,
-						lineNumber: 52,
-						columnNumber: 9
-					}, this),
-					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("a", {
-						className: "sc-confirm__link sc-confirm__link--light",
-						href: BUY_COINS_URL,
-						target: "_blank",
-						rel: "noopener noreferrer",
-						children: "Buy More Coins"
-					}, void 0, false, {
-						fileName: _jsxFileName$4,
-						lineNumber: 53,
-						columnNumber: 9
-					}, this),
-					spendsCoins && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
-						className: "sc-confirm__value sc-confirm__cost",
-						children: ["−", formatCoins(cost.coins)]
-					}, void 0, true, {
-						fileName: _jsxFileName$4,
-						lineNumber: 62,
+						fileName: _jsxFileName$6,
+						lineNumber: 119,
 						columnNumber: 11
-					}, this)
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "user-panel__body",
+						ref: bodyRef,
+						onScroll: loadMoreNearBottom,
+						children: [
+							status === REQUEST_STATUS.LOADING && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "user-panel__status",
+								children: "Loading comments..."
+							}, void 0, false, {
+								fileName: _jsxFileName$6,
+								lineNumber: 136,
+								columnNumber: 49
+							}, void 0),
+							status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "user-panel__status",
+								children: error
+							}, void 0, false, {
+								fileName: _jsxFileName$6,
+								lineNumber: 137,
+								columnNumber: 48
+							}, void 0),
+							status === REQUEST_STATUS.SUCCEEDED && items.length === 0 && !hasMore && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "user-panel__status",
+								children: emptyText
+							}, void 0, false, {
+								fileName: _jsxFileName$6,
+								lineNumber: 139,
+								columnNumber: 13
+							}, void 0),
+							items.map((item) => {
+								const isSuper = item.message.kind === MESSAGE_KIND.SUPERCHAT;
+								const icon = getActivityIcon(item);
+								return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("article", {
+									className: "user-panel__item",
+									children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+										src: icon.src,
+										alt: icon.alt,
+										className: "user-panel__item-icon"
+									}, void 0, false, {
+										fileName: _jsxFileName$6,
+										lineNumber: 146,
+										columnNumber: 17
+									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+										className: "user-panel__item-content",
+										children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+											className: "user-panel__item-header",
+											children: [
+												/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+													className: "user-panel__item-title",
+													children: [
+														isSelf ? "You" : userName,
+														" ",
+														getActivityText(item)
+													]
+												}, void 0, true, {
+													fileName: _jsxFileName$6,
+													lineNumber: 149,
+													columnNumber: 21
+												}, void 0),
+												isSuper && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+													className: "user-panel__tag",
+													children: "YourSay+"
+												}, void 0, false, {
+													fileName: _jsxFileName$6,
+													lineNumber: 152,
+													columnNumber: 33
+												}, void 0),
+												/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+													className: "user-panel__item-time",
+													children: [formatRelativeTime(item.at), " ago"]
+												}, void 0, true, {
+													fileName: _jsxFileName$6,
+													lineNumber: 153,
+													columnNumber: 21
+												}, void 0),
+												item.message.status === MESSAGE_STATUS.HELD && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+													className: "message-item__review-tag",
+													children: "Under review"
+												}, void 0, false, {
+													fileName: _jsxFileName$6,
+													lineNumber: 155,
+													columnNumber: 23
+												}, void 0)
+											]
+										}, void 0, true, {
+											fileName: _jsxFileName$6,
+											lineNumber: 148,
+											columnNumber: 19
+										}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+											className: "user-panel__quote",
+											children: item.message.body
+										}, void 0, false, {
+											fileName: _jsxFileName$6,
+											lineNumber: 158,
+											columnNumber: 19
+										}, void 0)]
+									}, void 0, true, {
+										fileName: _jsxFileName$6,
+										lineNumber: 147,
+										columnNumber: 17
+									}, void 0)]
+								}, `${item.type}-${item.message.id}-${item.reaction ?? ""}`, true, {
+									fileName: _jsxFileName$6,
+									lineNumber: 145,
+									columnNumber: 15
+								}, void 0);
+							}),
+							isLoadingMore && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "user-panel__status",
+								children: "Loading more..."
+							}, void 0, false, {
+								fileName: _jsxFileName$6,
+								lineNumber: 163,
+								columnNumber: 29
+							}, void 0)
+						]
+					}, void 0, true, {
+						fileName: _jsxFileName$6,
+						lineNumber: 135,
+						columnNumber: 9
+					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$4,
-				lineNumber: 51,
+				fileName: _jsxFileName$6,
+				lineNumber: 80,
 				columnNumber: 7
-			}, this)]
-		}, void 0, true, {
-			fileName: _jsxFileName$4,
-			lineNumber: 49,
+			}, void 0)
+		}, void 0, false, {
+			fileName: _jsxFileName$6,
+			lineNumber: 72,
 			columnNumber: 5
-		}, this);
-		return (0, import_react_dom.createPortal)(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+		}, void 0);
+	};
+	//#endregion
+	//#region src/utils/profanity.ts
+	var PROFANITY_PATTERNS = PROFANITY_WORDS.map((word) => {
+		const letters = word.replace(/\s+/g, "").split("").map((char) => `${escapeRegExp(char)}+`);
+		return new RegExp(`\\b${letters.join("[\\s._\\-*|/\\\\]*")}\\b`, "i");
+	});
+	var MASK_CLASS = `[${escapeRegExp(PROFANITY_MASK_CHARS)}]`;
+	var MASKED_PATTERNS = PROFANITY_WORDS.filter((word) => word.length >= 3 && !/\s/.test(word)).map((word) => {
+		const [first, ...rest] = word.split("");
+		const body = rest.map((char) => `(?:${escapeRegExp(char)}|${MASK_CLASS})`).join("");
+		return new RegExp(`(?<![a-z0-9])${escapeRegExp(first)}${body}(?![a-z0-9])`, "gi");
+	});
+	var isMaskedMatch = (text, pattern) => [...text.matchAll(pattern)].some((match) => [...match[0]].some((char) => PROFANITY_MASK_CHARS.includes(char)));
+	var containsProfanity = (text) => {
+		const normalized = text.toLowerCase().replace(/!+(?![a-z0-9])/g, " ").replace(/./g, (char) => LEET_SUBSTITUTIONS[char] ?? char);
+		return PROFANITY_PATTERNS.some((pattern) => pattern.test(normalized)) || MASKED_PATTERNS.some((pattern) => isMaskedMatch(normalized, pattern));
+	};
+	//#endregion
+	//#region src/sections/superChat/SuperChatConfirmDialog.tsx
+	var _jsxFileName$5 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/superChat/SuperChatConfirmDialog.tsx";
+	var FREE_COMMENTS_LEFT = 2;
+	var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose }) => {
+		const { user, profile } = useAuth();
+		const { settings } = useComments();
+		const baseCoins = settings?.superchat.amount_coins ?? 0;
+		const rank = getTierRank(profile.tierId);
+		const isMember = rank !== USER_RANK.FRIEND;
+		const coinBalance = profile.coins ?? 0;
+		const hasFreeComment = isMember && FREE_COMMENTS_LEFT > 0;
+		const coinCost = hasFreeComment ? extraCoins : baseCoins + extraCoins;
+		const spendsCoins = coinCost > 0;
+		let commentPrice = /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+			className: "sc-confirm__summary-price",
+			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("s", {
+				className: "sc-confirm__old-price",
+				children: formatCoins(baseCoins)
+			}, void 0, false, {
+				fileName: _jsxFileName$5,
+				lineNumber: 35,
+				columnNumber: 7
+			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
+				className: "sc-confirm__summary-value sc-confirm__free",
+				children: "Free"
+			}, void 0, false, {
+				fileName: _jsxFileName$5,
+				lineNumber: 36,
+				columnNumber: 7
+			}, void 0)]
+		}, void 0, true, {
+			fileName: _jsxFileName$5,
+			lineNumber: 34,
+			columnNumber: 5
+		}, void 0);
+		if (spendsCoins) commentPrice = /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
+			className: "sc-confirm__summary-value",
+			children: ["−", formatCoins(coinCost)]
+		}, void 0, true, {
+			fileName: _jsxFileName$5,
+			lineNumber: 41,
+			columnNumber: 7
+		}, void 0);
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 			className: "sc-confirm__backdrop",
 			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 				className: "sc-confirm__frame",
 				role: "dialog",
 				"aria-modal": "true",
 				"aria-labelledby": "sc-confirm-title",
-				children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-					type: "button",
-					className: "sc-confirm__close",
-					onClick: onCancel,
-					disabled: isSending,
-					"aria-label": "Close",
-					children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
-						viewBox: "0 0 18 18",
-						"aria-hidden": "true",
-						focusable: "false",
-						children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-							d: "M3 3l12 12M15 3L3 15",
-							fill: "none",
-							stroke: "currentColor",
-							strokeWidth: "3",
-							strokeLinecap: "round"
-						}, void 0, false, {
-							fileName: _jsxFileName$4,
-							lineNumber: 87,
-							columnNumber: 13
-						}, this)
-					}, void 0, false, {
-						fileName: _jsxFileName$4,
-						lineNumber: 86,
-						columnNumber: 11
-					}, this)
-				}, void 0, false, {
-					fileName: _jsxFileName$4,
-					lineNumber: 78,
-					columnNumber: 9
-				}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 					className: "sc-confirm",
 					children: [
-						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
-							id: "sc-confirm-title",
-							className: "sc-confirm__title",
-							children: "Confirm your Superchat"
-						}, void 0, false, {
-							fileName: _jsxFileName$4,
-							lineNumber: 98,
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "sc-confirm__header",
+							children: [isMember && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(NameBadge, {
+								name: user?.name ?? "Your Name",
+								rank
+							}, void 0, false, {
+								fileName: _jsxFileName$5,
+								lineNumber: 53,
+								columnNumber: 26
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
+								id: "sc-confirm-title",
+								className: "sc-confirm__title",
+								children: "Confirm your YourSay+ Comment"
+							}, void 0, false, {
+								fileName: _jsxFileName$5,
+								lineNumber: 54,
+								columnNumber: 13
+							}, void 0)]
+						}, void 0, true, {
+							fileName: _jsxFileName$5,
+							lineNumber: 52,
 							columnNumber: 11
-						}, this),
-						hasCommentBalance ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
-							className: `sc-confirm__card sc-confirm__card--comments sc-confirm__card--${userRank}`,
-							children: [
-								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(NameBadge, {
-									name: userName,
-									rank: userRank,
-									className: "sc-confirm__badge"
+						}, void 0),
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
+							className: "sc-confirm__summary",
+							"aria-label": "Coin balance",
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+								className: "sc-confirm__summary-row",
+								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+									className: "sc-confirm__summary-col",
+									children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: "sc-confirm__summary-label",
+										children: "Available Coin Balance"
+									}, void 0, false, {
+										fileName: _jsxFileName$5,
+										lineNumber: 62,
+										columnNumber: 17
+									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
+										className: "sc-confirm__summary-value sc-confirm__balance",
+										children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+											src: coin_default,
+											alt: "",
+											className: "sc-confirm__icon"
+										}, void 0, false, {
+											fileName: _jsxFileName$5,
+											lineNumber: 64,
+											columnNumber: 19
+										}, void 0), formatCoins(coinBalance)]
+									}, void 0, true, {
+										fileName: _jsxFileName$5,
+										lineNumber: 63,
+										columnNumber: 17
+									}, void 0)]
+								}, void 0, true, {
+									fileName: _jsxFileName$5,
+									lineNumber: 61,
+									columnNumber: 15
+								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+									className: "sc-confirm__summary-col sc-confirm__summary-col--end",
+									children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: "sc-confirm__summary-label",
+										children: "This Comment"
+									}, void 0, false, {
+										fileName: _jsxFileName$5,
+										lineNumber: 69,
+										columnNumber: 17
+									}, void 0), commentPrice]
+								}, void 0, true, {
+									fileName: _jsxFileName$5,
+									lineNumber: 68,
+									columnNumber: 15
+								}, void 0)]
+							}, void 0, true, {
+								fileName: _jsxFileName$5,
+								lineNumber: 60,
+								columnNumber: 13
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+								className: "sc-confirm__summary-row sc-confirm__summary-row--after",
+								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+									className: "sc-confirm__summary-label",
+									children: "Balance after comment"
 								}, void 0, false, {
-									fileName: _jsxFileName$4,
+									fileName: _jsxFileName$5,
+									lineNumber: 77,
+									columnNumber: 19
+								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+									className: "sc-confirm__summary-price",
+									children: [!spendsCoins && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: "sc-confirm__no-change",
+										children: "(No Change)"
+									}, void 0, false, {
+										fileName: _jsxFileName$5,
+										lineNumber: 79,
+										columnNumber: 38
+									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
+										className: "sc-confirm__summary-value",
+										children: formatCoins(Math.max(0, coinBalance - coinCost))
+									}, void 0, false, {
+										fileName: _jsxFileName$5,
+										lineNumber: 80,
+										columnNumber: 21
+									}, void 0)]
+								}, void 0, true, {
+									fileName: _jsxFileName$5,
+									lineNumber: 78,
+									columnNumber: 19
+								}, void 0)]
+							}, void 0, true, {
+								fileName: _jsxFileName$5,
+								lineNumber: 76,
+								columnNumber: 17
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("a", {
+								className: "sc-confirm__summary-link",
+								href: BUY_COINS_URL,
+								target: "_blank",
+								rel: "noopener noreferrer",
+								children: "Buy More Coins"
+							}, void 0, false, {
+								fileName: _jsxFileName$5,
+								lineNumber: 83,
+								columnNumber: 17
+							}, void 0)] }, void 0, true, {
+								fileName: _jsxFileName$5,
+								lineNumber: 75,
+								columnNumber: 15
+							}, void 0)]
+						}, void 0, true, {
+							fileName: _jsxFileName$5,
+							lineNumber: 59,
+							columnNumber: 11
+						}, void 0),
+						hasFreeComment && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+							className: "sc-confirm__note",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+									src: "data:image/svg+xml,%3csvg%20width='15'%20height='15'%20viewBox='0%200%2015%2015'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M12.1212%208.18182H8.18182V13.5606C8.18182%2013.5862%208.18035%2013.6115%208.1776%2013.6364H10.3788C10.8143%2013.6364%2011.1%2013.6358%2011.3184%2013.618C11.5289%2013.6008%2011.6163%2013.571%2011.6662%2013.5455L11.6663%2013.5455C11.823%2013.4656%2011.9505%2013.3382%2012.0304%2013.1814L12.0304%2013.1814C12.0558%2013.1315%2012.0856%2013.0441%2012.1028%2012.8336C12.1207%2012.6151%2012.1212%2012.3295%2012.1212%2011.8939V8.18182ZM2.8788%2011.8939C2.8788%2012.3295%202.87933%2012.6151%202.89717%2012.8336C2.9133%2013.0309%202.94051%2013.1201%202.9648%2013.1715L2.96962%2013.1814V13.1814C3.04703%2013.3333%203.1691%2013.4577%203.31914%2013.5379L3.33374%2013.5455L3.33381%2013.5455C3.38372%2013.571%203.47111%2013.6008%203.6816%2013.618C3.90004%2013.6358%204.18568%2013.6364%204.62121%2013.6364H6.8224C6.81965%2013.6115%206.81818%2013.5862%206.81818%2013.5606V8.18182H2.8788V11.8939ZM13.6364%204.92425C13.6364%204.70086%2013.6358%204.57432%2013.6283%204.4822C13.6259%204.45311%2013.6232%204.43481%2013.6214%204.4246C13.617%204.41858%2013.6117%204.41329%2013.6057%204.40887C13.5955%204.40707%2013.5772%204.40436%2013.5481%204.40199C13.456%204.39446%2013.3295%204.39393%2013.1061%204.39393H8.18182V6.81818H13.1061C13.3295%206.81818%2013.456%206.81765%2013.5481%206.81012C13.5772%206.80775%2013.5955%206.80504%2013.6057%206.80324C13.6117%206.79881%2013.617%206.79352%2013.6214%206.78753C13.6232%206.77733%2013.6259%206.75905%2013.6283%206.72996C13.6358%206.63784%2013.6364%206.51129%2013.6364%206.28789V4.92425ZM1.36364%206.28789C1.36364%206.51129%201.36417%206.63784%201.3717%206.72996C1.37407%206.75901%201.37673%206.7773%201.37853%206.78751C1.38296%206.79348%201.38826%206.79878%201.39429%206.80324C1.40449%206.80504%201.42278%206.80775%201.45188%206.81012C1.544%206.81765%201.67055%206.81818%201.89393%206.81818H6.81818V4.39393H1.89393C1.67055%204.39393%201.54401%204.39446%201.45188%204.40199C1.42277%204.40437%201.40447%204.40707%201.39427%204.40887C1.38828%204.41331%201.38297%204.41861%201.37853%204.4246C1.37673%204.43481%201.37407%204.4531%201.3717%204.48218C1.36417%204.5743%201.36364%204.70086%201.36364%204.92425V6.28789ZM10.9848%202.19698C10.9848%201.97208%2010.897%201.75873%2010.7443%201.60332V1.60329C10.5921%201.44836%2010.3884%201.36364%2010.1786%201.36364C9.52233%201.36364%209.03011%201.83199%208.65791%202.52102C8.56498%202.69307%208.48672%202.86689%208.42176%203.0303H10.1786C10.3884%203.0303%2010.5922%202.94555%2010.7444%202.79057C10.897%202.63516%2010.9848%202.42184%2010.9848%202.19698ZM4.01516%202.19698C4.01516%202.42191%204.10303%202.6352%204.25562%202.79057L4.25564%202.79059C4.40782%202.94555%204.61158%203.03029%204.82142%203.0303H6.57824C6.51328%202.86689%206.43502%202.69307%206.34209%202.52102C5.96989%201.83199%205.47765%201.36364%204.82142%201.36364C4.61158%201.36364%204.40782%201.44839%204.25564%201.60334L4.25562%201.60336C4.10302%201.75873%204.01516%201.97204%204.01516%202.19698ZM12.3485%202.19698C12.3485%202.48511%2012.2925%202.76795%2012.1863%203.0303H13.1061C13.307%203.0303%2013.4986%203.02976%2013.6592%203.04288C13.8277%203.05665%2014.0209%203.08876%2014.214%203.18717C14.4766%203.32092%2014.6913%203.5318%2014.8299%203.79093L14.8431%203.81616L14.8431%203.81621C14.9415%204.00937%2014.9736%204.20265%2014.9874%204.37114C15.0005%204.53167%2015%204.72336%2015%204.92425V6.28789C15%206.48879%2015.0005%206.68047%2014.9874%206.841C14.9741%207.00423%2014.9435%207.19071%2014.8521%207.37782L14.8431%207.39593C14.7094%207.65832%2014.4986%207.8731%2014.2393%208.01174L14.2141%208.02492C14.0209%208.12336%2013.8277%208.15547%2013.6592%208.16923C13.6044%208.17371%2013.546%208.17656%2013.4848%208.17842V11.8939C13.4848%2012.307%2013.4854%2012.6578%2013.4619%2012.9446C13.4378%2013.2394%2013.3851%2013.5262%2013.2454%2013.8004L13.2454%2013.8004C13.0348%2014.2138%2012.6987%2014.5499%2012.2853%2014.7605L12.2853%2014.7605C12.0111%2014.9002%2011.7243%2014.953%2011.4295%2014.9771C11.1426%2015.0005%2010.7918%2015%2010.3788%2015H4.62121C4.20818%2015%203.8574%2015.0005%203.57054%2014.9771C3.27574%2014.953%202.98895%2014.9002%202.71478%2014.7605V14.7606C2.30131%2014.5499%201.96523%2014.2138%201.75462%2013.8004C1.61491%2013.5263%201.56215%2013.2394%201.53807%2012.9446C1.51463%2012.6578%201.51516%2012.307%201.51516%2011.8939V8.17842C1.45401%208.17656%201.39562%208.17371%201.34084%208.16923C1.17235%208.15547%200.97908%208.12335%200.785914%208.02492L0.785847%208.0249C0.515177%207.88695%200.294939%207.66687%200.156874%207.39586L0.156897%207.39584C0.0584945%207.2027%200.0263525%207.00948%200.0125873%206.841C-0.00052804%206.68047%202.9686e-06%206.48879%202.98263e-06%206.28789V4.92425C2.98263e-06%204.72336%20-0.000528127%204.53167%200.0125873%204.37114C0.0263534%204.20265%200.0584572%204.00939%200.156874%203.81623L0.156897%203.81621C0.294899%203.54538%200.515092%203.32519%200.785914%203.18719H0.785936C0.979098%203.08877%201.17236%203.05665%201.34084%203.04288C1.50137%203.02976%201.69305%203.0303%201.89393%203.0303H2.81368C2.70746%202.76793%202.65153%202.48509%202.65152%202.19698C2.65152%201.61823%202.87721%201.06076%203.28276%200.647838C3.68871%200.234501%204.24193%202.43238e-06%204.82142%200C6.2051%200%207.04351%200.98405%207.5%201.79692C7.95648%200.984052%208.79488%202.30194e-06%2010.1786%200C10.7581%200%2011.3113%200.234513%2011.7173%200.647838L11.7173%200.647883C12.1227%201.06075%2012.3485%201.6182%2012.3485%202.19698Z'%20fill='%2322AB00'/%3e%3c/svg%3e",
+									alt: "",
+									className: "sc-confirm__icon"
+								}, void 0, false, {
+									fileName: _jsxFileName$5,
 									lineNumber: 106,
 									columnNumber: 15
-								}, this),
-								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-									className: "sc-confirm__label",
-									children: "Available Comment Balance:"
-								}, void 0, false, {
-									fileName: _jsxFileName$4,
-									lineNumber: 107,
-									columnNumber: 15
-								}, this),
-								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-									className: "sc-confirm__row",
-									children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
-										className: "sc-confirm__value",
-										children: formatComments(commentBalance)
-									}, void 0, false, {
-										fileName: _jsxFileName$4,
-										lineNumber: 109,
-										columnNumber: 17
-									}, this), cost.comments > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
-										className: "sc-confirm__value",
-										children: ["−", formatComments(cost.comments)]
-									}, void 0, true, {
-										fileName: _jsxFileName$4,
-										lineNumber: 111,
-										columnNumber: 19
-									}, this)]
-								}, void 0, true, {
-									fileName: _jsxFileName$4,
-									lineNumber: 108,
-									columnNumber: 15
-								}, this),
-								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-									className: "sc-confirm__note",
-									children: "(Refreshes 1st of Every Month)"
-								}, void 0, false, {
-									fileName: _jsxFileName$4,
-									lineNumber: 114,
-									columnNumber: 15
-								}, this),
-								canUpgrade && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("a", {
-									className: "sc-confirm__link",
+								}, void 0),
+								"You have ",
+								FREE_COMMENTS_LEFT,
+								" Free YourSay+ ",
+								FREE_COMMENTS_LEFT === 1 ? "comment" : "comments",
+								" for this month (Including this)"
+							]
+						}, void 0, true, {
+							fileName: _jsxFileName$5,
+							lineNumber: 105,
+							columnNumber: 13
+						}, void 0),
+						isMember && !hasFreeComment && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+							className: "sc-confirm__note",
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+								src: "data:image/svg+xml,%3csvg%20width='14'%20height='14'%20viewBox='0%200%2014%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M14%207C14%2010.866%2010.866%2014%207%2014C3.13401%2014%200%2010.866%200%207C0%203.13401%203.13401%200%207%200C10.866%200%2014%203.13401%2014%207ZM1.27707%207C1.27707%2010.1607%203.83932%2012.7229%207%2012.7229C10.1607%2012.7229%2012.7229%2010.1607%2012.7229%207C12.7229%203.83932%2010.1607%201.27707%207%201.27707C3.83932%201.27707%201.27707%203.83932%201.27707%207Z'%20fill='%236CCCFF'/%3e%3cpath%20d='M7.00355%202.54688C6.65209%202.54688%206.36719%202.83178%206.36719%203.18324V7.29841C6.36719%207.29841%206.36719%207.46431%206.44782%207.5891C6.50178%207.69493%206.58591%207.78688%206.69644%207.85071L9.63631%209.54808C9.94069%209.72378%2010.3299%209.61948%2010.5056%209.31511C10.6813%209.01074%2010.5771%208.62154%2010.2727%208.44584L7.63991%206.92582V3.18324C7.63991%202.83179%207.35501%202.54688%207.00355%202.54688Z'%20fill='%236CCCFF'/%3e%3c/svg%3e",
+								alt: "",
+								className: "sc-confirm__icon"
+							}, void 0, false, {
+								fileName: _jsxFileName$5,
+								lineNumber: 113,
+								columnNumber: 15
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", { children: [
+								"You've used this month's free YourSay+ comment.",
+								" ",
+								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: ["Next free comments available on ", formatNextMonthStart()] }, void 0, true, {
+									fileName: _jsxFileName$5,
+									lineNumber: 116,
+									columnNumber: 17
+								}, void 0)
+							] }, void 0, true, {
+								fileName: _jsxFileName$5,
+								lineNumber: 114,
+								columnNumber: 15
+							}, void 0)]
+						}, void 0, true, {
+							fileName: _jsxFileName$5,
+							lineNumber: 112,
+							columnNumber: 13
+						}, void 0),
+						!isMember && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+							className: "sc-confirm__note",
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+								src: "data:image/svg+xml,%3csvg%20width='14'%20height='13'%20viewBox='0%200%2014%2013'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M5.81015%200.5156C6.03466%20-0.175383%207.01222%20-0.175382%207.23673%200.5156L8.26342%203.67543C8.36383%203.98445%208.65179%204.19367%208.97671%204.19367L12.2992%204.19367C13.0257%204.19367%2013.3278%205.12338%2012.74%205.55043L10.0521%207.50331C9.78922%207.6943%209.67922%208.03282%209.77963%208.34184L10.8063%2011.5017C11.0308%2012.1927%2010.24%2012.7672%209.65219%2012.3402L6.96428%2010.3873C6.70141%2010.1963%206.34546%2010.1963%206.0826%2010.3873L3.39469%2012.3402C2.8069%2012.7672%202.01604%2012.1927%202.24056%2011.5017L3.26725%208.34184C3.36765%208.03282%203.25766%207.6943%202.99479%207.50331L0.30688%205.55043C-0.280905%205.12338%200.0211766%204.19367%200.747719%204.19367L4.07016%204.19367C4.39508%204.19367%204.68305%203.98445%204.78345%203.67543L5.81015%200.5156Z'%20fill='%23FFD86B'/%3e%3c/svg%3e",
+								alt: "",
+								className: "sc-confirm__icon"
+							}, void 0, false, {
+								fileName: _jsxFileName$5,
+								lineNumber: 122,
+								columnNumber: 15
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", { children: [
+								"Members get free YourSay+ Comments Every Month.",
+								" ",
+								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("a", {
+									className: "sc-confirm__upgrade-link",
 									href: "https://www.gbnews.com/support",
 									target: "_blank",
 									rel: "noopener noreferrer",
-									children: "Get More Free Comments"
+									children: "Upgrade Membership"
 								}, void 0, false, {
-									fileName: _jsxFileName$4,
-									lineNumber: 116,
+									fileName: _jsxFileName$5,
+									lineNumber: 125,
 									columnNumber: 17
-								}, this)
-							]
+								}, void 0)
+							] }, void 0, true, {
+								fileName: _jsxFileName$5,
+								lineNumber: 123,
+								columnNumber: 15
+							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$4,
-							lineNumber: 103,
+							fileName: _jsxFileName$5,
+							lineNumber: 121,
 							columnNumber: 13
-						}, this) : !isTierLoading && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
-							className: "sc-confirm__card sc-confirm__card--comments sc-confirm__card--locked",
-							"aria-labelledby": "sc-confirm-locked-title",
-							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-								className: "sc-confirm__locked-preview",
-								"aria-hidden": "true",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(NameBadge, {
-										name: userName || "Your Name",
-										rank: USER_RANK.SUPPORTER,
-										className: "sc-confirm__badge"
-									}, void 0, false, {
-										fileName: _jsxFileName$4,
-										lineNumber: 137,
-										columnNumber: 19
-									}, this),
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-										className: "sc-confirm__label",
-										children: "Available Comment Balance:"
-									}, void 0, false, {
-										fileName: _jsxFileName$4,
-										lineNumber: 142,
-										columnNumber: 19
-									}, this),
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-										className: "sc-confirm__row",
-										children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
-											className: "sc-confirm__value",
-											children: formatComments(6)
-										}, void 0, false, {
-											fileName: _jsxFileName$4,
-											lineNumber: 144,
-											columnNumber: 21
-										}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
-											className: "sc-confirm__value",
-											children: ["−", formatComments(1)]
-										}, void 0, true, {
-											fileName: _jsxFileName$4,
-											lineNumber: 147,
-											columnNumber: 21
-										}, this)]
-									}, void 0, true, {
-										fileName: _jsxFileName$4,
-										lineNumber: 143,
-										columnNumber: 19
-									}, this),
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-										className: "sc-confirm__note",
-										children: "(Refreshes 1st of Every Month)"
-									}, void 0, false, {
-										fileName: _jsxFileName$4,
-										lineNumber: 149,
-										columnNumber: 19
-									}, this),
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-										className: "sc-confirm__link",
-										children: "Get More Free Comments"
-									}, void 0, false, {
-										fileName: _jsxFileName$4,
-										lineNumber: 150,
-										columnNumber: 19
-									}, this)
-								]
-							}, void 0, true, {
-								fileName: _jsxFileName$4,
-								lineNumber: 136,
-								columnNumber: 17
-							}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-								className: "sc-confirm__locked-overlay",
-								children: [
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-										src: "data:image/svg+xml,%3csvg%20width='39'%20height='43'%20viewBox='0%200%2039%2043'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M34.6666%2027.52C34.6666%2025.6783%2034.6649%2024.4264%2034.5853%2023.4587C34.5101%2022.5457%2034.3757%2022.0647%2034.2104%2021.7297L34.1943%2021.6977C33.7789%2020.8887%2033.1161%2020.231%2032.3007%2019.8188V19.8187C31.9214%2019.627%2031.3668%2019.4785%2030.2013%2019.4079H30.2012C29.2609%2019.3509%2028.0779%2019.35%2026.4333%2019.35H12.5666C10.9221%2019.35%209.73907%2019.3509%208.79874%2019.4079H8.79861C7.63289%2019.4785%207.07848%2019.6271%206.69925%2019.8188L6.69919%2019.8187C5.88387%2020.2309%205.22103%2020.8887%204.80562%2021.6977C4.63291%2022.034%204.49228%2022.5162%204.41467%2023.4587C4.335%2024.4264%204.33329%2025.6783%204.33329%2027.52V30.53C4.33329%2032.3717%204.33499%2033.6236%204.41467%2034.5913C4.49228%2035.5338%204.63298%2036.0159%204.80569%2036.3523C5.20813%2037.1361%205.84278%2037.7778%206.62334%2038.1919L6.69932%2038.2313L6.69938%2038.2313C7.03823%2038.4027%207.52404%2038.5423%208.47393%2038.6193C9.44911%2038.6983%2010.7107%2038.7%2012.5666%2038.7H26.4333C28.2893%2038.7%2029.5509%2038.6984%2030.5261%2038.6193C31.4759%2038.5423%2031.9617%2038.4027%2032.3007%2038.2313H32.3007C33.1161%2037.8191%2033.7789%2037.1614%2034.1943%2036.3523V36.3523C34.367%2036.0159%2034.5077%2035.5338%2034.5853%2034.5913C34.6649%2033.6236%2034.6666%2032.3717%2034.6666%2030.53V27.52ZM17.3333%2031.175V26.875C17.3333%2025.6876%2018.3034%2024.725%2019.5%2024.725C20.6966%2024.725%2021.6666%2025.6876%2021.6666%2026.875V31.175C21.6666%2032.3624%2020.6966%2033.325%2019.5%2033.325C18.3034%2033.325%2017.3333%2032.3624%2017.3333%2031.175ZM28.1666%2012.9C28.1666%208.15038%2024.2864%204.29997%2019.5%204.29996C14.7135%204.29996%2010.8333%208.15037%2010.8333%2012.9V15.0535C11.3734%2015.0498%2011.9507%2015.05%2012.5666%2015.05H26.4333C27.0492%2015.05%2027.6265%2015.0498%2028.1666%2015.0535V12.9ZM32.5%2015.3734C33.1135%2015.5069%2033.7013%2015.7009%2034.2678%2015.9873L34.2679%2015.9873C35.8987%2016.8118%2037.2244%2018.1274%2038.0553%2019.7456H38.0553C38.5911%2020.7891%2038.8047%2021.9%2038.9042%2023.1085C39.0017%2024.2919%2039%2025.7493%2039%2027.52V30.53C39%2032.3007%2039.0017%2033.7581%2038.9042%2034.9415C38.8078%2036.1122%2038.6044%2037.1913%2038.1047%2038.2063L38.0553%2038.3043C37.2245%2039.9226%2035.8987%2041.2381%2034.2679%2042.0626C33.2163%2042.5943%2032.0968%2042.8063%2030.8789%2042.905C29.6864%2043.0017%2028.2177%2043%2026.4333%2043H12.5666C10.7822%2043%209.31359%2043.0017%208.121%2042.905C6.90312%2042.8063%205.78356%2042.5943%204.73199%2042.0626V42.0625C3.10132%2041.2381%201.7755%2039.9226%200.944597%2038.3043H0.944533C0.408786%2037.2609%200.195232%2036.15%200.0957246%2034.9415C-0.0017135%2033.7581%201.98472e-06%2032.3007%201.98472e-06%2030.53V27.52C1.97223e-06%2025.7493%20-0.00171313%2024.2919%200.0957246%2023.1085C0.195232%2021.9%200.408796%2020.7892%200.944533%2019.7457L0.944597%2019.7456C1.77553%2018.1274%203.10138%2016.8118%204.73212%2015.9873H4.73218C5.29869%2015.7009%205.88646%2015.507%206.5%2015.3734V12.9C6.5%205.77554%2012.3203%200%2019.5%200C26.6796%201.17051e-05%2032.5%205.77554%2032.5%2012.9V15.3734Z'%20fill='%23004BE3'/%3e%3c/svg%3e",
-										alt: "",
-										className: "sc-confirm__lock"
-									}, void 0, false, {
-										fileName: _jsxFileName$4,
-										lineNumber: 153,
-										columnNumber: 19
-									}, this),
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h3", {
-										id: "sc-confirm-locked-title",
-										className: "sc-confirm__locked-title",
-										children: "Get Free Comments Every Month"
-									}, void 0, false, {
-										fileName: _jsxFileName$4,
-										lineNumber: 154,
-										columnNumber: 19
-									}, this),
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("a", {
-										className: "sc-confirm__outline-btn",
-										href: "https://www.gbnews.com/support",
-										target: "_blank",
-										rel: "noopener noreferrer",
-										children: "Become a Member"
-									}, void 0, false, {
-										fileName: _jsxFileName$4,
-										lineNumber: 157,
-										columnNumber: 19
-									}, this)
-								]
-							}, void 0, true, {
-								fileName: _jsxFileName$4,
-								lineNumber: 152,
-								columnNumber: 17
-							}, this)]
-						}, void 0, true, {
-							fileName: _jsxFileName$4,
-							lineNumber: 128,
-							columnNumber: 15
-						}, this),
-						spendsCoins && coinsSection,
-						(!hasEnoughCoins || error) && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						}, void 0),
+						error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 							className: "sc-confirm__error",
 							role: "alert",
-							children: hasEnoughCoins ? error : "You don't have enough coins for this Superchat."
+							children: error
 						}, void 0, false, {
-							fileName: _jsxFileName$4,
-							lineNumber: 173,
+							fileName: _jsxFileName$5,
+							lineNumber: 133,
 							columnNumber: 13
-						}, this),
+						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 							className: "sc-confirm__actions",
-							children: [
-								!spendsCoins && coinsSection,
-								onSendNormal && !hasEnoughCoins && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-									type: "button",
-									className: "sc-confirm__outline-btn",
-									onClick: onSendNormal,
-									disabled: isSending,
-									children: "Send Normal"
-								}, void 0, false, {
-									fileName: _jsxFileName$4,
-									lineNumber: 181,
-									columnNumber: 15
-								}, this),
-								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-									type: "button",
-									className: "sc-confirm__submit",
-									onClick: onConfirm,
-									disabled: isSending || !hasEnoughCoins,
-									autoFocus: true,
-									children: isSending ? "Sending..." : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: ["Send", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MaskIcon, {
-										src: superchat_default,
-										className: "sc-confirm__submit-icon"
-									}, void 0, false, {
-										fileName: _jsxFileName$4,
-										lineNumber: 203,
-										columnNumber: 19
-									}, this)] }, void 0, true, {
-										fileName: _jsxFileName$4,
-										lineNumber: 200,
-										columnNumber: 17
-									}, this)
-								}, void 0, false, {
-									fileName: _jsxFileName$4,
-									lineNumber: 190,
-									columnNumber: 13
-								}, this)
-							]
-						}, void 0, true, {
-							fileName: _jsxFileName$4,
-							lineNumber: 178,
-							columnNumber: 11
-						}, this)
-					]
-				}, void 0, true, {
-					fileName: _jsxFileName$4,
-					lineNumber: 97,
-					columnNumber: 9
-				}, this)]
-			}, void 0, true, {
-				fileName: _jsxFileName$4,
-				lineNumber: 71,
-				columnNumber: 7
-			}, this)
-		}, void 0, false, {
-			fileName: _jsxFileName$4,
-			lineNumber: 70,
-			columnNumber: 5
-		}, this), container);
-	}
-	//#endregion
-	//#region src/components/SuperChatSheet.tsx
-	var _jsxFileName$3 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/SuperChatSheet.tsx";
-	var DEFAULT_TIER_INDEX = 0;
-	var LAST_TIER_INDEX = SUPERCHAT_TIERS.length - 1;
-	function SuperChatSheet({ message, isSending, error, onSend, onSendNormal, onClose }) {
-		const [tierIndex, setTierIndex] = (0, import_react.useState)(DEFAULT_TIER_INDEX);
-		const tier = SUPERCHAT_TIERS[tierIndex];
-		const { extraCoins } = tier;
-		const [isConfirming, setIsConfirming] = (0, import_react.useState)(false);
-		useEscapeKey(!isSending, () => isConfirming ? setIsConfirming(false) : onClose());
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "sc-sheet",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-					className: "sc-sheet__scrim",
-					onClick: () => !isSending && onClose()
-				}, void 0, false, {
-					fileName: _jsxFileName$3,
-					lineNumber: 41,
-					columnNumber: 7
-				}, this),
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
-					className: "sc-sheet__panel",
-					style: {
-						"--sc-tier-accent": tier.accent,
-						"--sc-fill": tierIndex / LAST_TIER_INDEX
-					},
-					role: "dialog",
-					"aria-modal": "true",
-					"aria-labelledby": "sc-sheet-title",
-					children: [
-						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("header", {
-							className: "sc-sheet__header",
 							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 								type: "button",
-								className: "sc-sheet__close",
+								className: "sc-confirm__cancel",
 								onClick: onClose,
 								disabled: isSending,
-								"aria-label": "Close",
-								children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-									src: close_default,
-									alt: ""
-								}, void 0, false, {
-									fileName: _jsxFileName$3,
-									lineNumber: 62,
-									columnNumber: 13
-								}, this)
+								children: "Cancel"
 							}, void 0, false, {
-								fileName: _jsxFileName$3,
-								lineNumber: 55,
-								columnNumber: 11
-							}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
-								id: "sc-sheet-title",
-								className: "sc-sheet__title",
-								children: "Send a Superchat"
+								fileName: _jsxFileName$5,
+								lineNumber: 139,
+								columnNumber: 13
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+								type: "button",
+								className: "sc-confirm__submit",
+								onClick: onSend,
+								disabled: isSending,
+								autoFocus: true,
+								children: isSending ? "Sending..." : `Send YourSay+(${extraCoins > 0 ? formatCoins(extraCoins) : "Free"})`
 							}, void 0, false, {
-								fileName: _jsxFileName$3,
-								lineNumber: 64,
-								columnNumber: 11
-							}, this)]
+								fileName: _jsxFileName$5,
+								lineNumber: 143,
+								columnNumber: 15
+							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$3,
-							lineNumber: 54,
-							columnNumber: 9
-						}, this),
-						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatPreview, {
-							message,
-							extraCoins
-						}, void 0, false, {
-							fileName: _jsxFileName$3,
-							lineNumber: 69,
-							columnNumber: 9
-						}, this),
-						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "sc-sheet__amount",
-							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-								className: "sc-sheet__amount-note",
-								children: extraCoins === 0 ? "Slide to get more prominence" : "Extra coins on your Superchat"
+							fileName: _jsxFileName$5,
+							lineNumber: 138,
+							columnNumber: 11
+						}, void 0)
+					]
+				}, void 0, true, {
+					fileName: _jsxFileName$5,
+					lineNumber: 51,
+					columnNumber: 9
+				}, void 0)
+			}, void 0, false, {
+				fileName: _jsxFileName$5,
+				lineNumber: 50,
+				columnNumber: 7
+			}, void 0)
+		}, void 0, false, {
+			fileName: _jsxFileName$5,
+			lineNumber: 49,
+			columnNumber: 5
+		}, void 0);
+	};
+	//#endregion
+	//#region src/sections/superChat/index.tsx
+	var _jsxFileName$4 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/superChat/index.tsx";
+	var LAST_TIER_INDEX = SUPERCHAT_TIERS.length - 1;
+	var getThumbCenter = (index) => `calc(7px + (100% - 14px) * ${index / LAST_TIER_INDEX})`;
+	var SuperChatSheet = ({ roomId }) => {
+		const { user, profile } = useAuth();
+		const { text, approvedText } = useSuperChat();
+		const { settings } = useComments();
+		const { replyTo } = useReply();
+		const isAiEnabled = Boolean(settings?.ai_enhance_enabled);
+		const canAddExtraCoins = Boolean(settings?.superchat.extra_coins_enabled);
+		const [tierIndex, setTierIndex] = (0, import_react.useState)(0);
+		const [isConfirming, setIsConfirming] = (0, import_react.useState)(false);
+		const [isSending, setIsSending] = (0, import_react.useState)(false);
+		const [error, setError] = (0, import_react.useState)(null);
+		const tier = SUPERCHAT_TIERS[tierIndex];
+		const body = text.trim();
+		useEscapeKey(!isSending, () => {
+			if (isConfirming) setIsConfirming(false);
+			else closeSuperChatSheet();
+		});
+		const handleSend = async () => {
+			if (isSending) return;
+			if (isAiEnabled && containsProfanity(body) && body !== approvedText) {
+				requestSuperChatModeration();
+				return;
+			}
+			setIsSending(true);
+			setError(null);
+			try {
+				await sendSuperChat(body, replyTo?.messageId);
+				markSuperChatSent();
+			} catch (sendError) {
+				setError(toErrorMessage(sendError, ERROR_MESSAGE.SEND_SUPERCHAT));
+				setIsSending(false);
+			}
+		};
+		if (!canAddExtraCoins) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatConfirmDialog, {
+			extraCoins: 0,
+			isSending,
+			error,
+			onSend: handleSend,
+			onClose: closeSuperChatSheet
+		}, void 0, false, {
+			fileName: _jsxFileName$4,
+			lineNumber: 75,
+			columnNumber: 7
+		}, void 0);
+		const preview = {
+			id: "preview",
+			room_id: roomId,
+			root_id: "preview",
+			parent_author_id: replyTo?.userName,
+			parent_author: {
+				display_name: replyTo?.userName ?? null,
+				first_name: null,
+				last_name: null,
+				membership_tier: null
+			},
+			depth: 0,
+			author_id: user?.id ?? "",
+			kind: MESSAGE_KIND.SUPERCHAT,
+			body,
+			body_version: 1,
+			status: MESSAGE_STATUS.PUBLISHED,
+			reply_count: 0,
+			reaction_counts: {},
+			created_at: (/* @__PURE__ */ new Date()).toISOString()
+		};
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "sc-sheet",
+			onClick: (event) => {
+				if (event.target === event.currentTarget && !isSending) closeSuperChatSheet();
+			},
+			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
+				className: "sc-sheet__panel",
+				style: { "--sc-tier-color": tier.color },
+				role: "dialog",
+				"aria-modal": "true",
+				"aria-labelledby": "sc-sheet-title",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("header", {
+						className: "sc-sheet__header",
+						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							className: "sc-sheet__close",
+							onClick: closeSuperChatSheet,
+							disabled: isSending,
+							"aria-label": "Close",
+							children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+								src: close_default,
+								alt: ""
 							}, void 0, false, {
-								fileName: _jsxFileName$3,
-								lineNumber: 72,
-								columnNumber: 11
-							}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-								className: "sc-sheet__slider",
-								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("input", {
-									id: "sc-sheet-amount",
+								fileName: _jsxFileName$4,
+								lineNumber: 126,
+								columnNumber: 13
+							}, void 0)
+						}, void 0, false, {
+							fileName: _jsxFileName$4,
+							lineNumber: 119,
+							columnNumber: 11
+						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
+							id: "sc-sheet-title",
+							className: "sc-sheet__title",
+							children: "Send a YourSay+ Comment"
+						}, void 0, false, {
+							fileName: _jsxFileName$4,
+							lineNumber: 128,
+							columnNumber: 11
+						}, void 0)]
+					}, void 0, true, {
+						fileName: _jsxFileName$4,
+						lineNumber: 118,
+						columnNumber: 9
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "sc-sheet__preview",
+						"aria-hidden": "true",
+						children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, {
+							message: preview,
+							authorName: user?.name ?? "Your Name",
+							authorRank: getTierRank(profile.tierId),
+							extraCoins: tier.extraCoins
+						}, void 0, false, {
+							fileName: _jsxFileName$4,
+							lineNumber: 134,
+							columnNumber: 11
+						}, void 0)
+					}, void 0, false, {
+						fileName: _jsxFileName$4,
+						lineNumber: 133,
+						columnNumber: 9
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "sc-sheet__amount",
+						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+							className: "sc-sheet__amount-note",
+							children: tier.extraCoins === 0 ? "Slide to get more prominence" : "Extra coins on your YourSay+ Comment"
+						}, void 0, false, {
+							fileName: _jsxFileName$4,
+							lineNumber: 143,
+							columnNumber: 11
+						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "sc-sheet__slider",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+									className: "sc-sheet__fill",
+									style: {
+										width: getThumbCenter(tierIndex),
+										backgroundColor: tier.color
+									}
+								}, void 0, false, {
+									fileName: _jsxFileName$4,
+									lineNumber: 147,
+									columnNumber: 13
+								}, void 0),
+								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+									className: "sc-sheet__ticks",
+									"aria-hidden": "true",
+									children: SUPERCHAT_TIERS.map((step, index) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: `sc-sheet__tick${index < tierIndex ? " sc-sheet__tick--on" : ""}${index === tierIndex ? " sc-sheet__tick--current" : ""}`,
+										style: { left: getThumbCenter(index) }
+									}, step.extraCoins, false, {
+										fileName: _jsxFileName$4,
+										lineNumber: 153,
+										columnNumber: 17
+									}, void 0))
+								}, void 0, false, {
+									fileName: _jsxFileName$4,
+									lineNumber: 151,
+									columnNumber: 13
+								}, void 0),
+								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("input", {
 									type: "range",
 									className: "sc-sheet__range",
 									min: 0,
@@ -25048,675 +27181,917 @@
 									step: 1,
 									value: tierIndex,
 									onChange: (event) => setTierIndex(Number(event.target.value)),
-									"aria-label": "Superchat amount",
-									"aria-valuetext": `${formatCoins(extraCoins)} extra`,
 									disabled: isSending,
-									autoFocus: true
+									autoFocus: true,
+									"aria-label": "YourSay+ amount",
+									"aria-valuetext": `${formatCoins(tier.extraCoins)} extra`
 								}, void 0, false, {
-									fileName: _jsxFileName$3,
-									lineNumber: 76,
+									fileName: _jsxFileName$4,
+									lineNumber: 162,
 									columnNumber: 13
-								}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-									className: "sc-sheet__ticks",
-									"aria-hidden": "true",
-									children: SUPERCHAT_TIERS.map((step, index) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-										className: `sc-sheet__tick${index < tierIndex ? " sc-sheet__tick--on" : ""}${index === tierIndex ? " sc-sheet__tick--current" : ""}`,
-										style: { "--sc-tick": index / LAST_TIER_INDEX }
-									}, step.extraCoins, false, {
-										fileName: _jsxFileName$3,
-										lineNumber: 92,
-										columnNumber: 17
-									}, this))
-								}, void 0, false, {
-									fileName: _jsxFileName$3,
-									lineNumber: 90,
-									columnNumber: 13
-								}, this)]
-							}, void 0, true, {
-								fileName: _jsxFileName$3,
-								lineNumber: 75,
-								columnNumber: 11
-							}, this)]
+								}, void 0)
+							]
 						}, void 0, true, {
-							fileName: _jsxFileName$3,
-							lineNumber: 71,
-							columnNumber: 9
-						}, this),
-						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "sc-sheet__footer",
-							children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-								type: "button",
-								className: "sc-sheet__send",
-								onClick: () => setIsConfirming(true),
-								disabled: isSending,
-								children: "Continue"
-							}, void 0, false, {
-								fileName: _jsxFileName$3,
-								lineNumber: 105,
-								columnNumber: 11
-							}, this)
+							fileName: _jsxFileName$4,
+							lineNumber: 146,
+							columnNumber: 11
+						}, void 0)]
+					}, void 0, true, {
+						fileName: _jsxFileName$4,
+						lineNumber: 142,
+						columnNumber: 9
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "sc-sheet__footer",
+						children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							className: "sc-sheet__continue",
+							onClick: () => setIsConfirming(true),
+							disabled: isSending,
+							children: "Continue"
 						}, void 0, false, {
-							fileName: _jsxFileName$3,
-							lineNumber: 104,
-							columnNumber: 9
-						}, this)
-					]
-				}, void 0, true, {
-					fileName: _jsxFileName$3,
-					lineNumber: 42,
-					columnNumber: 7
-				}, this),
-				isConfirming && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatConfirmDialog, {
-					extraCoins,
-					isSending,
-					error,
-					onConfirm: () => onSend(extraCoins),
-					onSendNormal,
-					onCancel: () => setIsConfirming(false)
+							fileName: _jsxFileName$4,
+							lineNumber: 179,
+							columnNumber: 11
+						}, void 0)
+					}, void 0, false, {
+						fileName: _jsxFileName$4,
+						lineNumber: 178,
+						columnNumber: 9
+					}, void 0)
+				]
+			}, void 0, true, {
+				fileName: _jsxFileName$4,
+				lineNumber: 111,
+				columnNumber: 7
+			}, void 0), isConfirming && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatConfirmDialog, {
+				extraCoins: tier.extraCoins,
+				isSending,
+				error,
+				onSend: handleSend,
+				onClose: () => setIsConfirming(false)
+			}, void 0, false, {
+				fileName: _jsxFileName$4,
+				lineNumber: 191,
+				columnNumber: 9
+			}, void 0)]
+		}, void 0, true, {
+			fileName: _jsxFileName$4,
+			lineNumber: 103,
+			columnNumber: 5
+		}, void 0);
+	};
+	//#endregion
+	//#region src/sections/comments/index.tsx
+	var _jsxFileName$3 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/index.tsx";
+	var LIST_COMPONENTS = {
+		Header: () => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "comment-list__spacer" }, void 0, false, {
+			fileName: _jsxFileName$3,
+			lineNumber: 41,
+			columnNumber: 17
+		}, void 0),
+		Footer: ({ context }) => context?.isLoadingMore ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+			className: "comment-list__loading",
+			children: "Loading more..."
+		}, void 0, false, {
+			fileName: _jsxFileName$3,
+			lineNumber: 43,
+			columnNumber: 30
+		}, void 0) : null
+	};
+	var Comments = ({ roomId }) => {
+		const [showGoToTop, setShowGoToTop] = (0, import_react.useState)(false);
+		const [seenTopId, setSeenTopId] = (0, import_react.useState)(null);
+		const [isAtBottom, setIsAtBottom] = (0, import_react.useState)(false);
+		const [hasSwitchedTab, setHasSwitchedTab] = (0, import_react.useState)(false);
+		const [hasScrolledTab, setHasScrolledTab] = (0, import_react.useState)(false);
+		const listRef = (0, import_react.useRef)(null);
+		const { isOpen: isSheetOpen } = useSuperChat();
+		const { status: authStatus } = useAuth();
+		const { userId: panelUserId } = useUserMessages();
+		const comments = useComments();
+		const { activeTab } = comments;
+		const feed = comments.feeds[activeTab];
+		const isLoaded = Object.values(comments.feeds).some((tabFeed) => tabFeed.status === REQUEST_STATUS.SUCCEEDED);
+		const messages = (0, import_react.useMemo)(() => feed.messages.filter(isVisibleMessage), [feed.messages]);
+		const newCount = seenTopId ? Math.max(0, messages.findIndex((message) => message.id === seenTopId)) : 0;
+		const emptyText = feed.error ?? CHAT_TABS.find((tab) => tab.id === activeTab)?.emptyText;
+		const isEmpty = messages.length === 0;
+		const isLoadingFirst = feed.status === REQUEST_STATUS.IDLE || feed.status === REQUEST_STATUS.LOADING || feed.isLoadingMore;
+		const canLoadAtBottom = isAtBottom && (!hasSwitchedTab || hasScrolledTab);
+		(0, import_react.useEffect)(() => {
+			if (roomId && (isEmpty || canLoadAtBottom) && feed.hasMore && !feed.isLoadingMore) loadMoreComments(activeTab);
+		}, [
+			roomId,
+			activeTab,
+			isEmpty,
+			canLoadAtBottom,
+			feed.hasMore,
+			feed.isLoadingMore
+		]);
+		(0, import_react.useEffect)(() => {
+			if (roomId) {
+				joinRoom(roomId);
+				loadComments(activeTab);
+			}
+		}, [roomId, activeTab]);
+		(0, import_react.useEffect)(() => {
+			if (roomId && isLoaded && authStatus === AUTH_STATUS.AUTHENTICATED) return startLiveComments();
+		}, [
+			roomId,
+			isLoaded,
+			authStatus
+		]);
+		(0, import_react.useEffect)(() => {
+			if (authStatus !== AUTH_STATUS.AUTHENTICATED) closeUserMessages();
+		}, [authStatus]);
+		const switchTab = (tab) => {
+			closeThreads();
+			setActiveTab(tab);
+			setHasSwitchedTab(true);
+			setHasScrolledTab(false);
+			setIsAtBottom(false);
+			setShowGoToTop(false);
+			setSeenTopId(null);
+		};
+		const handleTabChange = (tab) => {
+			switchTab(tab);
+			setQueryParam(CHAT_TAB_QUERY_PARAM, tab);
+		};
+		const [handledSentId, setHandledSentId] = (0, import_react.useState)(comments.lastSent?.id);
+		const [scrollToTopRequest, setScrollToTopRequest] = (0, import_react.useState)(0);
+		if (comments.lastSent && comments.lastSent.id !== handledSentId) {
+			setHandledSentId(comments.lastSent.id);
+			if (comments.lastSent.tab !== activeTab) switchTab(comments.lastSent.tab);
+			else setScrollToTopRequest((count) => count + 1);
+		}
+		const scrollToTop = () => {
+			listRef.current?.scrollToIndex({
+				index: 0,
+				behavior: "smooth"
+			});
+		};
+		(0, import_react.useEffect)(() => {
+			if (scrollToTopRequest > 0) {
+				closeThreads();
+				scrollToTop();
+			}
+		}, [scrollToTopRequest]);
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "comments",
+			part: "comments",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+					className: "chat-tabs",
+					role: "tablist",
+					children: CHAT_TABS.map(({ id, label }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						role: "tab",
+						"aria-selected": activeTab === id,
+						className: `chat-tabs__tab${activeTab === id ? " chat-tabs__tab--active" : ""}${id === CHAT_TAB.SUPER ? " chat-tabs__tab--yoursay" : ""}`,
+						onClick: () => handleTabChange(id),
+						children: [
+							label,
+							" (",
+							comments.counts[id],
+							")"
+						]
+					}, id, true, {
+						fileName: _jsxFileName$3,
+						lineNumber: 140,
+						columnNumber: 11
+					}, void 0))
 				}, void 0, false, {
 					fileName: _jsxFileName$3,
-					lineNumber: 117,
-					columnNumber: 9
-				}, this)
+					lineNumber: 138,
+					columnNumber: 7
+				}, void 0),
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+					className: `comment-list${activeTab === CHAT_TAB.SUPER ? " comment-list--yoursay" : ""}`,
+					children: [isEmpty ? isLoadingFirst ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "comment-list__skeleton",
+						role: "status",
+						"aria-label": "Loading comments",
+						children: Array.from({ length: 4 }, (_, index) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "message-skeleton",
+							"aria-hidden": "true",
+							children: [
+								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-skeleton__name" }, void 0, false, {
+									fileName: _jsxFileName$3,
+									lineNumber: 159,
+									columnNumber: 19
+								}, void 0),
+								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-skeleton__line" }, void 0, false, {
+									fileName: _jsxFileName$3,
+									lineNumber: 160,
+									columnNumber: 19
+								}, void 0),
+								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-skeleton__line message-skeleton__line--short" }, void 0, false, {
+									fileName: _jsxFileName$3,
+									lineNumber: 161,
+									columnNumber: 19
+								}, void 0)
+							]
+						}, index, true, {
+							fileName: _jsxFileName$3,
+							lineNumber: 158,
+							columnNumber: 17
+						}, void 0))
+					}, void 0, false, {
+						fileName: _jsxFileName$3,
+						lineNumber: 156,
+						columnNumber: 13
+					}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						className: "comment-list__empty",
+						children: emptyText
+					}, void 0, false, {
+						fileName: _jsxFileName$3,
+						lineNumber: 166,
+						columnNumber: 13
+					}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(es, {
+						ref: listRef,
+						className: "comment-list__scroller",
+						data: messages,
+						context: { isLoadingMore: feed.isLoadingMore },
+						computeItemKey: (_, message) => message.id,
+						itemContent: (_, message) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "comment-list__item",
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, { message }, void 0, false, {
+								fileName: _jsxFileName$3,
+								lineNumber: 178,
+								columnNumber: 17
+							}, void 0), message.kind === MESSAGE_KIND.NORMAL && message.reply_count > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageThread, { root: message }, void 0, false, {
+								fileName: _jsxFileName$3,
+								lineNumber: 180,
+								columnNumber: 19
+							}, void 0)]
+						}, void 0, true, {
+							fileName: _jsxFileName$3,
+							lineNumber: 177,
+							columnNumber: 15
+						}, void 0),
+						components: LIST_COMPONENTS,
+						atBottomStateChange: setIsAtBottom,
+						isScrolling: (isScrolling) => isScrolling && setHasScrolledTab(true),
+						increaseViewportBy: 200,
+						atTopThreshold: 200,
+						atTopStateChange: (isAtTop) => {
+							setShowGoToTop(!isAtTop);
+							setSeenTopId(isAtTop ? null : messages[0]?.id ?? null);
+						}
+					}, activeTab, false, {
+						fileName: _jsxFileName$3,
+						lineNumber: 169,
+						columnNumber: 11
+					}, void 0), showGoToTop && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						className: "go-to-top",
+						onClick: scrollToTop,
+						children: [
+							newCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+								className: "go-to-top__badge",
+								children: [newCount > 99 ? "99+" : newCount, " new"]
+							}, void 0, true, {
+								fileName: _jsxFileName$3,
+								lineNumber: 198,
+								columnNumber: 15
+							}, void 0),
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+								className: "go-to-top__icon",
+								"aria-hidden": "true",
+								children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+									src: "data:image/svg+xml,%3csvg%20width='24'%20height='29'%20viewBox='0%200%2024%2029'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M23.445%2010.5607C24.185%209.97485%2024.185%209.02531%2023.445%208.43951L13.3397%200.43935C12.5997%20-0.146449%2011.4003%20-0.146449%2010.6603%200.43935L0.55496%208.43951C-0.18499%209.02531%20-0.18499%209.97485%200.55496%2010.5607C1.29491%2011.1464%202.49432%2011.1464%203.23427%2010.5607L12%203.62106L20.7657%2010.5607C21.5057%2011.1464%2022.7051%2011.1464%2023.445%2010.5607Z'%20fill='white'/%3e%3cpath%20opacity='0.3'%20d='M23.445%2019.5607C24.185%2018.9749%2024.185%2018.0253%2023.445%2017.4395L13.3397%209.43935C12.5997%208.85355%2011.4003%208.85355%2010.6603%209.43935L0.55496%2017.4395C-0.18499%2018.0253%20-0.18499%2018.9749%200.55496%2019.5607C1.29491%2020.1464%202.49432%2020.1464%203.23427%2019.5607L12%2012.6211L20.7657%2019.5607C21.5057%2020.1464%2022.7051%2020.1464%2023.445%2019.5607Z'%20fill='white'/%3e%3cpath%20opacity='0.1'%20d='M23.445%2028.5607C24.185%2027.9749%2024.185%2027.0253%2023.445%2026.4395L13.3397%2018.4394C12.5997%2017.8536%2011.4003%2017.8536%2010.6603%2018.4394L0.55496%2026.4395C-0.18499%2027.0253%20-0.18499%2027.9749%200.55496%2028.5607C1.29491%2029.1464%202.49432%2029.1464%203.23427%2028.5607L12%2021.6211L20.7657%2028.5607C21.5057%2029.1464%2022.7051%2029.1464%2023.445%2028.5607Z'%20fill='white'/%3e%3c/svg%3e",
+									alt: ""
+								}, void 0, false, {
+									fileName: _jsxFileName$3,
+									lineNumber: 201,
+									columnNumber: 15
+								}, void 0)
+							}, void 0, false, {
+								fileName: _jsxFileName$3,
+								lineNumber: 200,
+								columnNumber: 13
+							}, void 0),
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+								className: "go-to-top__label",
+								children: "Go to Top"
+							}, void 0, false, {
+								fileName: _jsxFileName$3,
+								lineNumber: 203,
+								columnNumber: 13
+							}, void 0)
+						]
+					}, void 0, true, {
+						fileName: _jsxFileName$3,
+						lineNumber: 196,
+						columnNumber: 11
+					}, void 0)]
+				}, void 0, true, {
+					fileName: _jsxFileName$3,
+					lineNumber: 153,
+					columnNumber: 7
+				}, void 0),
+				comments.threadStack.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ThreadModal, {}, comments.threadStack[comments.threadStack.length - 1].id, false, {
+					fileName: _jsxFileName$3,
+					lineNumber: 208,
+					columnNumber: 43
+				}, void 0),
+				isSheetOpen && roomId && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatSheet, { roomId }, void 0, false, {
+					fileName: _jsxFileName$3,
+					lineNumber: 209,
+					columnNumber: 33
+				}, void 0),
+				panelUserId && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserMessagesPanel, {}, void 0, false, {
+					fileName: _jsxFileName$3,
+					lineNumber: 210,
+					columnNumber: 23
+				}, void 0)
 			]
 		}, void 0, true, {
 			fileName: _jsxFileName$3,
-			lineNumber: 40,
+			lineNumber: 137,
 			columnNumber: 5
-		}, this);
-	}
+		}, void 0);
+	};
 	//#endregion
-	//#region src/components/Composer.tsx
-	var _jsxFileName$2 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/Composer.tsx";
-	function Composer() {
-		const { authStatus, userId, userName, userRank, commentBalance, coinBalance, spendSuperChat } = useUser();
-		const { sendNormalMessage, sendSuperChat, sendStatus } = useChat();
-		const { replyTo, setReplyTo } = useReply();
-		const { sheetHost } = useSheetHost();
-		const [composerText, setComposerText] = (0, import_react.useState)("");
-		const [isSuperChatOpen, setIsSuperChatOpen] = (0, import_react.useState)(false);
-		const [moderationKind, setModerationKind] = (0, import_react.useState)(null);
-		const [superChatError, setSuperChatError] = (0, import_react.useState)(null);
-		const [moderationWarning, setModerationWarning] = (0, import_react.useState)(null);
-		const [formError, setFormError] = (0, import_react.useState)(null);
-		const [prefilledReplyId, setPrefilledReplyId] = (0, import_react.useState)(null);
-		const [approvedText, setApprovedText] = (0, import_react.useState)(null);
-		const textareaRef = (0, import_react.useRef)(null);
-		const isSubmittingRef = (0, import_react.useRef)(false);
-		const [prevAuthStatus, setPrevAuthStatus] = (0, import_react.useState)(authStatus);
-		if (authStatus !== prevAuthStatus) {
-			setPrevAuthStatus(authStatus);
-			if (authStatus !== AUTH_STATUS.AUTHENTICATED) {
-				setIsSuperChatOpen(false);
-				setModerationKind(null);
-				setSuperChatError(null);
-			}
+	//#region src/sections/messageBox/EnhanceWithAi.tsx
+	var _jsxFileName$2 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/EnhanceWithAi.tsx";
+	var EnhanceWithAi = ({ message, isOnGradient }) => {
+		const { profile } = useAuth();
+		const isMember = getTierRank(profile.tierId) !== USER_RANK.FRIEND;
+		const [isUpsellShown, setIsUpsellShown] = (0, import_react.useState)(false);
+		const [prevMessage, setPrevMessage] = (0, import_react.useState)(message);
+		const containerRef = (0, import_react.useRef)(null);
+		const trimmed = message.trim();
+		useClickOutside(containerRef, isUpsellShown, () => setIsUpsellShown(false));
+		if (message !== prevMessage) {
+			setPrevMessage(message);
+			if (!message.trim()) setIsUpsellShown(false);
 		}
-		if (replyTo && replyTo.messageId !== prefilledReplyId) {
-			setPrefilledReplyId(replyTo.messageId);
-			setComposerText(`@${replyTo.userName} `);
-		}
-		if (!replyTo && prefilledReplyId !== null) setPrefilledReplyId(null);
-		(0, import_react.useEffect)(() => {
-			if (replyTo) textareaRef.current?.focus();
-		}, [replyTo]);
-		const handleCloseSuperChat = (0, import_react.useCallback)(() => {
-			setIsSuperChatOpen(false);
-			setSuperChatError(null);
-		}, []);
-		const handleCancelModeration = (0, import_react.useCallback)(() => {
-			setModerationKind(null);
-			textareaRef.current?.focus();
-		}, []);
-		if (authStatus === AUTH_STATUS.CHECKING) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "composer",
-			role: "status",
-			"aria-label": "Loading your account",
-			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "composer__body",
-				"aria-hidden": "true",
-				children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-					className: "composer__row",
-					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "skeleton skeleton--avatar",
-						style: {
-							width: 40,
-							height: 40
-						}
-					}, void 0, false, {
-						fileName: _jsxFileName$2,
-						lineNumber: 97,
-						columnNumber: 13
-					}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton composer__skeleton-field" }, void 0, false, {
-						fileName: _jsxFileName$2,
-						lineNumber: 98,
-						columnNumber: 13
-					}, this)]
-				}, void 0, true, {
-					fileName: _jsxFileName$2,
-					lineNumber: 96,
-					columnNumber: 11
-				}, this)
-			}, void 0, false, {
-				fileName: _jsxFileName$2,
-				lineNumber: 95,
-				columnNumber: 9
-			}, this)
-		}, void 0, false, {
-			fileName: _jsxFileName$2,
-			lineNumber: 94,
-			columnNumber: 7
-		}, this);
-		if (authStatus === AUTH_STATUS.GUEST) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "composer composer--guest",
-			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "composer__guest-bar",
-				children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-					type: "button",
-					className: "composer__login-link",
-					onClick: openGbnLogin,
-					children: "Log In"
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "enhance-ai",
+			ref: containerRef,
+			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+				type: "button",
+				className: "enhance-ai__button",
+				onClick: () => setIsUpsellShown(true),
+				disabled: isMember || !trimmed,
+				children: ["Enhance With", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+					src: isOnGradient ? sparkle_default : sparkleBlue_default,
+					alt: "AI",
+					className: "enhance-ai__icon"
 				}, void 0, false, {
 					fileName: _jsxFileName$2,
-					lineNumber: 110,
-					columnNumber: 11
-				}, this)
+					lineNumber: 39,
+					columnNumber: 9
+				}, void 0)]
+			}, void 0, true, {
+				fileName: _jsxFileName$2,
+				lineNumber: 32,
+				columnNumber: 7
+			}, void 0), isUpsellShown && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+				className: "enhance-ai__pill enhance-ai__pill--upsell",
+				role: "alert",
+				children: "You have to upgrade membership to avail this feature!"
 			}, void 0, false, {
 				fileName: _jsxFileName$2,
-				lineNumber: 109,
+				lineNumber: 42,
 				columnNumber: 9
-			}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "composer__body",
-				children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-					className: "composer__row",
-					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-						src: guest_avatar_default,
-						alt: "",
-						className: "composer__guest-avatar",
-						width: 40,
-						height: 40
-					}, void 0, false, {
-						fileName: _jsxFileName$2,
-						lineNumber: 116,
-						columnNumber: 13
-					}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "composer__field",
+			}, void 0)]
+		}, void 0, true, {
+			fileName: _jsxFileName$2,
+			lineNumber: 31,
+			columnNumber: 5
+		}, void 0);
+	};
+	//#endregion
+	//#region src/sections/messageBox/ModerationDialog.tsx
+	var _jsxFileName$1 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/ModerationDialog.tsx";
+	var ModerationDialog = ({ kind, message, onSend, onClose }) => {
+		const noun = kind === MODERATION_KIND.SUPERCHAT ? "YourSay+" : "Comment";
+		useEscapeKey(true, onClose);
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "mod-dialog__backdrop",
+			onClick: (event) => {
+				if (event.target === event.currentTarget) onClose();
+			},
+			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: "mod-dialog",
+				role: "dialog",
+				"aria-modal": "true",
+				"aria-labelledby": "mod-dialog-title",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
+						className: "mod-dialog__card",
 						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "composer__field-content",
-							children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
-								className: "composer__input",
-								placeholder: "Join the conversation",
-								"aria-label": "Log in to join the conversation",
-								rows: 2,
-								disabled: true
+							className: "mod-dialog__heading",
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
+								id: "mod-dialog-title",
+								className: "mod-dialog__title",
+								children: ["Your ", noun]
+							}, void 0, true, {
+								fileName: _jsxFileName$1,
+								lineNumber: 30,
+								columnNumber: 13
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+								className: "mod-dialog__pill mod-dialog__pill--warning",
+								children: "It might not pass moderation"
 							}, void 0, false, {
-								fileName: _jsxFileName$2,
-								lineNumber: 125,
-								columnNumber: 17
-							}, this)
-						}, void 0, false, {
-							fileName: _jsxFileName$2,
-							lineNumber: 124,
-							columnNumber: 15
-						}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "composer__actions",
-							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+								fileName: _jsxFileName$1,
+								lineNumber: 33,
+								columnNumber: 13
+							}, void 0)]
+						}, void 0, true, {
+							fileName: _jsxFileName$1,
+							lineNumber: 29,
+							columnNumber: 11
+						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "mod-dialog__row",
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "mod-dialog__message",
+								children: message
+							}, void 0, false, {
+								fileName: _jsxFileName$1,
+								lineNumber: 36,
+								columnNumber: 13
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 								type: "button",
-								className: "composer__btn",
-								disabled: true,
+								className: "mod-dialog__action",
+								onClick: onSend,
 								children: ["Send", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
 									src: send_default,
 									alt: "",
-									className: "composer__btn-icon"
+									className: "mod-dialog__action-icon"
 								}, void 0, false, {
-									fileName: _jsxFileName$2,
-									lineNumber: 136,
-									columnNumber: 19
-								}, this)]
+									fileName: _jsxFileName$1,
+									lineNumber: 39,
+									columnNumber: 15
+								}, void 0)]
 							}, void 0, true, {
-								fileName: _jsxFileName$2,
-								lineNumber: 134,
-								columnNumber: 17
-							}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-								type: "button",
-								className: "composer__btn",
-								disabled: true,
-								children: ["Superchat", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-									src: superchat_default,
-									alt: "",
-									className: "composer__btn-icon"
-								}, void 0, false, {
-									fileName: _jsxFileName$2,
-									lineNumber: 140,
-									columnNumber: 19
-								}, this)]
-							}, void 0, true, {
-								fileName: _jsxFileName$2,
-								lineNumber: 138,
-								columnNumber: 17
-							}, this)]
+								fileName: _jsxFileName$1,
+								lineNumber: 37,
+								columnNumber: 13
+							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$2,
-							lineNumber: 133,
-							columnNumber: 15
-						}, this)]
+							fileName: _jsxFileName$1,
+							lineNumber: 35,
+							columnNumber: 11
+						}, void 0)]
 					}, void 0, true, {
-						fileName: _jsxFileName$2,
-						lineNumber: 123,
-						columnNumber: 13
-					}, this)]
-				}, void 0, true, {
-					fileName: _jsxFileName$2,
-					lineNumber: 115,
-					columnNumber: 11
-				}, this)
-			}, void 0, false, {
-				fileName: _jsxFileName$2,
-				lineNumber: 114,
-				columnNumber: 9
-			}, this)]
-		}, void 0, true, {
-			fileName: _jsxFileName$2,
-			lineNumber: 108,
-			columnNumber: 7
-		}, this);
-		const isSending = sendStatus === REQUEST_STATUS.LOADING;
-		const handleTextChange = (value) => {
-			setComposerText(value);
-			setFormError(null);
-			if (!value.trim()) setIsSuperChatOpen(false);
-			const { isFlagged } = checkProfanity(value);
-			setModerationWarning(isFlagged ? MODERATION_MESSAGE : null);
-		};
-		const resetComposer = () => {
-			setComposerText("");
-			setReplyTo(null);
-			setModerationWarning(null);
-		};
-		const handleCancelReply = () => {
-			resetComposer();
-			setFormError(null);
-			setIsSuperChatOpen(false);
-		};
+						fileName: _jsxFileName$1,
+						lineNumber: 28,
+						columnNumber: 9
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
+						className: "mod-dialog__card",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+								className: "mod-dialog__heading",
+								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
+									className: "mod-dialog__title mod-dialog__title--ai",
+									children: [
+										/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+											src: sparkleBlue_default,
+											alt: "AI",
+											className: "mod-dialog__ai"
+										}, void 0, false, {
+											fileName: _jsxFileName$1,
+											lineNumber: 47,
+											columnNumber: 15
+										}, void 0),
+										"Suggested ",
+										noun
+									]
+								}, void 0, true, {
+									fileName: _jsxFileName$1,
+									lineNumber: 46,
+									columnNumber: 13
+								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+									className: "mod-dialog__pill mod-dialog__pill--recommended",
+									children: "Recommended"
+								}, void 0, false, {
+									fileName: _jsxFileName$1,
+									lineNumber: 50,
+									columnNumber: 13
+								}, void 0)]
+							}, void 0, true, {
+								fileName: _jsxFileName$1,
+								lineNumber: 45,
+								columnNumber: 11
+							}, void 0),
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+								className: "mod-dialog__row mod-dialog__row--locked",
+								"aria-hidden": "true",
+								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+									className: "mod-dialog__message",
+									children: SAMPLE_LOCKED_SUGGESTION
+								}, void 0, false, {
+									fileName: _jsxFileName$1,
+									lineNumber: 53,
+									columnNumber: 13
+								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+									type: "button",
+									className: "mod-dialog__action",
+									disabled: true,
+									tabIndex: -1,
+									children: ["Use This", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+										src: send_default,
+										alt: "",
+										className: "mod-dialog__action-icon"
+									}, void 0, false, {
+										fileName: _jsxFileName$1,
+										lineNumber: 56,
+										columnNumber: 15
+									}, void 0)]
+								}, void 0, true, {
+									fileName: _jsxFileName$1,
+									lineNumber: 54,
+									columnNumber: 13
+								}, void 0)]
+							}, void 0, true, {
+								fileName: _jsxFileName$1,
+								lineNumber: 52,
+								columnNumber: 11
+							}, void 0),
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "mod-dialog__upsell",
+								children: "Upgrade your membership for AI suggestions"
+							}, void 0, false, {
+								fileName: _jsxFileName$1,
+								lineNumber: 59,
+								columnNumber: 11
+							}, void 0)
+						]
+					}, void 0, true, {
+						fileName: _jsxFileName$1,
+						lineNumber: 44,
+						columnNumber: 9
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "mod-dialog__footer",
+						children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							className: "mod-dialog__cancel",
+							onClick: onClose,
+							autoFocus: true,
+							children: "Cancel, I’ll write it again"
+						}, void 0, false, {
+							fileName: _jsxFileName$1,
+							lineNumber: 63,
+							columnNumber: 11
+						}, void 0)
+					}, void 0, false, {
+						fileName: _jsxFileName$1,
+						lineNumber: 62,
+						columnNumber: 9
+					}, void 0)
+				]
+			}, void 0, true, {
+				fileName: _jsxFileName$1,
+				lineNumber: 27,
+				columnNumber: 7
+			}, void 0)
+		}, void 0, false, {
+			fileName: _jsxFileName$1,
+			lineNumber: 19,
+			columnNumber: 5
+		}, void 0);
+	};
+	//#endregion
+	//#region src/sections/messageBox/index.tsx
+	var _jsxFileName = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/index.tsx";
+	var MessageBox = ({ roomId }) => {
+		const { status, user } = useAuth();
+		const { sentCount, needsModeration } = useSuperChat();
+		const { replyTo } = useReply();
+		const { settings, activeTab } = useComments();
+		const isYourSayTab = activeTab === CHAT_TAB.SUPER;
+		const boxClassName = `message-box${isYourSayTab ? " message-box--yoursay" : ""}`;
+		const isClosed = settings?.mode === ROOM_MODE.CLOSED;
+		const isAiEnabled = Boolean(settings?.ai_enhance_enabled);
+		const [text, setText] = (0, import_react.useState)("");
+		const [moderationKind, setModerationKind] = (0, import_react.useState)(null);
+		const [isSending, setIsSending] = (0, import_react.useState)(false);
+		const [error, setError] = (0, import_react.useState)(null);
+		const [handledSentCount, setHandledSentCount] = (0, import_react.useState)(sentCount);
+		const [prevStatus, setPrevStatus] = (0, import_react.useState)(status);
+		const inputRef = (0, import_react.useRef)(null);
+		const isFlagged = containsProfanity(text);
+		const canSend = Boolean(user && roomId && text.trim()) && !isSending && !isClosed;
 		const mustSendSuperChat = Boolean(replyTo?.isSuperChat);
-		const sendNormal = async (message) => {
-			if (isSubmittingRef.current) return;
-			isSubmittingRef.current = true;
-			setFormError(null);
+		const activeModeration = needsModeration ? MODERATION_KIND.SUPERCHAT : moderationKind;
+		if (status !== prevStatus) {
+			setPrevStatus(status);
+			if (status !== AUTH_STATUS.AUTHENTICATED) {
+				setModerationKind(null);
+				closeSuperChatSheet();
+				cancelSuperChatModeration();
+			}
+		}
+		if (sentCount !== handledSentCount) {
+			setHandledSentCount(sentCount);
+			setText("");
+			cancelReply();
+		}
+		(0, import_react.useEffect)(() => {
+			if (roomId) joinRoom(roomId);
+		}, [roomId]);
+		(0, import_react.useEffect)(() => {
+			if (replyTo) inputRef.current?.focus();
+		}, [replyTo]);
+		(0, import_react.useEffect)(() => {
+			setSuperChatText(text);
+		}, [text]);
+		(0, import_react.useEffect)(() => {
+			if (isClosed) closeSuperChatSheet();
+		}, [isClosed]);
+		const handleCancelReply = () => {
+			setText("");
+			setError(null);
+			cancelReply();
+			closeSuperChatSheet();
+		};
+		const send = async (body) => {
+			if (!roomId || isSending) return;
+			setModerationKind(null);
+			setIsSending(true);
+			setError(null);
+			closeSuperChatSheet();
 			try {
-				await sendNormalMessage({
-					userId,
-					userName,
-					userRank,
-					message
-				});
-				resetComposer();
-			} catch (err) {
-				setFormError(toErrorMessage(err, "Failed to send message"));
+				await sendComment(body, replyTo?.parentId);
+				setText("");
+				cancelReply();
+			} catch (sendError) {
+				setError(toErrorMessage(sendError, ERROR_MESSAGE.SEND_COMMENT));
 			} finally {
-				isSubmittingRef.current = false;
+				setIsSending(false);
 			}
 		};
-		const handleSubmit = (event) => {
-			event.preventDefault();
-			const trimmed = composerText.trim();
-			if (!trimmed || isSending) return;
-			if (mustSendSuperChat) {
-				handleOpenSuperChat();
+		const handleSend = () => {
+			if (!canSend) return;
+			if (isFlagged && isAiEnabled) {
+				setModerationKind(MODERATION_KIND.COMMENT);
 				return;
 			}
-			setIsSuperChatOpen(false);
-			if (checkProfanity(trimmed).isFlagged) {
-				setFormError(null);
-				setModerationKind(MODERATION_KIND.NORMAL);
-				return;
-			}
-			sendNormal(trimmed);
+			send(text.trim());
 		};
-		const openSuperChatSheet = () => {
-			setSuperChatError(null);
-			setIsSuperChatOpen(true);
-		};
-		const handleOpenSuperChat = () => {
-			if (!composerText.trim()) return;
-			setFormError(null);
-			if (checkProfanity(composerText).isFlagged) {
-				setIsSuperChatOpen(false);
-				setModerationKind(MODERATION_KIND.SUPER);
+		const handleSuperChat = () => {
+			if (!canSend) return;
+			if (isFlagged && isAiEnabled) {
+				setModerationKind(MODERATION_KIND.SUPERCHAT);
 				return;
 			}
 			openSuperChatSheet();
 		};
-		const continueAfterModeration = (message) => {
-			const kind = moderationKind;
-			setModerationKind(null);
-			setApprovedText(message);
-			if (kind === MODERATION_KIND.NORMAL) sendNormal(message);
-			else openSuperChatSheet();
-		};
-		const handleUseSuggestion = (suggestion) => {
-			setComposerText(suggestion);
-			setModerationWarning(null);
-			continueAfterModeration(suggestion);
-		};
-		const needsModeration = (message, kind) => {
-			if (message === approvedText || !checkProfanity(message).isFlagged) return false;
-			setIsSuperChatOpen(false);
-			setModerationKind(kind);
-			return true;
-		};
-		const handleConfirmSuperChat = async (extraCoins) => {
-			const trimmed = composerText.trim();
-			const cost = getSuperChatCost(extraCoins, commentBalance);
-			if (!trimmed || cost.coins > coinBalance || isSubmittingRef.current) return;
-			if (needsModeration(trimmed, MODERATION_KIND.SUPER)) return;
-			isSubmittingRef.current = true;
-			setSuperChatError(null);
-			try {
-				const coins = 20 + extraCoins;
-				await sendSuperChat({
-					userId,
-					userName,
-					userRank,
-					message: trimmed,
-					coins
-				});
-				spendSuperChat(cost);
-				resetComposer();
-				setIsSuperChatOpen(false);
-			} catch (err) {
-				setSuperChatError(toErrorMessage(err, "Failed to send Super Chat"));
-			} finally {
-				isSubmittingRef.current = false;
+		const handleModerationSend = () => {
+			if (activeModeration === MODERATION_KIND.SUPERCHAT) {
+				setModerationKind(null);
+				openSuperChatSheet(text.trim());
+				return;
 			}
+			send(text.trim());
 		};
-		const handleSendNormalInstead = () => {
-			const trimmed = composerText.trim();
-			if (!trimmed) return;
-			if (needsModeration(trimmed, MODERATION_KIND.NORMAL)) return;
-			setIsSuperChatOpen(false);
-			sendNormal(trimmed);
+		const handleModerationCancel = () => {
+			setModerationKind(null);
+			cancelSuperChatModeration();
+			inputRef.current?.focus();
 		};
-		const canSend = Boolean(composerText.trim()) && !isSending;
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "composer",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("form", {
-					onSubmit: handleSubmit,
-					children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "composer__body",
-						children: [
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-								className: "composer__row",
-								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
-									fileName: _jsxFileName$2,
-									lineNumber: 296,
-									columnNumber: 13
-								}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-									className: "composer__field",
-									children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-										className: "composer__field-content",
-										children: [replyTo && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-											className: "composer__reply-banner",
-											children: [
-												"You are replying to ",
-												/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: [replyTo.userName, "..."] }, void 0, true, {
-													fileName: _jsxFileName$2,
-													lineNumber: 301,
-													columnNumber: 41
-												}, this),
-												/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-													type: "button",
-													className: "composer__cancel-reply",
-													onClick: handleCancelReply,
-													children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-														src: "data:image/svg+xml,%3csvg%20width='10'%20height='10'%20viewBox='0%200%2010%2010'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M9.81286%201.12981C9.9343%201.00407%2010.0015%200.835672%209.99997%200.660874C9.99846%200.486076%209.92834%200.318868%209.80474%200.195262C9.68113%200.0716569%209.51392%200.00154415%209.33913%202.52016e-05C9.16433%20-0.00149374%208.99593%200.0657028%208.87019%200.187141L5.00819%204.04914L1.14619%200.187141C1.02046%200.0657028%200.852056%20-0.00149374%200.677258%202.52016e-05C0.50246%200.00154415%200.335252%200.0716569%200.211646%200.195262C0.088041%200.318868%200.0179282%200.486076%200.0164093%200.660874C0.0148903%200.835672%200.0820869%201.00407%200.203526%201.12981L4.06553%204.99181L0.203526%208.85381C0.139852%208.91531%200.0890639%208.98887%200.0541246%209.0702C0.0191852%209.15154%200.000794382%209.23902%202.51714e-05%209.32754C-0.000744039%209.41606%200.0161236%209.50385%200.0496442%209.58578C0.0831648%209.66771%200.132667%209.74214%200.195262%209.80474C0.257857%209.86733%200.332292%209.91683%200.414223%209.95036C0.496154%209.98388%200.58394%2010.0007%200.67246%209.99997C0.760979%209.99921%200.848459%209.98081%200.929795%209.94587C1.01113%209.91094%201.08469%209.86015%201.14619%209.79647L5.00819%205.93447L8.87019%209.79647C8.99593%209.91791%209.16433%209.98511%209.33913%209.98359C9.51392%209.98207%209.68113%209.91196%209.80474%209.78835C9.92834%209.66475%209.99846%209.49754%209.99997%209.32274C10.0015%209.14794%209.9343%208.97954%209.81286%208.85381L5.95086%204.99181L9.81286%201.12981Z'%20fill='%23EB0000'/%3e%3c/svg%3e",
-														alt: "",
-														className: "composer__cancel-icon"
-													}, void 0, false, {
-														fileName: _jsxFileName$2,
-														lineNumber: 307,
-														columnNumber: 23
-													}, this), " Cancel"]
-												}, void 0, true, {
-													fileName: _jsxFileName$2,
-													lineNumber: 302,
-													columnNumber: 21
-												}, this)
-											]
-										}, void 0, true, {
-											fileName: _jsxFileName$2,
-											lineNumber: 300,
-											columnNumber: 19
-										}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
-											ref: textareaRef,
-											className: "composer__input",
-											placeholder: `Join the conversation, ${userName}`,
-											value: composerText,
-											onChange: (event) => handleTextChange(event.target.value),
-											maxLength: 500,
-											rows: 2,
-											readOnly: isSending,
-											onKeyDown: (event) => {
-												if (event.key === "Enter" && !event.shiftKey) {
-													event.preventDefault();
-													event.currentTarget.form?.requestSubmit();
-												}
-											}
-										}, void 0, false, {
-											fileName: _jsxFileName$2,
-											lineNumber: 311,
-											columnNumber: 17
-										}, this)]
-									}, void 0, true, {
-										fileName: _jsxFileName$2,
-										lineNumber: 298,
-										columnNumber: 15
-									}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-										className: "composer__actions",
-										children: [!mustSendSuperChat && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-											type: "submit",
-											className: "composer__btn",
-											disabled: !canSend,
-											children: [isSending && !isSuperChatOpen ? "Sending..." : "Send", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-												src: "data:image/svg+xml,%3csvg%20width='20'%20height='21'%20viewBox='0%200%2020%2021'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M19.4118%209.06477C19.582%209.14935%2019.7263%209.27822%2019.8296%209.4378L19.8396%209.45344L19.8493%209.46932C19.9478%209.63387%2020%209.82223%2020%2010.0143C20%2010.2126%2019.9446%2010.4068%2019.8398%2010.575C19.736%2010.7418%2019.5879%2010.8763%2019.4122%2010.9635L1.5293%2019.9162L1.52768%2019.9171L1.52605%2019.9179C1.3457%2020.0069%201.14372%2020.0425%200.943813%2020.0207C0.743908%2019.9989%200.554327%2019.9204%200.397286%2019.7946C0.240236%2019.6688%200.122214%2019.5007%200.0570656%2019.3101C-0.00808261%2019.1196%20-0.017665%2018.9144%200.0294286%2018.7186L0.0327681%2018.7047L2.58384%209.8696L0.0358956%201.32443L0.0319178%201.30795C-0.0152533%201.11215%20-0.00575219%200.906945%200.0593183%200.716406C0.124391%200.525871%200.242348%200.357868%200.399343%200.232087L0.414164%200.220429C0.5682%200.101467%200.752137%200.0272698%200.94578%200.00619672L0.964531%200.00432713C1.15829%20-0.0132654%201.3533%200.022995%201.52805%200.10928L1.52967%200.110053L19.4118%209.06477ZM3.72149%2010.5076L1.39615%2018.5609L17.2115%2010.6433L3.72149%2010.5076ZM1.40387%201.46861L3.71984%209.23588L17.1853%209.37132L1.40387%201.46861Z'%20fill='white'/%3e%3c/svg%3e",
-												alt: "",
-												className: "composer__btn-icon"
-											}, void 0, false, {
-												fileName: _jsxFileName$2,
-												lineNumber: 335,
-												columnNumber: 21
-											}, this)]
-										}, void 0, true, {
-											fileName: _jsxFileName$2,
-											lineNumber: 333,
-											columnNumber: 19
-										}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-											type: "button",
-											className: "composer__btn",
-											onClick: handleOpenSuperChat,
-											disabled: !canSend,
-											children: ["Superchat", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-												src: superchat_default,
-												alt: "",
-												className: "composer__btn-icon"
-											}, void 0, false, {
-												fileName: _jsxFileName$2,
-												lineNumber: 345,
-												columnNumber: 19
-											}, this)]
-										}, void 0, true, {
-											fileName: _jsxFileName$2,
-											lineNumber: 338,
-											columnNumber: 17
-										}, this)]
-									}, void 0, true, {
-										fileName: _jsxFileName$2,
-										lineNumber: 331,
-										columnNumber: 15
-									}, this)]
-								}, void 0, true, {
-									fileName: _jsxFileName$2,
-									lineNumber: 297,
-									columnNumber: 13
-								}, this)]
-							}, void 0, true, {
-								fileName: _jsxFileName$2,
-								lineNumber: 295,
-								columnNumber: 11
-							}, this),
-							moderationWarning && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-								className: "composer__warning",
-								role: "alert",
-								children: moderationWarning
-							}, void 0, false, {
-								fileName: _jsxFileName$2,
-								lineNumber: 352,
-								columnNumber: 13
-							}, this),
-							formError && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-								className: "composer__warning",
-								role: "alert",
-								children: formError
-							}, void 0, false, {
-								fileName: _jsxFileName$2,
-								lineNumber: 357,
-								columnNumber: 13
-							}, this),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(EnhanceWithAI, {
-								message: composerText,
-								userRank,
-								onUse: (suggestion) => {
-									handleTextChange(suggestion);
-									textareaRef.current?.focus();
-								}
-							}, void 0, false, {
-								fileName: _jsxFileName$2,
-								lineNumber: 362,
-								columnNumber: 11
-							}, this)
-						]
-					}, void 0, true, {
-						fileName: _jsxFileName$2,
-						lineNumber: 294,
-						columnNumber: 9
-					}, this)
-				}, void 0, false, {
-					fileName: _jsxFileName$2,
-					lineNumber: 293,
-					columnNumber: 7
-				}, this),
-				moderationKind && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ModerationDialog, {
-					kind: moderationKind,
-					message: composerText.trim(),
-					userRank,
-					onSendOriginal: () => continueAfterModeration(composerText.trim()),
-					onUseSuggestion: handleUseSuggestion,
-					onCancel: handleCancelModeration
-				}, void 0, false, {
-					fileName: _jsxFileName$2,
-					lineNumber: 374,
-					columnNumber: 9
-				}, this),
-				isSuperChatOpen && sheetHost && (0, import_react_dom.createPortal)(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatSheet, {
-					message: composerText.trim(),
-					isSending,
-					error: superChatError,
-					onSend: handleConfirmSuperChat,
-					onSendNormal: mustSendSuperChat ? void 0 : handleSendNormalInstead,
-					onClose: handleCloseSuperChat
-				}, void 0, false, {
-					fileName: _jsxFileName$2,
-					lineNumber: 387,
+		if (status === AUTH_STATUS.CHECKING) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: boxClassName,
+			part: "message-box",
+			role: "status",
+			"aria-label": "Loading your account",
+			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: "message-box__row",
+				"aria-hidden": "true",
+				children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton user-avatar" }, void 0, false, {
+					fileName: _jsxFileName,
+					lineNumber: 150,
 					columnNumber: 11
-				}, this), sheetHost)
+				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-box__field-skeleton" }, void 0, false, {
+					fileName: _jsxFileName,
+					lineNumber: 151,
+					columnNumber: 11
+				}, void 0)]
+			}, void 0, true, {
+				fileName: _jsxFileName,
+				lineNumber: 149,
+				columnNumber: 9
+			}, void 0)
+		}, void 0, false, {
+			fileName: _jsxFileName,
+			lineNumber: 148,
+			columnNumber: 7
+		}, void 0);
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: boxClassName,
+			part: "message-box",
+			children: [
+				!user && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+					type: "button",
+					className: "message-box__login",
+					onClick: openGbnLogin,
+					children: "Log In"
+				}, void 0, false, {
+					fileName: _jsxFileName,
+					lineNumber: 161,
+					columnNumber: 11
+				}, void 0),
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+					className: "message-box__row",
+					children: [user ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						className: "message-box__avatar-btn",
+						onClick: () => openUserMessages(user.id, user.name, true),
+						"aria-label": "Your comments",
+						children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
+							fileName: _jsxFileName,
+							lineNumber: 173,
+							columnNumber: 15
+						}, void 0)
+					}, void 0, false, {
+						fileName: _jsxFileName,
+						lineNumber: 167,
+						columnNumber: 13
+					}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
+						fileName: _jsxFileName,
+						lineNumber: 176,
+						columnNumber: 13
+					}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "message-box__field",
+						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "message-box__field-content",
+							children: [replyTo && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+								className: "message-box__reply-banner",
+								children: [
+									"You are replying to ",
+									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: [replyTo.userName, "..."] }, void 0, true, {
+										fileName: _jsxFileName,
+										lineNumber: 182,
+										columnNumber: 39
+									}, void 0),
+									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+										type: "button",
+										className: "message-box__cancel-reply",
+										onClick: handleCancelReply,
+										children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+											src: "data:image/svg+xml,%3csvg%20width='10'%20height='10'%20viewBox='0%200%2010%2010'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M9.81286%201.12981C9.9343%201.00407%2010.0015%200.835672%209.99997%200.660874C9.99846%200.486076%209.92834%200.318868%209.80474%200.195262C9.68113%200.0716569%209.51392%200.00154415%209.33913%202.52016e-05C9.16433%20-0.00149374%208.99593%200.0657028%208.87019%200.187141L5.00819%204.04914L1.14619%200.187141C1.02046%200.0657028%200.852056%20-0.00149374%200.677258%202.52016e-05C0.50246%200.00154415%200.335252%200.0716569%200.211646%200.195262C0.088041%200.318868%200.0179282%200.486076%200.0164093%200.660874C0.0148903%200.835672%200.0820869%201.00407%200.203526%201.12981L4.06553%204.99181L0.203526%208.85381C0.139852%208.91531%200.0890639%208.98887%200.0541246%209.0702C0.0191852%209.15154%200.000794382%209.23902%202.51714e-05%209.32754C-0.000744039%209.41606%200.0161236%209.50385%200.0496442%209.58578C0.0831648%209.66771%200.132667%209.74214%200.195262%209.80474C0.257857%209.86733%200.332292%209.91683%200.414223%209.95036C0.496154%209.98388%200.58394%2010.0007%200.67246%209.99997C0.760979%209.99921%200.848459%209.98081%200.929795%209.94587C1.01113%209.91094%201.08469%209.86015%201.14619%209.79647L5.00819%205.93447L8.87019%209.79647C8.99593%209.91791%209.16433%209.98511%209.33913%209.98359C9.51392%209.98207%209.68113%209.91196%209.80474%209.78835C9.92834%209.66475%209.99846%209.49754%209.99997%209.32274C10.0015%209.14794%209.9343%208.97954%209.81286%208.85381L5.95086%204.99181L9.81286%201.12981Z'%20fill='%23EB0000'/%3e%3c/svg%3e",
+											alt: "",
+											className: "message-box__cancel-icon"
+										}, void 0, false, {
+											fileName: _jsxFileName,
+											lineNumber: 184,
+											columnNumber: 21
+										}, void 0), " Cancel"]
+									}, void 0, true, {
+										fileName: _jsxFileName,
+										lineNumber: 183,
+										columnNumber: 19
+									}, void 0)
+								]
+							}, void 0, true, {
+								fileName: _jsxFileName,
+								lineNumber: 181,
+								columnNumber: 17
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+								className: "message-box__input-row",
+								children: [replyTo && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+									className: "message-box__mention",
+									children: ["@", replyTo.userName]
+								}, void 0, true, {
+									fileName: _jsxFileName,
+									lineNumber: 189,
+									columnNumber: 29
+								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
+									ref: inputRef,
+									className: "message-box__input",
+									placeholder: isClosed ? "Comments are closed" : user ? `Join the conversation, ${user.name}` : "Join the conversation",
+									"aria-label": user ? "Message" : "Log in to join the conversation",
+									rows: 2,
+									value: text,
+									onChange: (event) => {
+										setText(event.target.value);
+										setError(null);
+									},
+									onKeyDown: (event) => {
+										if (event.key === "Enter" && !event.shiftKey) {
+											event.preventDefault();
+											if (mustSendSuperChat) handleSuperChat();
+											else handleSend();
+										}
+									},
+									readOnly: isSending,
+									disabled: !user || isClosed
+								}, void 0, false, {
+									fileName: _jsxFileName,
+									lineNumber: 190,
+									columnNumber: 17
+								}, void 0)]
+							}, void 0, true, {
+								fileName: _jsxFileName,
+								lineNumber: 188,
+								columnNumber: 15
+							}, void 0)]
+						}, void 0, true, {
+							fileName: _jsxFileName,
+							lineNumber: 179,
+							columnNumber: 13
+						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "message-box__actions",
+							children: [!mustSendSuperChat && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+								type: "button",
+								className: "message-box__btn",
+								onClick: handleSend,
+								disabled: !canSend,
+								children: [isSending ? "Sending..." : "Send", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+									src: "data:image/svg+xml,%3csvg%20width='20'%20height='21'%20viewBox='0%200%2020%2021'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M19.4118%209.06477C19.582%209.14935%2019.7263%209.27822%2019.8296%209.4378L19.8396%209.45344L19.8493%209.46932C19.9478%209.63387%2020%209.82223%2020%2010.0143C20%2010.2126%2019.9446%2010.4068%2019.8398%2010.575C19.736%2010.7418%2019.5879%2010.8763%2019.4122%2010.9635L1.5293%2019.9162L1.52768%2019.9171L1.52605%2019.9179C1.3457%2020.0069%201.14372%2020.0425%200.943813%2020.0207C0.743908%2019.9989%200.554327%2019.9204%200.397286%2019.7946C0.240236%2019.6688%200.122214%2019.5007%200.0570656%2019.3101C-0.00808261%2019.1196%20-0.017665%2018.9144%200.0294286%2018.7186L0.0327681%2018.7047L2.58384%209.8696L0.0358956%201.32443L0.0319178%201.30795C-0.0152533%201.11215%20-0.00575219%200.906945%200.0593183%200.716406C0.124391%200.525871%200.242348%200.357868%200.399343%200.232087L0.414164%200.220429C0.5682%200.101467%200.752137%200.0272698%200.94578%200.00619672L0.964531%200.00432713C1.15829%20-0.0132654%201.3533%200.022995%201.52805%200.10928L1.52967%200.110053L19.4118%209.06477ZM3.72149%2010.5076L1.39615%2018.5609L17.2115%2010.6433L3.72149%2010.5076ZM1.40387%201.46861L3.71984%209.23588L17.1853%209.37132L1.40387%201.46861Z'%20fill='white'/%3e%3c/svg%3e",
+									alt: "",
+									className: "message-box__btn-icon"
+								}, void 0, false, {
+									fileName: _jsxFileName,
+									lineNumber: 226,
+									columnNumber: 19
+								}, void 0)]
+							}, void 0, true, {
+								fileName: _jsxFileName,
+								lineNumber: 224,
+								columnNumber: 17
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+								type: "button",
+								className: "message-box__btn",
+								onClick: handleSuperChat,
+								disabled: !canSend,
+								children: "Send YourSay+"
+							}, void 0, false, {
+								fileName: _jsxFileName,
+								lineNumber: 229,
+								columnNumber: 15
+							}, void 0)]
+						}, void 0, true, {
+							fileName: _jsxFileName,
+							lineNumber: 222,
+							columnNumber: 13
+						}, void 0)]
+					}, void 0, true, {
+						fileName: _jsxFileName,
+						lineNumber: 178,
+						columnNumber: 11
+					}, void 0)]
+				}, void 0, true, {
+					fileName: _jsxFileName,
+					lineNumber: 165,
+					columnNumber: 9
+				}, void 0),
+				isFlagged && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+					className: "message-box__warning",
+					role: "alert",
+					children: "Your message is unethical and breaks our community guidelines."
+				}, void 0, false, {
+					fileName: _jsxFileName,
+					lineNumber: 236,
+					columnNumber: 11
+				}, void 0),
+				error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+					className: "message-box__warning",
+					role: "alert",
+					children: error
+				}, void 0, false, {
+					fileName: _jsxFileName,
+					lineNumber: 241,
+					columnNumber: 11
+				}, void 0),
+				isAiEnabled && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(EnhanceWithAi, {
+					message: text,
+					isOnGradient: isYourSayTab
+				}, void 0, false, {
+					fileName: _jsxFileName,
+					lineNumber: 246,
+					columnNumber: 11
+				}, void 0)
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$2,
-			lineNumber: 292,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/LiveFeedControls.tsx
-	var _jsxFileName$1 = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/LiveFeedControls.tsx";
-	function formatInterval(seconds) {
-		return seconds === 0 ? "Off" : `${seconds} sec`;
-	}
-	/**
-	* Controls how often the server posts simulated messages. The setting is
-	* global: every viewer shares it and sees the change live.
-	*/
-	function LiveFeedControls() {
-		const [config, setConfig] = (0, import_react.useState)(null);
-		(0, import_react.useEffect)(() => {
-			let isActive = true;
-			fetchLiveFeedConfig().then((next) => {
-				if (isActive) setConfig(next);
-			}).catch(() => {});
-			const socket = getSocket();
-			socket.on(SOCKET_EVENT.LIVE_FEED_CONFIG, setConfig);
-			return () => {
-				isActive = false;
-				socket.off(SOCKET_EVENT.LIVE_FEED_CONFIG, setConfig);
-			};
-		}, []);
-		if (!config) return null;
-		const handleIntervalChange = async (value) => {
-			try {
-				setConfig(await updateLiveFeedInterval(Number(value)));
-			} catch {}
-		};
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("label", {
-			className: "live-feed",
-			children: ["New messages every", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("select", {
-				className: "live-feed__select",
-				value: config.intervalSeconds,
-				onChange: (event) => handleIntervalChange(event.target.value),
-				children: config.allowedIntervals.map((seconds) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("option", {
-					value: seconds,
-					children: formatInterval(seconds)
-				}, seconds, false, {
-					fileName: _jsxFileName$1,
-					lineNumber: 55,
-					columnNumber: 11
-				}, this))
-			}, void 0, false, {
-				fileName: _jsxFileName$1,
-				lineNumber: 49,
-				columnNumber: 7
-			}, this)]
-		}, void 0, true, {
-			fileName: _jsxFileName$1,
-			lineNumber: 47,
-			columnNumber: 5
-		}, this);
-	}
-	//#endregion
-	//#region src/components/MessageBox.tsx
-	var _jsxFileName = "/Users/priyanshusharma/Desktop/Projects/superChat/frontend/src/components/MessageBox.tsx";
-	/** Rendered by <gbn-message-box>: the composer, plus the demo's live-feed control. */
-	function MessageBox() {
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "message-box",
-			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Composer, {}, void 0, false, {
-				fileName: _jsxFileName,
-				lineNumber: 8,
-				columnNumber: 7
-			}, this), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(LiveFeedControls, {}, void 0, false, {
-				fileName: _jsxFileName,
-				lineNumber: 9,
-				columnNumber: 7
-			}, this)]
-		}, void 0, true, {
 			fileName: _jsxFileName,
-			lineNumber: 7,
+			lineNumber: 159,
+			columnNumber: 7
+		}, void 0), activeModeration && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ModerationDialog, {
+			kind: activeModeration,
+			message: text.trim(),
+			onSend: handleModerationSend,
+			onClose: handleModerationCancel
+		}, void 0, false, {
+			fileName: _jsxFileName,
+			lineNumber: 250,
+			columnNumber: 9
+		}, void 0)] }, void 0, true, {
+			fileName: _jsxFileName,
+			lineNumber: 158,
 			columnNumber: 5
-		}, this);
-	}
+		}, void 0);
+	};
 	//#endregion
 	//#region src/main.tsx
 	loadStylesheet(FONT_URL);
+	startAuth();
 	defineElement(TAG_NAME.COMMENTS, Comments);
 	defineElement(TAG_NAME.MESSAGE_BOX, MessageBox);
 	//#endregion
