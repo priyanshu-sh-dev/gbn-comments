@@ -331,6 +331,8 @@
 		COMMENT: "comment",
 		SUPERCHAT: "superchat"
 	};
+	var REMOVED_NOTICE = "Your comment was removed for breaking our community guidelines.";
+	var SNACKBAR_DURATION_MS = 5e3;
 	var SAMPLE_LOCKED_SUGGESTION = "Members get a rewritten version of their message that is far more likely to pass moderation.";
 	//#endregion
 	//#region src/constants/profanity.ts
@@ -17417,7 +17419,7 @@
 	//#region src/styles/index.css?inline
 	var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
 	var import_client = require_client();
-	var styles_default = "* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n:host {\n  --color-text: #000f55;\n  --color-text-placeholder: #A4A4A4;\n  --color-text-faded: #000F5580;\n  --color-enhance-bg: #E5F6FF;\n  --color-enhance-loading-dark-bg: #1938a6;\n  --color-navy: #004be3;\n  --color-border: #D4D7E3;\n  --color-white: #ffffff;\n  --color-text-subtle: #898989;\n  --color-message-meta: #909090;\n  --color-superchat-meta: #b1b1b1;\n  --color-blue: #2f6fed;\n  --color-light-grey: #EBEBEB;\n  --color-tab-border: #CBCBCB;\n  --color-coins: #22AB00;\n  --color-menu-border: #ACACAC;\n  --color-menu-shadow: #00000040;\n  --color-go-to-top-shadow: #101a3d14;\n  --color-soft-shadow: #101a3d1f;\n  --color-tier-friend-bg: #000e55;\n  --color-tier-supporter-bg: #fcebdf;\n  --color-tier-defender-bg: #ededed;\n  --color-tier-champion-bg: #fff1d0;\n  --color-avatar-1: #e07a5f;\n  --color-avatar-2: #3d7068;\n  --color-avatar-3: #4f6d9a;\n  --color-avatar-4: #8a5a44;\n  --color-avatar-5: #6b5ca5;\n  --color-avatar-6: #2f8f7a;\n  --color-avatar-7: #c9752f;\n  --color-avatar-8: #4a90c4;\n  --color-skeleton-shine: #f7f9fd;\n  --color-superchat-1: #031762;\n  --color-superchat-2: #0a2a8f;\n  --color-superchat-3: #0f3dbd;\n  --color-superchat-4: #014be3;\n  --color-gradient-blue: #2043bd;\n  --color-gradient-navy: #00135a;\n  --color-scrollbar-thumb: #CCCCCC;\n  --color-scrollbar-track-dark: #ffffff4d;\n  --color-info-pill-bg: #ffffff1a;\n  --color-info-pill-shadow: #00000012;\n  --color-yellow: #ffd86b;\n  --color-scrim: #00000033;\n  --color-sheet-shadow: #101a3d40;\n  --color-confirm-close: #eb0000;\n  --color-dialog-shadow: #101a3d2e;\n  --color-red: #d70000;\n  --color-warning-bg: #fff0f0;\n  --color-recommended: #39933C;\n  --color-locked-suggestion-bg: #E5F6FF80;\n  --color-cancel-btn-from: #f0f7fd;\n  --color-cancel-btn-border: #d8e1f0;\n  --color-rank-supporter-from: #f6ba92;\n  --color-rank-supporter-to: #c38154;\n  --color-rank-defender-from: #c2c2c2;\n  --color-rank-defender-to: #818181;\n  --color-rank-champion-from: #ffc241;\n  --color-rank-champion-to: #e99300;\n  --color-shadow: #0000001a;\n  --color-reaction-picker-border: #9B9B9B;\n  --color-reaction-label-bg: #000F55CC;\n  --color-cancel-reply-shadow: #00000026;\n\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  font-family: \"Noto Sans\", sans-serif;\n  color: var(--color-text);\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n:host > div {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\nbutton,\ntextarea {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\nbutton:disabled {\n  cursor: not-allowed;\n}\n\n.skeleton {\n  border-radius: 6px;\n  background: linear-gradient(\n    90deg,\n    var(--color-border) 25%,\n    var(--color-skeleton-shine) 37%,\n    var(--color-border) 63%\n  );\n  background-size: 400% 100%;\n  animation: skeleton-shimmer 1.4s ease infinite;\n}\n\n@keyframes skeleton-shimmer {\n  0% {\n    background-position: 100% 50%;\n  }\n\n  100% {\n    background-position: 0 50%;\n  }\n}\n\n.user-avatar {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 40px;\n  height: 40px;\n  overflow: hidden;\n  border-radius: 50%;\n}\n\n.user-avatar--initials {\n  color: var(--color-white);\n  font-weight: 700;\n}\n\n.user-avatar--tier-1 {\n  background: var(--color-tier-friend-bg);\n}\n\n.user-avatar--tier-2 {\n  background: var(--color-tier-supporter-bg);\n}\n\n.user-avatar--tier-3 {\n  background: var(--color-tier-defender-bg);\n}\n\n.user-avatar--tier-4 {\n  background: var(--color-tier-champion-bg);\n}\n\n.user-avatar__badge {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  background-position: center;\n  background-repeat: no-repeat;\n  background-size: cover;\n}\n\n.user-avatar__initials {\n  color: var(--color-white);\n  font-weight: 600;\n  line-height: normal;\n}\n\n:host(gbn-comments) {\n  height: min(70vh, 560px);\n}\n\n.comments {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  overflow: hidden;\n  border: 1px solid var(--color-light-grey);\n  border-bottom: none;\n  background: var(--color-white);\n}\n\n.chat-tabs {\n  flex-shrink: 0;\n  display: flex;\n}\n\n.chat-tabs__tab {\n  display: flex;\n  flex: 1 1 0;\n  align-items: center;\n  justify-content: center;\n  min-width: 0;\n  height: 50px;\n  padding: 0 8px;\n  border: 0.5px solid var(--color-tab-border);\n  background: var(--color-light-grey);\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.2;\n  text-align: center;\n  transition: background 0.15s ease, border-color 0.15s ease;\n}\n\n.chat-tabs__tab--active {\n  border: 1px solid var(--color-light-grey);\n  border-bottom: 3px solid var(--color-navy);\n  background: var(--color-white);\n}\n\n.chat-tabs__tab--yoursay.chat-tabs__tab--active {\n  border-color: var(--color-gradient-navy);\n  border-bottom-color: var(--color-red);\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.comment-list {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\n.comment-list__scroller {\n  flex: 1;\n  min-height: 0;\n}\n\n/* Inset, rounded track. Chrome and Safari only; Firefox falls back to a thin native bar. */\n.comment-list__scroller::-webkit-scrollbar {\n  width: 13px;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track,\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-track {\n  background-color: var(--color-scrollbar-track-dark);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-white);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .comment-list__scroller {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n\n  .comment-list--yoursay .comment-list__scroller {\n    scrollbar-color: var(--color-white) var(--color-scrollbar-track-dark);\n  }\n}\n\n.comment-list__item {\n  padding: 0 0 4px;\n}\n\n.comment-list--yoursay {\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n}\n\n.comment-list--yoursay .comment-list__item {\n  padding: 0;\n}\n\n.comment-list .message-item--super {\n  margin: 0 8px;\n  padding-inline: 8px;\n}\n\n.comment-list .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list--yoursay .message-item--super {\n  margin: 0;\n  padding-inline: 16px;\n  border-radius: 0;\n}\n\n.comment-list--yoursay .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list__spacer {\n  height: 10px;\n}\n\n.comment-list__loading {\n  padding: 4px 12px 10px;\n  font-size: 13px;\n  text-align: center;\n}\n\n.comment-list__empty {\n  margin: auto 0;\n  padding: 24px 12px;\n  font-size: 13px;\n  text-align: center;\n}\n\n.go-to-top {\n  position: absolute;\n  right: 16px;\n  bottom: 16px;\n  z-index: 20;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 4px;\n  border: none;\n  background: none;\n}\n\n.go-to-top__badge {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-blue);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 700;\n  white-space: nowrap;\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n  animation: go-to-top-badge-pop 0.25s ease-out;\n}\n\n@keyframes go-to-top-badge-pop {\n  from {\n    transform: scale(0.6);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n\n.go-to-top__icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 44px;\n  height: 44px;\n  border-radius: 6px;\n  background: var(--color-navy);\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n}\n\n.go-to-top__icon img {\n  width: 16px;\n  height: 16px;\n}\n\n.go-to-top:hover .go-to-top__icon {\n  filter: brightness(1.1);\n}\n\n.go-to-top__label {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--color-white) 85%, transparent);\n  backdrop-filter: blur(4px);\n  box-shadow: 0 2px 8px var(--color-soft-shadow);\n  color: var(--color-blue);\n  font-size: 12px;\n  font-weight: 600;\n  letter-spacing: 0.04em;\n  text-transform: uppercase;\n  white-space: nowrap;\n}\n\n.comment-list__skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  padding: 20px 28px;\n}\n\n.message-skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}\n\n.message-skeleton__name {\n  width: 140px;\n  height: 16px;\n}\n\n.message-skeleton__line {\n  width: 100%;\n  height: 14px;\n}\n\n.message-skeleton__line--short {\n  width: 60%;\n}\n\n.message-item {\n  padding: 10px 16px;\n}\n\n.message-item--super {\n  padding: 10px 15px;\n  border-radius: 10px;\n  color: var(--color-white);\n}\n\n.message-item--super .message-item__time,\n.message-item--super .message-item__action,\n.message-item--super .reaction-chip {\n  color: var(--color-superchat-meta);\n}\n\n.message-item__header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n}\n\n.name-plain {\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.name-badge {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  height: 22px;\n  padding: 0 10px 0 11px;\n  border-radius: 0 100px 100px 0;\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n}\n\n.message-item .name-badge {\n  margin-left: -11px;\n}\n\n.message-item--super .name-badge {\n  margin-left: -15px;\n}\n\n.name-badge__icon {\n  width: 12px;\n  height: 12px;\n}\n\n.name-badge--supporter {\n  background: linear-gradient(180deg, var(--color-rank-supporter-from), var(--color-rank-supporter-to));\n}\n\n.name-badge--defender {\n  background: linear-gradient(180deg, var(--color-rank-defender-from), var(--color-rank-defender-to));\n}\n\n.name-badge--champion {\n  background: linear-gradient(180deg, var(--color-rank-champion-from), var(--color-rank-champion-to));\n}\n\n.message-item__time {\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__review-tag {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-tier-champion-bg);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.message-item__text {\n  margin-top: 4px;\n  font-size: 15px;\n  font-weight: 400;\n  line-height: 18px;\n  overflow-wrap: break-word;\n}\n\n.message-editor {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 4px;\n}\n\n.message-editor__input {\n  width: 100%;\n  min-height: 24px;\n  max-height: 140px;\n  padding: 8px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 10px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-editor__input:focus {\n  outline: none;\n  border-color: var(--color-navy);\n}\n\n.message-editor__error {\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.message-editor__actions {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n\n.message-editor__btn {\n  padding: 4px 14px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.message-editor__btn:disabled {\n  background: var(--color-light-grey);\n  color: var(--color-text-subtle);\n}\n\n.message-editor__btn--cancel {\n  border: 1px solid var(--color-border);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.message-text__mention {\n  margin-right: 4px;\n  font-weight: 500;\n}\n\n.message-item__footer {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 10px;\n  margin-top: 6px;\n}\n\n.message-item__action {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__reply-icon,\n.message-item__react-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-item__like-icon {\n  width: 11px;\n  height: 11px;\n}\n\n.message-reactions {\n  display: inline-flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 10px;\n}\n\n.message-reactions__react {\n  position: relative;\n  display: inline-flex;\n}\n\n.reaction-chip {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.reaction-chip--mine {\n  color: var(--color-navy);\n  font-weight: 600;\n}\n\n.reaction-chip__icon {\n  flex-shrink: 0;\n  width: 14px;\n  height: 14px;\n}\n\n.reaction-picker {\n  position: absolute;\n  left: -6px;\n  bottom: calc(100% + 6px);\n  z-index: 22;\n  display: flex;\n  gap: 4px;\n  padding: 4px 6px;\n  border: 1px solid var(--color-reaction-picker-border);\n  border-radius: 12px;\n  background: var(--color-white);\n  box-shadow: 0 6px 20px var(--color-soft-shadow);\n  animation: reaction-picker-in 0.16s ease-out;\n}\n\n.reaction-picker--down {\n  top: calc(100% + 6px);\n  bottom: auto;\n}\n\n.reaction-picker__option {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 26px;\n  height: 26px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n  transition: transform 0.15s cubic-bezier(0.3, 1.6, 0.6, 1);\n}\n\n.reaction-picker__icon {\n  display: block;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n}\n\n.reaction-picker__option:hover,\n.reaction-picker__option:focus-visible {\n  transform: translateY(-4px) scale(1.2);\n  outline: none;\n}\n\n.reaction-picker__option--selected .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-navy);\n}\n\n.reaction-picker__option:focus-visible .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-blue);\n}\n\n.reaction-picker__label {\n  position: absolute;\n  bottom: calc(100% + 6px);\n  left: 50%;\n  padding: 3px 7px;\n  border-radius: 999px;\n  background: var(--color-reaction-label-bg);\n  color: var(--color-white);\n  font-size: 10px;\n  font-weight: 600;\n  line-height: 1.2;\n  white-space: nowrap;\n  pointer-events: none;\n  opacity: 0;\n  transform: translate(-50%, 2px) scale(calc(1 / 1.2));\n  transition: opacity 0.12s ease, transform 0.12s ease;\n}\n\n.reaction-picker__option:hover .reaction-picker__label,\n.reaction-picker__option:focus-visible .reaction-picker__label {\n  opacity: 1;\n  transform: translate(-50%, 0) scale(calc(1 / 1.2));\n}\n\n@keyframes reaction-picker-in {\n  from {\n    opacity: 0;\n    transform: translateY(6px) scale(0.96);\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .reaction-picker {\n    animation: none;\n  }\n\n  .reaction-picker__option,\n  .reaction-picker__label {\n    transition: none;\n  }\n}\n\n.message-item__coins {\n  display: inline-flex;\n  align-items: center;\n  height: 22px;\n  margin: 0 -15px 0 auto;\n  padding: 0 11px 0 10px;\n  border-radius: 100px 0 0 100px;\n  background: var(--color-coins);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n  white-space: nowrap;\n}\n\n.replies-button {\n  margin: 0 16px 8px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-thread__replies {\n  margin-left: 16px;\n  border-left: 2px solid var(--color-border);\n}\n\n.message-thread__status {\n  padding: 6px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.message-item__author {\n  padding: 0;\n  border: none;\n  background: none;\n}\n\n.message-actions {\n  position: relative;\n  flex-shrink: 0;\n  margin: -4px -6px -4px auto;\n}\n\n.message-actions__trigger {\n  padding: 4px 6px;\n  border: none;\n  border-radius: 6px;\n  background: none;\n  line-height: 1;\n}\n\n.message-actions__trigger:hover {\n  opacity: 0.7;\n}\n\n.message-actions__icon {\n  display: block;\n  width: 18px;\n  height: 18px;\n}\n\n.message-actions__menu {\n  position: absolute;\n  top: 100%;\n  right: 0;\n  z-index: 21;\n  width: max-content;\n  border: 1px solid var(--color-menu-border);\n  background: var(--color-white);\n  box-shadow: 0 4px 4px var(--color-menu-shadow);\n  color: var(--color-text);\n}\n\n.message-actions__item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: 100%;\n  height: 46px;\n  padding: 0 32px 0 20px;\n  border: none;\n  background: none;\n  font-size: 16px;\n  text-align: left;\n}\n\n.message-actions__item + .message-actions__item {\n  border-top: 1px solid var(--color-menu-border);\n}\n\n.message-actions__item:hover {\n  background: var(--color-light-grey);\n}\n\n.message-actions__item-icon {\n  width: 14px;\n  height: 14px;\n}\n\n.message-actions__item:disabled,\n.message-actions__item[aria-disabled=\"true\"] {\n  color: var(--color-text-subtle);\n  cursor: not-allowed;\n}\n\n.message-actions__item[aria-disabled=\"true\"] .message-actions__item-icon {\n  opacity: 0.5;\n}\n\n.message-actions__item[aria-disabled=\"true\"]:hover {\n  background: none;\n}\n\n.message-actions__feedback {\n  padding: 12px 20px;\n  font-size: 14px;\n  white-space: nowrap;\n}\n\n.message-actions__reasons {\n  max-height: 160px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n/* Same inset, rounded bar as the comment list. */\n.message-actions__reasons::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track,\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-actions__reasons {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box {\n  container: message-box / inline-size;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding: 16px;\n  background: var(--color-white);\n  box-shadow: 0 0 7px 0 var(--color-shadow);\n}\n\n.message-box--yoursay {\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-superchat-1));\n}\n\n.message-box__login {\n  align-self: flex-end;\n  padding: 0;\n  border: none;\n  background: none;\n  font-size: 16px;\n  font-weight: 600;\n}\n\n.message-box__login:hover {\n  color: var(--color-navy);\n}\n\n.message-box__login:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__row {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n}\n\n.message-box__field {\n  position: relative;\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  border: 1px solid var(--color-border);\n  border-radius: 14px;\n  background: var(--color-white);\n}\n\n.message-box__field::before {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: -6px;\n  width: 11px;\n  height: 11px;\n  border-left: 1px solid var(--color-border);\n  border-bottom: 1px solid var(--color-border);\n  border-bottom-left-radius: 3px;\n  background: var(--color-white);\n  transform: translateY(-50%) rotate(45deg);\n}\n\n.message-box__field-content {\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n}\n\n.message-box__reply-banner {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 18px 0;\n  font-size: 13px;\n  font-weight: 600;\n  color: var(--color-blue);\n}\n\n.message-box__cancel-reply {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 3px 12px;\n  border: none;\n  border-radius: 999px;\n  background: none;\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n  color: var(--color-confirm-close);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-box__cancel-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-box__input {\n  flex: 1;\n  min-width: 0;\n  min-height: 24px;\n  max-height: 140px;\n  padding: 10px 18px;\n  border: none;\n  background: transparent;\n  font-size: 16px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-box__input::placeholder {\n  color: var(--color-text-placeholder);\n}\n\n.message-box__input:focus {\n  outline: none;\n}\n\n.message-box__actions {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 10px 14px 10px 0;\n}\n\n.message-box__btn {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 6px 16px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 17px;\n  font-weight: 500;\n  line-height: 1.3;\n  white-space: nowrap;\n  transition: filter 0.15s ease;\n}\n\n.message-box__btn:hover:not(:disabled) {\n  filter: brightness(1.15);\n}\n\n.message-box__btn:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__btn:disabled {\n  background: var(--color-light-grey);\n}\n\n.message-box__btn-icon {\n  width: 18px;\n  height: 18px;\n}\n\n.message-box__field-skeleton {\n  flex: 1;\n  height: 67px;\n  border-radius: 14px;\n}\n\n.message-box__warning {\n  align-self: flex-start;\n  margin-left: 54px;\n  padding: 8px 18px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  font-size: 12px;\n  line-height: 1.35;\n}\n\n@container message-box (max-width: 560px) {\n  .message-box__row {\n    gap: 10px;\n  }\n\n  .message-box__field {\n    flex-wrap: wrap;\n  }\n\n  .message-box__field-content {\n    flex-basis: 100%;\n  }\n\n  .message-box__actions {\n    flex-wrap: wrap;\n    width: 100%;\n    gap: 8px;\n    padding: 8px 10px 10px;\n  }\n\n  .message-box__btn {\n    flex: 1 1 0;\n    justify-content: center;\n    gap: 6px;\n    padding: 7px 8px;\n    font-size: 14px;\n  }\n\n  .message-box__btn-icon {\n    width: 15px;\n    height: 15px;\n  }\n\n  .message-box__input {\n    padding: 10px 14px;\n    font-size: 15px;\n  }\n}\n\n.message-box__avatar-btn {\n  flex-shrink: 0;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n}\n\n.message-box__input-row {\n  display: flex;\n  align-items: flex-start;\n}\n\n.message-box__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 10px 0 10px 18px;\n  font-size: 16px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.message-box__mention + .message-box__input {\n  padding-left: 6px;\n}\n\n.message-box--yoursay .message-box__login {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .message-box__login:hover {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .message-box__login:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.enhance-ai {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 16px;\n  width: 100%;\n  padding-left: 54px;\n}\n\n.enhance-ai__button {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n  padding: 4px 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 16px;\n  white-space: nowrap;\n}\n\n.enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-navy);\n}\n\n.enhance-ai__button:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n  border-radius: 4px;\n}\n\n.enhance-ai__button:disabled {\n  cursor: not-allowed;\n}\n\n.enhance-ai__icon {\n  height: 22px;\n}\n\n.enhance-ai__pill {\n  flex: 1 1 260px;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  min-height: 36px;\n  padding: 6px 6px 6px 20px;\n  border-radius: 40px;\n  font-size: 15px;\n  line-height: 1.35;\n  animation: enhance-ai-in 0.15s ease;\n}\n\n.enhance-ai__pill--loading {\n  background: var(--color-light-grey);\n  color: var(--color-text-faded);\n}\n\n.enhance-ai__pill--info {\n  background: var(--color-enhance-bg);\n  color: var(--color-text);\n}\n\n.enhance-ai__pill--upsell {\n  padding-right: 20px;\n  background: var(--color-red);\n  color: var(--color-white);\n}\n\n.enhance-ai__text {\n  flex: 1;\n  min-width: 0;\n  overflow-wrap: break-word;\n}\n\n.enhance-ai__text--suggestion {\n  font-weight: 500;\n}\n\n.enhance-ai__use {\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font: inherit;\n  text-decoration: underline;\n  text-underline-offset: 2px;\n  white-space: nowrap;\n}\n\n.enhance-ai__close {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: var(--color-white);\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n}\n\n.enhance-ai__close img {\n  width: 8px;\n  height: 8px;\n}\n\n.enhance-ai__use:focus-visible,\n.enhance-ai__close:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box--yoursay .enhance-ai__button {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .enhance-ai__button:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__pill--loading {\n  background: var(--color-enhance-loading-dark-bg);\n  color: var(--color-superchat-meta);\n}\n\n@keyframes enhance-ai-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .enhance-ai__pill {\n    animation: none;\n  }\n}\n\n.sc-sheet {\n  position: absolute;\n  inset: 0;\n  z-index: 30;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n}\n\n.sc-sheet__panel {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  max-height: 100%;\n  padding: 10px 16px 14px;\n  overflow-y: auto;\n  border-top: 1px solid var(--color-border);\n  border-radius: 12px 12px 0 0;\n  background: var(--color-white);\n  box-shadow: 0 -12px 40px var(--color-sheet-shadow);\n  animation: sc-sheet-slide 0.25s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.sc-sheet__header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n\n.sc-sheet__close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: none;\n  background: none;\n}\n\n.sc-sheet__close img {\n  width: 12px;\n  height: 12px;\n  filter: brightness(0);\n  opacity: 0.55;\n}\n\n.sc-sheet__title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-sheet__preview {\n  pointer-events: none;\n}\n\n.sc-sheet__amount {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  width: 100%;\n  max-width: 480px;\n  margin-inline: auto;\n}\n\n.sc-sheet__amount-note {\n  color: var(--color-text-subtle);\n  font-size: 12px;\n  line-height: 1.3;\n}\n\n.sc-sheet__slider {\n  position: relative;\n  width: 100%;\n  height: 14px;\n}\n\n.sc-sheet__slider::before,\n.sc-sheet__fill {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: 0;\n  height: 3px;\n  border-radius: 999px;\n  transform: translateY(-50%);\n}\n\n.sc-sheet__slider::before {\n  right: 0;\n  background: var(--color-border);\n}\n\n.sc-sheet__ticks {\n  position: absolute;\n  inset: 0;\n  pointer-events: none;\n}\n\n.sc-sheet__tick {\n  position: absolute;\n  top: 50%;\n  width: 3px;\n  height: 3px;\n  border-radius: 50%;\n  background: var(--color-text);\n  opacity: 0.3;\n  transform: translate(-50%, -50%);\n}\n\n.sc-sheet__tick--on {\n  background: var(--color-white);\n  opacity: 0.9;\n}\n\n.sc-sheet__tick--current {\n  visibility: hidden;\n}\n\n.sc-sheet__range {\n  position: relative;\n  display: block;\n  width: 100%;\n  height: 14px;\n  background: transparent;\n  cursor: pointer;\n  appearance: none;\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range:focus {\n  outline: none;\n}\n\n.sc-sheet__range::-webkit-slider-runnable-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-moz-range-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-webkit-slider-thumb {\n  width: 14px;\n  height: 14px;\n  margin-top: -5.5px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range::-moz-range-thumb {\n  width: 14px;\n  height: 14px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n}\n\n.sc-sheet__footer {\n  display: flex;\n  justify-content: center;\n}\n\n.sc-sheet__continue {\n  padding: 8px 22px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n@keyframes sc-sheet-slide {\n  from {\n    transform: translateY(100%);\n  }\n}\n\n.sc-confirm__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.sc-confirm__frame {\n  position: relative;\n  display: flex;\n  width: 100%;\n  max-width: 678px;\n  max-height: 100%;\n}\n\n.sc-confirm {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 20px;\n  min-width: 0;\n  max-height: 100%;\n  padding: 28px 34px 30px;\n  overflow-y: auto;\n  border-radius: 15px;\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.sc-confirm__header {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n}\n\n.sc-confirm__title {\n  font-size: 22px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-confirm__summary {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  padding: 18px 28px;\n  border-radius: 12px;\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.sc-confirm__summary-row {\n  display: flex;\n  align-items: flex-end;\n  justify-content: space-between;\n  gap: 12px;\n  width: 100%;\n}\n\n.sc-confirm__summary-row--after {\n  align-items: baseline;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid var(--color-light-grey);\n}\n\n.sc-confirm__summary-col {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n}\n\n.sc-confirm__summary-col--end {\n  align-items: flex-end;\n}\n\n.sc-confirm__summary-label {\n  font-size: 15px;\n  line-height: 1.3;\n}\n\n.sc-confirm__summary-value {\n  font-size: 18px;\n  font-weight: 700;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.sc-confirm__summary-price {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 12px;\n}\n\n.sc-confirm__old-price,\n.sc-confirm__no-change {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  white-space: nowrap;\n}\n\n.sc-confirm__balance {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n}\n\n.sc-confirm__icon {\n  flex-shrink: 0;\n  width: 18px;\n  height: 18px;\n}\n\n.sc-confirm__free {\n  color: var(--color-coins);\n}\n\n.sc-confirm__summary-link {\n  margin-top: 8px;\n  color: var(--color-navy);\n  font-size: 15px;\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__note {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 18px;\n  border: 0.5px solid var(--color-scrollbar-track-dark);\n  border-radius: 20px;\n  background: var(--color-info-pill-bg);\n  box-shadow: 0 0 8px var(--color-info-pill-shadow);\n  font-size: 14px;\n  line-height: 1.35;\n}\n\n.sc-confirm__alert {\n  display: flex;\n  align-items: flex-start;\n  gap: 8px;\n  width: 100%;\n  margin-top: 12px;\n  padding: 8px 14px;\n  border-radius: 6px;\n  background: var(--color-warning-bg);\n  color: var(--color-red);\n  font-size: 15px;\n  line-height: 1.4;\n}\n\n.sc-confirm__alert .sc-confirm__icon {\n  margin-top: 2px;\n}\n\n.sc-confirm__upgrade-link {\n  color: var(--color-yellow);\n  font-weight: 600;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__error {\n  padding: 6px 14px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  color: var(--color-text);\n  font-size: 12px;\n  line-height: 1.35;\n  text-align: center;\n}\n\n.sc-confirm__actions {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-end;\n  justify-content: flex-end;\n  gap: 12px;\n}\n\n.sc-confirm__submit,\n.sc-confirm__cancel,\n.sc-confirm__buy-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 8px 26px;\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-navy);\n  font-size: 18px;\n  font-weight: 500;\n  line-height: 1.3;\n  text-decoration: none;\n  white-space: nowrap;\n}\n\n.sc-confirm__submit {\n  border: 1px solid var(--color-white);\n}\n\n.sc-confirm__buy-btn {\n  border: 1px solid var(--color-yellow);\n  background: var(--color-yellow);\n  color: var(--color-text);\n}\n\n.sc-confirm__cancel {\n  border: 1px solid var(--color-white);\n  background: none;\n  color: var(--color-white);\n}\n\n.sc-confirm__submit:disabled {\n  color: color-mix(in srgb, var(--color-navy) 40%, var(--color-white));\n}\n\n@media (max-width: 480px) {\n  .sc-confirm {\n    gap: 16px;\n    padding: 20px 16px;\n  }\n\n  .sc-confirm__title {\n    font-size: 20px;\n  }\n\n  .sc-confirm__summary {\n    padding: 14px 16px;\n  }\n\n  .sc-confirm__summary-label,\n  .sc-confirm__summary-link {\n    font-size: 14px;\n  }\n\n  .sc-confirm__summary-value {\n    font-size: 16px;\n  }\n\n  .sc-confirm__old-price,\n  .sc-confirm__no-change {\n    font-size: 13px;\n  }\n\n  .sc-confirm__summary-price {\n    gap: 6px;\n  }\n\n  .sc-confirm__summary-row--after {\n    flex-wrap: wrap;\n    row-gap: 4px;\n  }\n\n  .sc-confirm__summary-row--after > :last-child {\n    margin-left: auto;\n  }\n\n  .sc-confirm__note {\n    padding: 8px 14px;\n    font-size: 13px;\n  }\n\n  .sc-confirm__actions {\n    flex-direction: column-reverse;\n    align-items: stretch;\n    gap: 10px;\n  }\n\n  .sc-confirm__submit,\n  .sc-confirm__cancel,\n  .sc-confirm__buy-btn {\n    padding: 10px 20px;\n    font-size: 16px;\n  }\n}\n\n.mod-dialog__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.mod-dialog {\n  display: flex;\n  flex-direction: column;\n  gap: 14px;\n  width: 100%;\n  max-width: 560px;\n  max-height: 100%;\n  padding: 14px;\n  overflow-y: auto;\n  border-radius: 16px;\n  background: var(--color-white);\n  box-shadow: 0 12px 32px var(--color-dialog-shadow);\n}\n\n.mod-dialog__card {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  padding: 16px 14px;\n  border: 1px solid var(--color-border);\n  border-radius: 8px;\n}\n\n.mod-dialog__heading {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 10px;\n}\n\n.mod-dialog__title {\n  font-size: 17px;\n  font-weight: 400;\n  line-height: 1.2;\n}\n\n.mod-dialog__title--ai {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n}\n\n.mod-dialog__ai {\n  flex-shrink: 0;\n  height: 20px;\n}\n\n.mod-dialog__pill {\n  padding: 3px 12px;\n  border-radius: 100px;\n  color: var(--color-white);\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.mod-dialog__pill--warning {\n  background: var(--color-red);\n}\n\n.mod-dialog__pill--recommended {\n  background: var(--color-recommended);\n}\n\n.mod-dialog__row {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.mod-dialog__message {\n  flex: 1;\n  min-width: 0;\n  font-size: 13px;\n  line-height: 1.45;\n  overflow-wrap: break-word;\n}\n\n.mod-dialog__action {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 8px;\n  height: 40px;\n  padding: 0 18px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 15px;\n  font-weight: 500;\n  white-space: nowrap;\n}\n\n.mod-dialog__action-icon {\n  width: 16px;\n  height: 14px;\n}\n\n.mod-dialog__row--locked {\n  padding: 10px 12px;\n  border: 1px dashed var(--color-text);\n  border-radius: 6px;\n  background: var(--color-locked-suggestion-bg);\n  user-select: none;\n}\n\n.mod-dialog__row--locked > * {\n  filter: blur(4px);\n}\n\n.mod-dialog__upsell {\n  color: var(--color-red);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n.mod-dialog__footer {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.mod-dialog__cancel {\n  height: 40px;\n  padding: 0 18px;\n  border: 1px solid var(--color-cancel-btn-border);\n  border-radius: 100px;\n  background: linear-gradient(180deg, var(--color-cancel-btn-from), var(--color-border));\n  font-size: 15px;\n}\n\n@media (max-width: 480px) {\n  .mod-dialog__row:not(.mod-dialog__row--locked) {\n    flex-direction: column;\n    align-items: stretch;\n  }\n\n  .mod-dialog__action {\n    justify-content: center;\n  }\n}\n\n.thread-modal {\n  position: absolute;\n  inset: 0;\n  z-index: 25;\n  display: flex;\n  flex-direction: column;\n  background: var(--color-white);\n}\n\n.thread-modal__header {\n  display: grid;\n  grid-template-columns: 1fr auto 1fr;\n  align-items: center;\n  padding: 12px 16px;\n  border-bottom: 1px solid var(--color-border);\n}\n\n.thread-modal__back {\n  justify-self: start;\n  display: inline-flex;\n  align-items: center;\n  gap: 10px;\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 13px;\n  text-transform: uppercase;\n}\n\n.thread-modal__back-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: 1.5px solid var(--color-text);\n  border-radius: 50%;\n}\n\n.thread-modal__back-icon svg {\n  width: 16px;\n  height: 16px;\n}\n\n.thread-modal__title {\n  font-size: 13px;\n  font-weight: 500;\n  text-transform: uppercase;\n}\n\n.thread-modal__close {\n  justify-self: end;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.thread-modal__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.thread-modal__body {\n  flex: 1;\n  min-height: 0;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.thread-modal__status {\n  padding: 8px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.thread-modal__footer {\n  padding: 10px 16px 12px;\n  border-top: 1px solid var(--color-border);\n}\n\n.thread-modal__field {\n  display: flex;\n  align-items: flex-start;\n  border: 1px solid var(--color-navy);\n  border-radius: 6px;\n  background: var(--color-white);\n}\n\n.thread-modal__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 8px 0 8px 12px;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.thread-modal__input {\n  flex: 1;\n  min-width: 0;\n  max-height: 120px;\n  padding: 8px 12px;\n  border: none;\n  background: transparent;\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.thread-modal__input:focus {\n  outline: none;\n}\n\n.thread-modal__error {\n  margin-top: 6px;\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.thread-modal__mention + .thread-modal__input {\n  padding-left: 6px;\n}\n\n.user-panel__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  justify-content: flex-end;\n  background: var(--color-scrim);\n  animation: user-panel-fade-in 250ms ease-out;\n}\n\n.user-panel__backdrop--closing {\n  animation: user-panel-fade-out 250ms ease-in forwards;\n}\n\n.user-panel {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  max-width: 540px;\n  height: 100%;\n  background: var(--color-white);\n  box-shadow: -4px 0 24px var(--color-sheet-shadow);\n  animation: user-panel-slide-in 250ms ease-out;\n}\n\n.user-panel--closing {\n  animation: user-panel-slide-out 250ms ease-in forwards;\n}\n\n@keyframes user-panel-fade-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-fade-out {\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-slide-in {\n  from {\n    transform: translateX(100%);\n  }\n}\n\n@keyframes user-panel-slide-out {\n  to {\n    transform: translateX(100%);\n  }\n}\n\n.user-panel__header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding: 20px 20px 18px;\n  border-bottom: 1px solid var(--color-light-grey);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.user-panel__title {\n  flex: 1;\n  min-width: 0;\n  font-size: 20px;\n  font-weight: 600;\n  line-height: 30px;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__signout {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 6px;\n  padding: 6px 14px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-red);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.user-panel__signout svg {\n  width: 16px;\n  height: 16px;\n}\n\n.user-panel__close {\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.user-panel__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.user-panel__body {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  padding: 0 20px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.user-panel__item {\n  flex-shrink: 0;\n  display: flex;\n  gap: 14px;\n  padding: 18px 0;\n  border-bottom: 1px solid var(--color-light-grey);\n}\n\n.user-panel__item-icon {\n  flex-shrink: 0;\n  width: 20px;\n  height: 20px;\n  margin-top: 1px;\n  object-fit: contain;\n}\n\n.user-panel__item-content {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 8px;\n  min-width: 0;\n}\n\n.user-panel__item-header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 4px 8px;\n}\n\n.user-panel__item-title {\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__quote {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__item-time {\n  color: var(--color-message-meta);\n  font-size: 13px;\n}\n\n.user-panel__tag {\n  padding: 1px 8px;\n  border-radius: 999px;\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.user-panel__status {\n  padding: 16px;\n  font-size: 13px;\n  color: var(--color-text-subtle);\n  text-align: center;\n}\n";
+	var styles_default = "* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n:host {\n  --color-text: #000f55;\n  --color-text-placeholder: #A4A4A4;\n  --color-text-faded: #000F5580;\n  --color-enhance-bg: #E5F6FF;\n  --color-enhance-loading-dark-bg: #1938a6;\n  --color-navy: #004be3;\n  --color-border: #D4D7E3;\n  --color-white: #ffffff;\n  --color-text-subtle: #898989;\n  --color-message-meta: #909090;\n  --color-superchat-meta: #b1b1b1;\n  --color-blue: #2f6fed;\n  --color-light-grey: #EBEBEB;\n  --color-tab-border: #CBCBCB;\n  --color-coins: #22AB00;\n  --color-menu-border: #ACACAC;\n  --color-menu-shadow: #00000040;\n  --color-go-to-top-shadow: #101a3d14;\n  --color-soft-shadow: #101a3d1f;\n  --color-tier-friend-bg: #000e55;\n  --color-tier-supporter-bg: #fcebdf;\n  --color-tier-defender-bg: #ededed;\n  --color-tier-champion-bg: #fff1d0;\n  --color-avatar-1: #e07a5f;\n  --color-avatar-2: #3d7068;\n  --color-avatar-3: #4f6d9a;\n  --color-avatar-4: #8a5a44;\n  --color-avatar-5: #6b5ca5;\n  --color-avatar-6: #2f8f7a;\n  --color-avatar-7: #c9752f;\n  --color-avatar-8: #4a90c4;\n  --color-skeleton-shine: #f7f9fd;\n  --color-superchat-1: #031762;\n  --color-superchat-2: #0a2a8f;\n  --color-superchat-3: #0f3dbd;\n  --color-superchat-4: #014be3;\n  --color-gradient-blue: #2043bd;\n  --color-gradient-navy: #00135a;\n  --color-scrollbar-thumb: #CCCCCC;\n  --color-scrollbar-track-dark: #ffffff4d;\n  --color-info-pill-bg: #ffffff1a;\n  --color-info-pill-shadow: #00000012;\n  --color-yellow: #ffd86b;\n  --color-scrim: #00000033;\n  --color-sheet-shadow: #101a3d40;\n  --color-confirm-close: #eb0000;\n  --color-dialog-shadow: #101a3d2e;\n  --color-red: #d70000;\n  --color-warning-bg: #fff0f0;\n  --color-recommended: #39933C;\n  --color-locked-suggestion-bg: #E5F6FF80;\n  --color-cancel-btn-from: #f0f7fd;\n  --color-cancel-btn-border: #d8e1f0;\n  --color-rank-supporter-from: #f6ba92;\n  --color-rank-supporter-to: #c38154;\n  --color-rank-defender-from: #c2c2c2;\n  --color-rank-defender-to: #818181;\n  --color-rank-champion-from: #ffc241;\n  --color-rank-champion-to: #e99300;\n  --color-shadow: #0000001a;\n  --color-reaction-picker-border: #9B9B9B;\n  --color-reaction-label-bg: #000F55CC;\n  --color-cancel-reply-shadow: #00000026;\n\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  font-family: \"Noto Sans\", sans-serif;\n  color: var(--color-text);\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n:host > div {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\nbutton,\ntextarea {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\nbutton:disabled {\n  cursor: not-allowed;\n}\n\n.skeleton {\n  border-radius: 6px;\n  background: linear-gradient(\n    90deg,\n    var(--color-border) 25%,\n    var(--color-skeleton-shine) 37%,\n    var(--color-border) 63%\n  );\n  background-size: 400% 100%;\n  animation: skeleton-shimmer 1.4s ease infinite;\n}\n\n@keyframes skeleton-shimmer {\n  0% {\n    background-position: 100% 50%;\n  }\n\n  100% {\n    background-position: 0 50%;\n  }\n}\n\n.user-avatar {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 40px;\n  height: 40px;\n  overflow: hidden;\n  border-radius: 50%;\n}\n\n.user-avatar--initials {\n  color: var(--color-white);\n  font-weight: 700;\n}\n\n.user-avatar--tier-1 {\n  background: var(--color-tier-friend-bg);\n}\n\n.user-avatar--tier-2 {\n  background: var(--color-tier-supporter-bg);\n}\n\n.user-avatar--tier-3 {\n  background: var(--color-tier-defender-bg);\n}\n\n.user-avatar--tier-4 {\n  background: var(--color-tier-champion-bg);\n}\n\n.user-avatar__badge {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  background-position: center;\n  background-repeat: no-repeat;\n  background-size: cover;\n}\n\n.user-avatar__initials {\n  color: var(--color-white);\n  font-weight: 600;\n  line-height: normal;\n}\n\n:host(gbn-comments) {\n  height: min(70vh, 560px);\n}\n\n.comments {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  overflow: hidden;\n  border: 1px solid var(--color-light-grey);\n  border-bottom: none;\n  background: var(--color-white);\n}\n\n.chat-tabs {\n  flex-shrink: 0;\n  display: flex;\n}\n\n.chat-tabs__tab {\n  display: flex;\n  flex: 1 1 0;\n  align-items: center;\n  justify-content: center;\n  min-width: 0;\n  height: 50px;\n  padding: 0 8px;\n  border: 0.5px solid var(--color-tab-border);\n  background: var(--color-light-grey);\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.2;\n  text-align: center;\n  transition: background 0.15s ease, border-color 0.15s ease;\n}\n\n.chat-tabs__tab--active {\n  border: 1px solid var(--color-light-grey);\n  border-bottom: 3px solid var(--color-navy);\n  background: var(--color-white);\n}\n\n.chat-tabs__tab--yoursay.chat-tabs__tab--active {\n  border-color: var(--color-gradient-navy);\n  border-bottom-color: var(--color-red);\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.comment-list {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\n.comment-list__scroller {\n  flex: 1;\n  min-height: 0;\n}\n\n/* Inset, rounded track. Chrome and Safari only; Firefox falls back to a thin native bar. */\n.comment-list__scroller::-webkit-scrollbar {\n  width: 13px;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track,\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-track {\n  background-color: var(--color-scrollbar-track-dark);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-white);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .comment-list__scroller {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n\n  .comment-list--yoursay .comment-list__scroller {\n    scrollbar-color: var(--color-white) var(--color-scrollbar-track-dark);\n  }\n}\n\n.comment-list__item {\n  padding: 0 0 4px;\n}\n\n.comment-list--yoursay {\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n}\n\n.comment-list--yoursay .comment-list__item {\n  padding: 0;\n}\n\n.comment-list .message-item--super {\n  margin: 0 8px;\n  padding-inline: 8px;\n}\n\n.comment-list .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list--yoursay .message-item--super {\n  margin: 0;\n  padding-inline: 16px;\n  border-radius: 0;\n}\n\n.comment-list--yoursay .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list__spacer {\n  height: 10px;\n}\n\n.comment-list__loading {\n  padding: 4px 12px 10px;\n  font-size: 13px;\n  text-align: center;\n}\n\n.comment-list__empty {\n  margin: auto 0;\n  padding: 24px 12px;\n  font-size: 13px;\n  text-align: center;\n}\n\n.go-to-top {\n  position: absolute;\n  right: 16px;\n  bottom: 16px;\n  z-index: 20;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 4px;\n  border: none;\n  background: none;\n}\n\n.go-to-top__badge {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-blue);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 700;\n  white-space: nowrap;\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n  animation: go-to-top-badge-pop 0.25s ease-out;\n}\n\n@keyframes go-to-top-badge-pop {\n  from {\n    transform: scale(0.6);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n\n.go-to-top__icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 44px;\n  height: 44px;\n  border-radius: 6px;\n  background: var(--color-navy);\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n}\n\n.go-to-top__icon img {\n  width: 16px;\n  height: 16px;\n}\n\n.go-to-top:hover .go-to-top__icon {\n  filter: brightness(1.1);\n}\n\n.go-to-top__label {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--color-white) 85%, transparent);\n  backdrop-filter: blur(4px);\n  box-shadow: 0 2px 8px var(--color-soft-shadow);\n  color: var(--color-blue);\n  font-size: 12px;\n  font-weight: 600;\n  letter-spacing: 0.04em;\n  text-transform: uppercase;\n  white-space: nowrap;\n}\n\n.comment-list__skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  padding: 20px 28px;\n}\n\n.message-skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}\n\n.message-skeleton__name {\n  width: 140px;\n  height: 16px;\n}\n\n.message-skeleton__line {\n  width: 100%;\n  height: 14px;\n}\n\n.message-skeleton__line--short {\n  width: 60%;\n}\n\n.message-item {\n  padding: 10px 16px;\n}\n\n.message-item--super {\n  padding: 10px 15px;\n  border-radius: 10px;\n  color: var(--color-white);\n}\n\n.message-item--super .message-item__time,\n.message-item--super .message-item__action,\n.message-item--super .reaction-chip {\n  color: var(--color-superchat-meta);\n}\n\n.message-item__header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n}\n\n.name-plain {\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.name-badge {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  height: 22px;\n  padding: 0 10px 0 11px;\n  border-radius: 0 100px 100px 0;\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n}\n\n.message-item .name-badge {\n  margin-left: -11px;\n}\n\n.message-item--super .name-badge {\n  margin-left: -15px;\n}\n\n.name-badge__icon {\n  width: 12px;\n  height: 12px;\n}\n\n.name-badge--supporter {\n  background: linear-gradient(180deg, var(--color-rank-supporter-from), var(--color-rank-supporter-to));\n}\n\n.name-badge--defender {\n  background: linear-gradient(180deg, var(--color-rank-defender-from), var(--color-rank-defender-to));\n}\n\n.name-badge--champion {\n  background: linear-gradient(180deg, var(--color-rank-champion-from), var(--color-rank-champion-to));\n}\n\n.message-item__time {\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__review-tag {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-tier-champion-bg);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.message-item__text {\n  margin-top: 4px;\n  font-size: 15px;\n  font-weight: 400;\n  line-height: 18px;\n  overflow-wrap: break-word;\n}\n\n.message-editor {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 4px;\n}\n\n.message-editor__input {\n  width: 100%;\n  min-height: 24px;\n  max-height: 140px;\n  padding: 8px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 10px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-editor__input:focus {\n  outline: none;\n  border-color: var(--color-navy);\n}\n\n.message-editor__error {\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.message-editor__actions {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n\n.message-editor__btn {\n  padding: 4px 14px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.message-editor__btn:disabled {\n  background: var(--color-light-grey);\n  color: var(--color-text-subtle);\n}\n\n.message-editor__btn--cancel {\n  border: 1px solid var(--color-border);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.message-text__mention {\n  margin-right: 4px;\n  font-weight: 500;\n}\n\n.message-item__footer {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 10px;\n  margin-top: 6px;\n}\n\n.message-item__action {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__reply-icon,\n.message-item__react-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-item__like-icon {\n  width: 11px;\n  height: 11px;\n}\n\n.message-reactions {\n  display: inline-flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 10px;\n}\n\n.message-reactions__react {\n  position: relative;\n  display: inline-flex;\n}\n\n.reaction-chip {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.reaction-chip--mine {\n  color: var(--color-navy);\n  font-weight: 600;\n}\n\n.reaction-chip__icon {\n  flex-shrink: 0;\n  width: 14px;\n  height: 14px;\n}\n\n.reaction-picker {\n  position: absolute;\n  left: -6px;\n  bottom: calc(100% + 6px);\n  z-index: 22;\n  display: flex;\n  gap: 4px;\n  padding: 4px 6px;\n  border: 1px solid var(--color-reaction-picker-border);\n  border-radius: 12px;\n  background: var(--color-white);\n  box-shadow: 0 6px 20px var(--color-soft-shadow);\n  animation: reaction-picker-in 0.16s ease-out;\n}\n\n.reaction-picker--down {\n  top: calc(100% + 6px);\n  bottom: auto;\n}\n\n.reaction-picker__option {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 26px;\n  height: 26px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n  transition: transform 0.15s cubic-bezier(0.3, 1.6, 0.6, 1);\n}\n\n.reaction-picker__icon {\n  display: block;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n}\n\n.reaction-picker__option:hover,\n.reaction-picker__option:focus-visible {\n  transform: translateY(-4px) scale(1.2);\n  outline: none;\n}\n\n.reaction-picker__option--selected .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-navy);\n}\n\n.reaction-picker__option:focus-visible .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-blue);\n}\n\n.reaction-picker__label {\n  position: absolute;\n  bottom: calc(100% + 6px);\n  left: 50%;\n  padding: 3px 7px;\n  border-radius: 999px;\n  background: var(--color-reaction-label-bg);\n  color: var(--color-white);\n  font-size: 10px;\n  font-weight: 600;\n  line-height: 1.2;\n  white-space: nowrap;\n  pointer-events: none;\n  opacity: 0;\n  transform: translate(-50%, 2px) scale(calc(1 / 1.2));\n  transition: opacity 0.12s ease, transform 0.12s ease;\n}\n\n.reaction-picker__option:hover .reaction-picker__label,\n.reaction-picker__option:focus-visible .reaction-picker__label {\n  opacity: 1;\n  transform: translate(-50%, 0) scale(calc(1 / 1.2));\n}\n\n@keyframes reaction-picker-in {\n  from {\n    opacity: 0;\n    transform: translateY(6px) scale(0.96);\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .reaction-picker {\n    animation: none;\n  }\n\n  .reaction-picker__option,\n  .reaction-picker__label {\n    transition: none;\n  }\n}\n\n.message-item__coins {\n  display: inline-flex;\n  align-items: center;\n  height: 22px;\n  margin: 0 -15px 0 auto;\n  padding: 0 11px 0 10px;\n  border-radius: 100px 0 0 100px;\n  background: var(--color-coins);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n  white-space: nowrap;\n}\n\n.replies-button {\n  margin: 0 16px 8px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-thread__replies {\n  margin-left: 16px;\n  border-left: 2px solid var(--color-border);\n}\n\n.message-thread__status {\n  padding: 6px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.message-item__author {\n  padding: 0;\n  border: none;\n  background: none;\n}\n\n.message-actions {\n  position: relative;\n  flex-shrink: 0;\n  margin: -4px -6px -4px auto;\n}\n\n.message-actions__trigger {\n  padding: 4px 6px;\n  border: none;\n  border-radius: 6px;\n  background: none;\n  line-height: 1;\n}\n\n.message-actions__trigger:hover {\n  opacity: 0.7;\n}\n\n.message-actions__icon {\n  display: block;\n  width: 18px;\n  height: 18px;\n}\n\n.message-actions__menu {\n  position: absolute;\n  top: 100%;\n  right: 0;\n  z-index: 21;\n  width: max-content;\n  border: 1px solid var(--color-menu-border);\n  background: var(--color-white);\n  box-shadow: 0 4px 4px var(--color-menu-shadow);\n  color: var(--color-text);\n}\n\n.message-actions__item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: 100%;\n  height: 46px;\n  padding: 0 32px 0 20px;\n  border: none;\n  background: none;\n  font-size: 16px;\n  text-align: left;\n}\n\n.message-actions__item + .message-actions__item {\n  border-top: 1px solid var(--color-menu-border);\n}\n\n.message-actions__item:hover {\n  background: var(--color-light-grey);\n}\n\n.message-actions__item-icon {\n  width: 14px;\n  height: 14px;\n}\n\n.message-actions__item:disabled,\n.message-actions__item[aria-disabled=\"true\"] {\n  color: var(--color-text-subtle);\n  cursor: not-allowed;\n}\n\n.message-actions__item[aria-disabled=\"true\"] .message-actions__item-icon {\n  opacity: 0.5;\n}\n\n.message-actions__item[aria-disabled=\"true\"]:hover {\n  background: none;\n}\n\n.message-actions__feedback {\n  padding: 12px 20px;\n  font-size: 14px;\n  white-space: nowrap;\n}\n\n.message-actions__reasons {\n  max-height: 160px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n/* Same inset, rounded bar as the comment list. */\n.message-actions__reasons::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track,\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-actions__reasons {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box {\n  container: message-box / inline-size;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding: 16px;\n  background: var(--color-white);\n  box-shadow: 0 0 7px 0 var(--color-shadow);\n}\n\n.message-box--yoursay {\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-superchat-1));\n}\n\n.message-box__login {\n  align-self: flex-end;\n  padding: 0;\n  border: none;\n  background: none;\n  font-size: 16px;\n  font-weight: 600;\n}\n\n.message-box__login:hover {\n  color: var(--color-navy);\n}\n\n.message-box__login:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__row {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n}\n\n.message-box__field {\n  position: relative;\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  border: 1px solid var(--color-border);\n  border-radius: 14px;\n  background: var(--color-white);\n}\n\n.message-box__field::before {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: -6px;\n  width: 11px;\n  height: 11px;\n  border-left: 1px solid var(--color-border);\n  border-bottom: 1px solid var(--color-border);\n  border-bottom-left-radius: 3px;\n  background: var(--color-white);\n  transform: translateY(-50%) rotate(45deg);\n}\n\n.message-box__field-content {\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n}\n\n.message-box__reply-banner {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 18px 0;\n  font-size: 13px;\n  font-weight: 600;\n  color: var(--color-blue);\n}\n\n.message-box__cancel-reply {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 3px 12px;\n  border: none;\n  border-radius: 999px;\n  background: none;\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n  color: var(--color-confirm-close);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-box__cancel-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-box__input {\n  flex: 1;\n  min-width: 0;\n  min-height: 24px;\n  max-height: 140px;\n  padding: 10px 18px;\n  border: none;\n  background: transparent;\n  font-size: 16px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-box__input::placeholder {\n  color: var(--color-text-placeholder);\n}\n\n.message-box__input:focus {\n  outline: none;\n}\n\n.message-box__actions {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 10px 14px 10px 0;\n}\n\n.message-box__btn {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 6px 16px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 17px;\n  font-weight: 500;\n  line-height: 1.3;\n  white-space: nowrap;\n  transition: filter 0.15s ease;\n}\n\n.message-box__btn:hover:not(:disabled) {\n  filter: brightness(1.15);\n}\n\n.message-box__btn:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__btn:disabled {\n  background: var(--color-light-grey);\n}\n\n.message-box__btn-icon {\n  width: 18px;\n  height: 18px;\n}\n\n.message-box__field-skeleton {\n  flex: 1;\n  height: 67px;\n  border-radius: 14px;\n}\n\n.message-box__warning {\n  align-self: flex-start;\n  margin-left: 54px;\n  padding: 8px 18px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  font-size: 12px;\n  line-height: 1.35;\n}\n\n.removed-snackbar {\n  position: fixed;\n  bottom: 24px;\n  left: 50%;\n  z-index: 1100;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: max-content;\n  max-width: calc(100% - 32px);\n  padding: 12px 12px 12px 18px;\n  border-radius: 10px;\n  background: var(--color-white);\n  box-shadow: 0 8px 24px var(--color-sheet-shadow);\n  color: var(--color-text);\n  font-size: 14px;\n  line-height: 1.4;\n  transform: translateX(-50%);\n}\n\n.removed-snackbar__view {\n  flex-shrink: 0;\n  padding: 4px 8px;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-weight: 600;\n}\n\n.removed-snackbar__close {\n  flex-shrink: 0;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n}\n\n.removed-snackbar__close img {\n  width: 12px;\n  height: 12px;\n}\n\n@container message-box (max-width: 560px) {\n  .message-box__row {\n    gap: 10px;\n  }\n\n  .message-box__field {\n    flex-wrap: wrap;\n  }\n\n  .message-box__field-content {\n    flex-basis: 100%;\n  }\n\n  .message-box__actions {\n    flex-wrap: wrap;\n    width: 100%;\n    gap: 8px;\n    padding: 8px 10px 10px;\n  }\n\n  .message-box__btn {\n    flex: 1 1 0;\n    justify-content: center;\n    gap: 6px;\n    padding: 7px 8px;\n    font-size: 14px;\n  }\n\n  .message-box__btn-icon {\n    width: 15px;\n    height: 15px;\n  }\n\n  .message-box__input {\n    padding: 10px 14px;\n    font-size: 15px;\n  }\n}\n\n.message-box__avatar-btn {\n  flex-shrink: 0;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n}\n\n.message-box__input-row {\n  display: flex;\n  align-items: flex-start;\n}\n\n.message-box__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 10px 0 10px 18px;\n  font-size: 16px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.message-box__mention + .message-box__input {\n  padding-left: 6px;\n}\n\n.message-box--yoursay .message-box__login {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .message-box__login:hover {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .message-box__login:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.enhance-ai {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 16px;\n  width: 100%;\n  padding-left: 54px;\n}\n\n.enhance-ai__button {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n  padding: 4px 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 16px;\n  white-space: nowrap;\n}\n\n.enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-navy);\n}\n\n.enhance-ai__button:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n  border-radius: 4px;\n}\n\n.enhance-ai__button:disabled {\n  cursor: not-allowed;\n}\n\n.enhance-ai__icon {\n  height: 22px;\n}\n\n.enhance-ai__pill {\n  flex: 1 1 260px;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  min-height: 36px;\n  padding: 6px 6px 6px 20px;\n  border-radius: 40px;\n  font-size: 15px;\n  line-height: 1.35;\n  animation: enhance-ai-in 0.15s ease;\n}\n\n.enhance-ai__pill--loading {\n  background: var(--color-light-grey);\n  color: var(--color-text-faded);\n}\n\n.enhance-ai__pill--info {\n  background: var(--color-enhance-bg);\n  color: var(--color-text);\n}\n\n.enhance-ai__pill--upsell {\n  padding-right: 20px;\n  background: var(--color-red);\n  color: var(--color-white);\n}\n\n.enhance-ai__text {\n  flex: 1;\n  min-width: 0;\n  overflow-wrap: break-word;\n}\n\n.enhance-ai__text--suggestion {\n  font-weight: 500;\n}\n\n.enhance-ai__use {\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font: inherit;\n  text-decoration: underline;\n  text-underline-offset: 2px;\n  white-space: nowrap;\n}\n\n.enhance-ai__close {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: var(--color-white);\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n}\n\n.enhance-ai__close img {\n  width: 8px;\n  height: 8px;\n}\n\n.enhance-ai__use:focus-visible,\n.enhance-ai__close:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box--yoursay .enhance-ai__button {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .enhance-ai__button:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__pill--loading {\n  background: var(--color-enhance-loading-dark-bg);\n  color: var(--color-superchat-meta);\n}\n\n@keyframes enhance-ai-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .enhance-ai__pill {\n    animation: none;\n  }\n}\n\n.sc-sheet {\n  position: absolute;\n  inset: 0;\n  z-index: 30;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n}\n\n.sc-sheet__panel {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  max-height: 100%;\n  padding: 10px 16px 14px;\n  overflow-y: auto;\n  border-top: 1px solid var(--color-border);\n  border-radius: 12px 12px 0 0;\n  background: var(--color-white);\n  box-shadow: 0 -12px 40px var(--color-sheet-shadow);\n  animation: sc-sheet-slide 0.25s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.sc-sheet__header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n\n.sc-sheet__close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: none;\n  background: none;\n}\n\n.sc-sheet__close img {\n  width: 12px;\n  height: 12px;\n  filter: brightness(0);\n  opacity: 0.55;\n}\n\n.sc-sheet__title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-sheet__preview {\n  pointer-events: none;\n}\n\n.sc-sheet__amount {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  width: 100%;\n  max-width: 480px;\n  margin-inline: auto;\n}\n\n.sc-sheet__amount-note {\n  color: var(--color-text-subtle);\n  font-size: 12px;\n  line-height: 1.3;\n}\n\n.sc-sheet__slider {\n  position: relative;\n  width: 100%;\n  height: 14px;\n}\n\n.sc-sheet__slider::before,\n.sc-sheet__fill {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: 0;\n  height: 3px;\n  border-radius: 999px;\n  transform: translateY(-50%);\n}\n\n.sc-sheet__slider::before {\n  right: 0;\n  background: var(--color-border);\n}\n\n.sc-sheet__ticks {\n  position: absolute;\n  inset: 0;\n  pointer-events: none;\n}\n\n.sc-sheet__tick {\n  position: absolute;\n  top: 50%;\n  width: 3px;\n  height: 3px;\n  border-radius: 50%;\n  background: var(--color-text);\n  opacity: 0.3;\n  transform: translate(-50%, -50%);\n}\n\n.sc-sheet__tick--on {\n  background: var(--color-white);\n  opacity: 0.9;\n}\n\n.sc-sheet__tick--current {\n  visibility: hidden;\n}\n\n.sc-sheet__range {\n  position: relative;\n  display: block;\n  width: 100%;\n  height: 14px;\n  background: transparent;\n  cursor: pointer;\n  appearance: none;\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range:focus {\n  outline: none;\n}\n\n.sc-sheet__range::-webkit-slider-runnable-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-moz-range-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-webkit-slider-thumb {\n  width: 14px;\n  height: 14px;\n  margin-top: -5.5px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range::-moz-range-thumb {\n  width: 14px;\n  height: 14px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n}\n\n.sc-sheet__footer {\n  display: flex;\n  justify-content: center;\n}\n\n.sc-sheet__continue {\n  padding: 8px 22px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n@keyframes sc-sheet-slide {\n  from {\n    transform: translateY(100%);\n  }\n}\n\n.sc-confirm__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.sc-confirm__frame {\n  position: relative;\n  display: flex;\n  width: 100%;\n  max-width: 678px;\n  max-height: 100%;\n}\n\n.sc-confirm {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 20px;\n  min-width: 0;\n  max-height: 100%;\n  padding: 28px 34px 30px;\n  overflow-y: auto;\n  border-radius: 15px;\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.sc-confirm__header {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n}\n\n.sc-confirm__title {\n  font-size: 22px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-confirm__summary {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  padding: 18px 28px;\n  border-radius: 12px;\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.sc-confirm__summary-row {\n  display: flex;\n  align-items: flex-end;\n  justify-content: space-between;\n  gap: 12px;\n  width: 100%;\n}\n\n.sc-confirm__summary-row--after {\n  align-items: baseline;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid var(--color-light-grey);\n}\n\n.sc-confirm__summary-col {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n}\n\n.sc-confirm__summary-col--end {\n  align-items: flex-end;\n}\n\n.sc-confirm__summary-label {\n  font-size: 15px;\n  line-height: 1.3;\n}\n\n.sc-confirm__summary-value {\n  font-size: 18px;\n  font-weight: 700;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.sc-confirm__summary-price {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 12px;\n}\n\n.sc-confirm__old-price,\n.sc-confirm__no-change {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  white-space: nowrap;\n}\n\n.sc-confirm__balance {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n}\n\n.sc-confirm__icon {\n  flex-shrink: 0;\n  width: 18px;\n  height: 18px;\n}\n\n.sc-confirm__free {\n  color: var(--color-coins);\n}\n\n.sc-confirm__summary-link {\n  margin-top: 8px;\n  color: var(--color-navy);\n  font-size: 15px;\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__note {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 18px;\n  border: 0.5px solid var(--color-scrollbar-track-dark);\n  border-radius: 20px;\n  background: var(--color-info-pill-bg);\n  box-shadow: 0 0 8px var(--color-info-pill-shadow);\n  font-size: 14px;\n  line-height: 1.35;\n}\n\n.sc-confirm__alert {\n  display: flex;\n  align-items: flex-start;\n  gap: 8px;\n  width: 100%;\n  margin-top: 12px;\n  padding: 8px 14px;\n  border-radius: 6px;\n  background: var(--color-warning-bg);\n  color: var(--color-red);\n  font-size: 15px;\n  line-height: 1.4;\n}\n\n.sc-confirm__alert .sc-confirm__icon {\n  margin-top: 2px;\n}\n\n.sc-confirm__upgrade-link {\n  color: var(--color-yellow);\n  font-weight: 600;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__error {\n  padding: 6px 14px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  color: var(--color-text);\n  font-size: 12px;\n  line-height: 1.35;\n  text-align: center;\n}\n\n.sc-confirm__actions {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-end;\n  justify-content: flex-end;\n  gap: 12px;\n}\n\n.sc-confirm__submit,\n.sc-confirm__cancel,\n.sc-confirm__buy-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 8px 26px;\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-navy);\n  font-size: 18px;\n  font-weight: 500;\n  line-height: 1.3;\n  text-decoration: none;\n  white-space: nowrap;\n}\n\n.sc-confirm__submit {\n  border: 1px solid var(--color-white);\n}\n\n.sc-confirm__buy-btn {\n  border: 1px solid var(--color-yellow);\n  background: var(--color-yellow);\n  color: var(--color-text);\n}\n\n.sc-confirm__cancel {\n  border: 1px solid var(--color-white);\n  background: none;\n  color: var(--color-white);\n}\n\n.sc-confirm__submit:disabled {\n  color: color-mix(in srgb, var(--color-navy) 40%, var(--color-white));\n}\n\n@media (max-width: 480px) {\n  .sc-confirm {\n    gap: 16px;\n    padding: 20px 16px;\n  }\n\n  .sc-confirm__title {\n    font-size: 20px;\n  }\n\n  .sc-confirm__summary {\n    padding: 14px 16px;\n  }\n\n  .sc-confirm__summary-label,\n  .sc-confirm__summary-link {\n    font-size: 14px;\n  }\n\n  .sc-confirm__summary-value {\n    font-size: 16px;\n  }\n\n  .sc-confirm__old-price,\n  .sc-confirm__no-change {\n    font-size: 13px;\n  }\n\n  .sc-confirm__summary-price {\n    gap: 6px;\n  }\n\n  .sc-confirm__summary-row--after {\n    flex-wrap: wrap;\n    row-gap: 4px;\n  }\n\n  .sc-confirm__summary-row--after > :last-child {\n    margin-left: auto;\n  }\n\n  .sc-confirm__note {\n    padding: 8px 14px;\n    font-size: 13px;\n  }\n\n  .sc-confirm__actions {\n    flex-direction: column-reverse;\n    align-items: stretch;\n    gap: 10px;\n  }\n\n  .sc-confirm__submit,\n  .sc-confirm__cancel,\n  .sc-confirm__buy-btn {\n    padding: 10px 20px;\n    font-size: 16px;\n  }\n}\n\n.mod-dialog__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.mod-dialog {\n  display: flex;\n  flex-direction: column;\n  gap: 14px;\n  width: 100%;\n  max-width: 560px;\n  max-height: 100%;\n  padding: 14px;\n  overflow-y: auto;\n  border-radius: 16px;\n  background: var(--color-white);\n  box-shadow: 0 12px 32px var(--color-dialog-shadow);\n}\n\n.mod-dialog__card {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  padding: 16px 14px;\n  border: 1px solid var(--color-border);\n  border-radius: 8px;\n}\n\n.mod-dialog__heading {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 10px;\n}\n\n.mod-dialog__title {\n  font-size: 17px;\n  font-weight: 400;\n  line-height: 1.2;\n}\n\n.mod-dialog__title--ai {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n}\n\n.mod-dialog__ai {\n  flex-shrink: 0;\n  height: 20px;\n}\n\n.mod-dialog__pill {\n  padding: 3px 12px;\n  border-radius: 100px;\n  color: var(--color-white);\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.mod-dialog__pill--warning {\n  background: var(--color-red);\n}\n\n.mod-dialog__pill--recommended {\n  background: var(--color-recommended);\n}\n\n.mod-dialog__row {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.mod-dialog__message {\n  flex: 1;\n  min-width: 0;\n  font-size: 13px;\n  line-height: 1.45;\n  overflow-wrap: break-word;\n}\n\n.mod-dialog__action {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 8px;\n  height: 40px;\n  padding: 0 18px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 15px;\n  font-weight: 500;\n  white-space: nowrap;\n}\n\n.mod-dialog__action-icon {\n  width: 16px;\n  height: 14px;\n}\n\n.mod-dialog__row--locked {\n  padding: 10px 12px;\n  border: 1px dashed var(--color-text);\n  border-radius: 6px;\n  background: var(--color-locked-suggestion-bg);\n  user-select: none;\n}\n\n.mod-dialog__row--locked > * {\n  filter: blur(4px);\n}\n\n.mod-dialog__upsell {\n  color: var(--color-red);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n.mod-dialog__footer {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.mod-dialog__cancel {\n  height: 40px;\n  padding: 0 18px;\n  border: 1px solid var(--color-cancel-btn-border);\n  border-radius: 100px;\n  background: linear-gradient(180deg, var(--color-cancel-btn-from), var(--color-border));\n  font-size: 15px;\n}\n\n@media (max-width: 480px) {\n  .mod-dialog__row:not(.mod-dialog__row--locked) {\n    flex-direction: column;\n    align-items: stretch;\n  }\n\n  .mod-dialog__action {\n    justify-content: center;\n  }\n}\n\n.thread-modal {\n  position: absolute;\n  inset: 0;\n  z-index: 25;\n  display: flex;\n  flex-direction: column;\n  background: var(--color-white);\n}\n\n.thread-modal__header {\n  display: grid;\n  grid-template-columns: 1fr auto 1fr;\n  align-items: center;\n  padding: 12px 16px;\n  border-bottom: 1px solid var(--color-border);\n}\n\n.thread-modal__back {\n  justify-self: start;\n  display: inline-flex;\n  align-items: center;\n  gap: 10px;\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 13px;\n  text-transform: uppercase;\n}\n\n.thread-modal__back-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: 1.5px solid var(--color-text);\n  border-radius: 50%;\n}\n\n.thread-modal__back-icon svg {\n  width: 16px;\n  height: 16px;\n}\n\n.thread-modal__title {\n  font-size: 13px;\n  font-weight: 500;\n  text-transform: uppercase;\n}\n\n.thread-modal__close {\n  justify-self: end;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.thread-modal__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.thread-modal__body {\n  flex: 1;\n  min-height: 0;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.thread-modal__status {\n  padding: 8px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.thread-modal__footer {\n  padding: 10px 16px 12px;\n  border-top: 1px solid var(--color-border);\n}\n\n.thread-modal__field {\n  display: flex;\n  align-items: flex-start;\n  border: 1px solid var(--color-navy);\n  border-radius: 6px;\n  background: var(--color-white);\n}\n\n.thread-modal__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 8px 0 8px 12px;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.thread-modal__input {\n  flex: 1;\n  min-width: 0;\n  max-height: 120px;\n  padding: 8px 12px;\n  border: none;\n  background: transparent;\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.thread-modal__input:focus {\n  outline: none;\n}\n\n.thread-modal__error {\n  margin-top: 6px;\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.thread-modal__mention + .thread-modal__input {\n  padding-left: 6px;\n}\n\n.user-panel__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  justify-content: flex-end;\n  background: var(--color-scrim);\n  animation: user-panel-fade-in 250ms ease-out;\n}\n\n.user-panel__backdrop--closing {\n  animation: user-panel-fade-out 250ms ease-in forwards;\n}\n\n.user-panel {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  max-width: 540px;\n  height: 100%;\n  background: var(--color-white);\n  box-shadow: -4px 0 24px var(--color-sheet-shadow);\n  animation: user-panel-slide-in 250ms ease-out;\n}\n\n.user-panel--closing {\n  animation: user-panel-slide-out 250ms ease-in forwards;\n}\n\n@keyframes user-panel-fade-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-fade-out {\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-slide-in {\n  from {\n    transform: translateX(100%);\n  }\n}\n\n@keyframes user-panel-slide-out {\n  to {\n    transform: translateX(100%);\n  }\n}\n\n.user-panel__header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding: 20px 20px 18px;\n  border-bottom: 1px solid var(--color-light-grey);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.user-panel__title {\n  flex: 1;\n  min-width: 0;\n  font-size: 20px;\n  font-weight: 600;\n  line-height: 30px;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__signout {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 6px;\n  padding: 6px 14px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-red);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.user-panel__signout svg {\n  width: 16px;\n  height: 16px;\n}\n\n.user-panel__close {\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.user-panel__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.user-panel__body {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  padding: 0 20px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.user-panel__item {\n  flex-shrink: 0;\n  display: flex;\n  gap: 14px;\n  padding: 18px 0;\n  border-bottom: 1px solid var(--color-light-grey);\n}\n\n.user-panel__item-icon {\n  flex-shrink: 0;\n  width: 20px;\n  height: 20px;\n  margin-top: 1px;\n  object-fit: contain;\n}\n\n.user-panel__item-content {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 8px;\n  min-width: 0;\n}\n\n.user-panel__item-header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 4px 8px;\n}\n\n.user-panel__item-title {\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__quote {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__item-time {\n  color: var(--color-message-meta);\n  font-size: 13px;\n}\n\n.user-panel__tag {\n  padding: 1px 8px;\n  border-radius: 999px;\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.user-panel__status {\n  padding: 16px;\n  font-size: 13px;\n  color: var(--color-text-subtle);\n  text-align: center;\n}\n";
 	//#endregion
 	//#region node_modules/react/cjs/react-jsx-dev-runtime.development.js
 	/**
@@ -17625,7 +17627,7 @@
 	var import_jsx_dev_runtime = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
 		module.exports = require_react_jsx_dev_runtime_development();
 	})))();
-	var _jsxFileName$16 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/createWidgetElement.tsx";
+	var _jsxFileName$17 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/createWidgetElement.tsx";
 	var createWidgetElement = (Component) => class extends HTMLElement {
 		#root = null;
 		connectedCallback() {
@@ -17637,11 +17639,11 @@
 			shadow.replaceChildren(style, mountNode);
 			this.#root = (0, import_client.createRoot)(mountNode);
 			this.#root.render(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_react.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Component, { roomId: this.getAttribute(ROOM_ID_ATTRIBUTE) }, void 0, false, {
-				fileName: _jsxFileName$16,
+				fileName: _jsxFileName$17,
 				lineNumber: 25,
 				columnNumber: 11
 			}, this) }, void 0, false, {
-				fileName: _jsxFileName$16,
+				fileName: _jsxFileName$17,
 				lineNumber: 24,
 				columnNumber: 9
 			}, this));
@@ -24571,8 +24573,10 @@
 	});
 	var getErrorStatus = (error) => axios.isAxiosError(error) ? error.response?.status : void 0;
 	var toErrorMessage = (error, fallback) => {
-		if (axios.isAxiosError(error)) return error.response?.data?.detail ?? fallback;
-		return fallback;
+		if (!axios.isAxiosError(error)) return fallback;
+		const detail = error.response?.data?.detail ?? fallback;
+		const retryAfter = error.response?.data?.retry_after;
+		return retryAfter ? `${detail}. Try again in ${retryAfter}s.` : detail;
 	};
 	var axiosGet = async (url, params) => {
 		const { data } = await axiosInstance.get(url, { params });
@@ -24689,7 +24693,8 @@
 		settings: null,
 		threads: {},
 		threadStack: [],
-		lastSent: null
+		lastSent: null,
+		removedNotice: null
 	});
 	var cursors = {
 		next: {},
@@ -24842,6 +24847,7 @@
 	};
 	var closeThreadLevel = () => setState$2({ threadStack: getState$2().threadStack.slice(0, -1) });
 	var closeThreads = () => setState$2({ threadStack: [] });
+	var dismissRemovedNotice = () => setState$2({ removedNotice: null });
 	var markSent = (tab) => setState$2({ lastSent: {
 		tab,
 		id: (getState$2().lastSent?.id ?? 0) + 1
@@ -24943,10 +24949,11 @@
 	var { getState: getState$1, setState: setState$1 } = commentsStore;
 	var reactionSeqs = /* @__PURE__ */ new Map();
 	var pendingCounts = /* @__PURE__ */ new Map();
-	var hasMessage = (id) => {
+	var findMessage = (id) => {
 		const { feeds, threads } = getState$1();
-		return [...Object.values(feeds).map((feed) => feed.messages), ...Object.values(threads).map((thread) => thread.replies)].some((list) => list.some((message) => message.id === id));
+		return [...Object.values(feeds).map((feed) => feed.messages), ...Object.values(threads).map((thread) => thread.replies)].flat().find((message) => message.id === id);
 	};
+	var hasMessage = (id) => Boolean(findMessage(id));
 	var insertReply = (replies, reply) => {
 		const parentIndex = replies.findIndex((message) => message.id === reply.parent_id);
 		if (parentIndex === -1) return [...replies, reply];
@@ -25058,6 +25065,15 @@
 				break;
 			case LIVE_MESSAGE_TYPE.FRAMES:
 				message.frames.forEach(applyFrame);
+				if (message.channel === LIVE_CHANNEL.ME) message.frames.forEach((frame) => {
+					if (frame.type === LIVE_FRAME_TYPE.MESSAGE_STATUS && frame.data.status === MESSAGE_STATUS.REMOVED) {
+						const isSuperChat = findMessage(frame.data.id)?.kind === MESSAGE_KIND.SUPERCHAT;
+						setState$1({ removedNotice: {
+							id: frame.data.id,
+							isSuperChat
+						} });
+					}
+				});
 				if (cursors.live) cursors.live[message.channel] = message.cursor;
 				break;
 			case LIVE_MESSAGE_TYPE.RESYNC:
@@ -25151,16 +25167,17 @@
 			});
 		}
 	};
-	var openUserMessages = (userId, userName, self = false) => {
+	var openUserMessages = (userId, userName, self = false, activityTab = ACTIVITY_TAB.ALL) => {
 		nextCursor = null;
 		isSelf = self;
 		setState({
 			...INITIAL_STATE,
 			userId,
 			userName,
+			activityTab,
 			status: REQUEST_STATUS.LOADING
 		});
-		loadFirstPage(userId, ACTIVITY_TAB.ALL);
+		loadFirstPage(userId, activityTab);
 	};
 	var setActivityTab = (activityTab) => {
 		const { userId, userName } = getState();
@@ -25265,7 +25282,7 @@
 	};
 	//#endregion
 	//#region src/components/messageItem/MessageActions.tsx
-	var _jsxFileName$15 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageActions.tsx";
+	var _jsxFileName$16 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageActions.tsx";
 	var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, onEdit }) => {
 		const { status } = useAuth();
 		const [isOpen, setIsOpen] = (0, import_react.useState)(false);
@@ -25348,12 +25365,12 @@
 					alt: "",
 					className: "message-actions__icon"
 				}, void 0, false, {
-					fileName: _jsxFileName$15,
+					fileName: _jsxFileName$16,
 					lineNumber: 124,
 					columnNumber: 9
 				}, void 0)
 			}, void 0, false, {
-				fileName: _jsxFileName$15,
+				fileName: _jsxFileName$16,
 				lineNumber: 109,
 				columnNumber: 7
 			}, void 0), isOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -25365,7 +25382,7 @@
 						role: "status",
 						children: feedback
 					}, void 0, false, {
-						fileName: _jsxFileName$15,
+						fileName: _jsxFileName$16,
 						lineNumber: 129,
 						columnNumber: 13
 					}, void 0),
@@ -25379,12 +25396,12 @@
 							disabled: isReporting,
 							children: label
 						}, reason, false, {
-							fileName: _jsxFileName$15,
+							fileName: _jsxFileName$16,
 							lineNumber: 136,
 							columnNumber: 17
 						}, void 0))
 					}, void 0, false, {
-						fileName: _jsxFileName$15,
+						fileName: _jsxFileName$16,
 						lineNumber: 134,
 						columnNumber: 13
 					}, void 0),
@@ -25401,7 +25418,7 @@
 								alt: "",
 								className: "message-actions__item-icon"
 							}, void 0, false, {
-								fileName: _jsxFileName$15,
+								fileName: _jsxFileName$16,
 								lineNumber: 160,
 								columnNumber: 19
 							}, void 0),
@@ -25409,7 +25426,7 @@
 							canEdit && ` (${formatCountdown(editTimeLeft)})`
 						]
 					}, void 0, true, {
-						fileName: _jsxFileName$15,
+						fileName: _jsxFileName$16,
 						lineNumber: 152,
 						columnNumber: 17
 					}, void 0), !isOwn && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -25422,34 +25439,34 @@
 							alt: "",
 							className: "message-actions__item-icon"
 						}, void 0, false, {
-							fileName: _jsxFileName$15,
+							fileName: _jsxFileName$16,
 							lineNumber: 173,
 							columnNumber: 19
 						}, void 0), MESSAGE_ACTION.REPORT.label]
 					}, void 0, true, {
-						fileName: _jsxFileName$15,
+						fileName: _jsxFileName$16,
 						lineNumber: 172,
 						columnNumber: 17
 					}, void 0)] }, void 0, true, {
-						fileName: _jsxFileName$15,
+						fileName: _jsxFileName$16,
 						lineNumber: 150,
 						columnNumber: 13
 					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$15,
+				fileName: _jsxFileName$16,
 				lineNumber: 127,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
-			fileName: _jsxFileName$15,
+			fileName: _jsxFileName$16,
 			lineNumber: 108,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/components/messageItem/MessageEditor.tsx
-	var _jsxFileName$14 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageEditor.tsx";
+	var _jsxFileName$15 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageEditor.tsx";
 	var MessageEditor = ({ message, onClose }) => {
 		const [draft, setDraft] = (0, import_react.useState)(message.body);
 		const [isSaving, setIsSaving] = (0, import_react.useState)(false);
@@ -25489,7 +25506,7 @@
 					readOnly: isSaving,
 					autoFocus: true
 				}, void 0, false, {
-					fileName: _jsxFileName$14,
+					fileName: _jsxFileName$15,
 					lineNumber: 36,
 					columnNumber: 7
 				}, void 0),
@@ -25498,7 +25515,7 @@
 					role: "alert",
 					children: error
 				}, void 0, false, {
-					fileName: _jsxFileName$14,
+					fileName: _jsxFileName$15,
 					lineNumber: 55,
 					columnNumber: 9
 				}, void 0),
@@ -25510,7 +25527,7 @@
 						onClick: onClose,
 						children: "Cancel"
 					}, void 0, false, {
-						fileName: _jsxFileName$14,
+						fileName: _jsxFileName$15,
 						lineNumber: 60,
 						columnNumber: 9
 					}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -25520,18 +25537,18 @@
 						disabled: !canSave,
 						children: isSaving ? "Saving..." : "Save"
 					}, void 0, false, {
-						fileName: _jsxFileName$14,
+						fileName: _jsxFileName$15,
 						lineNumber: 63,
 						columnNumber: 9
 					}, void 0)]
 				}, void 0, true, {
-					fileName: _jsxFileName$14,
+					fileName: _jsxFileName$15,
 					lineNumber: 59,
 					columnNumber: 7
 				}, void 0)
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$14,
+			fileName: _jsxFileName$15,
 			lineNumber: 35,
 			columnNumber: 5
 		}, void 0);
@@ -25552,7 +25569,7 @@
 	};
 	//#endregion
 	//#region src/components/messageItem/MessageReactions.tsx
-	var _jsxFileName$13 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageReactions.tsx";
+	var _jsxFileName$14 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageReactions.tsx";
 	var MessageReactions = ({ message, isOwn }) => {
 		const { status } = useAuth();
 		const { settings } = useComments();
@@ -25612,12 +25629,12 @@
 						alt: "",
 						className: "reaction-chip__icon"
 					}, void 0, false, {
-						fileName: _jsxFileName$13,
+						fileName: _jsxFileName$14,
 						lineNumber: 76,
 						columnNumber: 15
 					}, void 0), counts[myReaction.kind] ?? 0]
 				}, void 0, true, {
-					fileName: _jsxFileName$13,
+					fileName: _jsxFileName$14,
 					lineNumber: 67,
 					columnNumber: 13
 				}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -25633,12 +25650,12 @@
 						alt: "",
 						className: "message-item__react-icon"
 					}, void 0, false, {
-						fileName: _jsxFileName$13,
+						fileName: _jsxFileName$14,
 						lineNumber: 89,
 						columnNumber: 15
 					}, void 0)
 				}, void 0, false, {
-					fileName: _jsxFileName$13,
+					fileName: _jsxFileName$14,
 					lineNumber: 80,
 					columnNumber: 13
 				}, void 0), isPickerOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -25655,7 +25672,7 @@
 							alt: "",
 							className: "reaction-picker__icon"
 						}, void 0, false, {
-							fileName: _jsxFileName$13,
+							fileName: _jsxFileName$14,
 							lineNumber: 107,
 							columnNumber: 19
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -25663,22 +25680,22 @@
 							"aria-hidden": "true",
 							children: label
 						}, void 0, false, {
-							fileName: _jsxFileName$13,
+							fileName: _jsxFileName$14,
 							lineNumber: 108,
 							columnNumber: 19
 						}, void 0)]
 					}, kind, true, {
-						fileName: _jsxFileName$13,
+						fileName: _jsxFileName$14,
 						lineNumber: 100,
 						columnNumber: 17
 					}, void 0))
 				}, void 0, false, {
-					fileName: _jsxFileName$13,
+					fileName: _jsxFileName$14,
 					lineNumber: 94,
 					columnNumber: 13
 				}, void 0)]
 			}, void 0, true, {
-				fileName: _jsxFileName$13,
+				fileName: _jsxFileName$14,
 				lineNumber: 65,
 				columnNumber: 9
 			}, void 0), otherReactions.map(({ kind, label, icon }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -25692,30 +25709,30 @@
 					alt: "",
 					className: "reaction-chip__icon"
 				}, void 0, false, {
-					fileName: _jsxFileName$13,
+					fileName: _jsxFileName$14,
 					lineNumber: 127,
 					columnNumber: 11
 				}, void 0), counts[kind]]
 			}, kind, true, {
-				fileName: _jsxFileName$13,
+				fileName: _jsxFileName$14,
 				lineNumber: 119,
 				columnNumber: 9
 			}, void 0))]
 		}, void 0, true, {
-			fileName: _jsxFileName$13,
+			fileName: _jsxFileName$14,
 			lineNumber: 63,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/components/nameBadge/index.tsx
-	var _jsxFileName$12 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/nameBadge/index.tsx";
+	var _jsxFileName$13 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/nameBadge/index.tsx";
 	var NameBadge = ({ name, rank }) => {
 		if (rank === USER_RANK.FRIEND) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 			className: "name-plain",
 			children: name
 		}, void 0, false, {
-			fileName: _jsxFileName$12,
+			fileName: _jsxFileName$13,
 			lineNumber: 11,
 			columnNumber: 12
 		}, void 0);
@@ -25726,19 +25743,19 @@
 				alt: "",
 				className: "name-badge__icon"
 			}, void 0, false, {
-				fileName: _jsxFileName$12,
+				fileName: _jsxFileName$13,
 				lineNumber: 16,
 				columnNumber: 7
 			}, void 0), name]
 		}, void 0, true, {
-			fileName: _jsxFileName$12,
+			fileName: _jsxFileName$13,
 			lineNumber: 15,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/components/messageItem/index.tsx
-	var _jsxFileName$11 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/index.tsx";
+	var _jsxFileName$12 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/index.tsx";
 	var MessageItem = ({ message, authorName = getAuthorName(message.author, message.author_id), authorRank = getAuthorRank(message.author), extraCoins = 0, onReply }) => {
 		const { status, user } = useAuth();
 		const { settings } = useComments();
@@ -25798,12 +25815,12 @@
 								name: authorName,
 								rank: authorRank
 							}, void 0, false, {
-								fileName: _jsxFileName$11,
+								fileName: _jsxFileName$12,
 								lineNumber: 84,
 								columnNumber: 11
 							}, void 0)
 						}, void 0, false, {
-							fileName: _jsxFileName$11,
+							fileName: _jsxFileName$12,
 							lineNumber: 83,
 							columnNumber: 9
 						}, void 0),
@@ -25811,7 +25828,7 @@
 							className: "message-item__time",
 							children: formatRelativeTime(message.created_at)
 						}, void 0, false, {
-							fileName: _jsxFileName$11,
+							fileName: _jsxFileName$12,
 							lineNumber: 86,
 							columnNumber: 9
 						}, void 0),
@@ -25819,7 +25836,7 @@
 							className: "message-item__review-tag",
 							children: "Under review"
 						}, void 0, false, {
-							fileName: _jsxFileName$11,
+							fileName: _jsxFileName$12,
 							lineNumber: 87,
 							columnNumber: 52
 						}, void 0),
@@ -25830,13 +25847,13 @@
 							editWindowSec,
 							onEdit: () => setIsEditing(true)
 						}, void 0, false, {
-							fileName: _jsxFileName$11,
+							fileName: _jsxFileName$12,
 							lineNumber: 88,
 							columnNumber: 9
 						}, void 0)
 					]
 				}, void 0, true, {
-					fileName: _jsxFileName$11,
+					fileName: _jsxFileName$12,
 					lineNumber: 82,
 					columnNumber: 7
 				}, void 0),
@@ -25844,7 +25861,7 @@
 					message,
 					onClose: () => setIsEditing(false)
 				}, void 0, false, {
-					fileName: _jsxFileName$11,
+					fileName: _jsxFileName$12,
 					lineNumber: 98,
 					columnNumber: 9
 				}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -25853,12 +25870,12 @@
 						className: "message-text__mention",
 						children: ["@", getAuthorName(message.parent_author, message.parent_author_id)]
 					}, void 0, true, {
-						fileName: _jsxFileName$11,
+						fileName: _jsxFileName$12,
 						lineNumber: 102,
 						columnNumber: 13
 					}, void 0), message.body]
 				}, void 0, true, {
-					fileName: _jsxFileName$11,
+					fileName: _jsxFileName$12,
 					lineNumber: 100,
 					columnNumber: 9
 				}, void 0),
@@ -25875,12 +25892,12 @@
 								alt: "",
 								className: "message-item__reply-icon"
 							}, void 0, false, {
-								fileName: _jsxFileName$11,
+								fileName: _jsxFileName$12,
 								lineNumber: 112,
 								columnNumber: 11
 							}, void 0), "Reply"]
 						}, void 0, true, {
-							fileName: _jsxFileName$11,
+							fileName: _jsxFileName$12,
 							lineNumber: 111,
 							columnNumber: 9
 						}, void 0),
@@ -25895,12 +25912,12 @@
 								alt: "",
 								className: "message-item__like-icon"
 							}, void 0, false, {
-								fileName: _jsxFileName$11,
+								fileName: _jsxFileName$12,
 								lineNumber: 123,
 								columnNumber: 13
 							}, void 0), likeCount]
 						}, void 0, true, {
-							fileName: _jsxFileName$11,
+							fileName: _jsxFileName$12,
 							lineNumber: 116,
 							columnNumber: 11
 						}, void 0),
@@ -25908,7 +25925,7 @@
 							message,
 							isOwn
 						}, void 0, false, {
-							fileName: _jsxFileName$11,
+							fileName: _jsxFileName$12,
 							lineNumber: 127,
 							columnNumber: 9
 						}, void 0),
@@ -25916,26 +25933,26 @@
 							className: "message-item__coins",
 							children: ["+", formatCoins(extraCoins)]
 						}, void 0, true, {
-							fileName: _jsxFileName$11,
+							fileName: _jsxFileName$12,
 							lineNumber: 129,
 							columnNumber: 11
 						}, void 0)
 					]
 				}, void 0, true, {
-					fileName: _jsxFileName$11,
+					fileName: _jsxFileName$12,
 					lineNumber: 110,
 					columnNumber: 7
 				}, void 0)
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$11,
+			fileName: _jsxFileName$12,
 			lineNumber: 81,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/sections/comments/RepliesButton.tsx
-	var _jsxFileName$10 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/RepliesButton.tsx";
+	var _jsxFileName$11 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/RepliesButton.tsx";
 	var RepliesButton = ({ message, count }) => {
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 			type: "button",
@@ -25947,14 +25964,14 @@
 				count === 1 ? "reply" : "replies"
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$10,
+			fileName: _jsxFileName$11,
 			lineNumber: 11,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/sections/comments/MessageThread.tsx
-	var _jsxFileName$9 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/MessageThread.tsx";
+	var _jsxFileName$10 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/MessageThread.tsx";
 	var MessageThread = ({ root }) => {
 		const { threads } = useComments();
 		const thread = threads[root.id];
@@ -25971,7 +25988,7 @@
 				"aria-expanded": isOpen,
 				children: isOpen ? "Hide replies" : `View ${count} ${count === 1 ? "reply" : "replies"}`
 			}, void 0, false, {
-				fileName: _jsxFileName$9,
+				fileName: _jsxFileName$10,
 				lineNumber: 22,
 				columnNumber: 7
 			}, void 0), isOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -25981,7 +25998,7 @@
 						className: "message-thread__status",
 						children: "Loading replies..."
 					}, void 0, false, {
-						fileName: _jsxFileName$9,
+						fileName: _jsxFileName$10,
 						lineNumber: 27,
 						columnNumber: 56
 					}, void 0),
@@ -25989,44 +26006,44 @@
 						className: "message-thread__status",
 						children: ERROR_MESSAGE.LOAD_REPLIES
 					}, void 0, false, {
-						fileName: _jsxFileName$9,
+						fileName: _jsxFileName$10,
 						lineNumber: 28,
 						columnNumber: 55
 					}, void 0),
 					directReplies.map((reply) => {
 						const replyCount = getVisibleReplies(replies, reply.id).length;
 						return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, { message: reply }, void 0, false, {
-							fileName: _jsxFileName$9,
+							fileName: _jsxFileName$10,
 							lineNumber: 33,
 							columnNumber: 17
 						}, void 0), replyCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RepliesButton, {
 							message: reply,
 							count: replyCount
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
+							fileName: _jsxFileName$10,
 							lineNumber: 34,
 							columnNumber: 36
 						}, void 0)] }, reply.id, true, {
-							fileName: _jsxFileName$9,
+							fileName: _jsxFileName$10,
 							lineNumber: 32,
 							columnNumber: 15
 						}, void 0);
 					})
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$9,
+				fileName: _jsxFileName$10,
 				lineNumber: 26,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
-			fileName: _jsxFileName$9,
+			fileName: _jsxFileName$10,
 			lineNumber: 21,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/sections/comments/ThreadModal.tsx
-	var _jsxFileName$8 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/ThreadModal.tsx";
+	var _jsxFileName$9 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/ThreadModal.tsx";
 	var ThreadModal = () => {
 		const { status } = useAuth();
 		const { threads, threadStack, settings } = useComments();
@@ -26086,22 +26103,22 @@
 										strokeLinecap: "round",
 										strokeLinejoin: "round"
 									}, void 0, false, {
-										fileName: _jsxFileName$8,
+										fileName: _jsxFileName$9,
 										lineNumber: 58,
 										columnNumber: 15
 									}, void 0)
 								}, void 0, false, {
-									fileName: _jsxFileName$8,
+									fileName: _jsxFileName$9,
 									lineNumber: 57,
 									columnNumber: 13
 								}, void 0)
 							}, void 0, false, {
-								fileName: _jsxFileName$8,
+								fileName: _jsxFileName$9,
 								lineNumber: 56,
 								columnNumber: 11
 							}, void 0), "Back"]
 						}, void 0, true, {
-							fileName: _jsxFileName$8,
+							fileName: _jsxFileName$9,
 							lineNumber: 55,
 							columnNumber: 9
 						}, void 0),
@@ -26110,7 +26127,7 @@
 							className: "thread-modal__title",
 							children: "Reply thread"
 						}, void 0, false, {
-							fileName: _jsxFileName$8,
+							fileName: _jsxFileName$9,
 							lineNumber: 63,
 							columnNumber: 9
 						}, void 0),
@@ -26129,23 +26146,23 @@
 									strokeWidth: "2",
 									strokeLinecap: "round"
 								}, void 0, false, {
-									fileName: _jsxFileName$8,
+									fileName: _jsxFileName$9,
 									lineNumber: 68,
 									columnNumber: 13
 								}, void 0)
 							}, void 0, false, {
-								fileName: _jsxFileName$8,
+								fileName: _jsxFileName$9,
 								lineNumber: 67,
 								columnNumber: 11
 							}, void 0)
 						}, void 0, false, {
-							fileName: _jsxFileName$8,
+							fileName: _jsxFileName$9,
 							lineNumber: 66,
 							columnNumber: 9
 						}, void 0)
 					]
 				}, void 0, true, {
-					fileName: _jsxFileName$8,
+					fileName: _jsxFileName$9,
 					lineNumber: 54,
 					columnNumber: 7
 				}, void 0),
@@ -26156,7 +26173,7 @@
 							className: "thread-modal__status",
 							children: "Loading replies..."
 						}, void 0, false, {
-							fileName: _jsxFileName$8,
+							fileName: _jsxFileName$9,
 							lineNumber: 74,
 							columnNumber: 55
 						}, void 0),
@@ -26164,7 +26181,7 @@
 							className: "thread-modal__status",
 							children: ERROR_MESSAGE.LOAD_REPLIES
 						}, void 0, false, {
-							fileName: _jsxFileName$8,
+							fileName: _jsxFileName$9,
 							lineNumber: 75,
 							columnNumber: 54
 						}, void 0),
@@ -26172,7 +26189,7 @@
 							message: focused,
 							onReply: () => handleItemReply(focused)
 						}, void 0, false, {
-							fileName: _jsxFileName$8,
+							fileName: _jsxFileName$9,
 							lineNumber: 76,
 							columnNumber: 21
 						}, void 0),
@@ -26184,30 +26201,30 @@
 									message: reply,
 									onReply: () => handleItemReply(reply)
 								}, void 0, false, {
-									fileName: _jsxFileName$8,
+									fileName: _jsxFileName$9,
 									lineNumber: 83,
 									columnNumber: 19
 								}, void 0), replyCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RepliesButton, {
 									message: reply,
 									count: replyCount
 								}, void 0, false, {
-									fileName: _jsxFileName$8,
+									fileName: _jsxFileName$9,
 									lineNumber: 84,
 									columnNumber: 38
 								}, void 0)] }, reply.id, true, {
-									fileName: _jsxFileName$8,
+									fileName: _jsxFileName$9,
 									lineNumber: 82,
 									columnNumber: 17
 								}, void 0);
 							})
 						}, void 0, false, {
-							fileName: _jsxFileName$8,
+							fileName: _jsxFileName$9,
 							lineNumber: 78,
 							columnNumber: 11
 						}, void 0)
 					]
 				}, void 0, true, {
-					fileName: _jsxFileName$8,
+					fileName: _jsxFileName$9,
 					lineNumber: 73,
 					columnNumber: 7
 				}, void 0),
@@ -26219,7 +26236,7 @@
 							className: "thread-modal__mention",
 							children: ["@", getAuthorName(replyTarget.author, replyTarget.author_id)]
 						}, void 0, true, {
-							fileName: _jsxFileName$8,
+							fileName: _jsxFileName$9,
 							lineNumber: 96,
 							columnNumber: 13
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
@@ -26243,12 +26260,12 @@
 							readOnly: isSending,
 							disabled: !isLoggedIn
 						}, void 0, false, {
-							fileName: _jsxFileName$8,
+							fileName: _jsxFileName$9,
 							lineNumber: 97,
 							columnNumber: 13
 						}, void 0)]
 					}, void 0, true, {
-						fileName: _jsxFileName$8,
+						fileName: _jsxFileName$9,
 						lineNumber: 94,
 						columnNumber: 11
 					}, void 0), error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -26256,18 +26273,18 @@
 						role: "alert",
 						children: error
 					}, void 0, false, {
-						fileName: _jsxFileName$8,
+						fileName: _jsxFileName$9,
 						lineNumber: 120,
 						columnNumber: 13
 					}, void 0)]
 				}, void 0, true, {
-					fileName: _jsxFileName$8,
+					fileName: _jsxFileName$9,
 					lineNumber: 93,
 					columnNumber: 9
 				}, void 0)
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$8,
+			fileName: _jsxFileName$9,
 			lineNumber: 53,
 			columnNumber: 5
 		}, void 0);
@@ -26286,7 +26303,7 @@
 	};
 	//#endregion
 	//#region src/components/userAvatar/index.tsx
-	var _jsxFileName$7 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/userAvatar/index.tsx";
+	var _jsxFileName$8 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/userAvatar/index.tsx";
 	var UserAvatar = () => {
 		const { user, profile } = useAuth();
 		if (!user) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
@@ -26294,7 +26311,7 @@
 			alt: "",
 			className: "user-avatar"
 		}, void 0, false, {
-			fileName: _jsxFileName$7,
+			fileName: _jsxFileName$8,
 			lineNumber: 18,
 			columnNumber: 12
 		}, void 0);
@@ -26302,7 +26319,7 @@
 			className: "skeleton user-avatar",
 			"aria-hidden": "true"
 		}, void 0, false, {
-			fileName: _jsxFileName$7,
+			fileName: _jsxFileName$8,
 			lineNumber: 22,
 			columnNumber: 12
 		}, void 0);
@@ -26318,7 +26335,7 @@
 				"aria-hidden": "true",
 				children: getInitials(user.name)
 			}, void 0, false, {
-				fileName: _jsxFileName$7,
+				fileName: _jsxFileName$8,
 				lineNumber: 30,
 				columnNumber: 7
 			}, void 0);
@@ -26343,24 +26360,24 @@
 					},
 					children: getInitials(user.name)
 				}, void 0, false, {
-					fileName: _jsxFileName$7,
+					fileName: _jsxFileName$8,
 					lineNumber: 49,
 					columnNumber: 9
 				}, void 0)
 			}, void 0, false, {
-				fileName: _jsxFileName$7,
+				fileName: _jsxFileName$8,
 				lineNumber: 45,
 				columnNumber: 7
 			}, void 0)
 		}, void 0, false, {
-			fileName: _jsxFileName$7,
+			fileName: _jsxFileName$8,
 			lineNumber: 44,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/sections/comments/UserMessagesPanel.tsx
-	var _jsxFileName$6 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/UserMessagesPanel.tsx";
+	var _jsxFileName$7 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/UserMessagesPanel.tsx";
 	var LOAD_MORE_OFFSET = 200;
 	var getActivityIcon = ({ type, reaction }) => {
 		if (type === ACTIVITY_TYPE.COMMENT) return {
@@ -26386,12 +26403,12 @@
 			ACTIVITY_LABEL[type],
 			" ",
 			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: getAuthorName(message.parent_author, message.parent_author_id) }, void 0, false, {
-				fileName: _jsxFileName$6,
+				fileName: _jsxFileName$7,
 				lineNumber: 42,
 				columnNumber: 32
 			}, void 0)
 		] }, void 0, true, {
-			fileName: _jsxFileName$6,
+			fileName: _jsxFileName$7,
 			lineNumber: 41,
 			columnNumber: 7
 		}, void 0);
@@ -26428,7 +26445,7 @@
 						className: "user-panel__header",
 						children: [
 							isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
-								fileName: _jsxFileName$6,
+								fileName: _jsxFileName$7,
 								lineNumber: 92,
 								columnNumber: 22
 							}, void 0),
@@ -26437,7 +26454,7 @@
 								className: "user-panel__title",
 								children: userName
 							}, void 0, false, {
-								fileName: _jsxFileName$6,
+								fileName: _jsxFileName$7,
 								lineNumber: 93,
 								columnNumber: 11
 							}, void 0),
@@ -26456,17 +26473,17 @@
 										strokeLinecap: "round",
 										strokeLinejoin: "round"
 									}, void 0, false, {
-										fileName: _jsxFileName$6,
+										fileName: _jsxFileName$7,
 										lineNumber: 99,
 										columnNumber: 17
 									}, void 0)
 								}, void 0, false, {
-									fileName: _jsxFileName$6,
+									fileName: _jsxFileName$7,
 									lineNumber: 98,
 									columnNumber: 15
 								}, void 0), "Sign out"]
 							}, void 0, true, {
-								fileName: _jsxFileName$6,
+								fileName: _jsxFileName$7,
 								lineNumber: 97,
 								columnNumber: 13
 							}, void 0),
@@ -26485,23 +26502,23 @@
 										strokeWidth: "2",
 										strokeLinecap: "round"
 									}, void 0, false, {
-										fileName: _jsxFileName$6,
+										fileName: _jsxFileName$7,
 										lineNumber: 113,
 										columnNumber: 15
 									}, void 0)
 								}, void 0, false, {
-									fileName: _jsxFileName$6,
+									fileName: _jsxFileName$7,
 									lineNumber: 112,
 									columnNumber: 13
 								}, void 0)
 							}, void 0, false, {
-								fileName: _jsxFileName$6,
+								fileName: _jsxFileName$7,
 								lineNumber: 111,
 								columnNumber: 11
 							}, void 0)
 						]
 					}, void 0, true, {
-						fileName: _jsxFileName$6,
+						fileName: _jsxFileName$7,
 						lineNumber: 91,
 						columnNumber: 9
 					}, void 0),
@@ -26516,12 +26533,12 @@
 							onClick: () => setActivityTab(id),
 							children: label
 						}, id, false, {
-							fileName: _jsxFileName$6,
+							fileName: _jsxFileName$7,
 							lineNumber: 121,
 							columnNumber: 15
 						}, void 0))
 					}, void 0, false, {
-						fileName: _jsxFileName$6,
+						fileName: _jsxFileName$7,
 						lineNumber: 119,
 						columnNumber: 11
 					}, void 0),
@@ -26534,7 +26551,7 @@
 								className: "user-panel__status",
 								children: "Loading comments..."
 							}, void 0, false, {
-								fileName: _jsxFileName$6,
+								fileName: _jsxFileName$7,
 								lineNumber: 136,
 								columnNumber: 49
 							}, void 0),
@@ -26542,7 +26559,7 @@
 								className: "user-panel__status",
 								children: error
 							}, void 0, false, {
-								fileName: _jsxFileName$6,
+								fileName: _jsxFileName$7,
 								lineNumber: 137,
 								columnNumber: 48
 							}, void 0),
@@ -26550,7 +26567,7 @@
 								className: "user-panel__status",
 								children: emptyText
 							}, void 0, false, {
-								fileName: _jsxFileName$6,
+								fileName: _jsxFileName$7,
 								lineNumber: 139,
 								columnNumber: 13
 							}, void 0),
@@ -26564,7 +26581,7 @@
 										alt: icon.alt,
 										className: "user-panel__item-icon"
 									}, void 0, false, {
-										fileName: _jsxFileName$6,
+										fileName: _jsxFileName$7,
 										lineNumber: 146,
 										columnNumber: 17
 									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -26580,7 +26597,7 @@
 														getActivityText(item)
 													]
 												}, void 0, true, {
-													fileName: _jsxFileName$6,
+													fileName: _jsxFileName$7,
 													lineNumber: 149,
 													columnNumber: 21
 												}, void 0),
@@ -26588,7 +26605,7 @@
 													className: "user-panel__tag",
 													children: "YourSay+"
 												}, void 0, false, {
-													fileName: _jsxFileName$6,
+													fileName: _jsxFileName$7,
 													lineNumber: 152,
 													columnNumber: 33
 												}, void 0),
@@ -26596,7 +26613,7 @@
 													className: "user-panel__item-time",
 													children: [formatRelativeTime(item.at), " ago"]
 												}, void 0, true, {
-													fileName: _jsxFileName$6,
+													fileName: _jsxFileName$7,
 													lineNumber: 153,
 													columnNumber: 21
 												}, void 0),
@@ -26604,30 +26621,30 @@
 													className: "message-item__review-tag",
 													children: "Under review"
 												}, void 0, false, {
-													fileName: _jsxFileName$6,
+													fileName: _jsxFileName$7,
 													lineNumber: 155,
 													columnNumber: 23
 												}, void 0)
 											]
 										}, void 0, true, {
-											fileName: _jsxFileName$6,
+											fileName: _jsxFileName$7,
 											lineNumber: 148,
 											columnNumber: 19
 										}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 											className: "user-panel__quote",
 											children: item.message.body
 										}, void 0, false, {
-											fileName: _jsxFileName$6,
+											fileName: _jsxFileName$7,
 											lineNumber: 158,
 											columnNumber: 19
 										}, void 0)]
 									}, void 0, true, {
-										fileName: _jsxFileName$6,
+										fileName: _jsxFileName$7,
 										lineNumber: 147,
 										columnNumber: 17
 									}, void 0)]
 								}, `${item.type}-${item.message.id}-${item.reaction ?? ""}`, true, {
-									fileName: _jsxFileName$6,
+									fileName: _jsxFileName$7,
 									lineNumber: 145,
 									columnNumber: 15
 								}, void 0);
@@ -26636,24 +26653,24 @@
 								className: "user-panel__status",
 								children: "Loading more..."
 							}, void 0, false, {
-								fileName: _jsxFileName$6,
+								fileName: _jsxFileName$7,
 								lineNumber: 163,
 								columnNumber: 29
 							}, void 0)
 						]
 					}, void 0, true, {
-						fileName: _jsxFileName$6,
+						fileName: _jsxFileName$7,
 						lineNumber: 135,
 						columnNumber: 9
 					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$6,
+				fileName: _jsxFileName$7,
 				lineNumber: 80,
 				columnNumber: 7
 			}, void 0)
 		}, void 0, false, {
-			fileName: _jsxFileName$6,
+			fileName: _jsxFileName$7,
 			lineNumber: 72,
 			columnNumber: 5
 		}, void 0);
@@ -26677,7 +26694,7 @@
 	};
 	//#endregion
 	//#region src/sections/superChat/SuperChatConfirmDialog.tsx
-	var _jsxFileName$5 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/superChat/SuperChatConfirmDialog.tsx";
+	var _jsxFileName$6 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/superChat/SuperChatConfirmDialog.tsx";
 	var FREE_COMMENTS_LEFT = 2;
 	var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose }) => {
 		const { user, profile } = useAuth();
@@ -26695,19 +26712,19 @@
 				className: "sc-confirm__old-price",
 				children: formatCoins(baseCoins)
 			}, void 0, false, {
-				fileName: _jsxFileName$5,
+				fileName: _jsxFileName$6,
 				lineNumber: 35,
 				columnNumber: 7
 			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
 				className: "sc-confirm__summary-value sc-confirm__free",
 				children: "Free"
 			}, void 0, false, {
-				fileName: _jsxFileName$5,
+				fileName: _jsxFileName$6,
 				lineNumber: 36,
 				columnNumber: 7
 			}, void 0)]
 		}, void 0, true, {
-			fileName: _jsxFileName$5,
+			fileName: _jsxFileName$6,
 			lineNumber: 34,
 			columnNumber: 5
 		}, void 0);
@@ -26715,7 +26732,7 @@
 			className: "sc-confirm__summary-value",
 			children: ["−", formatCoins(coinCost)]
 		}, void 0, true, {
-			fileName: _jsxFileName$5,
+			fileName: _jsxFileName$6,
 			lineNumber: 41,
 			columnNumber: 7
 		}, void 0);
@@ -26735,7 +26752,7 @@
 								name: user?.name ?? "Your Name",
 								rank
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 53,
 								columnNumber: 26
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
@@ -26743,12 +26760,12 @@
 								className: "sc-confirm__title",
 								children: "Confirm your YourSay+ Comment"
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 54,
 								columnNumber: 13
 							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 52,
 							columnNumber: 11
 						}, void 0),
@@ -26763,7 +26780,7 @@
 										className: "sc-confirm__summary-label",
 										children: "Available Coin Balance"
 									}, void 0, false, {
-										fileName: _jsxFileName$5,
+										fileName: _jsxFileName$6,
 										lineNumber: 62,
 										columnNumber: 17
 									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
@@ -26773,17 +26790,17 @@
 											alt: "",
 											className: "sc-confirm__icon"
 										}, void 0, false, {
-											fileName: _jsxFileName$5,
+											fileName: _jsxFileName$6,
 											lineNumber: 64,
 											columnNumber: 19
 										}, void 0), formatCoins(coinBalance)]
 									}, void 0, true, {
-										fileName: _jsxFileName$5,
+										fileName: _jsxFileName$6,
 										lineNumber: 63,
 										columnNumber: 17
 									}, void 0)]
 								}, void 0, true, {
-									fileName: _jsxFileName$5,
+									fileName: _jsxFileName$6,
 									lineNumber: 61,
 									columnNumber: 15
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -26792,17 +26809,17 @@
 										className: "sc-confirm__summary-label",
 										children: "This Comment"
 									}, void 0, false, {
-										fileName: _jsxFileName$5,
+										fileName: _jsxFileName$6,
 										lineNumber: 69,
 										columnNumber: 17
 									}, void 0), commentPrice]
 								}, void 0, true, {
-									fileName: _jsxFileName$5,
+									fileName: _jsxFileName$6,
 									lineNumber: 68,
 									columnNumber: 15
 								}, void 0)]
 							}, void 0, true, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 60,
 								columnNumber: 13
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -26811,7 +26828,7 @@
 									className: "sc-confirm__summary-label",
 									children: "Balance after comment"
 								}, void 0, false, {
-									fileName: _jsxFileName$5,
+									fileName: _jsxFileName$6,
 									lineNumber: 77,
 									columnNumber: 19
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -26820,24 +26837,24 @@
 										className: "sc-confirm__no-change",
 										children: "(No Change)"
 									}, void 0, false, {
-										fileName: _jsxFileName$5,
+										fileName: _jsxFileName$6,
 										lineNumber: 79,
 										columnNumber: 38
 									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
 										className: "sc-confirm__summary-value",
 										children: formatCoins(Math.max(0, coinBalance - coinCost))
 									}, void 0, false, {
-										fileName: _jsxFileName$5,
+										fileName: _jsxFileName$6,
 										lineNumber: 80,
 										columnNumber: 21
 									}, void 0)]
 								}, void 0, true, {
-									fileName: _jsxFileName$5,
+									fileName: _jsxFileName$6,
 									lineNumber: 78,
 									columnNumber: 19
 								}, void 0)]
 							}, void 0, true, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 76,
 								columnNumber: 17
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("a", {
@@ -26847,16 +26864,16 @@
 								rel: "noopener noreferrer",
 								children: "Buy More Coins"
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 83,
 								columnNumber: 17
 							}, void 0)] }, void 0, true, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 75,
 								columnNumber: 15
 							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 59,
 							columnNumber: 11
 						}, void 0),
@@ -26868,7 +26885,7 @@
 									alt: "",
 									className: "sc-confirm__icon"
 								}, void 0, false, {
-									fileName: _jsxFileName$5,
+									fileName: _jsxFileName$6,
 									lineNumber: 106,
 									columnNumber: 15
 								}, void 0),
@@ -26879,7 +26896,7 @@
 								" for this month (Including this)"
 							]
 						}, void 0, true, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 105,
 							columnNumber: 13
 						}, void 0),
@@ -26890,24 +26907,24 @@
 								alt: "",
 								className: "sc-confirm__icon"
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 113,
 								columnNumber: 15
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", { children: [
 								"You've used this month's free YourSay+ comment.",
 								" ",
 								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: ["Next free comments available on ", formatNextMonthStart()] }, void 0, true, {
-									fileName: _jsxFileName$5,
+									fileName: _jsxFileName$6,
 									lineNumber: 116,
 									columnNumber: 17
 								}, void 0)
 							] }, void 0, true, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 114,
 								columnNumber: 15
 							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 112,
 							columnNumber: 13
 						}, void 0),
@@ -26918,7 +26935,7 @@
 								alt: "",
 								className: "sc-confirm__icon"
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 122,
 								columnNumber: 15
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", { children: [
@@ -26931,17 +26948,17 @@
 									rel: "noopener noreferrer",
 									children: "Upgrade Membership"
 								}, void 0, false, {
-									fileName: _jsxFileName$5,
+									fileName: _jsxFileName$6,
 									lineNumber: 125,
 									columnNumber: 17
 								}, void 0)
 							] }, void 0, true, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 123,
 								columnNumber: 15
 							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 121,
 							columnNumber: 13
 						}, void 0),
@@ -26950,7 +26967,7 @@
 							role: "alert",
 							children: error
 						}, void 0, false, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 133,
 							columnNumber: 13
 						}, void 0),
@@ -26963,7 +26980,7 @@
 								disabled: isSending,
 								children: "Cancel"
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 139,
 								columnNumber: 13
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -26974,35 +26991,35 @@
 								autoFocus: true,
 								children: isSending ? "Sending..." : `Send YourSay+(${extraCoins > 0 ? formatCoins(extraCoins) : "Free"})`
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 143,
 								columnNumber: 15
 							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 138,
 							columnNumber: 11
 						}, void 0)
 					]
 				}, void 0, true, {
-					fileName: _jsxFileName$5,
+					fileName: _jsxFileName$6,
 					lineNumber: 51,
 					columnNumber: 9
 				}, void 0)
 			}, void 0, false, {
-				fileName: _jsxFileName$5,
+				fileName: _jsxFileName$6,
 				lineNumber: 50,
 				columnNumber: 7
 			}, void 0)
 		}, void 0, false, {
-			fileName: _jsxFileName$5,
+			fileName: _jsxFileName$6,
 			lineNumber: 49,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/sections/superChat/index.tsx
-	var _jsxFileName$4 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/superChat/index.tsx";
+	var _jsxFileName$5 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/superChat/index.tsx";
 	var LAST_TIER_INDEX = SUPERCHAT_TIERS.length - 1;
 	var getThumbCenter = (index) => `calc(7px + (100% - 14px) * ${index / LAST_TIER_INDEX})`;
 	var SuperChatSheet = ({ roomId }) => {
@@ -27045,7 +27062,7 @@
 			onSend: handleSend,
 			onClose: closeSuperChatSheet
 		}, void 0, false, {
-			fileName: _jsxFileName$4,
+			fileName: _jsxFileName$5,
 			lineNumber: 75,
 			columnNumber: 7
 		}, void 0);
@@ -27094,12 +27111,12 @@
 								src: close_default,
 								alt: ""
 							}, void 0, false, {
-								fileName: _jsxFileName$4,
+								fileName: _jsxFileName$5,
 								lineNumber: 126,
 								columnNumber: 13
 							}, void 0)
 						}, void 0, false, {
-							fileName: _jsxFileName$4,
+							fileName: _jsxFileName$5,
 							lineNumber: 119,
 							columnNumber: 11
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
@@ -27107,12 +27124,12 @@
 							className: "sc-sheet__title",
 							children: "Send a YourSay+ Comment"
 						}, void 0, false, {
-							fileName: _jsxFileName$4,
+							fileName: _jsxFileName$5,
 							lineNumber: 128,
 							columnNumber: 11
 						}, void 0)]
 					}, void 0, true, {
-						fileName: _jsxFileName$4,
+						fileName: _jsxFileName$5,
 						lineNumber: 118,
 						columnNumber: 9
 					}, void 0),
@@ -27125,12 +27142,12 @@
 							authorRank: getTierRank(profile.tierId),
 							extraCoins: tier.extraCoins
 						}, void 0, false, {
-							fileName: _jsxFileName$4,
+							fileName: _jsxFileName$5,
 							lineNumber: 134,
 							columnNumber: 11
 						}, void 0)
 					}, void 0, false, {
-						fileName: _jsxFileName$4,
+						fileName: _jsxFileName$5,
 						lineNumber: 133,
 						columnNumber: 9
 					}, void 0),
@@ -27140,7 +27157,7 @@
 							className: "sc-sheet__amount-note",
 							children: tier.extraCoins === 0 ? "Slide to get more prominence" : "Extra coins on your YourSay+ Comment"
 						}, void 0, false, {
-							fileName: _jsxFileName$4,
+							fileName: _jsxFileName$5,
 							lineNumber: 143,
 							columnNumber: 11
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -27153,7 +27170,7 @@
 										backgroundColor: tier.color
 									}
 								}, void 0, false, {
-									fileName: _jsxFileName$4,
+									fileName: _jsxFileName$5,
 									lineNumber: 147,
 									columnNumber: 13
 								}, void 0),
@@ -27164,12 +27181,12 @@
 										className: `sc-sheet__tick${index < tierIndex ? " sc-sheet__tick--on" : ""}${index === tierIndex ? " sc-sheet__tick--current" : ""}`,
 										style: { left: getThumbCenter(index) }
 									}, step.extraCoins, false, {
-										fileName: _jsxFileName$4,
+										fileName: _jsxFileName$5,
 										lineNumber: 153,
 										columnNumber: 17
 									}, void 0))
 								}, void 0, false, {
-									fileName: _jsxFileName$4,
+									fileName: _jsxFileName$5,
 									lineNumber: 151,
 									columnNumber: 13
 								}, void 0),
@@ -27186,18 +27203,18 @@
 									"aria-label": "YourSay+ amount",
 									"aria-valuetext": `${formatCoins(tier.extraCoins)} extra`
 								}, void 0, false, {
-									fileName: _jsxFileName$4,
+									fileName: _jsxFileName$5,
 									lineNumber: 162,
 									columnNumber: 13
 								}, void 0)
 							]
 						}, void 0, true, {
-							fileName: _jsxFileName$4,
+							fileName: _jsxFileName$5,
 							lineNumber: 146,
 							columnNumber: 11
 						}, void 0)]
 					}, void 0, true, {
-						fileName: _jsxFileName$4,
+						fileName: _jsxFileName$5,
 						lineNumber: 142,
 						columnNumber: 9
 					}, void 0),
@@ -27210,18 +27227,18 @@
 							disabled: isSending,
 							children: "Continue"
 						}, void 0, false, {
-							fileName: _jsxFileName$4,
+							fileName: _jsxFileName$5,
 							lineNumber: 179,
 							columnNumber: 11
 						}, void 0)
 					}, void 0, false, {
-						fileName: _jsxFileName$4,
+						fileName: _jsxFileName$5,
 						lineNumber: 178,
 						columnNumber: 9
 					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$4,
+				fileName: _jsxFileName$5,
 				lineNumber: 111,
 				columnNumber: 7
 			}, void 0), isConfirming && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatConfirmDialog, {
@@ -27231,22 +27248,22 @@
 				onSend: handleSend,
 				onClose: () => setIsConfirming(false)
 			}, void 0, false, {
-				fileName: _jsxFileName$4,
+				fileName: _jsxFileName$5,
 				lineNumber: 191,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
-			fileName: _jsxFileName$4,
+			fileName: _jsxFileName$5,
 			lineNumber: 103,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/sections/comments/index.tsx
-	var _jsxFileName$3 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/index.tsx";
+	var _jsxFileName$4 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/index.tsx";
 	var LIST_COMPONENTS = {
 		Header: () => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "comment-list__spacer" }, void 0, false, {
-			fileName: _jsxFileName$3,
+			fileName: _jsxFileName$4,
 			lineNumber: 41,
 			columnNumber: 17
 		}, void 0),
@@ -27254,7 +27271,7 @@
 			className: "comment-list__loading",
 			children: "Loading more..."
 		}, void 0, false, {
-			fileName: _jsxFileName$3,
+			fileName: _jsxFileName$4,
 			lineNumber: 43,
 			columnNumber: 30
 		}, void 0) : null
@@ -27357,12 +27374,12 @@
 							")"
 						]
 					}, id, true, {
-						fileName: _jsxFileName$3,
+						fileName: _jsxFileName$4,
 						lineNumber: 140,
 						columnNumber: 11
 					}, void 0))
 				}, void 0, false, {
-					fileName: _jsxFileName$3,
+					fileName: _jsxFileName$4,
 					lineNumber: 138,
 					columnNumber: 7
 				}, void 0),
@@ -27377,35 +27394,35 @@
 							"aria-hidden": "true",
 							children: [
 								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-skeleton__name" }, void 0, false, {
-									fileName: _jsxFileName$3,
+									fileName: _jsxFileName$4,
 									lineNumber: 159,
 									columnNumber: 19
 								}, void 0),
 								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-skeleton__line" }, void 0, false, {
-									fileName: _jsxFileName$3,
+									fileName: _jsxFileName$4,
 									lineNumber: 160,
 									columnNumber: 19
 								}, void 0),
 								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-skeleton__line message-skeleton__line--short" }, void 0, false, {
-									fileName: _jsxFileName$3,
+									fileName: _jsxFileName$4,
 									lineNumber: 161,
 									columnNumber: 19
 								}, void 0)
 							]
 						}, index, true, {
-							fileName: _jsxFileName$3,
+							fileName: _jsxFileName$4,
 							lineNumber: 158,
 							columnNumber: 17
 						}, void 0))
 					}, void 0, false, {
-						fileName: _jsxFileName$3,
+						fileName: _jsxFileName$4,
 						lineNumber: 156,
 						columnNumber: 13
 					}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 						className: "comment-list__empty",
 						children: emptyText
 					}, void 0, false, {
-						fileName: _jsxFileName$3,
+						fileName: _jsxFileName$4,
 						lineNumber: 166,
 						columnNumber: 13
 					}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(es, {
@@ -27417,16 +27434,16 @@
 						itemContent: (_, message) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 							className: "comment-list__item",
 							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, { message }, void 0, false, {
-								fileName: _jsxFileName$3,
+								fileName: _jsxFileName$4,
 								lineNumber: 178,
 								columnNumber: 17
 							}, void 0), message.kind === MESSAGE_KIND.NORMAL && message.reply_count > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageThread, { root: message }, void 0, false, {
-								fileName: _jsxFileName$3,
+								fileName: _jsxFileName$4,
 								lineNumber: 180,
 								columnNumber: 19
 							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$3,
+							fileName: _jsxFileName$4,
 							lineNumber: 177,
 							columnNumber: 15
 						}, void 0),
@@ -27440,7 +27457,7 @@
 							setSeenTopId(isAtTop ? null : messages[0]?.id ?? null);
 						}
 					}, activeTab, false, {
-						fileName: _jsxFileName$3,
+						fileName: _jsxFileName$4,
 						lineNumber: 169,
 						columnNumber: 11
 					}, void 0), showGoToTop && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -27452,7 +27469,7 @@
 								className: "go-to-top__badge",
 								children: [newCount > 99 ? "99+" : newCount, " new"]
 							}, void 0, true, {
-								fileName: _jsxFileName$3,
+								fileName: _jsxFileName$4,
 								lineNumber: 198,
 								columnNumber: 15
 							}, void 0),
@@ -27463,12 +27480,12 @@
 									src: "data:image/svg+xml,%3csvg%20width='24'%20height='29'%20viewBox='0%200%2024%2029'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M23.445%2010.5607C24.185%209.97485%2024.185%209.02531%2023.445%208.43951L13.3397%200.43935C12.5997%20-0.146449%2011.4003%20-0.146449%2010.6603%200.43935L0.55496%208.43951C-0.18499%209.02531%20-0.18499%209.97485%200.55496%2010.5607C1.29491%2011.1464%202.49432%2011.1464%203.23427%2010.5607L12%203.62106L20.7657%2010.5607C21.5057%2011.1464%2022.7051%2011.1464%2023.445%2010.5607Z'%20fill='white'/%3e%3cpath%20opacity='0.3'%20d='M23.445%2019.5607C24.185%2018.9749%2024.185%2018.0253%2023.445%2017.4395L13.3397%209.43935C12.5997%208.85355%2011.4003%208.85355%2010.6603%209.43935L0.55496%2017.4395C-0.18499%2018.0253%20-0.18499%2018.9749%200.55496%2019.5607C1.29491%2020.1464%202.49432%2020.1464%203.23427%2019.5607L12%2012.6211L20.7657%2019.5607C21.5057%2020.1464%2022.7051%2020.1464%2023.445%2019.5607Z'%20fill='white'/%3e%3cpath%20opacity='0.1'%20d='M23.445%2028.5607C24.185%2027.9749%2024.185%2027.0253%2023.445%2026.4395L13.3397%2018.4394C12.5997%2017.8536%2011.4003%2017.8536%2010.6603%2018.4394L0.55496%2026.4395C-0.18499%2027.0253%20-0.18499%2027.9749%200.55496%2028.5607C1.29491%2029.1464%202.49432%2029.1464%203.23427%2028.5607L12%2021.6211L20.7657%2028.5607C21.5057%2029.1464%2022.7051%2029.1464%2023.445%2028.5607Z'%20fill='white'/%3e%3c/svg%3e",
 									alt: ""
 								}, void 0, false, {
-									fileName: _jsxFileName$3,
+									fileName: _jsxFileName$4,
 									lineNumber: 201,
 									columnNumber: 15
 								}, void 0)
 							}, void 0, false, {
-								fileName: _jsxFileName$3,
+								fileName: _jsxFileName$4,
 								lineNumber: 200,
 								columnNumber: 13
 							}, void 0),
@@ -27476,46 +27493,46 @@
 								className: "go-to-top__label",
 								children: "Go to Top"
 							}, void 0, false, {
-								fileName: _jsxFileName$3,
+								fileName: _jsxFileName$4,
 								lineNumber: 203,
 								columnNumber: 13
 							}, void 0)
 						]
 					}, void 0, true, {
-						fileName: _jsxFileName$3,
+						fileName: _jsxFileName$4,
 						lineNumber: 196,
 						columnNumber: 11
 					}, void 0)]
 				}, void 0, true, {
-					fileName: _jsxFileName$3,
+					fileName: _jsxFileName$4,
 					lineNumber: 153,
 					columnNumber: 7
 				}, void 0),
 				comments.threadStack.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ThreadModal, {}, comments.threadStack[comments.threadStack.length - 1].id, false, {
-					fileName: _jsxFileName$3,
+					fileName: _jsxFileName$4,
 					lineNumber: 208,
 					columnNumber: 43
 				}, void 0),
 				isSheetOpen && roomId && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatSheet, { roomId }, void 0, false, {
-					fileName: _jsxFileName$3,
+					fileName: _jsxFileName$4,
 					lineNumber: 209,
 					columnNumber: 33
 				}, void 0),
 				panelUserId && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserMessagesPanel, {}, void 0, false, {
-					fileName: _jsxFileName$3,
+					fileName: _jsxFileName$4,
 					lineNumber: 210,
 					columnNumber: 23
 				}, void 0)
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$3,
+			fileName: _jsxFileName$4,
 			lineNumber: 137,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/sections/messageBox/EnhanceWithAi.tsx
-	var _jsxFileName$2 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/EnhanceWithAi.tsx";
+	var _jsxFileName$3 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/EnhanceWithAi.tsx";
 	var EnhanceWithAi = ({ message, isOnGradient }) => {
 		const { profile } = useAuth();
 		const isMember = getTierRank(profile.tierId) !== USER_RANK.FRIEND;
@@ -27541,12 +27558,12 @@
 					alt: "AI",
 					className: "enhance-ai__icon"
 				}, void 0, false, {
-					fileName: _jsxFileName$2,
+					fileName: _jsxFileName$3,
 					lineNumber: 39,
 					columnNumber: 9
 				}, void 0)]
 			}, void 0, true, {
-				fileName: _jsxFileName$2,
+				fileName: _jsxFileName$3,
 				lineNumber: 32,
 				columnNumber: 7
 			}, void 0), isUpsellShown && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -27554,19 +27571,19 @@
 				role: "alert",
 				children: "You have to upgrade membership to avail this feature!"
 			}, void 0, false, {
-				fileName: _jsxFileName$2,
+				fileName: _jsxFileName$3,
 				lineNumber: 42,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
-			fileName: _jsxFileName$2,
+			fileName: _jsxFileName$3,
 			lineNumber: 31,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/sections/messageBox/ModerationDialog.tsx
-	var _jsxFileName$1 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/ModerationDialog.tsx";
+	var _jsxFileName$2 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/ModerationDialog.tsx";
 	var ModerationDialog = ({ kind, message, onSend, onClose }) => {
 		const noun = kind === MODERATION_KIND.SUPERCHAT ? "YourSay+" : "Comment";
 		useEscapeKey(true, onClose);
@@ -27590,19 +27607,19 @@
 								className: "mod-dialog__title",
 								children: ["Your ", noun]
 							}, void 0, true, {
-								fileName: _jsxFileName$1,
+								fileName: _jsxFileName$2,
 								lineNumber: 30,
 								columnNumber: 13
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 								className: "mod-dialog__pill mod-dialog__pill--warning",
 								children: "It might not pass moderation"
 							}, void 0, false, {
-								fileName: _jsxFileName$1,
+								fileName: _jsxFileName$2,
 								lineNumber: 33,
 								columnNumber: 13
 							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$1,
+							fileName: _jsxFileName$2,
 							lineNumber: 29,
 							columnNumber: 11
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -27611,7 +27628,7 @@
 								className: "mod-dialog__message",
 								children: message
 							}, void 0, false, {
-								fileName: _jsxFileName$1,
+								fileName: _jsxFileName$2,
 								lineNumber: 36,
 								columnNumber: 13
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -27623,22 +27640,22 @@
 									alt: "",
 									className: "mod-dialog__action-icon"
 								}, void 0, false, {
-									fileName: _jsxFileName$1,
+									fileName: _jsxFileName$2,
 									lineNumber: 39,
 									columnNumber: 15
 								}, void 0)]
 							}, void 0, true, {
-								fileName: _jsxFileName$1,
+								fileName: _jsxFileName$2,
 								lineNumber: 37,
 								columnNumber: 13
 							}, void 0)]
 						}, void 0, true, {
-							fileName: _jsxFileName$1,
+							fileName: _jsxFileName$2,
 							lineNumber: 35,
 							columnNumber: 11
 						}, void 0)]
 					}, void 0, true, {
-						fileName: _jsxFileName$1,
+						fileName: _jsxFileName$2,
 						lineNumber: 28,
 						columnNumber: 9
 					}, void 0),
@@ -27655,7 +27672,7 @@
 											alt: "AI",
 											className: "mod-dialog__ai"
 										}, void 0, false, {
-											fileName: _jsxFileName$1,
+											fileName: _jsxFileName$2,
 											lineNumber: 47,
 											columnNumber: 15
 										}, void 0),
@@ -27663,19 +27680,19 @@
 										noun
 									]
 								}, void 0, true, {
-									fileName: _jsxFileName$1,
+									fileName: _jsxFileName$2,
 									lineNumber: 46,
 									columnNumber: 13
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 									className: "mod-dialog__pill mod-dialog__pill--recommended",
 									children: "Recommended"
 								}, void 0, false, {
-									fileName: _jsxFileName$1,
+									fileName: _jsxFileName$2,
 									lineNumber: 50,
 									columnNumber: 13
 								}, void 0)]
 							}, void 0, true, {
-								fileName: _jsxFileName$1,
+								fileName: _jsxFileName$2,
 								lineNumber: 45,
 								columnNumber: 11
 							}, void 0),
@@ -27686,7 +27703,7 @@
 									className: "mod-dialog__message",
 									children: SAMPLE_LOCKED_SUGGESTION
 								}, void 0, false, {
-									fileName: _jsxFileName$1,
+									fileName: _jsxFileName$2,
 									lineNumber: 53,
 									columnNumber: 13
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -27699,17 +27716,17 @@
 										alt: "",
 										className: "mod-dialog__action-icon"
 									}, void 0, false, {
-										fileName: _jsxFileName$1,
+										fileName: _jsxFileName$2,
 										lineNumber: 56,
 										columnNumber: 15
 									}, void 0)]
 								}, void 0, true, {
-									fileName: _jsxFileName$1,
+									fileName: _jsxFileName$2,
 									lineNumber: 54,
 									columnNumber: 13
 								}, void 0)]
 							}, void 0, true, {
-								fileName: _jsxFileName$1,
+								fileName: _jsxFileName$2,
 								lineNumber: 52,
 								columnNumber: 11
 							}, void 0),
@@ -27717,13 +27734,13 @@
 								className: "mod-dialog__upsell",
 								children: "Upgrade your membership for AI suggestions"
 							}, void 0, false, {
-								fileName: _jsxFileName$1,
+								fileName: _jsxFileName$2,
 								lineNumber: 59,
 								columnNumber: 11
 							}, void 0)
 						]
 					}, void 0, true, {
-						fileName: _jsxFileName$1,
+						fileName: _jsxFileName$2,
 						lineNumber: 44,
 						columnNumber: 9
 					}, void 0),
@@ -27736,24 +27753,81 @@
 							autoFocus: true,
 							children: "Cancel, I’ll write it again"
 						}, void 0, false, {
-							fileName: _jsxFileName$1,
+							fileName: _jsxFileName$2,
 							lineNumber: 63,
 							columnNumber: 11
 						}, void 0)
 					}, void 0, false, {
-						fileName: _jsxFileName$1,
+						fileName: _jsxFileName$2,
 						lineNumber: 62,
 						columnNumber: 9
 					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$1,
+				fileName: _jsxFileName$2,
 				lineNumber: 27,
 				columnNumber: 7
 			}, void 0)
 		}, void 0, false, {
-			fileName: _jsxFileName$1,
+			fileName: _jsxFileName$2,
 			lineNumber: 19,
+			columnNumber: 5
+		}, void 0);
+	};
+	//#endregion
+	//#region src/sections/messageBox/RemovedSnackbar.tsx
+	var _jsxFileName$1 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/RemovedSnackbar.tsx";
+	var RemovedSnackbar = ({ isSuperChat }) => {
+		const { user } = useAuth();
+		(0, import_react.useEffect)(() => {
+			const timer = setTimeout(dismissRemovedNotice, SNACKBAR_DURATION_MS);
+			return () => clearTimeout(timer);
+		}, []);
+		const handleView = () => {
+			dismissRemovedNotice();
+			if (user) openUserMessages(user.id, user.name, true, ACTIVITY_TAB.REMOVED);
+		};
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "removed-snackbar",
+			role: "alert",
+			children: [
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", { children: [REMOVED_NOTICE, isSuperChat && ` Any coins deducted for this YourSay+ will be refunded.`] }, void 0, true, {
+					fileName: _jsxFileName$1,
+					lineNumber: 29,
+					columnNumber: 7
+				}, void 0),
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+					type: "button",
+					className: "removed-snackbar__view",
+					onClick: handleView,
+					children: "View"
+				}, void 0, false, {
+					fileName: _jsxFileName$1,
+					lineNumber: 33,
+					columnNumber: 7
+				}, void 0),
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+					type: "button",
+					className: "removed-snackbar__close",
+					onClick: dismissRemovedNotice,
+					"aria-label": "Dismiss",
+					children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+						src: close_default,
+						alt: ""
+					}, void 0, false, {
+						fileName: _jsxFileName$1,
+						lineNumber: 37,
+						columnNumber: 9
+					}, void 0)
+				}, void 0, false, {
+					fileName: _jsxFileName$1,
+					lineNumber: 36,
+					columnNumber: 7
+				}, void 0)
+			]
+		}, void 0, true, {
+			fileName: _jsxFileName$1,
+			lineNumber: 28,
 			columnNumber: 5
 		}, void 0);
 	};
@@ -27764,7 +27838,7 @@
 		const { status, user } = useAuth();
 		const { sentCount, needsModeration } = useSuperChat();
 		const { replyTo } = useReply();
-		const { settings, activeTab } = useComments();
+		const { settings, activeTab, removedNotice } = useComments();
 		const isYourSayTab = activeTab === CHAT_TAB.SUPER;
 		const boxClassName = `message-box${isYourSayTab ? " message-box--yoursay" : ""}`;
 		const isClosed = settings?.mode === ROOM_MODE.CLOSED;
@@ -27773,6 +27847,7 @@
 		const [moderationKind, setModerationKind] = (0, import_react.useState)(null);
 		const [isSending, setIsSending] = (0, import_react.useState)(false);
 		const [error, setError] = (0, import_react.useState)(null);
+		const [hasResponse, setHasResponse] = (0, import_react.useState)(false);
 		const [handledSentCount, setHandledSentCount] = (0, import_react.useState)(sentCount);
 		const [prevStatus, setPrevStatus] = (0, import_react.useState)(status);
 		const inputRef = (0, import_react.useRef)(null);
@@ -27825,6 +27900,7 @@
 				setError(toErrorMessage(sendError, ERROR_MESSAGE.SEND_COMMENT));
 			} finally {
 				setIsSending(false);
+				setHasResponse(true);
 			}
 		};
 		const handleSend = () => {
@@ -27866,225 +27942,234 @@
 				"aria-hidden": "true",
 				children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton user-avatar" }, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 150,
+					lineNumber: 160,
 					columnNumber: 11
 				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-box__field-skeleton" }, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 151,
+					lineNumber: 161,
 					columnNumber: 11
 				}, void 0)]
 			}, void 0, true, {
 				fileName: _jsxFileName,
-				lineNumber: 149,
+				lineNumber: 159,
 				columnNumber: 9
 			}, void 0)
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 148,
+			lineNumber: 158,
 			columnNumber: 7
 		}, void 0);
-		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: boxClassName,
-			part: "message-box",
-			children: [
-				!user && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-					type: "button",
-					className: "message-box__login",
-					onClick: openGbnLogin,
-					children: "Log In"
-				}, void 0, false, {
-					fileName: _jsxFileName,
-					lineNumber: 161,
-					columnNumber: 11
-				}, void 0),
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-					className: "message-box__row",
-					children: [user ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
+			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: boxClassName,
+				part: "message-box",
+				children: [
+					!user && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 						type: "button",
-						className: "message-box__avatar-btn",
-						onClick: () => openUserMessages(user.id, user.name, true),
-						"aria-label": "Your comments",
-						children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
-							fileName: _jsxFileName,
-							lineNumber: 173,
-							columnNumber: 15
-						}, void 0)
+						className: "message-box__login",
+						onClick: openGbnLogin,
+						children: "Log In"
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 167,
-						columnNumber: 13
-					}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
-						fileName: _jsxFileName,
-						lineNumber: 176,
-						columnNumber: 13
-					}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "message-box__field",
-						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "message-box__field-content",
-							children: [replyTo && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-								className: "message-box__reply-banner",
-								children: [
-									"You are replying to ",
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: [replyTo.userName, "..."] }, void 0, true, {
-										fileName: _jsxFileName,
-										lineNumber: 182,
-										columnNumber: 39
-									}, void 0),
-									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-										type: "button",
-										className: "message-box__cancel-reply",
-										onClick: handleCancelReply,
-										children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-											src: "data:image/svg+xml,%3csvg%20width='10'%20height='10'%20viewBox='0%200%2010%2010'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M9.81286%201.12981C9.9343%201.00407%2010.0015%200.835672%209.99997%200.660874C9.99846%200.486076%209.92834%200.318868%209.80474%200.195262C9.68113%200.0716569%209.51392%200.00154415%209.33913%202.52016e-05C9.16433%20-0.00149374%208.99593%200.0657028%208.87019%200.187141L5.00819%204.04914L1.14619%200.187141C1.02046%200.0657028%200.852056%20-0.00149374%200.677258%202.52016e-05C0.50246%200.00154415%200.335252%200.0716569%200.211646%200.195262C0.088041%200.318868%200.0179282%200.486076%200.0164093%200.660874C0.0148903%200.835672%200.0820869%201.00407%200.203526%201.12981L4.06553%204.99181L0.203526%208.85381C0.139852%208.91531%200.0890639%208.98887%200.0541246%209.0702C0.0191852%209.15154%200.000794382%209.23902%202.51714e-05%209.32754C-0.000744039%209.41606%200.0161236%209.50385%200.0496442%209.58578C0.0831648%209.66771%200.132667%209.74214%200.195262%209.80474C0.257857%209.86733%200.332292%209.91683%200.414223%209.95036C0.496154%209.98388%200.58394%2010.0007%200.67246%209.99997C0.760979%209.99921%200.848459%209.98081%200.929795%209.94587C1.01113%209.91094%201.08469%209.86015%201.14619%209.79647L5.00819%205.93447L8.87019%209.79647C8.99593%209.91791%209.16433%209.98511%209.33913%209.98359C9.51392%209.98207%209.68113%209.91196%209.80474%209.78835C9.92834%209.66475%209.99846%209.49754%209.99997%209.32274C10.0015%209.14794%209.9343%208.97954%209.81286%208.85381L5.95086%204.99181L9.81286%201.12981Z'%20fill='%23EB0000'/%3e%3c/svg%3e",
-											alt: "",
-											className: "message-box__cancel-icon"
-										}, void 0, false, {
-											fileName: _jsxFileName,
-											lineNumber: 184,
-											columnNumber: 21
-										}, void 0), " Cancel"]
-									}, void 0, true, {
-										fileName: _jsxFileName,
-										lineNumber: 183,
-										columnNumber: 19
-									}, void 0)
-								]
-							}, void 0, true, {
+						lineNumber: 171,
+						columnNumber: 11
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "message-box__row",
+						children: [user ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							className: "message-box__avatar-btn",
+							onClick: () => openUserMessages(user.id, user.name, true),
+							"aria-label": "Your comments",
+							children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
 								fileName: _jsxFileName,
-								lineNumber: 181,
-								columnNumber: 17
-							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-								className: "message-box__input-row",
-								children: [replyTo && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-									className: "message-box__mention",
-									children: ["@", replyTo.userName]
-								}, void 0, true, {
-									fileName: _jsxFileName,
-									lineNumber: 189,
-									columnNumber: 29
-								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
-									ref: inputRef,
-									className: "message-box__input",
-									placeholder: isClosed ? "Comments are closed" : user ? `Join the conversation, ${user.name}` : "Join the conversation",
-									"aria-label": user ? "Message" : "Log in to join the conversation",
-									rows: 2,
-									value: text,
-									onChange: (event) => {
-										setText(event.target.value);
-										setError(null);
-									},
-									onKeyDown: (event) => {
-										if (event.key === "Enter" && !event.shiftKey) {
-											event.preventDefault();
-											if (mustSendSuperChat) handleSuperChat();
-											else handleSend();
-										}
-									},
-									readOnly: isSending,
-									disabled: !user || isClosed
-								}, void 0, false, {
-									fileName: _jsxFileName,
-									lineNumber: 190,
-									columnNumber: 17
-								}, void 0)]
-							}, void 0, true, {
-								fileName: _jsxFileName,
-								lineNumber: 188,
+								lineNumber: 183,
 								columnNumber: 15
-							}, void 0)]
-						}, void 0, true, {
+							}, void 0)
+						}, void 0, false, {
 							fileName: _jsxFileName,
-							lineNumber: 179,
+							lineNumber: 177,
+							columnNumber: 13
+						}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
+							fileName: _jsxFileName,
+							lineNumber: 186,
 							columnNumber: 13
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "message-box__actions",
-							children: [!mustSendSuperChat && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-								type: "button",
-								className: "message-box__btn",
-								onClick: handleSend,
-								disabled: !canSend,
-								children: [isSending ? "Sending..." : "Send", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-									src: "data:image/svg+xml,%3csvg%20width='20'%20height='21'%20viewBox='0%200%2020%2021'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M19.4118%209.06477C19.582%209.14935%2019.7263%209.27822%2019.8296%209.4378L19.8396%209.45344L19.8493%209.46932C19.9478%209.63387%2020%209.82223%2020%2010.0143C20%2010.2126%2019.9446%2010.4068%2019.8398%2010.575C19.736%2010.7418%2019.5879%2010.8763%2019.4122%2010.9635L1.5293%2019.9162L1.52768%2019.9171L1.52605%2019.9179C1.3457%2020.0069%201.14372%2020.0425%200.943813%2020.0207C0.743908%2019.9989%200.554327%2019.9204%200.397286%2019.7946C0.240236%2019.6688%200.122214%2019.5007%200.0570656%2019.3101C-0.00808261%2019.1196%20-0.017665%2018.9144%200.0294286%2018.7186L0.0327681%2018.7047L2.58384%209.8696L0.0358956%201.32443L0.0319178%201.30795C-0.0152533%201.11215%20-0.00575219%200.906945%200.0593183%200.716406C0.124391%200.525871%200.242348%200.357868%200.399343%200.232087L0.414164%200.220429C0.5682%200.101467%200.752137%200.0272698%200.94578%200.00619672L0.964531%200.00432713C1.15829%20-0.0132654%201.3533%200.022995%201.52805%200.10928L1.52967%200.110053L19.4118%209.06477ZM3.72149%2010.5076L1.39615%2018.5609L17.2115%2010.6433L3.72149%2010.5076ZM1.40387%201.46861L3.71984%209.23588L17.1853%209.37132L1.40387%201.46861Z'%20fill='white'/%3e%3c/svg%3e",
-									alt: "",
-									className: "message-box__btn-icon"
-								}, void 0, false, {
+							className: "message-box__field",
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+								className: "message-box__field-content",
+								children: [replyTo && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+									className: "message-box__reply-banner",
+									children: [
+										"You are replying to ",
+										/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: [replyTo.userName, "..."] }, void 0, true, {
+											fileName: _jsxFileName,
+											lineNumber: 192,
+											columnNumber: 39
+										}, void 0),
+										/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+											type: "button",
+											className: "message-box__cancel-reply",
+											onClick: handleCancelReply,
+											children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+												src: "data:image/svg+xml,%3csvg%20width='10'%20height='10'%20viewBox='0%200%2010%2010'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M9.81286%201.12981C9.9343%201.00407%2010.0015%200.835672%209.99997%200.660874C9.99846%200.486076%209.92834%200.318868%209.80474%200.195262C9.68113%200.0716569%209.51392%200.00154415%209.33913%202.52016e-05C9.16433%20-0.00149374%208.99593%200.0657028%208.87019%200.187141L5.00819%204.04914L1.14619%200.187141C1.02046%200.0657028%200.852056%20-0.00149374%200.677258%202.52016e-05C0.50246%200.00154415%200.335252%200.0716569%200.211646%200.195262C0.088041%200.318868%200.0179282%200.486076%200.0164093%200.660874C0.0148903%200.835672%200.0820869%201.00407%200.203526%201.12981L4.06553%204.99181L0.203526%208.85381C0.139852%208.91531%200.0890639%208.98887%200.0541246%209.0702C0.0191852%209.15154%200.000794382%209.23902%202.51714e-05%209.32754C-0.000744039%209.41606%200.0161236%209.50385%200.0496442%209.58578C0.0831648%209.66771%200.132667%209.74214%200.195262%209.80474C0.257857%209.86733%200.332292%209.91683%200.414223%209.95036C0.496154%209.98388%200.58394%2010.0007%200.67246%209.99997C0.760979%209.99921%200.848459%209.98081%200.929795%209.94587C1.01113%209.91094%201.08469%209.86015%201.14619%209.79647L5.00819%205.93447L8.87019%209.79647C8.99593%209.91791%209.16433%209.98511%209.33913%209.98359C9.51392%209.98207%209.68113%209.91196%209.80474%209.78835C9.92834%209.66475%209.99846%209.49754%209.99997%209.32274C10.0015%209.14794%209.9343%208.97954%209.81286%208.85381L5.95086%204.99181L9.81286%201.12981Z'%20fill='%23EB0000'/%3e%3c/svg%3e",
+												alt: "",
+												className: "message-box__cancel-icon"
+											}, void 0, false, {
+												fileName: _jsxFileName,
+												lineNumber: 194,
+												columnNumber: 21
+											}, void 0), " Cancel"]
+										}, void 0, true, {
+											fileName: _jsxFileName,
+											lineNumber: 193,
+											columnNumber: 19
+										}, void 0)
+									]
+								}, void 0, true, {
 									fileName: _jsxFileName,
-									lineNumber: 226,
-									columnNumber: 19
+									lineNumber: 191,
+									columnNumber: 17
+								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+									className: "message-box__input-row",
+									children: [replyTo && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: "message-box__mention",
+										children: ["@", replyTo.userName]
+									}, void 0, true, {
+										fileName: _jsxFileName,
+										lineNumber: 199,
+										columnNumber: 29
+									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
+										ref: inputRef,
+										className: "message-box__input",
+										placeholder: isClosed ? "Comments are closed" : user ? `Join the conversation, ${user.name}` : "Join the conversation",
+										"aria-label": user ? "Message" : "Log in to join the conversation",
+										rows: 2,
+										value: text,
+										onChange: (event) => {
+											setText(event.target.value);
+											setError(null);
+											setHasResponse(false);
+										},
+										onKeyDown: (event) => {
+											if (event.key === "Enter" && !event.shiftKey) {
+												event.preventDefault();
+												if (mustSendSuperChat) handleSuperChat();
+												else handleSend();
+											}
+										},
+										readOnly: isSending,
+										disabled: !user || isClosed
+									}, void 0, false, {
+										fileName: _jsxFileName,
+										lineNumber: 200,
+										columnNumber: 17
+									}, void 0)]
+								}, void 0, true, {
+									fileName: _jsxFileName,
+									lineNumber: 198,
+									columnNumber: 15
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 224,
-								columnNumber: 17
-							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-								type: "button",
-								className: "message-box__btn",
-								onClick: handleSuperChat,
-								disabled: !canSend,
-								children: "Send YourSay+"
-							}, void 0, false, {
+								lineNumber: 189,
+								columnNumber: 13
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+								className: "message-box__actions",
+								children: [!mustSendSuperChat && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+									type: "button",
+									className: "message-box__btn",
+									onClick: handleSend,
+									disabled: !canSend,
+									children: [isSending ? "Sending..." : "Send", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+										src: "data:image/svg+xml,%3csvg%20width='20'%20height='21'%20viewBox='0%200%2020%2021'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M19.4118%209.06477C19.582%209.14935%2019.7263%209.27822%2019.8296%209.4378L19.8396%209.45344L19.8493%209.46932C19.9478%209.63387%2020%209.82223%2020%2010.0143C20%2010.2126%2019.9446%2010.4068%2019.8398%2010.575C19.736%2010.7418%2019.5879%2010.8763%2019.4122%2010.9635L1.5293%2019.9162L1.52768%2019.9171L1.52605%2019.9179C1.3457%2020.0069%201.14372%2020.0425%200.943813%2020.0207C0.743908%2019.9989%200.554327%2019.9204%200.397286%2019.7946C0.240236%2019.6688%200.122214%2019.5007%200.0570656%2019.3101C-0.00808261%2019.1196%20-0.017665%2018.9144%200.0294286%2018.7186L0.0327681%2018.7047L2.58384%209.8696L0.0358956%201.32443L0.0319178%201.30795C-0.0152533%201.11215%20-0.00575219%200.906945%200.0593183%200.716406C0.124391%200.525871%200.242348%200.357868%200.399343%200.232087L0.414164%200.220429C0.5682%200.101467%200.752137%200.0272698%200.94578%200.00619672L0.964531%200.00432713C1.15829%20-0.0132654%201.3533%200.022995%201.52805%200.10928L1.52967%200.110053L19.4118%209.06477ZM3.72149%2010.5076L1.39615%2018.5609L17.2115%2010.6433L3.72149%2010.5076ZM1.40387%201.46861L3.71984%209.23588L17.1853%209.37132L1.40387%201.46861Z'%20fill='white'/%3e%3c/svg%3e",
+										alt: "",
+										className: "message-box__btn-icon"
+									}, void 0, false, {
+										fileName: _jsxFileName,
+										lineNumber: 237,
+										columnNumber: 19
+									}, void 0)]
+								}, void 0, true, {
+									fileName: _jsxFileName,
+									lineNumber: 235,
+									columnNumber: 17
+								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+									type: "button",
+									className: "message-box__btn",
+									onClick: handleSuperChat,
+									disabled: !canSend,
+									children: "Send YourSay+"
+								}, void 0, false, {
+									fileName: _jsxFileName,
+									lineNumber: 240,
+									columnNumber: 15
+								}, void 0)]
+							}, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 229,
-								columnNumber: 15
+								lineNumber: 233,
+								columnNumber: 13
 							}, void 0)]
 						}, void 0, true, {
 							fileName: _jsxFileName,
-							lineNumber: 222,
-							columnNumber: 13
+							lineNumber: 188,
+							columnNumber: 11
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName,
-						lineNumber: 178,
+						lineNumber: 175,
+						columnNumber: 9
+					}, void 0),
+					isFlagged && !hasResponse && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						className: "message-box__warning",
+						role: "alert",
+						children: "Your message is unethical and breaks our community guidelines."
+					}, void 0, false, {
+						fileName: _jsxFileName,
+						lineNumber: 247,
 						columnNumber: 11
-					}, void 0)]
-				}, void 0, true, {
-					fileName: _jsxFileName,
-					lineNumber: 165,
-					columnNumber: 9
-				}, void 0),
-				isFlagged && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-					className: "message-box__warning",
-					role: "alert",
-					children: "Your message is unethical and breaks our community guidelines."
-				}, void 0, false, {
-					fileName: _jsxFileName,
-					lineNumber: 236,
-					columnNumber: 11
-				}, void 0),
-				error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-					className: "message-box__warning",
-					role: "alert",
-					children: error
-				}, void 0, false, {
-					fileName: _jsxFileName,
-					lineNumber: 241,
-					columnNumber: 11
-				}, void 0),
-				isAiEnabled && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(EnhanceWithAi, {
-					message: text,
-					isOnGradient: isYourSayTab
-				}, void 0, false, {
-					fileName: _jsxFileName,
-					lineNumber: 246,
-					columnNumber: 11
-				}, void 0)
-			]
-		}, void 0, true, {
+					}, void 0),
+					error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						className: "message-box__warning",
+						role: "alert",
+						children: error
+					}, void 0, false, {
+						fileName: _jsxFileName,
+						lineNumber: 252,
+						columnNumber: 11
+					}, void 0),
+					isAiEnabled && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(EnhanceWithAi, {
+						message: text,
+						isOnGradient: isYourSayTab
+					}, void 0, false, {
+						fileName: _jsxFileName,
+						lineNumber: 257,
+						columnNumber: 11
+					}, void 0)
+				]
+			}, void 0, true, {
+				fileName: _jsxFileName,
+				lineNumber: 169,
+				columnNumber: 7
+			}, void 0),
+			removedNotice && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RemovedSnackbar, { isSuperChat: removedNotice.isSuperChat }, removedNotice.id, false, {
+				fileName: _jsxFileName,
+				lineNumber: 260,
+				columnNumber: 25
+			}, void 0),
+			activeModeration && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ModerationDialog, {
+				kind: activeModeration,
+				message: text.trim(),
+				onSend: handleModerationSend,
+				onClose: handleModerationCancel
+			}, void 0, false, {
+				fileName: _jsxFileName,
+				lineNumber: 262,
+				columnNumber: 9
+			}, void 0)
+		] }, void 0, true, {
 			fileName: _jsxFileName,
-			lineNumber: 159,
-			columnNumber: 7
-		}, void 0), activeModeration && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ModerationDialog, {
-			kind: activeModeration,
-			message: text.trim(),
-			onSend: handleModerationSend,
-			onClose: handleModerationCancel
-		}, void 0, false, {
-			fileName: _jsxFileName,
-			lineNumber: 250,
-			columnNumber: 9
-		}, void 0)] }, void 0, true, {
-			fileName: _jsxFileName,
-			lineNumber: 158,
+			lineNumber: 168,
 			columnNumber: 5
 		}, void 0);
 	};
