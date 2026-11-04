@@ -47,6 +47,11 @@
 		MY_ACTIVITY: "/comments/me/activity",
 		USER_MESSAGES: (userId) => `/comments/users/${encodeURIComponent(userId)}/messages`
 	};
+	var MODERATION_API = {
+		MY_APPEALS: "/moderation/me/appeals",
+		CONTENT_APPEALS: (contentId) => `/moderation/me/content/${encodeURIComponent(contentId)}/appeals`,
+		CONTENT_MODERATION: (contentId) => `/moderation/me/content/${encodeURIComponent(contentId)}/moderation`
+	};
 	var LIVE_API = { ROOM_SOCKET: (roomId) => `/v1/rooms/${encodeURIComponent(roomId)}/ws` };
 	var IDEMPOTENCY_HEADER = "idempotency-key";
 	var HTTP_STATUS = {
@@ -65,7 +70,8 @@
 		PENDING: "pending",
 		PUBLISHED: "published",
 		HELD: "held",
-		REMOVED: "removed"
+		REMOVED: "removed",
+		DELETED: "deleted"
 	};
 	var MESSAGE_KIND = {
 		NORMAL: "normal",
@@ -116,10 +122,21 @@
 		SEND_COMMENT: "Couldn't send your comment.",
 		SEND_SUPERCHAT: "Couldn't send your YourSay+.",
 		EDIT_MESSAGE: "Couldn't save your edit.",
+		DELETE_MESSAGE: "Couldn't delete, try again",
 		LOAD_REPLIES: "Couldn't load replies.",
 		LOAD_USER_MESSAGES: "Couldn't load this user's comments.",
 		REPORT_MESSAGE: "Couldn't report, try again",
-		ALREADY_REPORTED: "Already reported"
+		ALREADY_REPORTED: "Already reported",
+		LOAD_APPEAL: "Couldn't load this comment's details.",
+		SEND_APPEAL: "Couldn't send your appeal."
+	};
+	var APPEAL_STATUS = {
+		OPEN: "open",
+		DECIDED: "decided"
+	};
+	var APPEAL_OUTCOME = {
+		UPHELD: "upheld",
+		OVERTURNED: "overturned"
 	};
 	var ACTIVITY_TYPE = {
 		COMMENT: "comment",
@@ -165,6 +182,9 @@
 	//#endregion
 	//#region src/assets/confused.svg
 	var confused_default = "data:image/svg+xml,%3csvg%20width='40'%20height='40'%20viewBox='0%200%2040%2040'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cdefs%3e%3clinearGradient%20id='face'%20x1='0'%20y1='0'%20x2='0'%20y2='1'%3e%3cstop%20offset='0'%20stop-color='%23FEDB52'/%3e%3cstop%20offset='1'%20stop-color='%23F5B52B'/%3e%3c/linearGradient%3e%3c/defs%3e%3ccircle%20cx='20'%20cy='20'%20r='20'%20fill='url(%23face)'/%3e%3cellipse%20cx='14'%20cy='19'%20rx='2.1'%20ry='2.7'%20fill='%234A2C12'/%3e%3cellipse%20cx='26'%20cy='19'%20rx='2.1'%20ry='2.7'%20fill='%234A2C12'/%3e%3cpath%20d='M10.5%2013.2h6M23.5%2012q3-2.6%206-.6'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3cpath%20d='M13.5%2027.5q3.25-2.6%206.5%200t6.5%200'%20fill='none'%20stroke='%234A2C12'%20stroke-width='2.4'%20stroke-linecap='round'/%3e%3c/svg%3e";
+	//#endregion
+	//#region src/assets/delete.svg
+	var delete_default = "data:image/svg+xml,%3csvg%20width='12'%20height='14'%20viewBox='0%200%2012%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M4.15385%200C3.64404%200%203.23077%200.417868%203.23077%200.933333V1.86667H0.461538C0.206637%201.86667%200%202.0756%200%202.33333C0%202.59107%200.206637%202.8%200.461538%202.8H1.03846L1.70954%2012.7046C1.76193%2013.4777%202.39773%2014%203.16381%2014H8.83619C9.60227%2014%2010.2381%2013.4777%2010.2905%2012.7046L10.9615%202.8H11.5385C11.7934%202.8%2012%202.59107%2012%202.33333C12%202.0756%2011.7934%201.86667%2011.5385%201.86667H8.76923V0.933333C8.76923%200.417868%208.35596%200%207.84615%200H4.15385ZM7.84615%201.86667V0.933333H4.15385V1.86667H7.84615ZM1.96368%202.8L2.63063%2012.6409C2.64995%2012.926%202.8813%2013.0667%203.16381%2013.0667H8.83619C9.1187%2013.0667%209.35005%2012.926%209.36937%2012.6409L10.0363%202.8H1.96368Z'%20fill-rule='evenodd'%20clip-rule='evenodd'%20fill='%23000F55'/%3e%3cpath%20d='M4.61538%204.66667C4.87029%204.66667%205.07692%204.8756%205.07692%205.13333V10.7333C5.07692%2010.9911%204.87029%2011.2%204.61538%2011.2C4.36048%2011.2%204.15385%2010.9911%204.15385%2010.7333V5.13333C4.15385%204.8756%204.36048%204.66667%204.61538%204.66667Z'%20fill='%23000F55'/%3e%3cpath%20d='M7.38462%204.66667C7.63952%204.66667%207.84615%204.8756%207.84615%205.13333V10.7333C7.84615%2010.9911%207.63952%2011.2%207.38462%2011.2C7.12971%2011.2%206.92308%2010.9911%206.92308%2010.7333V5.13333C6.92308%204.8756%207.12971%204.66667%207.38462%204.66667Z'%20fill='%23000F55'/%3e%3c/svg%3e";
 	//#endregion
 	//#region src/assets/edit.svg
 	var edit_default = "data:image/svg+xml,%3csvg%20width='14'%20height='14'%20viewBox='0%200%2014%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M13.5618%202.0213L12.0037%200.438164C11.7228%200.157594%2011.342%200%2010.945%200C10.548%200%2010.1672%200.157594%209.88625%200.438164L2.16051%208.1341C1.99727%208.30054%201.87428%208.50212%201.80094%208.72341C1.80094%208.72341%20-0.379385%2013.5036%200.0580301%2013.9423C0.495445%2014.3809%205.28177%2012.1993%205.28177%2012.1993C5.50062%2012.1239%205.70013%2012.0011%205.86607%2011.8397L13.5618%204.13881C13.8424%203.85789%2014%203.47709%2014%203.08005C14%202.68302%2013.8424%202.30222%2013.5618%202.0213ZM3.07441%208.65349L7.44418%204.28863L8.23323%205.0777L3.84849%209.44755L3.07441%208.65349ZM8.12836%203.57946L8.92241%202.79039L11.2097%205.0777L10.4206%205.87177L8.12836%203.57946ZM2.56503%209.5824L4.4228%2011.4352C4.4228%2011.4352%202.00977%2012.7292%201.64113%2012.3591C1.2725%2011.9891%202.56503%209.5824%202.56503%209.5824ZM5.34669%2010.9458L4.55264%2010.1517L8.92241%205.78687L9.71146%206.57594L5.34669%2010.9458ZM12.8377%203.45461L11.8988%204.39351L9.62656%202.08123L10.5654%201.14233C10.6121%201.09605%2010.6674%201.05943%2010.7283%201.03458C10.7891%201.00972%2010.8543%200.997125%2010.92%200.997505C10.9857%200.997125%2011.0509%201.00972%2011.1117%201.03458C11.1726%201.05943%2011.2279%201.09605%2011.2746%201.14233L12.8577%202.73046C12.95%202.82349%2013.002%202.94904%2013.0025%203.08005C13.0029%203.14578%2012.9903%203.21093%2012.9654%203.27178C12.9406%203.33263%2012.904%203.38797%2012.8577%203.43463L12.8377%203.45461Z'%20fill='%23000F55'/%3e%3c/svg%3e";
@@ -293,6 +313,10 @@
 			label: "Edit",
 			icon: edit_default
 		},
+		DELETE: {
+			label: "Delete",
+			icon: delete_default
+		},
 		SHARE: {
 			label: "Share",
 			icon: share_default
@@ -307,6 +331,11 @@
 		ROOM: "Editing is turned off in this room",
 		SUPERCHAT: "YourSay+ can't be edited",
 		EXPIRED: (duration) => `Messages can only be edited within ${duration} of posting`
+	};
+	var DELETE_DISABLED_REASON = {
+		ROOM: "Deleting is turned off in this room",
+		SUPERCHAT: "YourSay+ can't be deleted",
+		EXPIRED: (duration) => `Messages can only be deleted within ${duration} of posting`
 	};
 	var SUPERCHAT_TIERS = [
 		{
@@ -332,6 +361,22 @@
 		SUPERCHAT: "superchat"
 	};
 	var REMOVED_NOTICE = "Your comment was removed for breaking our community guidelines.";
+	var REMOVED_NOTICE_WITH_REASON = (reason) => `Your comment was removed. ${reason}`;
+	var REMOVAL_REASON_TEXT = {
+		spam: "Spam or advertising.",
+		links: "Links are not allowed from new accounts, or the link is not allowed here.",
+		duplicate: "You already posted this, or it repeats a message that is being posted many times.",
+		threat: "Threatens or encourages violence against someone.",
+		slur: "Uses a slur.",
+		harassment: "Targets or harasses an individual.",
+		personal_info: "Shares someone's personal information.",
+		illegal: "Breaks the law or encourages others to.",
+		off_topic: "Not related to the article or conversation.",
+		court_reporting: "Could prejudice an ongoing court case.",
+		new_account: "New accounts cannot post here yet.",
+		room_restricted: "Posting here is limited right now."
+	};
+	var REMOVED_SUPERCHAT_REFUND = "Any coins deducted for this YourSay+ will be refunded.";
 	var SNACKBAR_DURATION_MS = 5e3;
 	var SAMPLE_LOCKED_SUGGESTION = "Members get a rewritten version of their message that is far more likely to pass moderation.";
 	//#endregion
@@ -17423,10 +17468,10 @@
 		module.exports = require_react_dom_client_development();
 	}));
 	//#endregion
-	//#region src/styles/index.css?inline
+	//#region src/index.css?inline
 	var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
 	var import_client = require_client();
-	var styles_default = "* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n:host {\n  --color-text: #000f55;\n  --color-text-placeholder: #A4A4A4;\n  --color-text-faded: #000F5580;\n  --color-enhance-bg: #E5F6FF;\n  --color-enhance-loading-dark-bg: #1938a6;\n  --color-navy: #004be3;\n  --color-border: #D4D7E3;\n  --color-white: #ffffff;\n  --color-text-subtle: #898989;\n  --color-message-meta: #909090;\n  --color-superchat-meta: #b1b1b1;\n  --color-blue: #2f6fed;\n  --color-light-grey: #EBEBEB;\n  --color-tab-border: #CBCBCB;\n  --color-coins: #22AB00;\n  --color-menu-border: #ACACAC;\n  --color-menu-shadow: #00000040;\n  --color-go-to-top-shadow: #101a3d14;\n  --color-soft-shadow: #101a3d1f;\n  --color-tier-friend-bg: #000e55;\n  --color-tier-supporter-bg: #fcebdf;\n  --color-tier-defender-bg: #ededed;\n  --color-tier-champion-bg: #fff1d0;\n  --color-avatar-1: #e07a5f;\n  --color-avatar-2: #3d7068;\n  --color-avatar-3: #4f6d9a;\n  --color-avatar-4: #8a5a44;\n  --color-avatar-5: #6b5ca5;\n  --color-avatar-6: #2f8f7a;\n  --color-avatar-7: #c9752f;\n  --color-avatar-8: #4a90c4;\n  --color-skeleton-shine: #f7f9fd;\n  --color-superchat-1: #031762;\n  --color-superchat-2: #0a2a8f;\n  --color-superchat-3: #0f3dbd;\n  --color-superchat-4: #014be3;\n  --color-gradient-blue: #2043bd;\n  --color-gradient-navy: #00135a;\n  --color-scrollbar-thumb: #CCCCCC;\n  --color-scrollbar-track-dark: #ffffff4d;\n  --color-info-pill-bg: #ffffff1a;\n  --color-info-pill-shadow: #00000012;\n  --color-yellow: #ffd86b;\n  --color-scrim: #00000033;\n  --color-sheet-shadow: #101a3d40;\n  --color-confirm-close: #eb0000;\n  --color-dialog-shadow: #101a3d2e;\n  --color-red: #d70000;\n  --color-warning-bg: #fff0f0;\n  --color-recommended: #39933C;\n  --color-locked-suggestion-bg: #E5F6FF80;\n  --color-cancel-btn-from: #f0f7fd;\n  --color-cancel-btn-border: #d8e1f0;\n  --color-rank-supporter-from: #f6ba92;\n  --color-rank-supporter-to: #c38154;\n  --color-rank-defender-from: #c2c2c2;\n  --color-rank-defender-to: #818181;\n  --color-rank-champion-from: #ffc241;\n  --color-rank-champion-to: #e99300;\n  --color-shadow: #0000001a;\n  --color-reaction-picker-border: #9B9B9B;\n  --color-reaction-label-bg: #000F55CC;\n  --color-cancel-reply-shadow: #00000026;\n\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  font-family: \"Noto Sans\", sans-serif;\n  color: var(--color-text);\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n:host,\n:host(:focus),\n:host(:focus-within) {\n  outline: none !important;\n}\n\n:host > div {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\nbutton,\ntextarea {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\nbutton:disabled {\n  cursor: not-allowed;\n}\n\n.skeleton {\n  border-radius: 6px;\n  background: linear-gradient(\n    90deg,\n    var(--color-border) 25%,\n    var(--color-skeleton-shine) 37%,\n    var(--color-border) 63%\n  );\n  background-size: 400% 100%;\n  animation: skeleton-shimmer 1.4s ease infinite;\n}\n\n@keyframes skeleton-shimmer {\n  0% {\n    background-position: 100% 50%;\n  }\n\n  100% {\n    background-position: 0 50%;\n  }\n}\n\n.user-avatar {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 40px;\n  height: 40px;\n  overflow: hidden;\n  border-radius: 50%;\n}\n\n.user-avatar--initials {\n  color: var(--color-white);\n  font-weight: 700;\n}\n\n.user-avatar--tier-1 {\n  background: var(--color-tier-friend-bg);\n}\n\n.user-avatar--tier-2 {\n  background: var(--color-tier-supporter-bg);\n}\n\n.user-avatar--tier-3 {\n  background: var(--color-tier-defender-bg);\n}\n\n.user-avatar--tier-4 {\n  background: var(--color-tier-champion-bg);\n}\n\n.user-avatar__badge {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  background-position: center;\n  background-repeat: no-repeat;\n  background-size: cover;\n}\n\n.user-avatar__initials {\n  color: var(--color-white);\n  font-weight: 600;\n  line-height: normal;\n}\n\n:host(gbn-comments) {\n  height: min(70vh, 560px);\n}\n\n.comments {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  overflow: hidden;\n  border: 1px solid var(--color-light-grey);\n  border-bottom: none;\n  background: var(--color-white);\n}\n\n.chat-tabs {\n  flex-shrink: 0;\n  display: flex;\n}\n\n.chat-tabs__tab {\n  display: flex;\n  flex: 1 1 0;\n  align-items: center;\n  justify-content: center;\n  min-width: 0;\n  height: 50px;\n  padding: 0 8px;\n  border: 0.5px solid var(--color-tab-border);\n  background: var(--color-light-grey);\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.2;\n  text-align: center;\n  transition: background 0.15s ease, border-color 0.15s ease;\n}\n\n.chat-tabs__tab--active {\n  border: 1px solid var(--color-light-grey);\n  border-bottom: 3px solid var(--color-navy);\n  background: var(--color-white);\n}\n\n.chat-tabs__tab--yoursay.chat-tabs__tab--active {\n  border-color: var(--color-gradient-navy);\n  border-bottom-color: var(--color-red);\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.comment-list {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\n.comment-list__scroller {\n  flex: 1;\n  min-height: 0;\n}\n\n/* Inset, rounded track. Chrome and Safari only; Firefox falls back to a thin native bar. */\n.comment-list__scroller::-webkit-scrollbar {\n  width: 13px;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track,\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-track {\n  background-color: var(--color-scrollbar-track-dark);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-white);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .comment-list__scroller {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n\n  .comment-list--yoursay .comment-list__scroller {\n    scrollbar-color: var(--color-white) var(--color-scrollbar-track-dark);\n  }\n}\n\n.comment-list__item {\n  padding: 0 0 4px;\n}\n\n.comment-list--yoursay {\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n}\n\n.comment-list--yoursay .comment-list__item {\n  padding: 0;\n}\n\n.comment-list .message-item--super {\n  margin: 0 8px;\n  padding-inline: 8px;\n}\n\n.comment-list .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list--yoursay .message-item--super {\n  margin: 0;\n  padding-inline: 16px;\n  border-radius: 0;\n}\n\n.comment-list--yoursay .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list__spacer {\n  height: 10px;\n}\n\n.comment-list__loading {\n  display: flex;\n  justify-content: center;\n  padding: 6px 12px 12px;\n}\n\n.comment-list__spinner {\n  width: 22px;\n  height: 22px;\n  border: 3px solid var(--color-light-grey);\n  border-top-color: var(--color-navy);\n  border-radius: 50%;\n  animation: comment-list-spin 0.8s linear infinite;\n}\n\n.comment-list--yoursay .comment-list__spinner {\n  border-color: var(--color-scrollbar-track-dark);\n  border-top-color: var(--color-white);\n}\n\n@keyframes comment-list-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.comment-list__empty {\n  margin: auto 0;\n  padding: 24px 12px;\n  font-size: 13px;\n  text-align: center;\n}\n\n.go-to-top {\n  position: absolute;\n  right: 16px;\n  bottom: 16px;\n  z-index: 20;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 4px;\n  border: none;\n  background: none;\n}\n\n.go-to-top__badge {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-blue);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 700;\n  white-space: nowrap;\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n  animation: go-to-top-badge-pop 0.25s ease-out;\n}\n\n@keyframes go-to-top-badge-pop {\n  from {\n    transform: scale(0.6);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n\n.go-to-top__icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 44px;\n  height: 44px;\n  border-radius: 6px;\n  background: var(--color-navy);\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n}\n\n.go-to-top__icon img {\n  width: 16px;\n  height: 16px;\n}\n\n.go-to-top:hover .go-to-top__icon {\n  filter: brightness(1.1);\n}\n\n.go-to-top__label {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--color-white) 85%, transparent);\n  backdrop-filter: blur(4px);\n  box-shadow: 0 2px 8px var(--color-soft-shadow);\n  color: var(--color-blue);\n  font-size: 12px;\n  font-weight: 600;\n  letter-spacing: 0.04em;\n  text-transform: uppercase;\n  white-space: nowrap;\n}\n\n.comment-list__skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  padding: 20px 28px;\n}\n\n.message-skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}\n\n.message-skeleton__name {\n  width: 140px;\n  height: 16px;\n}\n\n.message-skeleton__line {\n  width: 100%;\n  height: 14px;\n}\n\n.message-skeleton__line--short {\n  width: 60%;\n}\n\n.message-item {\n  padding: 10px 16px;\n}\n\n.message-item--super {\n  padding: 10px 15px;\n  border-radius: 10px;\n  color: var(--color-white);\n}\n\n.message-item--super .message-item__time,\n.message-item--super .message-item__action,\n.message-item--super .reaction-chip {\n  color: var(--color-superchat-meta);\n}\n\n.message-item__header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n}\n\n.name-plain {\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.name-badge {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  height: 22px;\n  padding: 0 10px 0 11px;\n  border-radius: 0 100px 100px 0;\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n}\n\n.message-item .name-badge {\n  margin-left: -8px;\n}\n\n.message-item--super .name-badge {\n  margin-left: -15px;\n}\n\n.name-badge__icon {\n  width: 12px;\n  height: 12px;\n}\n\n.name-badge--supporter {\n  background: linear-gradient(180deg, var(--color-rank-supporter-from), var(--color-rank-supporter-to));\n}\n\n.name-badge--defender {\n  background: linear-gradient(180deg, var(--color-rank-defender-from), var(--color-rank-defender-to));\n}\n\n.name-badge--champion {\n  background: linear-gradient(180deg, var(--color-rank-champion-from), var(--color-rank-champion-to));\n}\n\n.message-item__time {\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__review-tag {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-tier-champion-bg);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.message-item__text {\n  margin-top: 4px;\n  font-size: 15px;\n  font-weight: 400;\n  line-height: 18px;\n  overflow-wrap: break-word;\n}\n\n.message-editor {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 4px;\n}\n\n.message-editor__input {\n  width: 100%;\n  min-height: 24px;\n  max-height: 140px;\n  padding: 8px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 10px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-editor__input:focus {\n  outline: none;\n  border-color: var(--color-navy);\n}\n\n.message-editor__error {\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.message-editor__actions {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n\n.message-editor__btn {\n  padding: 4px 14px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.message-editor__btn:disabled {\n  background: var(--color-light-grey);\n  color: var(--color-text-subtle);\n}\n\n.message-editor__btn--cancel {\n  border: 1px solid var(--color-border);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.message-text__mention {\n  margin-right: 4px;\n  font-weight: 500;\n}\n\n.message-item__footer {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 10px;\n  margin-top: 6px;\n}\n\n.message-item__action {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__reply-icon,\n.message-item__react-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-item__like-icon {\n  width: 11px;\n  height: 11px;\n}\n\n.message-reactions {\n  display: inline-flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 10px;\n}\n\n.message-reactions__react {\n  position: relative;\n  display: inline-flex;\n}\n\n.reaction-chip {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.reaction-chip--mine {\n  color: var(--color-navy);\n  font-weight: 600;\n}\n\n.reaction-chip__icon {\n  flex-shrink: 0;\n  width: 14px;\n  height: 14px;\n}\n\n.reaction-picker {\n  position: absolute;\n  left: -6px;\n  bottom: calc(100% + 6px);\n  z-index: 22;\n  display: flex;\n  gap: 4px;\n  padding: 4px 6px;\n  border: 1px solid var(--color-reaction-picker-border);\n  border-radius: 12px;\n  background: var(--color-white);\n  box-shadow: 0 6px 20px var(--color-soft-shadow);\n  animation: reaction-picker-in 0.16s ease-out;\n}\n\n.reaction-picker--down {\n  top: calc(100% + 6px);\n  bottom: auto;\n}\n\n.reaction-picker__option {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 26px;\n  height: 26px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n  transition: transform 0.15s cubic-bezier(0.3, 1.6, 0.6, 1);\n}\n\n.reaction-picker__icon {\n  display: block;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n}\n\n.reaction-picker__option:hover,\n.reaction-picker__option:focus-visible {\n  transform: translateY(-4px) scale(1.2);\n  outline: none;\n}\n\n.reaction-picker__option--selected .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-navy);\n}\n\n.reaction-picker__option:focus-visible .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-blue);\n}\n\n.reaction-picker__label {\n  position: absolute;\n  bottom: calc(100% + 6px);\n  left: 50%;\n  padding: 3px 7px;\n  border-radius: 999px;\n  background: var(--color-reaction-label-bg);\n  color: var(--color-white);\n  font-size: 10px;\n  font-weight: 600;\n  line-height: 1.2;\n  white-space: nowrap;\n  pointer-events: none;\n  opacity: 0;\n  transform: translate(-50%, 2px) scale(calc(1 / 1.2));\n  transition: opacity 0.12s ease, transform 0.12s ease;\n}\n\n.reaction-picker__option:hover .reaction-picker__label,\n.reaction-picker__option:focus-visible .reaction-picker__label {\n  opacity: 1;\n  transform: translate(-50%, 0) scale(calc(1 / 1.2));\n}\n\n@keyframes reaction-picker-in {\n  from {\n    opacity: 0;\n    transform: translateY(6px) scale(0.96);\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .reaction-picker {\n    animation: none;\n  }\n\n  .reaction-picker__option,\n  .reaction-picker__label {\n    transition: none;\n  }\n}\n\n.message-item__coins {\n  display: inline-flex;\n  align-items: center;\n  height: 22px;\n  margin: 0 -15px 0 auto;\n  padding: 0 11px 0 10px;\n  border-radius: 100px 0 0 100px;\n  background: var(--color-coins);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n  white-space: nowrap;\n}\n\n.replies-button {\n  margin: 0 16px 8px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-thread__replies {\n  margin-left: 16px;\n  border-left: 2px solid var(--color-border);\n}\n\n.message-thread__status {\n  padding: 6px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.message-item__author {\n  padding: 0;\n  border: none;\n  background: none;\n}\n\n.message-actions {\n  position: relative;\n  flex-shrink: 0;\n  margin: -4px -6px -4px auto;\n}\n\n.message-actions__trigger {\n  padding: 4px 6px;\n  border: none;\n  border-radius: 6px;\n  background: none;\n  line-height: 1;\n}\n\n.message-actions__trigger:hover {\n  opacity: 0.7;\n}\n\n.message-actions__icon {\n  display: block;\n  width: 18px;\n  height: 18px;\n}\n\n.message-actions__menu {\n  position: absolute;\n  top: 100%;\n  right: 0;\n  z-index: 21;\n  width: max-content;\n  border: 1px solid var(--color-menu-border);\n  background: var(--color-white);\n  box-shadow: 0 4px 4px var(--color-menu-shadow);\n  color: var(--color-text);\n}\n\n.message-actions__item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: 100%;\n  height: 46px;\n  padding: 0 32px 0 20px;\n  border: none;\n  background: none;\n  font-size: 16px;\n  text-align: left;\n}\n\n.message-actions__item + .message-actions__item {\n  border-top: 1px solid var(--color-menu-border);\n}\n\n.message-actions__item:hover {\n  background: var(--color-light-grey);\n}\n\n.message-actions__item-icon {\n  width: 14px;\n  height: 14px;\n}\n\n.message-actions__item:disabled,\n.message-actions__item[aria-disabled=\"true\"] {\n  color: var(--color-text-subtle);\n  cursor: not-allowed;\n}\n\n.message-actions__item[aria-disabled=\"true\"] .message-actions__item-icon {\n  opacity: 0.5;\n}\n\n.message-actions__item[aria-disabled=\"true\"]:hover {\n  background: none;\n}\n\n.message-actions__feedback {\n  padding: 12px 20px;\n  font-size: 14px;\n  white-space: nowrap;\n}\n\n.message-actions__reasons {\n  max-height: 160px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n/* Same inset, rounded bar as the comment list. */\n.message-actions__reasons::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track,\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-actions__reasons {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box {\n  container: message-box / inline-size;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding: 16px;\n  background: var(--color-white);\n  box-shadow: 0 0 7px 0 var(--color-shadow);\n}\n\n.message-box--yoursay {\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-superchat-1));\n}\n\n.message-box__login {\n  align-self: flex-end;\n  padding: 0;\n  border: none;\n  background: none;\n  font-size: 16px;\n  font-weight: 600;\n}\n\n.message-box__login:hover {\n  color: var(--color-navy);\n}\n\n.message-box__login:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__row {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n}\n\n.message-box__field {\n  position: relative;\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  border: 1px solid var(--color-border);\n  border-radius: 14px;\n  background: var(--color-white);\n}\n\n.message-box__field::before {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: -6px;\n  width: 11px;\n  height: 11px;\n  border-left: 1px solid var(--color-border);\n  border-bottom: 1px solid var(--color-border);\n  border-bottom-left-radius: 3px;\n  background: var(--color-white);\n  transform: translateY(-50%) rotate(45deg);\n}\n\n.message-box__field-content {\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n}\n\n.message-box__reply-banner {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 18px 0;\n  font-size: 13px;\n  font-weight: 600;\n  color: var(--color-blue);\n}\n\n.message-box__cancel-reply {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 3px 12px;\n  border: none;\n  border-radius: 999px;\n  background: none;\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n  color: var(--color-confirm-close);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-box__cancel-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-box__input {\n  flex: 1;\n  min-width: 0;\n  min-height: 24px;\n  max-height: 155px;\n  padding: 10px 18px;\n  border: none;\n  background: transparent;\n  font-size: 16px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-box__input::placeholder {\n  color: var(--color-text-placeholder);\n}\n\n.message-box__input:focus {\n  outline: none;\n}\n\n.message-box__input::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-box__input::-webkit-scrollbar-track,\n.message-box__input::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-box__input::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-box__input::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-box__input {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box__actions {\n  flex-shrink: 0;\n  align-self: flex-end;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 10px 14px 10px 0;\n}\n\n.message-box__btn {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 6px 16px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 17px;\n  font-weight: 500;\n  line-height: 1.3;\n  white-space: nowrap;\n  transition: filter 0.15s ease;\n}\n\n.message-box__btn:hover:not(:disabled) {\n  filter: brightness(1.15);\n}\n\n.message-box__btn:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__btn:disabled {\n  background: var(--color-light-grey);\n}\n\n.message-box__btn-icon {\n  width: 18px;\n  height: 18px;\n}\n\n.message-box__field-skeleton {\n  flex: 1;\n  height: 67px;\n  border-radius: 14px;\n}\n\n.message-box__warning {\n  align-self: flex-start;\n  margin-left: 54px;\n  padding: 8px 18px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  font-size: 12px;\n  line-height: 1.35;\n}\n\n.removed-snackbar {\n  position: fixed;\n  bottom: 24px;\n  left: 50%;\n  z-index: 1100;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: max-content;\n  max-width: calc(100% - 32px);\n  padding: 12px 12px 12px 18px;\n  border-radius: 10px;\n  background: var(--color-white);\n  box-shadow: 0 8px 24px var(--color-sheet-shadow);\n  color: var(--color-text);\n  font-size: 14px;\n  line-height: 1.4;\n  transform: translateX(-50%);\n}\n\n.removed-snackbar__view {\n  flex-shrink: 0;\n  padding: 4px 8px;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-weight: 600;\n}\n\n.removed-snackbar__close {\n  flex-shrink: 0;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n}\n\n.removed-snackbar__close img {\n  width: 12px;\n  height: 12px;\n}\n\n@container message-box (max-width: 560px) {\n  .message-box__row {\n    gap: 10px;\n  }\n\n  .message-box__field {\n    flex-wrap: wrap;\n  }\n\n  .message-box__field-content {\n    flex-basis: 100%;\n  }\n\n  .message-box__actions {\n    flex-wrap: wrap;\n    width: 100%;\n    gap: 8px;\n    padding: 8px 10px 10px;\n  }\n\n  .message-box__btn {\n    flex: 1 1 0;\n    justify-content: center;\n    gap: 6px;\n    padding: 7px 8px;\n    font-size: 14px;\n  }\n\n  .message-box__btn-icon {\n    width: 15px;\n    height: 15px;\n  }\n\n  .message-box__input {\n    max-height: 104px;\n    padding: 10px 14px;\n    font-size: 15px;\n  }\n}\n\n.message-box__avatar-btn {\n  flex-shrink: 0;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n}\n\n.message-box__input-row {\n  display: flex;\n  align-items: flex-start;\n}\n\n.message-box__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 10px 0 10px 18px;\n  font-size: 16px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.message-box__mention + .message-box__input {\n  padding-left: 6px;\n}\n\n.message-box--yoursay .message-box__login {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .message-box__login:hover {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .message-box__login:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.enhance-ai {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 16px;\n  width: 100%;\n  padding-left: 54px;\n}\n\n.enhance-ai__button {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n  padding: 4px 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 16px;\n  white-space: nowrap;\n}\n\n.enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-navy);\n}\n\n.enhance-ai__button:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n  border-radius: 4px;\n}\n\n.enhance-ai__button:disabled {\n  cursor: not-allowed;\n}\n\n.enhance-ai__icon {\n  height: 22px;\n}\n\n.enhance-ai__pill {\n  flex: 1 1 260px;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  min-height: 36px;\n  padding: 6px 6px 6px 20px;\n  border-radius: 40px;\n  font-size: 15px;\n  line-height: 1.35;\n  animation: enhance-ai-in 0.15s ease;\n}\n\n.enhance-ai__pill--loading {\n  background: var(--color-light-grey);\n  color: var(--color-text-faded);\n}\n\n.enhance-ai__pill--info {\n  background: var(--color-enhance-bg);\n  color: var(--color-text);\n}\n\n.enhance-ai__pill--upsell {\n  padding-right: 20px;\n  background: var(--color-red);\n  color: var(--color-white);\n}\n\n.enhance-ai__text {\n  flex: 1;\n  min-width: 0;\n  overflow-wrap: break-word;\n}\n\n.enhance-ai__text--suggestion {\n  font-weight: 500;\n}\n\n.enhance-ai__use {\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font: inherit;\n  text-decoration: underline;\n  text-underline-offset: 2px;\n  white-space: nowrap;\n}\n\n.enhance-ai__close {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: var(--color-white);\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n}\n\n.enhance-ai__close img {\n  width: 8px;\n  height: 8px;\n}\n\n.enhance-ai__use:focus-visible,\n.enhance-ai__close:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box--yoursay .enhance-ai__button {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .enhance-ai__button:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__pill--loading {\n  background: var(--color-enhance-loading-dark-bg);\n  color: var(--color-superchat-meta);\n}\n\n@keyframes enhance-ai-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .enhance-ai__pill {\n    animation: none;\n  }\n}\n\n.sc-sheet {\n  position: absolute;\n  inset: 0;\n  z-index: 30;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n}\n\n.sc-sheet__panel {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  max-height: 100%;\n  padding: 10px 16px 14px;\n  overflow-y: auto;\n  border-top: 1px solid var(--color-border);\n  border-radius: 12px 12px 0 0;\n  background: var(--color-white);\n  box-shadow: 0 -12px 40px var(--color-sheet-shadow);\n  animation: sc-sheet-slide 0.25s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.sc-sheet__header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n\n.sc-sheet__close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: none;\n  background: none;\n}\n\n.sc-sheet__close img {\n  width: 12px;\n  height: 12px;\n  filter: brightness(0);\n  opacity: 0.55;\n}\n\n.sc-sheet__title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-sheet__preview {\n  pointer-events: none;\n}\n\n.sc-sheet__amount {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  width: 100%;\n  max-width: 480px;\n  margin-inline: auto;\n}\n\n.sc-sheet__amount-note {\n  color: var(--color-text-subtle);\n  font-size: 12px;\n  line-height: 1.3;\n}\n\n.sc-sheet__slider {\n  position: relative;\n  width: 100%;\n  height: 14px;\n}\n\n.sc-sheet__slider::before,\n.sc-sheet__fill {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: 0;\n  height: 3px;\n  border-radius: 999px;\n  transform: translateY(-50%);\n}\n\n.sc-sheet__slider::before {\n  right: 0;\n  background: var(--color-border);\n}\n\n.sc-sheet__ticks {\n  position: absolute;\n  inset: 0;\n  pointer-events: none;\n}\n\n.sc-sheet__tick {\n  position: absolute;\n  top: 50%;\n  width: 3px;\n  height: 3px;\n  border-radius: 50%;\n  background: var(--color-text);\n  opacity: 0.3;\n  transform: translate(-50%, -50%);\n}\n\n.sc-sheet__tick--on {\n  background: var(--color-white);\n  opacity: 0.9;\n}\n\n.sc-sheet__tick--current {\n  visibility: hidden;\n}\n\n.sc-sheet__range {\n  position: relative;\n  display: block;\n  width: 100%;\n  height: 14px;\n  background: transparent;\n  cursor: pointer;\n  appearance: none;\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range:focus {\n  outline: none;\n}\n\n.sc-sheet__range::-webkit-slider-runnable-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-moz-range-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-webkit-slider-thumb {\n  width: 14px;\n  height: 14px;\n  margin-top: -5.5px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range::-moz-range-thumb {\n  width: 14px;\n  height: 14px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n}\n\n.sc-sheet__footer {\n  display: flex;\n  justify-content: center;\n}\n\n.sc-sheet__continue {\n  padding: 8px 22px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n@keyframes sc-sheet-slide {\n  from {\n    transform: translateY(100%);\n  }\n}\n\n.sc-confirm__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.sc-confirm__frame {\n  position: relative;\n  display: flex;\n  width: 100%;\n  max-width: 678px;\n  max-height: 100%;\n}\n\n.sc-confirm {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 20px;\n  min-width: 0;\n  max-height: 100%;\n  padding: 28px 34px 30px;\n  overflow-y: auto;\n  border-radius: 15px;\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.sc-confirm__header {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n}\n\n.sc-confirm__title {\n  font-size: 22px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-confirm__summary {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  padding: 18px 28px;\n  border-radius: 12px;\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.sc-confirm__summary-row {\n  display: flex;\n  align-items: flex-end;\n  justify-content: space-between;\n  gap: 12px;\n  width: 100%;\n}\n\n.sc-confirm__summary-row--after {\n  align-items: baseline;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid var(--color-light-grey);\n}\n\n.sc-confirm__summary-col {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n}\n\n.sc-confirm__summary-col--end {\n  align-items: flex-end;\n}\n\n.sc-confirm__summary-label {\n  font-size: 15px;\n  line-height: 1.3;\n}\n\n.sc-confirm__summary-value {\n  font-size: 18px;\n  font-weight: 700;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.sc-confirm__summary-price {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 12px;\n}\n\n.sc-confirm__old-price,\n.sc-confirm__no-change {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  white-space: nowrap;\n}\n\n.sc-confirm__balance {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n}\n\n.sc-confirm__icon {\n  flex-shrink: 0;\n  width: 18px;\n  height: 18px;\n}\n\n.sc-confirm__free {\n  color: var(--color-coins);\n}\n\n.sc-confirm__summary-link {\n  margin-top: 8px;\n  color: var(--color-navy);\n  font-size: 15px;\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__note {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 18px;\n  border: 0.5px solid var(--color-scrollbar-track-dark);\n  border-radius: 20px;\n  background: var(--color-info-pill-bg);\n  box-shadow: 0 0 8px var(--color-info-pill-shadow);\n  font-size: 14px;\n  line-height: 1.35;\n}\n\n.sc-confirm__alert {\n  display: flex;\n  align-items: flex-start;\n  gap: 8px;\n  width: 100%;\n  margin-top: 12px;\n  padding: 8px 14px;\n  border-radius: 6px;\n  background: var(--color-warning-bg);\n  color: var(--color-red);\n  font-size: 15px;\n  line-height: 1.4;\n}\n\n.sc-confirm__alert .sc-confirm__icon {\n  margin-top: 2px;\n}\n\n.sc-confirm__upgrade-link {\n  color: var(--color-yellow);\n  font-weight: 600;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__error {\n  padding: 6px 14px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  color: var(--color-text);\n  font-size: 12px;\n  line-height: 1.35;\n  text-align: center;\n}\n\n.sc-confirm__actions {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-end;\n  justify-content: flex-end;\n  gap: 12px;\n}\n\n.sc-confirm__submit,\n.sc-confirm__cancel,\n.sc-confirm__buy-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 8px 26px;\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-navy);\n  font-size: 18px;\n  font-weight: 500;\n  line-height: 1.3;\n  text-decoration: none;\n  white-space: nowrap;\n}\n\n.sc-confirm__submit {\n  border: 1px solid var(--color-white);\n}\n\n.sc-confirm__buy-btn {\n  border: 1px solid var(--color-yellow);\n  background: var(--color-yellow);\n  color: var(--color-text);\n}\n\n.sc-confirm__cancel {\n  border: 1px solid var(--color-white);\n  background: none;\n  color: var(--color-white);\n}\n\n.sc-confirm__submit:disabled {\n  color: color-mix(in srgb, var(--color-navy) 40%, var(--color-white));\n}\n\n@media (max-width: 480px) {\n  .sc-confirm {\n    gap: 16px;\n    padding: 20px 16px;\n  }\n\n  .sc-confirm__title {\n    font-size: 20px;\n  }\n\n  .sc-confirm__summary {\n    padding: 14px 16px;\n  }\n\n  .sc-confirm__summary-label,\n  .sc-confirm__summary-link {\n    font-size: 14px;\n  }\n\n  .sc-confirm__summary-value {\n    font-size: 16px;\n  }\n\n  .sc-confirm__old-price,\n  .sc-confirm__no-change {\n    font-size: 13px;\n  }\n\n  .sc-confirm__summary-price {\n    gap: 6px;\n  }\n\n  .sc-confirm__summary-row--after {\n    flex-wrap: wrap;\n    row-gap: 4px;\n  }\n\n  .sc-confirm__summary-row--after > :last-child {\n    margin-left: auto;\n  }\n\n  .sc-confirm__note {\n    padding: 8px 14px;\n    font-size: 13px;\n  }\n\n  .sc-confirm__actions {\n    flex-direction: column-reverse;\n    align-items: stretch;\n    gap: 10px;\n  }\n\n  .sc-confirm__submit,\n  .sc-confirm__cancel,\n  .sc-confirm__buy-btn {\n    padding: 10px 20px;\n    font-size: 16px;\n  }\n}\n\n.mod-dialog__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.mod-dialog {\n  display: flex;\n  flex-direction: column;\n  gap: 14px;\n  width: 100%;\n  max-width: 560px;\n  max-height: 100%;\n  padding: 14px;\n  overflow-y: auto;\n  border-radius: 16px;\n  background: var(--color-white);\n  box-shadow: 0 12px 32px var(--color-dialog-shadow);\n}\n\n.mod-dialog__card {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  padding: 16px 14px;\n  border: 1px solid var(--color-border);\n  border-radius: 8px;\n}\n\n.mod-dialog__heading {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 10px;\n}\n\n.mod-dialog__title {\n  font-size: 17px;\n  font-weight: 400;\n  line-height: 1.2;\n}\n\n.mod-dialog__title--ai {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n}\n\n.mod-dialog__ai {\n  flex-shrink: 0;\n  height: 20px;\n}\n\n.mod-dialog__pill {\n  padding: 3px 12px;\n  border-radius: 100px;\n  color: var(--color-white);\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.mod-dialog__pill--warning {\n  background: var(--color-red);\n}\n\n.mod-dialog__pill--recommended {\n  background: var(--color-recommended);\n}\n\n.mod-dialog__row {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.mod-dialog__message {\n  flex: 1;\n  min-width: 0;\n  font-size: 13px;\n  line-height: 1.45;\n  overflow-wrap: break-word;\n}\n\n.mod-dialog__action {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 8px;\n  height: 40px;\n  padding: 0 18px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 15px;\n  font-weight: 500;\n  white-space: nowrap;\n}\n\n.mod-dialog__action-icon {\n  width: 16px;\n  height: 14px;\n}\n\n.mod-dialog__row--locked {\n  padding: 10px 12px;\n  border: 1px dashed var(--color-text);\n  border-radius: 6px;\n  background: var(--color-locked-suggestion-bg);\n  user-select: none;\n}\n\n.mod-dialog__row--locked > * {\n  filter: blur(4px);\n}\n\n.mod-dialog__upsell {\n  color: var(--color-red);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n.mod-dialog__footer {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.mod-dialog__cancel {\n  height: 40px;\n  padding: 0 18px;\n  border: 1px solid var(--color-cancel-btn-border);\n  border-radius: 100px;\n  background: linear-gradient(180deg, var(--color-cancel-btn-from), var(--color-border));\n  font-size: 15px;\n}\n\n@media (max-width: 480px) {\n  .mod-dialog__row:not(.mod-dialog__row--locked) {\n    flex-direction: column;\n    align-items: stretch;\n  }\n\n  .mod-dialog__action {\n    justify-content: center;\n  }\n}\n\n.thread-modal {\n  position: absolute;\n  inset: 0;\n  z-index: 25;\n  display: flex;\n  flex-direction: column;\n  background: var(--color-white);\n}\n\n.thread-modal__header {\n  display: grid;\n  grid-template-columns: 1fr auto 1fr;\n  align-items: center;\n  padding: 12px 16px;\n  border-bottom: 1px solid var(--color-border);\n}\n\n.thread-modal__back {\n  justify-self: start;\n  display: inline-flex;\n  align-items: center;\n  gap: 10px;\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 13px;\n  text-transform: uppercase;\n}\n\n.thread-modal__back-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: 1.5px solid var(--color-text);\n  border-radius: 50%;\n}\n\n.thread-modal__back-icon svg {\n  width: 16px;\n  height: 16px;\n}\n\n.thread-modal__title {\n  font-size: 13px;\n  font-weight: 500;\n  text-transform: uppercase;\n}\n\n.thread-modal__close {\n  justify-self: end;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.thread-modal__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.thread-modal__body {\n  flex: 1;\n  min-height: 0;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.thread-modal__status {\n  padding: 8px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.thread-modal__footer {\n  padding: 10px 16px 12px;\n  border-top: 1px solid var(--color-border);\n}\n\n.thread-modal__field {\n  display: flex;\n  align-items: flex-start;\n  border: 1px solid var(--color-navy);\n  border-radius: 6px;\n  background: var(--color-white);\n}\n\n.thread-modal__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 8px 0 8px 12px;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.thread-modal__input {\n  flex: 1;\n  min-width: 0;\n  max-height: 120px;\n  padding: 8px 12px;\n  border: none;\n  background: transparent;\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.thread-modal__input:focus {\n  outline: none;\n}\n\n.thread-modal__error {\n  margin-top: 6px;\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.thread-modal__mention + .thread-modal__input {\n  padding-left: 6px;\n}\n\n.user-panel__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  justify-content: flex-end;\n  background: var(--color-scrim);\n  animation: user-panel-fade-in 250ms ease-out;\n}\n\n.user-panel__backdrop--closing {\n  animation: user-panel-fade-out 250ms ease-in forwards;\n}\n\n.user-panel {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  max-width: 540px;\n  height: 100%;\n  background: var(--color-white);\n  box-shadow: -4px 0 24px var(--color-sheet-shadow);\n  animation: user-panel-slide-in 250ms ease-out;\n}\n\n.user-panel--closing {\n  animation: user-panel-slide-out 250ms ease-in forwards;\n}\n\n@keyframes user-panel-fade-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-fade-out {\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-slide-in {\n  from {\n    transform: translateX(100%);\n  }\n}\n\n@keyframes user-panel-slide-out {\n  to {\n    transform: translateX(100%);\n  }\n}\n\n.user-panel__header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding: 20px 20px 18px;\n  border-bottom: 1px solid var(--color-light-grey);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.user-panel__title {\n  flex: 1;\n  min-width: 0;\n  font-size: 20px;\n  font-weight: 600;\n  line-height: 30px;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__signout {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 6px;\n  padding: 6px 14px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-red);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.user-panel__signout svg {\n  width: 16px;\n  height: 16px;\n}\n\n.user-panel__close {\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.user-panel__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.user-panel__body {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  padding: 0 20px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.user-panel__item {\n  flex-shrink: 0;\n  display: flex;\n  gap: 14px;\n  padding: 18px 0;\n  border-bottom: 1px solid var(--color-light-grey);\n}\n\n.user-panel__item-icon {\n  flex-shrink: 0;\n  width: 20px;\n  height: 20px;\n  margin-top: 1px;\n  object-fit: contain;\n}\n\n.user-panel__item-content {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 8px;\n  min-width: 0;\n}\n\n.user-panel__item-header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 4px 8px;\n}\n\n.user-panel__item-title {\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__quote {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__item-time {\n  color: var(--color-message-meta);\n  font-size: 13px;\n}\n\n.user-panel__tag {\n  padding: 1px 8px;\n  border-radius: 999px;\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.user-panel__status {\n  padding: 16px;\n  font-size: 13px;\n  color: var(--color-text-subtle);\n  text-align: center;\n}\n";
+	var src_default = ".skeleton {\n  border-radius: 6px;\n  background: linear-gradient(\n    90deg,\n    var(--color-border) 25%,\n    var(--color-skeleton-shine) 37%,\n    var(--color-border) 63%\n  );\n  background-size: 400% 100%;\n  animation: skeleton-shimmer 1.4s ease infinite;\n}\n\n@keyframes skeleton-shimmer {\n  0% {\n    background-position: 100% 50%;\n  }\n\n  100% {\n    background-position: 0 50%;\n  }\n}\n\n.user-avatar {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 40px;\n  height: 40px;\n  overflow: hidden;\n  border-radius: 50%;\n}\n\n.user-avatar--initials {\n  color: var(--color-white);\n  font-weight: 700;\n}\n\n.user-avatar--tier-1 {\n  background: var(--color-tier-friend-bg);\n}\n\n.user-avatar--tier-2 {\n  background: var(--color-tier-supporter-bg);\n}\n\n.user-avatar--tier-3 {\n  background: var(--color-tier-defender-bg);\n}\n\n.user-avatar--tier-4 {\n  background: var(--color-tier-champion-bg);\n}\n\n.user-avatar__badge {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  background-position: center;\n  background-repeat: no-repeat;\n  background-size: cover;\n}\n\n.user-avatar__initials {\n  color: var(--color-white);\n  font-weight: 600;\n  line-height: normal;\n}\n\n.tabs {\n  flex-shrink: 0;\n  display: flex;\n}\n\n.tabs__tab {\n  display: flex;\n  flex: 1 1 0;\n  align-items: center;\n  justify-content: center;\n  min-width: 0;\n  height: 50px;\n  padding: 0 8px;\n  border: 0.5px solid var(--color-tab-border);\n  background: var(--color-light-grey);\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.2;\n  text-align: center;\n  transition: background 0.15s ease, border-color 0.15s ease;\n}\n\n.tabs__tab--active {\n  border: 1px solid var(--color-light-grey);\n  border-bottom: 3px solid var(--color-navy);\n  background: var(--color-white);\n}\n\n:host(gbn-comments) {\n  height: min(70vh, 560px);\n}\n\n.comments {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  overflow: hidden;\n  border: 1px solid var(--color-light-grey);\n  border-bottom: none;\n  background: var(--color-white);\n}\n\n.comments__tab--yoursay.tabs__tab--active {\n  border-color: var(--color-gradient-navy);\n  border-bottom-color: var(--color-red);\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.comment-list {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\n.comment-list__scroller {\n  flex: 1;\n  min-height: 0;\n}\n\n/* Inset, rounded track. Chrome and Safari only; Firefox falls back to a thin native bar. */\n.comment-list__scroller::-webkit-scrollbar {\n  width: 13px;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track,\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-track {\n  background-color: var(--color-scrollbar-track-dark);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-white);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .comment-list__scroller {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n\n  .comment-list--yoursay .comment-list__scroller {\n    scrollbar-color: var(--color-white) var(--color-scrollbar-track-dark);\n  }\n}\n\n.comment-list__item {\n  padding: 0 0 4px;\n}\n\n.comment-list--yoursay {\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n}\n\n.comment-list--yoursay .comment-list__item {\n  padding: 0;\n}\n\n.comment-list .message-item--super {\n  margin: 0 8px;\n  padding-inline: 8px;\n}\n\n.comment-list .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list--yoursay .message-item--super {\n  margin: 0;\n  padding-inline: 16px;\n  border-radius: 0;\n}\n\n.comment-list--yoursay .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list__spacer {\n  height: 10px;\n}\n\n.comment-list__loading {\n  display: flex;\n  justify-content: center;\n  padding: 6px 12px 12px;\n}\n\n.comment-list__spinner {\n  width: 22px;\n  height: 22px;\n  border: 3px solid var(--color-light-grey);\n  border-top-color: var(--color-navy);\n  border-radius: 50%;\n  animation: comment-list-spin 0.8s linear infinite;\n}\n\n.comment-list--yoursay .comment-list__spinner {\n  border-color: var(--color-scrollbar-track-dark);\n  border-top-color: var(--color-white);\n}\n\n@keyframes comment-list-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.comment-list__empty {\n  margin: auto 0;\n  padding: 24px 12px;\n  font-size: 13px;\n  text-align: center;\n}\n\n.go-to-top {\n  position: absolute;\n  right: 16px;\n  bottom: 16px;\n  z-index: 20;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 4px;\n  border: none;\n  background: none;\n}\n\n.go-to-top__badge {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-blue);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 700;\n  white-space: nowrap;\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n  animation: go-to-top-badge-pop 0.25s ease-out;\n}\n\n@keyframes go-to-top-badge-pop {\n  from {\n    transform: scale(0.6);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n\n.go-to-top__icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 44px;\n  height: 44px;\n  border-radius: 6px;\n  background: var(--color-navy);\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n}\n\n.go-to-top__icon img {\n  width: 16px;\n  height: 16px;\n}\n\n.go-to-top:hover .go-to-top__icon {\n  filter: brightness(1.1);\n}\n\n.go-to-top__label {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--color-white) 85%, transparent);\n  backdrop-filter: blur(4px);\n  box-shadow: 0 2px 8px var(--color-soft-shadow);\n  color: var(--color-blue);\n  font-size: 12px;\n  font-weight: 600;\n  letter-spacing: 0.04em;\n  text-transform: uppercase;\n  white-space: nowrap;\n}\n\n.comment-list__skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  padding: 20px 28px;\n}\n\n.message-skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}\n\n.message-skeleton__name {\n  width: 140px;\n  height: 16px;\n}\n\n.message-skeleton__line {\n  width: 100%;\n  height: 14px;\n}\n\n.message-skeleton__line--short {\n  width: 60%;\n}\n\n.name-plain {\n  font-size: 15px;\n  font-weight: 700;\n}\n\n.name-badge {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  height: 22px;\n  padding: 0 10px 0 11px;\n  border-radius: 0 100px 100px 0;\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n}\n\n.name-badge__icon {\n  width: 12px;\n  height: 12px;\n}\n\n.name-badge--supporter {\n  background: linear-gradient(180deg, var(--color-rank-supporter-from), var(--color-rank-supporter-to));\n}\n\n.name-badge--defender {\n  background: linear-gradient(180deg, var(--color-rank-defender-from), var(--color-rank-defender-to));\n}\n\n.name-badge--champion {\n  background: linear-gradient(180deg, var(--color-rank-champion-from), var(--color-rank-champion-to));\n}\n\n.message-item {\n  padding: 10px 16px;\n}\n\n.message-item--super {\n  padding: 10px 15px;\n  border-radius: 10px;\n  color: var(--color-white);\n}\n\n.message-item--super .message-item__time,\n.message-item--super .message-item__action,\n.message-item--super .reaction-chip {\n  color: var(--color-superchat-meta);\n}\n\n.message-item__header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n}\n\n.message-item .name-badge {\n  margin-left: -8px;\n}\n\n.message-item--super .name-badge {\n  margin-left: -15px;\n}\n\n.message-item__time {\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__review-tag {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-tier-champion-bg);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.message-item__text {\n  margin-top: 4px;\n  font-size: 15px;\n  font-weight: 400;\n  line-height: 18px;\n  overflow-wrap: break-word;\n}\n\n.message-text__mention {\n  margin-right: 4px;\n  font-weight: 500;\n}\n\n.message-item__footer {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 10px;\n  margin-top: 6px;\n}\n\n.message-item__action {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__reply-icon,\n.message-item__react-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-item__like-icon {\n  width: 11px;\n  height: 11px;\n}\n\n.message-item__coins {\n  display: inline-flex;\n  align-items: center;\n  height: 22px;\n  margin: 0 -15px 0 auto;\n  padding: 0 11px 0 10px;\n  border-radius: 100px 0 0 100px;\n  background: var(--color-coins);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n  white-space: nowrap;\n}\n\n.message-item__author {\n  padding: 0;\n  border: none;\n  background: none;\n}\n\n.message-editor {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 4px;\n}\n\n.message-editor__input {\n  width: 100%;\n  min-height: 24px;\n  max-height: 140px;\n  padding: 8px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 10px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-editor__input:focus {\n  outline: none;\n  border-color: var(--color-navy);\n}\n\n.message-editor__error {\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.message-editor__actions {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n\n.message-editor__btn {\n  padding: 4px 14px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.message-editor__btn:disabled {\n  background: var(--color-light-grey);\n  color: var(--color-text-subtle);\n}\n\n.message-editor__btn--cancel {\n  border: 1px solid var(--color-border);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.message-reactions {\n  display: inline-flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 10px;\n}\n\n.message-reactions__react {\n  position: relative;\n  display: inline-flex;\n}\n\n.reaction-chip {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.reaction-chip--mine {\n  color: var(--color-navy);\n  font-weight: 600;\n}\n\n.reaction-chip__icon {\n  flex-shrink: 0;\n  width: 14px;\n  height: 14px;\n}\n\n.reaction-picker {\n  position: absolute;\n  left: -6px;\n  bottom: calc(100% + 6px);\n  z-index: 22;\n  display: flex;\n  gap: 4px;\n  padding: 4px 6px;\n  border: 1px solid var(--color-reaction-picker-border);\n  border-radius: 12px;\n  background: var(--color-white);\n  box-shadow: 0 6px 20px var(--color-soft-shadow);\n  animation: reaction-picker-in 0.16s ease-out;\n}\n\n.reaction-picker--down {\n  top: calc(100% + 6px);\n  bottom: auto;\n}\n\n.reaction-picker__option {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 26px;\n  height: 26px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n  transition: transform 0.15s cubic-bezier(0.3, 1.6, 0.6, 1);\n}\n\n.reaction-picker__icon {\n  display: block;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n}\n\n.reaction-picker__option:hover,\n.reaction-picker__option:focus-visible {\n  transform: translateY(-4px) scale(1.2);\n  outline: none;\n}\n\n.reaction-picker__option--selected .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-navy);\n}\n\n.reaction-picker__option:focus-visible .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-blue);\n}\n\n.reaction-picker__label {\n  position: absolute;\n  bottom: calc(100% + 6px);\n  left: 50%;\n  padding: 3px 7px;\n  border-radius: 999px;\n  background: var(--color-reaction-label-bg);\n  color: var(--color-white);\n  font-size: 10px;\n  font-weight: 600;\n  line-height: 1.2;\n  white-space: nowrap;\n  pointer-events: none;\n  opacity: 0;\n  transform: translate(-50%, 2px) scale(calc(1 / 1.2));\n  transition: opacity 0.12s ease, transform 0.12s ease;\n}\n\n.reaction-picker__option:hover .reaction-picker__label,\n.reaction-picker__option:focus-visible .reaction-picker__label {\n  opacity: 1;\n  transform: translate(-50%, 0) scale(calc(1 / 1.2));\n}\n\n@keyframes reaction-picker-in {\n  from {\n    opacity: 0;\n    transform: translateY(6px) scale(0.96);\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .reaction-picker {\n    animation: none;\n  }\n\n  .reaction-picker__option,\n  .reaction-picker__label {\n    transition: none;\n  }\n}\n\n.replies-button {\n  margin: 0 16px 8px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-thread__replies {\n  margin-left: 16px;\n  border-left: 2px solid var(--color-border);\n}\n\n.message-thread__status {\n  padding: 6px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.message-actions {\n  position: relative;\n  flex-shrink: 0;\n  margin: -4px -6px -4px auto;\n}\n\n.message-actions__trigger {\n  padding: 4px 6px;\n  border: none;\n  border-radius: 6px;\n  background: none;\n  line-height: 1;\n}\n\n.message-actions__trigger:hover {\n  opacity: 0.7;\n}\n\n.message-actions__icon {\n  display: block;\n  width: 18px;\n  height: 18px;\n}\n\n.message-actions__menu {\n  position: absolute;\n  top: 100%;\n  right: 0;\n  z-index: 21;\n  width: max-content;\n  border: 1px solid var(--color-menu-border);\n  background: var(--color-white);\n  box-shadow: 0 4px 4px var(--color-menu-shadow);\n  color: var(--color-text);\n}\n\n.message-actions__item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: 100%;\n  height: 46px;\n  padding: 0 32px 0 20px;\n  border: none;\n  background: none;\n  font-size: 16px;\n  text-align: left;\n}\n\n.message-actions__item + .message-actions__item {\n  border-top: 1px solid var(--color-menu-border);\n}\n\n.message-actions__item:hover {\n  background: var(--color-light-grey);\n}\n\n.message-actions__item-icon {\n  width: 14px;\n  height: 14px;\n}\n\n.message-actions__item:disabled,\n.message-actions__item[aria-disabled=\"true\"] {\n  color: var(--color-text-subtle);\n  cursor: not-allowed;\n}\n\n.message-actions__item[aria-disabled=\"true\"] .message-actions__item-icon {\n  opacity: 0.5;\n}\n\n.message-actions__item[aria-disabled=\"true\"]:hover {\n  background: none;\n}\n\n.message-actions__feedback {\n  padding: 12px 20px;\n  font-size: 14px;\n  white-space: nowrap;\n}\n\n.message-actions__reasons {\n  max-height: 160px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n/* Same inset, rounded bar as the comment list. */\n.message-actions__reasons::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track,\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-actions__reasons {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box {\n  container: message-box / inline-size;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding: 16px;\n  background: var(--color-white);\n  box-shadow: 0 0 7px 0 var(--color-shadow);\n}\n\n.message-box--yoursay {\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-superchat-1));\n}\n\n.message-box__login {\n  align-self: flex-end;\n  padding: 0;\n  border: none;\n  background: none;\n  font-size: 16px;\n  font-weight: 600;\n}\n\n.message-box__login:hover {\n  color: var(--color-navy);\n}\n\n.message-box__login:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__row {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n}\n\n.message-box__field {\n  position: relative;\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  border: 1px solid var(--color-border);\n  border-radius: 14px;\n  background: var(--color-white);\n}\n\n.message-box__field::before {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: -6px;\n  width: 11px;\n  height: 11px;\n  border-left: 1px solid var(--color-border);\n  border-bottom: 1px solid var(--color-border);\n  border-bottom-left-radius: 3px;\n  background: var(--color-white);\n  transform: translateY(-50%) rotate(45deg);\n}\n\n.message-box__field-content {\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n}\n\n.message-box__reply-banner {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 18px 0;\n  font-size: 13px;\n  font-weight: 600;\n  color: var(--color-blue);\n}\n\n.message-box__cancel-reply {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 3px 12px;\n  border: none;\n  border-radius: 999px;\n  background: none;\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n  color: var(--color-confirm-close);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-box__cancel-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-box__input {\n  flex: 1;\n  min-width: 0;\n  min-height: 24px;\n  max-height: 155px;\n  padding: 10px 18px;\n  border: none;\n  background: transparent;\n  font-size: 16px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-box__input::placeholder {\n  color: var(--color-text-placeholder);\n}\n\n.message-box__input:focus {\n  outline: none;\n}\n\n.message-box__input::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-box__input::-webkit-scrollbar-track,\n.message-box__input::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-box__input::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-box__input::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-box__input {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box__actions {\n  flex-shrink: 0;\n  align-self: flex-end;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 10px 14px 10px 0;\n}\n\n.message-box__btn {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 6px 16px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 17px;\n  font-weight: 500;\n  line-height: 1.3;\n  white-space: nowrap;\n  transition: filter 0.15s ease;\n}\n\n.message-box__btn:hover:not(:disabled) {\n  filter: brightness(1.15);\n}\n\n.message-box__btn:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__btn:disabled {\n  background: var(--color-light-grey);\n}\n\n.message-box__btn-icon {\n  width: 18px;\n  height: 18px;\n}\n\n.message-box__field-skeleton {\n  flex: 1;\n  height: 67px;\n  border-radius: 14px;\n}\n\n.message-box__warning {\n  align-self: flex-start;\n  margin-left: 54px;\n  padding: 8px 18px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  font-size: 12px;\n  line-height: 1.35;\n}\n\n@container message-box (max-width: 560px) {\n  .message-box__row {\n    gap: 10px;\n  }\n\n  .message-box__field {\n    flex-wrap: wrap;\n  }\n\n  .message-box__field-content {\n    flex-basis: 100%;\n  }\n\n  .message-box__actions {\n    flex-wrap: wrap;\n    width: 100%;\n    gap: 8px;\n    padding: 8px 10px 10px;\n  }\n\n  .message-box__btn {\n    flex: 1 1 0;\n    justify-content: center;\n    gap: 6px;\n    padding: 7px 8px;\n    font-size: 14px;\n  }\n\n  .message-box__btn-icon {\n    width: 15px;\n    height: 15px;\n  }\n\n  .message-box__input {\n    max-height: 104px;\n    padding: 10px 14px;\n    font-size: 15px;\n  }\n}\n\n.message-box__avatar-btn {\n  flex-shrink: 0;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n}\n\n.message-box__input-row {\n  display: flex;\n  align-items: flex-start;\n}\n\n.message-box__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 10px 0 10px 18px;\n  font-size: 16px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.message-box__mention + .message-box__input {\n  padding-left: 6px;\n}\n\n.message-box--yoursay .message-box__login {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .message-box__login:hover {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .message-box__login:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.snackbar {\n  position: fixed;\n  bottom: 24px;\n  left: 50%;\n  z-index: 1100;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: max-content;\n  max-width: calc(100% - 32px);\n  padding: 12px 12px 12px 18px;\n  border-radius: 10px;\n  background: var(--color-white);\n  box-shadow: 0 8px 24px var(--color-sheet-shadow);\n  color: var(--color-text);\n  font-size: 14px;\n  line-height: 1.4;\n  transform: translateX(-50%);\n}\n\n.snackbar__action {\n  flex-shrink: 0;\n  padding: 4px 8px;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-weight: 600;\n}\n\n.snackbar__close {\n  flex-shrink: 0;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n}\n\n.snackbar__close img {\n  width: 12px;\n  height: 12px;\n}\n\n.enhance-ai {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 16px;\n  width: 100%;\n  padding-left: 54px;\n}\n\n.enhance-ai__button {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n  padding: 4px 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 16px;\n  white-space: nowrap;\n}\n\n.enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-navy);\n}\n\n.enhance-ai__button:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n  border-radius: 4px;\n}\n\n.enhance-ai__button:disabled {\n  cursor: not-allowed;\n}\n\n.enhance-ai__icon {\n  height: 22px;\n}\n\n.enhance-ai__pill {\n  flex: 1 1 260px;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  min-height: 36px;\n  padding: 6px 6px 6px 20px;\n  border-radius: 40px;\n  font-size: 15px;\n  line-height: 1.35;\n  animation: enhance-ai-in 0.15s ease;\n}\n\n.enhance-ai__pill--loading {\n  background: var(--color-light-grey);\n  color: var(--color-text-faded);\n}\n\n.enhance-ai__pill--info {\n  background: var(--color-enhance-bg);\n  color: var(--color-text);\n}\n\n.enhance-ai__pill--upsell {\n  padding-right: 20px;\n  background: var(--color-red);\n  color: var(--color-white);\n}\n\n.enhance-ai__text {\n  flex: 1;\n  min-width: 0;\n  overflow-wrap: break-word;\n}\n\n.enhance-ai__text--suggestion {\n  font-weight: 500;\n}\n\n.enhance-ai__use {\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font: inherit;\n  text-decoration: underline;\n  text-underline-offset: 2px;\n  white-space: nowrap;\n}\n\n.enhance-ai__close {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: var(--color-white);\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n}\n\n.enhance-ai__close img {\n  width: 8px;\n  height: 8px;\n}\n\n.enhance-ai__use:focus-visible,\n.enhance-ai__close:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box--yoursay .enhance-ai__button {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .enhance-ai__button:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__pill--loading {\n  background: var(--color-enhance-loading-dark-bg);\n  color: var(--color-superchat-meta);\n}\n\n@keyframes enhance-ai-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .enhance-ai__pill {\n    animation: none;\n  }\n}\n\n.sc-sheet {\n  position: absolute;\n  inset: 0;\n  z-index: 30;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n}\n\n.sc-sheet__panel {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  max-height: 100%;\n  padding: 10px 16px 14px;\n  overflow-y: auto;\n  border-top: 1px solid var(--color-border);\n  border-radius: 12px 12px 0 0;\n  background: var(--color-white);\n  box-shadow: 0 -12px 40px var(--color-sheet-shadow);\n  animation: sc-sheet-slide 0.25s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.sc-sheet__header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n\n.sc-sheet__close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: none;\n  background: none;\n}\n\n.sc-sheet__close img {\n  width: 12px;\n  height: 12px;\n  filter: brightness(0);\n  opacity: 0.55;\n}\n\n.sc-sheet__title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-sheet__preview {\n  pointer-events: none;\n}\n\n.sc-sheet__amount {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  width: 100%;\n  max-width: 480px;\n  margin-inline: auto;\n}\n\n.sc-sheet__amount-note {\n  color: var(--color-text-subtle);\n  font-size: 12px;\n  line-height: 1.3;\n}\n\n.sc-sheet__slider {\n  position: relative;\n  width: 100%;\n  height: 14px;\n}\n\n.sc-sheet__slider::before,\n.sc-sheet__fill {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: 0;\n  height: 3px;\n  border-radius: 999px;\n  transform: translateY(-50%);\n}\n\n.sc-sheet__slider::before {\n  right: 0;\n  background: var(--color-border);\n}\n\n.sc-sheet__ticks {\n  position: absolute;\n  inset: 0;\n  pointer-events: none;\n}\n\n.sc-sheet__tick {\n  position: absolute;\n  top: 50%;\n  width: 3px;\n  height: 3px;\n  border-radius: 50%;\n  background: var(--color-text);\n  opacity: 0.3;\n  transform: translate(-50%, -50%);\n}\n\n.sc-sheet__tick--on {\n  background: var(--color-white);\n  opacity: 0.9;\n}\n\n.sc-sheet__tick--current {\n  visibility: hidden;\n}\n\n.sc-sheet__range {\n  position: relative;\n  display: block;\n  width: 100%;\n  height: 14px;\n  background: transparent;\n  cursor: pointer;\n  appearance: none;\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range:focus {\n  outline: none;\n}\n\n.sc-sheet__range::-webkit-slider-runnable-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-moz-range-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-webkit-slider-thumb {\n  width: 14px;\n  height: 14px;\n  margin-top: -5.5px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range::-moz-range-thumb {\n  width: 14px;\n  height: 14px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n}\n\n.sc-sheet__footer {\n  display: flex;\n  justify-content: center;\n}\n\n.sc-sheet__continue {\n  padding: 8px 22px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n@keyframes sc-sheet-slide {\n  from {\n    transform: translateY(100%);\n  }\n}\n\n.sc-confirm__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.sc-confirm__frame {\n  position: relative;\n  display: flex;\n  width: 100%;\n  max-width: 678px;\n  max-height: 100%;\n}\n\n.sc-confirm {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 20px;\n  min-width: 0;\n  max-height: 100%;\n  padding: 28px 34px 30px;\n  overflow-y: auto;\n  border-radius: 15px;\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.sc-confirm__header {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n}\n\n.sc-confirm__title {\n  font-size: 22px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-confirm__summary {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  padding: 18px 28px;\n  border-radius: 12px;\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.sc-confirm__summary-row {\n  display: flex;\n  align-items: flex-end;\n  justify-content: space-between;\n  gap: 12px;\n  width: 100%;\n}\n\n.sc-confirm__summary-row--after {\n  align-items: baseline;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid var(--color-light-grey);\n}\n\n.sc-confirm__summary-col {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n}\n\n.sc-confirm__summary-col--end {\n  align-items: flex-end;\n}\n\n.sc-confirm__summary-label {\n  font-size: 15px;\n  line-height: 1.3;\n}\n\n.sc-confirm__summary-value {\n  font-size: 18px;\n  font-weight: 700;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.sc-confirm__summary-price {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 12px;\n}\n\n.sc-confirm__old-price,\n.sc-confirm__no-change {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  white-space: nowrap;\n}\n\n.sc-confirm__balance {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n}\n\n.sc-confirm__icon {\n  flex-shrink: 0;\n  width: 18px;\n  height: 18px;\n}\n\n.sc-confirm__free {\n  color: var(--color-coins);\n}\n\n.sc-confirm__summary-link {\n  margin-top: 8px;\n  color: var(--color-navy);\n  font-size: 15px;\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__note {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 18px;\n  border: 0.5px solid var(--color-scrollbar-track-dark);\n  border-radius: 20px;\n  background: var(--color-info-pill-bg);\n  box-shadow: 0 0 8px var(--color-info-pill-shadow);\n  font-size: 14px;\n  line-height: 1.35;\n}\n\n.sc-confirm__alert {\n  display: flex;\n  align-items: flex-start;\n  gap: 8px;\n  width: 100%;\n  margin-top: 12px;\n  padding: 8px 14px;\n  border-radius: 6px;\n  background: var(--color-warning-bg);\n  color: var(--color-red);\n  font-size: 15px;\n  line-height: 1.4;\n}\n\n.sc-confirm__alert .sc-confirm__icon {\n  margin-top: 2px;\n}\n\n.sc-confirm__upgrade-link {\n  color: var(--color-yellow);\n  font-weight: 600;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__error {\n  padding: 6px 14px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  color: var(--color-text);\n  font-size: 12px;\n  line-height: 1.35;\n  text-align: center;\n}\n\n.sc-confirm__actions {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-end;\n  justify-content: flex-end;\n  gap: 12px;\n}\n\n.sc-confirm__submit,\n.sc-confirm__cancel,\n.sc-confirm__buy-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 8px 26px;\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-navy);\n  font-size: 18px;\n  font-weight: 500;\n  line-height: 1.3;\n  text-decoration: none;\n  white-space: nowrap;\n}\n\n.sc-confirm__submit {\n  border: 1px solid var(--color-white);\n}\n\n.sc-confirm__buy-btn {\n  border: 1px solid var(--color-yellow);\n  background: var(--color-yellow);\n  color: var(--color-text);\n}\n\n.sc-confirm__cancel {\n  border: 1px solid var(--color-white);\n  background: none;\n  color: var(--color-white);\n}\n\n.sc-confirm__submit:disabled {\n  color: color-mix(in srgb, var(--color-navy) 40%, var(--color-white));\n}\n\n@media (max-width: 480px) {\n  .sc-confirm {\n    gap: 16px;\n    padding: 20px 16px;\n  }\n\n  .sc-confirm__title {\n    font-size: 20px;\n  }\n\n  .sc-confirm__summary {\n    padding: 14px 16px;\n  }\n\n  .sc-confirm__summary-label,\n  .sc-confirm__summary-link {\n    font-size: 14px;\n  }\n\n  .sc-confirm__summary-value {\n    font-size: 16px;\n  }\n\n  .sc-confirm__old-price,\n  .sc-confirm__no-change {\n    font-size: 13px;\n  }\n\n  .sc-confirm__summary-price {\n    gap: 6px;\n  }\n\n  .sc-confirm__summary-row--after {\n    flex-wrap: wrap;\n    row-gap: 4px;\n  }\n\n  .sc-confirm__summary-row--after > :last-child {\n    margin-left: auto;\n  }\n\n  .sc-confirm__note {\n    padding: 8px 14px;\n    font-size: 13px;\n  }\n\n  .sc-confirm__actions {\n    flex-direction: column-reverse;\n    align-items: stretch;\n    gap: 10px;\n  }\n\n  .sc-confirm__submit,\n  .sc-confirm__cancel,\n  .sc-confirm__buy-btn {\n    padding: 10px 20px;\n    font-size: 16px;\n  }\n}\n\n.mod-dialog__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.mod-dialog {\n  display: flex;\n  flex-direction: column;\n  gap: 14px;\n  width: 100%;\n  max-width: 560px;\n  max-height: 100%;\n  padding: 14px;\n  overflow-y: auto;\n  border-radius: 16px;\n  background: var(--color-white);\n  box-shadow: 0 12px 32px var(--color-dialog-shadow);\n}\n\n.mod-dialog__card {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  padding: 16px 14px;\n  border: 1px solid var(--color-border);\n  border-radius: 8px;\n}\n\n.mod-dialog__heading {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 10px;\n}\n\n.mod-dialog__title {\n  font-size: 17px;\n  font-weight: 400;\n  line-height: 1.2;\n}\n\n.mod-dialog__title--ai {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n}\n\n.mod-dialog__ai {\n  flex-shrink: 0;\n  height: 20px;\n}\n\n.mod-dialog__pill {\n  padding: 3px 12px;\n  border-radius: 100px;\n  color: var(--color-white);\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.mod-dialog__pill--warning {\n  background: var(--color-red);\n}\n\n.mod-dialog__pill--recommended {\n  background: var(--color-recommended);\n}\n\n.mod-dialog__row {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.mod-dialog__message {\n  flex: 1;\n  min-width: 0;\n  font-size: 13px;\n  line-height: 1.45;\n  overflow-wrap: break-word;\n}\n\n.mod-dialog__action {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 8px;\n  height: 40px;\n  padding: 0 18px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 15px;\n  font-weight: 500;\n  white-space: nowrap;\n}\n\n.mod-dialog__action-icon {\n  width: 16px;\n  height: 14px;\n}\n\n.mod-dialog__row--locked {\n  padding: 10px 12px;\n  border: 1px dashed var(--color-text);\n  border-radius: 6px;\n  background: var(--color-locked-suggestion-bg);\n  user-select: none;\n}\n\n.mod-dialog__row--locked > * {\n  filter: blur(4px);\n}\n\n.mod-dialog__upsell {\n  color: var(--color-red);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n.mod-dialog__footer {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.mod-dialog__cancel {\n  height: 40px;\n  padding: 0 18px;\n  border: 1px solid var(--color-cancel-btn-border);\n  border-radius: 100px;\n  background: linear-gradient(180deg, var(--color-cancel-btn-from), var(--color-border));\n  font-size: 15px;\n}\n\n@media (max-width: 480px) {\n  .mod-dialog__row:not(.mod-dialog__row--locked) {\n    flex-direction: column;\n    align-items: stretch;\n  }\n\n  .mod-dialog__action {\n    justify-content: center;\n  }\n}\n\n.thread-modal {\n  position: absolute;\n  inset: 0;\n  z-index: 25;\n  display: flex;\n  flex-direction: column;\n  background: var(--color-white);\n}\n\n.thread-modal__header {\n  display: grid;\n  grid-template-columns: 1fr auto 1fr;\n  align-items: center;\n  padding: 12px 16px;\n  border-bottom: 1px solid var(--color-border);\n}\n\n.thread-modal__back {\n  justify-self: start;\n  display: inline-flex;\n  align-items: center;\n  gap: 10px;\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 13px;\n  text-transform: uppercase;\n}\n\n.thread-modal__back-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: 1.5px solid var(--color-text);\n  border-radius: 50%;\n}\n\n.thread-modal__back-icon svg {\n  width: 16px;\n  height: 16px;\n}\n\n.thread-modal__title {\n  font-size: 13px;\n  font-weight: 500;\n  text-transform: uppercase;\n}\n\n.thread-modal__close {\n  justify-self: end;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.thread-modal__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.thread-modal__body {\n  flex: 1;\n  min-height: 0;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.thread-modal__status {\n  padding: 8px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.thread-modal__footer {\n  padding: 10px 16px 12px;\n  border-top: 1px solid var(--color-border);\n}\n\n.thread-modal__field {\n  display: flex;\n  align-items: flex-start;\n  border: 1px solid var(--color-navy);\n  border-radius: 6px;\n  background: var(--color-white);\n}\n\n.thread-modal__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 8px 0 8px 12px;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.thread-modal__input {\n  flex: 1;\n  min-width: 0;\n  max-height: 120px;\n  padding: 8px 12px;\n  border: none;\n  background: transparent;\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.thread-modal__input:focus {\n  outline: none;\n}\n\n.thread-modal__error {\n  margin-top: 6px;\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.thread-modal__mention + .thread-modal__input {\n  padding-left: 6px;\n}\n\n.user-panel__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  justify-content: flex-end;\n  background: var(--color-scrim);\n  animation: user-panel-fade-in 250ms ease-out;\n}\n\n.user-panel__backdrop--closing {\n  animation: user-panel-fade-out 250ms ease-in forwards;\n}\n\n.user-panel {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  max-width: 540px;\n  height: 100%;\n  background: var(--color-white);\n  box-shadow: -4px 0 24px var(--color-sheet-shadow);\n  animation: user-panel-slide-in 250ms ease-out;\n}\n\n.user-panel--closing {\n  animation: user-panel-slide-out 250ms ease-in forwards;\n}\n\n@keyframes user-panel-fade-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-fade-out {\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-slide-in {\n  from {\n    transform: translateX(100%);\n  }\n}\n\n@keyframes user-panel-slide-out {\n  to {\n    transform: translateX(100%);\n  }\n}\n\n.user-panel__header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding: 20px 20px 18px;\n  border-bottom: 1px solid var(--color-light-grey);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.user-panel__title {\n  flex: 1;\n  min-width: 0;\n  font-size: 20px;\n  font-weight: 600;\n  line-height: 30px;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__signout {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 6px;\n  padding: 6px 14px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-red);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.user-panel__signout svg {\n  width: 16px;\n  height: 16px;\n}\n\n.user-panel__close {\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.user-panel__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.user-panel__body {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  padding: 0 20px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.user-panel__item {\n  flex-shrink: 0;\n  display: flex;\n  gap: 14px;\n  padding: 18px 0;\n  border-bottom: 1px solid var(--color-light-grey);\n}\n\n.user-panel__item-icon {\n  flex-shrink: 0;\n  width: 20px;\n  height: 20px;\n  margin-top: 1px;\n  object-fit: contain;\n}\n\n.user-panel__item-content {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 8px;\n  min-width: 0;\n}\n\n.user-panel__item-header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 4px 8px;\n}\n\n.user-panel__item-title {\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__quote {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__removal-reason {\n  margin-top: 4px;\n  color: var(--color-red);\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.user-panel__item-time {\n  color: var(--color-message-meta);\n  font-size: 13px;\n}\n\n.user-panel__tag {\n  padding: 1px 8px;\n  border-radius: 999px;\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.user-panel__status {\n  padding: 16px;\n  font-size: 13px;\n  color: var(--color-text-subtle);\n  text-align: center;\n}\n\n.user-panel__appeal {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n  margin-left: auto;\n  padding: 4px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.user-panel__appeal svg {\n  width: 14px;\n  height: 14px;\n}\n\n.user-panel__appeal-tag {\n  padding: 1px 8px;\n  border: 1px solid;\n  border-radius: 999px;\n  background: var(--color-white);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.user-panel__appeal-tag--open {\n  color: var(--color-rank-champion-to);\n}\n\n.user-panel__appeal-tag--restored {\n  color: var(--color-recommended);\n}\n\n.user-panel__appeal-tag--rejected {\n  color: var(--color-red);\n}\n\n.appeal-form {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}\n\n.appeal-form__note {\n  color: var(--color-text-subtle);\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.appeal-form__input {\n  width: 100%;\n  max-height: 140px;\n  padding: 8px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 10px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.appeal-form__input:focus {\n  outline: none;\n  border-color: var(--color-navy);\n}\n\n.appeal-form__error {\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.appeal-form__actions {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n\n.appeal-form__btn {\n  padding: 4px 14px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.appeal-form__btn:disabled {\n  background: var(--color-light-grey);\n  color: var(--color-text-subtle);\n}\n\n.appeal-form__btn--cancel {\n  border: 1px solid var(--color-border);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n:host {\n  --color-text: #000f55;\n  --color-text-placeholder: #A4A4A4;\n  --color-text-faded: #000F5580;\n  --color-enhance-bg: #E5F6FF;\n  --color-enhance-loading-dark-bg: #1938a6;\n  --color-navy: #004be3;\n  --color-border: #D4D7E3;\n  --color-white: #ffffff;\n  --color-text-subtle: #898989;\n  --color-message-meta: #909090;\n  --color-superchat-meta: #b1b1b1;\n  --color-blue: #2f6fed;\n  --color-light-grey: #EBEBEB;\n  --color-tab-border: #CBCBCB;\n  --color-coins: #22AB00;\n  --color-menu-border: #ACACAC;\n  --color-menu-shadow: #00000040;\n  --color-go-to-top-shadow: #101a3d14;\n  --color-soft-shadow: #101a3d1f;\n  --color-tier-friend-bg: #000e55;\n  --color-tier-supporter-bg: #fcebdf;\n  --color-tier-defender-bg: #ededed;\n  --color-tier-champion-bg: #fff1d0;\n  --color-avatar-1: #e07a5f;\n  --color-avatar-2: #3d7068;\n  --color-avatar-3: #4f6d9a;\n  --color-avatar-4: #8a5a44;\n  --color-avatar-5: #6b5ca5;\n  --color-avatar-6: #2f8f7a;\n  --color-avatar-7: #c9752f;\n  --color-avatar-8: #4a90c4;\n  --color-skeleton-shine: #f7f9fd;\n  --color-superchat-1: #031762;\n  --color-superchat-2: #0a2a8f;\n  --color-superchat-3: #0f3dbd;\n  --color-superchat-4: #014be3;\n  --color-gradient-blue: #2043bd;\n  --color-gradient-navy: #00135a;\n  --color-scrollbar-thumb: #CCCCCC;\n  --color-scrollbar-track-dark: #ffffff4d;\n  --color-info-pill-bg: #ffffff1a;\n  --color-info-pill-shadow: #00000012;\n  --color-yellow: #ffd86b;\n  --color-scrim: #00000033;\n  --color-sheet-shadow: #101a3d40;\n  --color-confirm-close: #eb0000;\n  --color-dialog-shadow: #101a3d2e;\n  --color-red: #d70000;\n  --color-warning-bg: #fff0f0;\n  --color-recommended: #39933C;\n  --color-locked-suggestion-bg: #E5F6FF80;\n  --color-cancel-btn-from: #f0f7fd;\n  --color-cancel-btn-border: #d8e1f0;\n  --color-rank-supporter-from: #f6ba92;\n  --color-rank-supporter-to: #c38154;\n  --color-rank-defender-from: #c2c2c2;\n  --color-rank-defender-to: #818181;\n  --color-rank-champion-from: #ffc241;\n  --color-rank-champion-to: #e99300;\n  --color-shadow: #0000001a;\n  --color-reaction-picker-border: #9B9B9B;\n  --color-reaction-label-bg: #000F55CC;\n  --color-cancel-reply-shadow: #00000026;\n\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  font-family: \"Noto Sans\", sans-serif;\n  color: var(--color-text);\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n:host,\n:host(:focus),\n:host(:focus-within) {\n  outline: none !important;\n}\n\n:host > div {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\nbutton,\ntextarea {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\nbutton:disabled {\n  cursor: not-allowed;\n}\n";
 	//#endregion
 	//#region node_modules/react/cjs/react-jsx-dev-runtime.development.js
 	/**
@@ -17634,23 +17679,23 @@
 	var import_jsx_dev_runtime = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
 		module.exports = require_react_jsx_dev_runtime_development();
 	})))();
-	var _jsxFileName$17 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/createWidgetElement.tsx";
+	var _jsxFileName$19 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/createWidgetElement.tsx";
 	var createWidgetElement = (Component) => class extends HTMLElement {
 		#root = null;
 		connectedCallback() {
 			if (this.#root) return;
 			const shadow = this.shadowRoot ?? this.attachShadow({ mode: "open" });
 			const style = document.createElement("style");
-			style.textContent = styles_default;
+			style.textContent = src_default;
 			const mountNode = document.createElement("div");
 			shadow.replaceChildren(style, mountNode);
 			this.#root = (0, import_client.createRoot)(mountNode);
 			this.#root.render(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_react.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Component, { roomId: this.getAttribute(ROOM_ID_ATTRIBUTE) }, void 0, false, {
-				fileName: _jsxFileName$17,
+				fileName: _jsxFileName$19,
 				lineNumber: 25,
 				columnNumber: 11
 			}, this) }, void 0, false, {
-				fileName: _jsxFileName$17,
+				fileName: _jsxFileName$19,
 				lineNumber: 24,
 				columnNumber: 9
 			}, this));
@@ -20624,59 +20669,6 @@
 		return e !== "normal" && e?.endsWith("px") !== !0 && n(`${t} was not resolved to pixel value correctly`, e, ht.WARN), e === "normal" ? 0 : parseInt(e ?? "0", 10);
 	}
 	//#endregion
-	//#region src/utils/gbnAuth.ts
-	var onGbnIDReady = (callback) => {
-		window.gbnID = window.gbnID ?? [];
-		window.gbnID.push(["init", () => callback(window.gbnID)]);
-	};
-	var isGbnCEReady = (gbnCE) => typeof gbnCE?.auth?.getUserProfile === "function";
-	var onGbnCEReady = (callback) => {
-		const gbnCE = window.gbnCE;
-		if (isGbnCEReady(gbnCE)) {
-			callback(gbnCE);
-			return;
-		}
-		let isCalled = false;
-		const callOnce = (readyGbnCE) => {
-			if (!isCalled) {
-				isCalled = true;
-				callback(readyGbnCE);
-			}
-		};
-		window.gbnCE = gbnCE ?? [];
-		window.gbnCE.push(["init", callOnce]);
-		const poll = setInterval(() => {
-			if (isCalled) clearInterval(poll);
-			else if (isGbnCEReady(window.gbnCE)) {
-				clearInterval(poll);
-				callOnce(window.gbnCE);
-			}
-		}, GBN_CE_POLL_MS);
-	};
-	var getCurrentAccount = () => {
-		const gbnID = window.gbnID;
-		if (typeof gbnID?.getCurrentUser === "function") return gbnID.getCurrentUser().catch(() => null);
-		return Promise.resolve(gbnID?._currentUser ?? null);
-	};
-	var getUserProfile = (gbnCE) => {
-		if (typeof gbnCE.auth?.getUserProfile !== "function") return Promise.resolve(null);
-		return gbnCE.auth.getUserProfile();
-	};
-	var openGbnLogin = () => {
-		window.gbnID?.openLoginModal?.();
-	};
-	var logoutGbn = () => {
-		window.gbnID?.logout?.();
-	};
-	var getAccountName = (account) => {
-		return [account.name?.first, account.name?.last].map((part) => part?.trim()).filter(Boolean).join(" ") || account.displayName?.trim() || account.email?.split("@")[0] || "Member";
-	};
-	var getProfileTierId = (profile) => {
-		const tierId = Number(profile.tier?.tierId);
-		return Number.isInteger(tierId) && tierId > 0 ? tierId : null;
-	};
-	var getTierRank = (tierId) => tierId && RANK_BY_TIER_ID[tierId] || USER_RANK.FRIEND;
-	//#endregion
 	//#region src/store/createStore.ts
 	var createStore = (initialState) => {
 		let state = initialState;
@@ -20704,100 +20696,151 @@
 		};
 	};
 	//#endregion
-	//#region src/store/authSlice.ts
+	//#region src/store/slices/authSlice.ts
 	var PROFILE_PENDING = {
 		tierId: null,
 		coins: null,
 		isLoaded: false
 	};
-	var store$2 = createStore({
+	var { getState: getState$3, setState: setState$4, useStore: useStore$4 } = createStore({
 		status: AUTH_STATUS.CHECKING,
 		user: null,
 		profile: PROFILE_PENDING
 	});
-	var isStarted = false;
-	var latestRefresh = 0;
-	var latestProfileFetch = 0;
-	var knownUserId = null;
-	var setGuest = () => {
-		knownUserId = null;
-		latestProfileFetch += 1;
-		store$2.setState({
-			status: AUTH_STATUS.GUEST,
-			user: null,
-			profile: PROFILE_PENDING
+	var getAuthState = getState$3;
+	var setUser = (user) => setState$4({
+		status: AUTH_STATUS.AUTHENTICATED,
+		user
+	});
+	var setGuest = () => setState$4({
+		status: AUTH_STATUS.GUEST,
+		user: null,
+		profile: PROFILE_PENDING
+	});
+	var setProfile = (profile) => setState$4({ profile });
+	var resetProfile = () => setState$4({ profile: PROFILE_PENDING });
+	var useAuth = useStore$4;
+	//#endregion
+	//#region src/utils/dom.ts
+	var loadStylesheet = (href) => {
+		if (document.querySelector(`link[href="${href}"]`)) return;
+		const link = document.createElement("link");
+		link.rel = "stylesheet";
+		link.href = href;
+		document.head.append(link);
+	};
+	var getQueryParam = (name) => new URLSearchParams(window.location.search).get(name);
+	var setQueryParam = (name, value) => {
+		const url = new URL(window.location.href);
+		url.searchParams.set(name, value);
+		window.history.replaceState(window.history.state, "", url);
+	};
+	//#endregion
+	//#region src/store/slices/commentsSlice.ts
+	var createFeed = () => ({
+		status: REQUEST_STATUS.IDLE,
+		messages: [],
+		error: null,
+		hasMore: false,
+		isLoadingMore: false
+	});
+	var getInitialTab = () => {
+		return CHAT_TABS.find(({ id }) => id === getQueryParam("commentsTab"))?.id ?? CHAT_TAB.SUPER;
+	};
+	var { getState: getState$2, setState: setState$3, useStore: useStore$3 } = createStore({
+		roomId: "",
+		activeTab: getInitialTab(),
+		feeds: {
+			[CHAT_TAB.SUPER]: createFeed(),
+			[CHAT_TAB.FEATURED]: createFeed(),
+			[CHAT_TAB.NORMAL]: createFeed()
+		},
+		counts: {
+			[CHAT_TAB.SUPER]: 0,
+			[CHAT_TAB.FEATURED]: 0,
+			[CHAT_TAB.NORMAL]: 0
+		},
+		settings: null,
+		threads: {},
+		threadStack: [],
+		lastSent: null,
+		removedNotice: null
+	});
+	var getCommentsState = getState$2;
+	var setRoomId = (roomId) => setState$3({ roomId });
+	var setSettings = (settings) => setState$3({ settings });
+	var setRoomMode = (mode) => {
+		const { settings } = getState$2();
+		if (settings) setState$3({ settings: {
+			...settings,
+			mode
+		} });
+	};
+	var setActiveTab = (activeTab) => setState$3({ activeTab });
+	var setFeed = (tab, next) => setState$3({ feeds: {
+		...getState$2().feeds,
+		[tab]: {
+			...getState$2().feeds[tab],
+			...next
+		}
+	} });
+	var setCounts = (counts) => setState$3({ counts });
+	var updateIn = (list, id, update) => list.map((message) => message.id === id ? update(message) : message);
+	var updateMessage = (id, update) => {
+		const { feeds, threads } = getState$2();
+		setState$3({
+			feeds: {
+				[CHAT_TAB.SUPER]: {
+					...feeds[CHAT_TAB.SUPER],
+					messages: updateIn(feeds[CHAT_TAB.SUPER].messages, id, update)
+				},
+				[CHAT_TAB.FEATURED]: {
+					...feeds[CHAT_TAB.FEATURED],
+					messages: updateIn(feeds[CHAT_TAB.FEATURED].messages, id, update)
+				},
+				[CHAT_TAB.NORMAL]: {
+					...feeds[CHAT_TAB.NORMAL],
+					messages: updateIn(feeds[CHAT_TAB.NORMAL].messages, id, update)
+				}
+			},
+			threads: Object.fromEntries(Object.entries(threads).map(([rootId, thread]) => [rootId, {
+				...thread,
+				replies: updateIn(thread.replies, id, update)
+			}]))
 		});
 	};
-	var refreshProfile = async (gbnCE, attempt = 0) => {
-		const fetchId = ++latestProfileFetch;
-		let profile = null;
-		try {
-			const gbnProfile = await getUserProfile(gbnCE);
-			if (gbnProfile) profile = {
-				tierId: getProfileTierId(gbnProfile),
-				coins: gbnProfile.wallet?.coins ?? null,
-				isLoaded: true
-			};
-		} catch {
-			profile = null;
-		}
-		if (fetchId !== latestProfileFetch) return;
-		if (profile) {
-			store$2.setState({ profile });
-			return;
-		}
-		if (store$2.getState().status === AUTH_STATUS.GUEST) return;
-		const delay = PROFILE_RETRY_DELAYS_MS[Math.min(attempt, PROFILE_RETRY_DELAYS_MS.length - 1)];
-		setTimeout(() => {
-			if (fetchId === latestProfileFetch) refreshProfile(gbnCE, attempt + 1);
-		}, delay);
-	};
-	var refreshUser = async (isGbnIDReady) => {
-		const refreshId = ++latestRefresh;
-		const account = await getCurrentAccount();
-		if (refreshId !== latestRefresh) return;
-		if (!account?.id) {
-			if (isGbnIDReady) setGuest();
-			return;
-		}
-		if (knownUserId && knownUserId !== account.id) {
-			latestProfileFetch += 1;
-			store$2.setState({ profile: PROFILE_PENDING });
-		}
-		knownUserId = account.id;
-		store$2.setState({
-			status: AUTH_STATUS.AUTHENTICATED,
-			user: {
-				id: account.id,
-				name: getAccountName(account)
+	var setThread = (rootId, next) => {
+		const { threads } = getState$2();
+		const thread = threads[rootId] ?? {
+			isOpen: false,
+			status: REQUEST_STATUS.IDLE,
+			replies: []
+		};
+		setState$3({ threads: {
+			...threads,
+			[rootId]: {
+				...thread,
+				...next
 			}
-		});
-		if (!store$2.getState().profile.isLoaded) onGbnCEReady(refreshProfile);
+		} });
 	};
-	var startAuth = () => {
-		if (isStarted) return;
-		isStarted = true;
-		refreshUser(false);
-		onGbnCEReady((gbnCE) => {
-			refreshProfile(gbnCE);
-			gbnCE.onLogin?.(() => refreshProfile(gbnCE));
-		});
-		onGbnIDReady((gbnID) => {
-			refreshUser(true);
-			gbnID.onLogin?.(() => refreshUser(true));
-			gbnID.onLogout?.(() => {
-				latestRefresh += 1;
-				setGuest();
-			});
-		});
-	};
-	var handleSessionExpired = () => {
-		if (store$2.getState().status !== AUTH_STATUS.AUTHENTICATED) return;
-		latestRefresh += 1;
-		setGuest();
-		openGbnLogin();
-	};
-	var useAuth = store$2.useStore;
+	var addThreadLevel = (id, rootId) => setState$3({ threadStack: [...getState$2().threadStack, {
+		id,
+		rootId
+	}] });
+	var closeThreadLevel = () => setState$3({ threadStack: getState$2().threadStack.slice(0, -1) });
+	var closeThreads = () => setState$3({ threadStack: [] });
+	var markSent = (tab) => setState$3({ lastSent: {
+		tab,
+		id: (getState$2().lastSent?.id ?? 0) + 1
+	} });
+	var showRemovedNotice = (id, isSuperChat, reason) => setState$3({ removedNotice: {
+		id,
+		isSuperChat,
+		reason
+	} });
+	var dismissRemovedNotice = () => setState$3({ removedNotice: null });
+	var useComments = useStore$3;
 	//#endregion
 	//#region node_modules/axios/lib/helpers/bind.js
 	/**
@@ -24587,6 +24630,136 @@
 	axios.HttpStatusCode = HttpStatusCode;
 	axios.default = axios;
 	//#endregion
+	//#region src/utils/gbnAuth.ts
+	var onGbnIDReady = (callback) => {
+		window.gbnID = window.gbnID ?? [];
+		window.gbnID.push(["init", () => callback(window.gbnID)]);
+	};
+	var isGbnCEReady = (gbnCE) => typeof gbnCE?.auth?.getUserProfile === "function";
+	var onGbnCEReady = (callback) => {
+		const gbnCE = window.gbnCE;
+		if (isGbnCEReady(gbnCE)) {
+			callback(gbnCE);
+			return;
+		}
+		let isCalled = false;
+		const callOnce = (readyGbnCE) => {
+			if (!isCalled) {
+				isCalled = true;
+				callback(readyGbnCE);
+			}
+		};
+		window.gbnCE = gbnCE ?? [];
+		window.gbnCE.push(["init", callOnce]);
+		const poll = setInterval(() => {
+			if (isCalled) clearInterval(poll);
+			else if (isGbnCEReady(window.gbnCE)) {
+				clearInterval(poll);
+				callOnce(window.gbnCE);
+			}
+		}, GBN_CE_POLL_MS);
+	};
+	var getCurrentAccount = () => {
+		const gbnID = window.gbnID;
+		if (typeof gbnID?.getCurrentUser === "function") return gbnID.getCurrentUser().catch(() => null);
+		return Promise.resolve(gbnID?._currentUser ?? null);
+	};
+	var getUserProfile = (gbnCE) => {
+		if (typeof gbnCE.auth?.getUserProfile !== "function") return Promise.resolve(null);
+		return gbnCE.auth.getUserProfile();
+	};
+	var openGbnLogin = () => {
+		window.gbnID?.openLoginModal?.();
+	};
+	var logoutGbn = () => {
+		window.gbnID?.logout?.();
+	};
+	var getAccountName = (account) => {
+		return [account.name?.first, account.name?.last].map((part) => part?.trim()).filter(Boolean).join(" ") || account.displayName?.trim() || account.email?.split("@")[0] || "Member";
+	};
+	var getProfileTierId = (profile) => {
+		const tierId = Number(profile.tier?.tierId);
+		return Number.isInteger(tierId) && tierId > 0 ? tierId : null;
+	};
+	var getTierRank = (tierId) => tierId && RANK_BY_TIER_ID[tierId] || USER_RANK.FRIEND;
+	//#endregion
+	//#region src/store/thunks/authThunks.ts
+	var isStarted = false;
+	var latestRefresh = 0;
+	var latestProfileFetch = 0;
+	var knownUserId = null;
+	var clearUser = () => {
+		knownUserId = null;
+		latestProfileFetch += 1;
+		setGuest();
+	};
+	var refreshProfile = async (gbnCE, attempt = 0) => {
+		const fetchId = ++latestProfileFetch;
+		let profile = null;
+		try {
+			const gbnProfile = await getUserProfile(gbnCE);
+			if (gbnProfile) profile = {
+				tierId: getProfileTierId(gbnProfile),
+				coins: gbnProfile.wallet?.coins ?? null,
+				isLoaded: true
+			};
+		} catch {
+			profile = null;
+		}
+		if (fetchId !== latestProfileFetch) return;
+		if (profile) {
+			setProfile(profile);
+			return;
+		}
+		if (getAuthState().status === AUTH_STATUS.GUEST) return;
+		const delay = PROFILE_RETRY_DELAYS_MS[Math.min(attempt, PROFILE_RETRY_DELAYS_MS.length - 1)];
+		setTimeout(() => {
+			if (fetchId === latestProfileFetch) refreshProfile(gbnCE, attempt + 1);
+		}, delay);
+	};
+	var refreshUser = async (isGbnIDReady) => {
+		const refreshId = ++latestRefresh;
+		const account = await getCurrentAccount();
+		if (refreshId !== latestRefresh) return;
+		if (!account?.id) {
+			if (isGbnIDReady) clearUser();
+			return;
+		}
+		if (knownUserId && knownUserId !== account.id) {
+			latestProfileFetch += 1;
+			resetProfile();
+		}
+		knownUserId = account.id;
+		setUser({
+			id: account.id,
+			name: getAccountName(account)
+		});
+		if (!getAuthState().profile.isLoaded) onGbnCEReady(refreshProfile);
+	};
+	var startAuth = () => {
+		if (isStarted) return;
+		isStarted = true;
+		refreshUser(false);
+		onGbnCEReady((gbnCE) => {
+			refreshProfile(gbnCE);
+			gbnCE.onLogin?.(() => refreshProfile(gbnCE));
+		});
+		onGbnIDReady((gbnID) => {
+			refreshUser(true);
+			gbnID.onLogin?.(() => refreshUser(true));
+			gbnID.onLogout?.(() => {
+				latestRefresh += 1;
+				clearUser();
+			});
+		});
+	};
+	var handleSessionExpired = () => {
+		if (getAuthState().status !== AUTH_STATUS.AUTHENTICATED) return;
+		latestRefresh += 1;
+		clearUser();
+		openGbnLogin();
+	};
+	//#endregion
 	//#region src/axiosWrapper/index.ts
 	var axiosInstance = axios.create({
 		baseURL: GBNID_API_BASE_URL,
@@ -24598,6 +24771,7 @@
 		if (response?.status === HTTP_STATUS.UNAUTHORIZED && isUserAction) handleSessionExpired();
 		return Promise.reject(error);
 	});
+	var idempotencyHeaders = () => ({ headers: { [IDEMPOTENCY_HEADER]: crypto.randomUUID() } });
 	var getErrorStatus = (error) => axios.isAxiosError(error) ? error.response?.status : void 0;
 	var toErrorMessage = (error, fallback) => {
 		if (!axios.isAxiosError(error)) return fallback;
@@ -24627,7 +24801,6 @@
 	};
 	//#endregion
 	//#region src/api/comments.ts
-	var idempotencyHeaders = () => ({ headers: { [IDEMPOTENCY_HEADER]: crypto.randomUUID() } });
 	var fetchRoomSettings = (roomId) => axiosGet(COMMENTS_API.ROOM(roomId));
 	var fetchRoomMessages = (roomId, filter, cursor) => axiosGet(COMMENTS_API.MESSAGES(roomId), {
 		sort: COMMENTS_SORT,
@@ -24655,6 +24828,9 @@
 	var editRoomMessage = async (roomId, messageId, body) => {
 		await axiosPatch(COMMENTS_API.MESSAGE(roomId, messageId), { body });
 	};
+	var deleteRoomMessage = async (roomId, messageId) => {
+		await axiosDelete(COMMENTS_API.MESSAGE(roomId, messageId));
+	};
 	var reportRoomMessage = async (roomId, messageId, reason) => {
 		await axiosPost(COMMENTS_API.MESSAGE_REPORTS(roomId, messageId), { reason }, idempotencyHeaders());
 	};
@@ -24673,93 +24849,17 @@
 		return data;
 	};
 	//#endregion
-	//#region src/utils/dom.ts
-	var loadStylesheet = (href) => {
-		if (document.querySelector(`link[href="${href}"]`)) return;
-		const link = document.createElement("link");
-		link.rel = "stylesheet";
-		link.href = href;
-		document.head.append(link);
-	};
-	var getQueryParam = (name) => new URLSearchParams(window.location.search).get(name);
-	var setQueryParam = (name, value) => {
-		const url = new URL(window.location.href);
-		url.searchParams.set(name, value);
-		window.history.replaceState(window.history.state, "", url);
-	};
-	//#endregion
-	//#region src/store/commentsSlice.ts
-	var createFeed = () => ({
-		status: REQUEST_STATUS.IDLE,
-		messages: [],
-		error: null,
-		hasMore: false,
-		isLoadingMore: false
-	});
-	var getInitialTab = () => {
-		return CHAT_TABS.find(({ id }) => id === getQueryParam("commentsTab"))?.id ?? CHAT_TAB.SUPER;
-	};
+	//#region src/store/thunks/commentsThunks.ts
 	var TAB_FILTER = {
 		[CHAT_TAB.SUPER]: { kind: MESSAGE_KIND.SUPERCHAT },
 		[CHAT_TAB.FEATURED]: { from: MESSAGES_FROM_MEMBERS },
 		[CHAT_TAB.NORMAL]: {}
 	};
-	var commentsStore = createStore({
-		roomId: "",
-		activeTab: getInitialTab(),
-		feeds: {
-			[CHAT_TAB.SUPER]: createFeed(),
-			[CHAT_TAB.FEATURED]: createFeed(),
-			[CHAT_TAB.NORMAL]: createFeed()
-		},
-		counts: {
-			[CHAT_TAB.SUPER]: 0,
-			[CHAT_TAB.FEATURED]: 0,
-			[CHAT_TAB.NORMAL]: 0
-		},
-		settings: null,
-		threads: {},
-		threadStack: [],
-		lastSent: null,
-		removedNotice: null
-	});
 	var cursors = {
 		next: {},
 		live: null
 	};
-	var { getState: getState$2, setState: setState$2 } = commentsStore;
-	var setActiveTab = (activeTab) => setState$2({ activeTab });
-	var setFeed = (tab, next) => setState$2({ feeds: {
-		...getState$2().feeds,
-		[tab]: {
-			...getState$2().feeds[tab],
-			...next
-		}
-	} });
-	var updateIn = (list, id, update) => list.map((message) => message.id === id ? update(message) : message);
-	var updateMessage = (id, update) => {
-		const { feeds, threads } = getState$2();
-		setState$2({
-			feeds: {
-				[CHAT_TAB.SUPER]: {
-					...feeds[CHAT_TAB.SUPER],
-					messages: updateIn(feeds[CHAT_TAB.SUPER].messages, id, update)
-				},
-				[CHAT_TAB.FEATURED]: {
-					...feeds[CHAT_TAB.FEATURED],
-					messages: updateIn(feeds[CHAT_TAB.FEATURED].messages, id, update)
-				},
-				[CHAT_TAB.NORMAL]: {
-					...feeds[CHAT_TAB.NORMAL],
-					messages: updateIn(feeds[CHAT_TAB.NORMAL].messages, id, update)
-				}
-			},
-			threads: Object.fromEntries(Object.entries(threads).map(([rootId, thread]) => [rootId, {
-				...thread,
-				replies: updateIn(thread.replies, id, update)
-			}]))
-		});
-	};
+	var reactionsInFlight = /* @__PURE__ */ new Map();
 	var parseLiveCursor = (cursor) => {
 		const [roomCursor, meCursor] = cursor.split(".");
 		return {
@@ -24769,23 +24869,23 @@
 	};
 	var loadRoomSettings = async () => {
 		try {
-			setState$2({ settings: await fetchRoomSettings(getState$2().roomId) });
+			setSettings(await fetchRoomSettings(getCommentsState().roomId));
 		} catch {
-			setState$2({ settings: null });
+			setSettings(null);
 		}
 	};
 	var joinRoom = (roomId) => {
-		if (getState$2().roomId === roomId) return;
-		setState$2({ roomId });
+		if (getCommentsState().roomId === roomId) return;
+		setRoomId(roomId);
 		loadRoomSettings();
 	};
 	var loadSnapshot = async (tab) => {
-		if (getState$2().feeds[tab].status !== REQUEST_STATUS.SUCCEEDED) setFeed(tab, {
+		if (getCommentsState().feeds[tab].status !== REQUEST_STATUS.SUCCEEDED) setFeed(tab, {
 			status: REQUEST_STATUS.LOADING,
 			error: null
 		});
 		try {
-			const page = await fetchRoomMessages(getState$2().roomId, TAB_FILTER[tab]);
+			const page = await fetchRoomMessages(getCommentsState().roomId, TAB_FILTER[tab]);
 			if (!cursors.live && page.stream_cursor) cursors.live = parseLiveCursor(page.stream_cursor);
 			cursors.next[tab] = page.next_cursor;
 			setFeed(tab, {
@@ -24793,11 +24893,11 @@
 				status: REQUEST_STATUS.SUCCEEDED,
 				hasMore: Boolean(page.next_cursor)
 			});
-			setState$2({ counts: {
+			setCounts({
 				[CHAT_TAB.SUPER]: page.superchat_count,
 				[CHAT_TAB.FEATURED]: page.member_count,
 				[CHAT_TAB.NORMAL]: page.total_count
-			} });
+			});
 			if (page.items.length === 0) loadMoreComments(tab);
 		} catch (error) {
 			setFeed(tab, {
@@ -24807,17 +24907,17 @@
 		}
 	};
 	var loadComments = (tab) => {
-		if (getState$2().feeds[tab].status === REQUEST_STATUS.IDLE) loadSnapshot(tab);
+		if (getCommentsState().feeds[tab].status === REQUEST_STATUS.IDLE) loadSnapshot(tab);
 	};
 	var loadMoreComments = async (tab) => {
-		if (!cursors.next[tab] || getState$2().feeds[tab].isLoadingMore) return;
+		if (!cursors.next[tab] || getCommentsState().feeds[tab].isLoadingMore) return;
 		setFeed(tab, { isLoadingMore: true });
 		try {
 			while (cursors.next[tab]) {
-				const page = await fetchRoomMessages(getState$2().roomId, TAB_FILTER[tab], cursors.next[tab]);
+				const page = await fetchRoomMessages(getCommentsState().roomId, TAB_FILTER[tab], cursors.next[tab]);
 				cursors.next[tab] = page.next_cursor;
 				if (page.items.length > 0) {
-					setFeed(tab, { messages: [...getState$2().feeds[tab].messages, ...page.items] });
+					setFeed(tab, { messages: [...getCommentsState().feeds[tab].messages, ...page.items] });
 					break;
 				}
 			}
@@ -24830,27 +24930,12 @@
 			});
 		}
 	};
-	var setThread = (rootId, next) => {
-		const { threads } = getState$2();
-		const thread = threads[rootId] ?? {
-			isOpen: false,
-			status: REQUEST_STATUS.IDLE,
-			replies: []
-		};
-		setState$2({ threads: {
-			...threads,
-			[rootId]: {
-				...thread,
-				...next
-			}
-		} });
-	};
 	var loadThread = async (rootId) => {
-		const status = getState$2().threads[rootId]?.status;
+		const status = getCommentsState().threads[rootId]?.status;
 		if (status === REQUEST_STATUS.SUCCEEDED || status === REQUEST_STATUS.LOADING) return;
 		setThread(rootId, { status: REQUEST_STATUS.LOADING });
 		try {
-			const items = await fetchRoomThread(getState$2().roomId, rootId);
+			const items = await fetchRoomThread(getCommentsState().roomId, rootId);
 			setThread(rootId, {
 				status: REQUEST_STATUS.SUCCEEDED,
 				replies: items.filter((item) => item.id !== rootId)
@@ -24860,42 +24945,32 @@
 		}
 	};
 	var toggleThread = (rootId) => {
-		const isOpen = !getState$2().threads[rootId]?.isOpen;
+		const isOpen = !getCommentsState().threads[rootId]?.isOpen;
 		setThread(rootId, { isOpen });
 		if (isOpen) loadThread(rootId);
 	};
 	var openThread = (message) => {
 		const rootId = message.depth === 0 ? message.id : message.root_id;
-		setState$2({ threadStack: [...getState$2().threadStack, {
-			id: message.id,
-			rootId
-		}] });
+		addThreadLevel(message.id, rootId);
 		loadThread(rootId);
 	};
-	var closeThreadLevel = () => setState$2({ threadStack: getState$2().threadStack.slice(0, -1) });
-	var closeThreads = () => setState$2({ threadStack: [] });
-	var dismissRemovedNotice = () => setState$2({ removedNotice: null });
-	var markSent = (tab) => setState$2({ lastSent: {
-		tab,
-		id: (getState$2().lastSent?.id ?? 0) + 1
-	} });
 	var sendComment = async (body, parentId) => {
-		await postRoomMessage(getState$2().roomId, body, parentId);
+		await postRoomMessage(getCommentsState().roomId, body, parentId);
 		if (!parentId) markSent(CHAT_TAB.NORMAL);
 	};
 	var sendSuperChat = async (body, parentId) => {
-		await buySuperChat(getState$2().roomId, body, parentId);
+		await buySuperChat(getCommentsState().roomId, body, parentId);
 		markSent(CHAT_TAB.SUPER);
 	};
-	var editComment = (messageId, body) => editRoomMessage(getState$2().roomId, messageId, body);
-	var reportComment = (messageId, reason) => reportRoomMessage(getState$2().roomId, messageId, reason);
-	var reactionsInFlight = /* @__PURE__ */ new Map();
+	var editComment = (messageId, body) => editRoomMessage(getCommentsState().roomId, messageId, body);
+	var deleteComment = (messageId) => deleteRoomMessage(getCommentsState().roomId, messageId);
+	var reportComment = (messageId, reason) => reportRoomMessage(getCommentsState().roomId, messageId, reason);
 	var changeCount = (counts, kind, change) => ({
 		...counts,
 		[kind]: Math.max((counts[kind] ?? 0) + change, 0)
 	});
 	var toggleReaction = async (message, reaction) => {
-		const { roomId } = getState$2();
+		const { roomId } = getCommentsState();
 		const mine = message.my_reactions ?? [];
 		const isRemoving = mine.includes(reaction);
 		const previous = isRemoving || reaction === "1f44d" ? void 0 : mine.find((kind) => kind !== LIKE_REACTION);
@@ -24926,7 +25001,6 @@
 			else reactionsInFlight.delete(message.id);
 		}
 	};
-	var useComments = commentsStore.useStore;
 	//#endregion
 	//#region src/api/liveSocket.ts
 	var openLiveSocket = (roomId, { getCursor, onMessage }) => {
@@ -24972,12 +25046,11 @@
 		};
 	};
 	//#endregion
-	//#region src/store/liveComments.ts
-	var { getState: getState$1, setState: setState$1 } = commentsStore;
+	//#region src/store/thunks/liveCommentsThunks.ts
 	var reactionSeqs = /* @__PURE__ */ new Map();
 	var pendingCounts = /* @__PURE__ */ new Map();
 	var findMessage = (id) => {
-		const { feeds, threads } = getState$1();
+		const { feeds, threads } = getCommentsState();
 		return [...Object.values(feeds).map((feed) => feed.messages), ...Object.values(threads).map((thread) => thread.replies)].flat().find((message) => message.id === id);
 	};
 	var hasMessage = (id) => Boolean(findMessage(id));
@@ -24997,15 +25070,8 @@
 			...parent,
 			reply_count: parent.reply_count + 1
 		}));
-		const { threads } = getState$1();
-		const thread = threads[reply.root_id];
-		if (thread?.status === REQUEST_STATUS.SUCCEEDED) setState$1({ threads: {
-			...threads,
-			[reply.root_id]: {
-				...thread,
-				replies: insertReply(thread.replies, reply)
-			}
-		} });
+		const thread = getCommentsState().threads[reply.root_id];
+		if (thread?.status === REQUEST_STATUS.SUCCEEDED) setThread(reply.root_id, { replies: insertReply(thread.replies, reply) });
 	};
 	var getTabs = (message) => {
 		const tabs = [CHAT_TAB.NORMAL];
@@ -25014,20 +25080,21 @@
 		return tabs;
 	};
 	var changeCounts = (message, change) => {
-		const counts = { ...getState$1().counts };
+		const counts = { ...getCommentsState().counts };
 		getTabs(message).forEach((tab) => {
 			counts[tab] += change;
 		});
-		setState$1({ counts });
+		setCounts(counts);
 	};
 	var addTopLevel = (message) => {
 		getTabs(message).forEach((tab) => {
-			const feed = getState$1().feeds[tab];
+			const feed = getCommentsState().feeds[tab];
 			if (feed.status === REQUEST_STATUS.SUCCEEDED) setFeed(tab, { messages: [message, ...feed.messages] });
 		});
 		changeCounts(message, 1);
 	};
-	var findTopLevel = (id) => Object.values(getState$1().feeds).flatMap((feed) => feed.messages).find((message) => message.id === id);
+	var findTopLevel = (id) => Object.values(getCommentsState().feeds).flatMap((feed) => feed.messages).find((message) => message.id === id);
+	var isGone = (status) => status === MESSAGE_STATUS.REMOVED || status === MESSAGE_STATUS.DELETED;
 	var applyFrame = (frame) => {
 		switch (frame.type) {
 			case LIVE_FRAME_TYPE.MESSAGE_NEW: {
@@ -25055,11 +25122,11 @@
 			case LIVE_FRAME_TYPE.MESSAGE_STATUS: {
 				const { id, status } = frame.data;
 				const message = findTopLevel(id);
-				if (message && status === MESSAGE_STATUS.REMOVED && message.status !== MESSAGE_STATUS.REMOVED) changeCounts(message, -1);
+				if (message && isGone(status) && !isGone(message.status)) changeCounts(message, -1);
 				updateMessage(id, (message) => ({
 					...message,
 					status,
-					body: status === MESSAGE_STATUS.REMOVED ? "" : message.body
+					body: isGone(status) ? "" : message.body
 				}));
 				break;
 			}
@@ -25075,14 +25142,7 @@
 					else pendingCounts.set(message_id, counts);
 				});
 				break;
-			case LIVE_FRAME_TYPE.ROOM_MODE: {
-				const { settings } = getState$1();
-				if (settings) setState$1({ settings: {
-					...settings,
-					mode: frame.data.mode
-				} });
-				break;
-			}
+			case LIVE_FRAME_TYPE.ROOM_MODE: setRoomMode(frame.data.mode);
 		}
 	};
 	var applyLiveMessage = (message) => {
@@ -25095,10 +25155,7 @@
 				if (message.channel === LIVE_CHANNEL.ME) message.frames.forEach((frame) => {
 					if (frame.type === LIVE_FRAME_TYPE.MESSAGE_STATUS && frame.data.status === MESSAGE_STATUS.REMOVED) {
 						const isSuperChat = findMessage(frame.data.id)?.kind === MESSAGE_KIND.SUPERCHAT;
-						setState$1({ removedNotice: {
-							id: frame.data.id,
-							isSuperChat
-						} });
+						showRemovedNotice(frame.data.id, isSuperChat, frame.data.removal_reason);
 					}
 				});
 				if (cursors.live) cursors.live[message.channel] = message.cursor;
@@ -25106,17 +25163,17 @@
 			case LIVE_MESSAGE_TYPE.RESYNC:
 				if (cursors.live) cursors.live[message.channel] = message.cursor;
 				Object.values(CHAT_TAB).forEach((tab) => {
-					if (getState$1().feeds[tab].status !== REQUEST_STATUS.IDLE) loadSnapshot(tab);
+					if (getCommentsState().feeds[tab].status !== REQUEST_STATUS.IDLE) loadSnapshot(tab);
 				});
 		}
 	};
-	var startLiveComments = () => openLiveSocket(getState$1().roomId, {
+	var startLiveComments = () => openLiveSocket(getCommentsState().roomId, {
 		getCursor: () => cursors.live ? `${cursors.live.room}.${cursors.live.me}` : null,
 		onMessage: applyLiveMessage
 	});
 	//#endregion
-	//#region src/store/superChatSlice.ts
-	var store$1 = createStore({
+	//#region src/store/slices/superChatSlice.ts
+	var { getState: getState$1, setState: setState$2, useStore: useStore$2 } = createStore({
 		isOpen: false,
 		text: "",
 		approvedText: null,
@@ -25124,7 +25181,7 @@
 		sentCount: 0,
 		hasResponse: false
 	});
-	var setSuperChatText = (text) => store$1.setState(text.trim() ? {
+	var setSuperChatText = (text) => setState$2(text.trim() ? {
 		text,
 		hasResponse: false
 	} : {
@@ -25132,26 +25189,26 @@
 		isOpen: false,
 		hasResponse: false
 	});
-	var openSuperChatSheet = (approvedText = null) => store$1.setState({
+	var openSuperChatSheet = (approvedText = null) => setState$2({
 		isOpen: true,
 		approvedText,
 		needsModeration: false
 	});
-	var closeSuperChatSheet = () => store$1.setState({ isOpen: false });
-	var requestSuperChatModeration = () => store$1.setState({
+	var closeSuperChatSheet = () => setState$2({ isOpen: false });
+	var requestSuperChatModeration = () => setState$2({
 		isOpen: false,
 		needsModeration: true
 	});
-	var cancelSuperChatModeration = () => store$1.setState({ needsModeration: false });
-	var markSuperChatSent = () => store$1.setState({
+	var cancelSuperChatModeration = () => setState$2({ needsModeration: false });
+	var markSuperChatSent = () => setState$2({
 		isOpen: false,
 		approvedText: null,
-		sentCount: store$1.getState().sentCount + 1
+		sentCount: getState$1().sentCount + 1
 	});
-	var markSuperChatFailed = () => store$1.setState({ hasResponse: true });
-	var useSuperChat = store$1.useStore;
+	var markSuperChatFailed = () => setState$2({ hasResponse: true });
+	var useSuperChat = useStore$2;
 	//#endregion
-	//#region src/store/userMessagesSlice.ts
+	//#region src/store/slices/userMessagesSlice.ts
 	var INITIAL_STATE = {
 		userId: null,
 		userName: "",
@@ -25160,12 +25217,73 @@
 		items: [],
 		error: null,
 		hasMore: false,
-		isLoadingMore: false
+		isLoadingMore: false,
+		appeals: {},
+		appealingId: null,
+		appealModeration: null,
+		appealLoadError: null
 	};
-	var { getState, setState, useStore } = createStore(INITIAL_STATE);
+	var { getState, setState: setState$1, useStore: useStore$1 } = createStore(INITIAL_STATE);
+	var getUserMessagesState = getState;
+	var startUserMessages = (userId, userName, activityTab, appeals = {}) => setState$1({
+		...INITIAL_STATE,
+		userId,
+		userName,
+		activityTab,
+		appeals,
+		status: REQUEST_STATUS.LOADING
+	});
+	var setUserMessages = (items, hasMore) => setState$1({
+		items,
+		status: REQUEST_STATUS.SUCCEEDED,
+		hasMore
+	});
+	var appendUserMessages = (items, hasMore) => setState$1({
+		items: [...getState().items, ...items],
+		hasMore
+	});
+	var setUserMessagesError = (error) => setState$1({
+		status: REQUEST_STATUS.FAILED,
+		error
+	});
+	var setUserMessagesHasMore = (hasMore) => setState$1({ hasMore });
+	var setUserMessagesLoadingMore = (isLoadingMore) => setState$1({ isLoadingMore });
+	var setUserAppeals = (appeals) => {
+		const byContentId = {};
+		for (const appeal of appeals) byContentId[appeal.content_id] = appeal;
+		setState$1({ appeals: byContentId });
+	};
+	var addUserAppeal = (appeal) => setState$1({ appeals: {
+		...getState().appeals,
+		[appeal.content_id]: appeal
+	} });
+	var startAppealForm = (appealingId) => setState$1({
+		appealingId,
+		appealModeration: null,
+		appealLoadError: null
+	});
+	var setAppealModeration = (appealModeration) => setState$1({ appealModeration });
+	var setAppealLoadError = (appealLoadError) => setState$1({ appealLoadError });
+	var closeAppealForm = () => setState$1({
+		appealingId: null,
+		appealModeration: null,
+		appealLoadError: null
+	});
+	var clearUserMessages = () => setState$1(INITIAL_STATE);
+	var useUserMessages = useStore$1;
+	//#endregion
+	//#region src/api/moderation.ts
+	var fetchMyAppeals = async () => {
+		const { appeals } = await axiosGet(MODERATION_API.MY_APPEALS);
+		return appeals;
+	};
+	var fetchMyContentModeration = (contentId) => axiosGet(MODERATION_API.CONTENT_MODERATION(contentId));
+	var postAppeal = (contentId, message) => axiosPost(MODERATION_API.CONTENT_APPEALS(contentId), { message }, idempotencyHeaders());
+	//#endregion
+	//#region src/store/thunks/userMessagesThunks.ts
 	var nextCursor = null;
 	var isSelf = false;
-	var isShowing = (userId, tab) => getState().userId === userId && getState().activityTab === tab;
+	var isShowing = (userId, tab) => getUserMessagesState().userId === userId && getUserMessagesState().activityTab === tab;
 	var toActivity = (message) => ({
 		type: message.depth > 0 ? ACTIVITY_TYPE.REPLY : ACTIVITY_TYPE.COMMENT,
 		at: message.created_at,
@@ -25184,71 +25302,74 @@
 			const page = await fetchPage(userId, tab);
 			if (!isShowing(userId, tab)) return;
 			nextCursor = page.next_cursor;
-			setState({
-				items: page.items,
-				status: REQUEST_STATUS.SUCCEEDED,
-				hasMore: Boolean(nextCursor)
-			});
+			setUserMessages(page.items, Boolean(nextCursor));
 		} catch (error) {
 			if (getErrorStatus(error) === HTTP_STATUS.UNAUTHORIZED) {
 				handleSessionExpired();
 				return;
 			}
-			if (isShowing(userId, tab)) setState({
-				status: REQUEST_STATUS.FAILED,
-				error: toErrorMessage(error, ERROR_MESSAGE.LOAD_USER_MESSAGES)
-			});
+			if (isShowing(userId, tab)) setUserMessagesError(toErrorMessage(error, ERROR_MESSAGE.LOAD_USER_MESSAGES));
 		}
+	};
+	var loadMyAppeals = async (userId) => {
+		try {
+			const appeals = await fetchMyAppeals();
+			if (getUserMessagesState().userId === userId) setUserAppeals(appeals);
+		} catch {}
 	};
 	var openUserMessages = (userId, userName, self = false, activityTab = ACTIVITY_TAB.ALL) => {
 		nextCursor = null;
 		isSelf = self;
-		setState({
-			...INITIAL_STATE,
-			userId,
-			userName,
-			activityTab,
-			status: REQUEST_STATUS.LOADING
-		});
+		startUserMessages(userId, userName, activityTab);
 		loadFirstPage(userId, activityTab);
+		if (self) loadMyAppeals(userId);
 	};
 	var setActivityTab = (activityTab) => {
-		const { userId, userName } = getState();
+		const { userId, userName, appeals } = getUserMessagesState();
 		if (!userId) return;
 		nextCursor = null;
-		setState({
-			...INITIAL_STATE,
-			userId,
-			userName,
-			activityTab,
-			status: REQUEST_STATUS.LOADING
-		});
+		startUserMessages(userId, userName, activityTab, appeals);
 		loadFirstPage(userId, activityTab);
 	};
 	var loadMoreUserMessages = async () => {
-		const { userId, activityTab, isLoadingMore } = getState();
+		const { userId, activityTab, isLoadingMore } = getUserMessagesState();
 		if (!userId || !nextCursor || isLoadingMore) return;
-		setState({ isLoadingMore: true });
+		setUserMessagesLoadingMore(true);
 		try {
 			const page = await fetchPage(userId, activityTab, nextCursor);
 			if (isShowing(userId, activityTab)) {
 				nextCursor = page.next_cursor;
-				setState({
-					items: [...getState().items, ...page.items],
-					hasMore: Boolean(nextCursor)
-				});
+				appendUserMessages(page.items, Boolean(nextCursor));
 			}
 		} catch {
-			if (isShowing(userId, activityTab)) setState({ hasMore: false });
+			if (isShowing(userId, activityTab)) setUserMessagesHasMore(false);
 		} finally {
-			if (isShowing(userId, activityTab)) setState({ isLoadingMore: false });
+			if (isShowing(userId, activityTab)) setUserMessagesLoadingMore(false);
 		}
+	};
+	var openAppealForm = async (contentId) => {
+		startAppealForm(contentId);
+		try {
+			const moderation = await fetchMyContentModeration(contentId);
+			if (getUserMessagesState().appealingId !== contentId) return;
+			if (moderation.appeal) {
+				addUserAppeal(moderation.appeal);
+				closeAppealForm();
+				return;
+			}
+			setAppealModeration(moderation);
+		} catch (error) {
+			if (getUserMessagesState().appealingId === contentId) setAppealLoadError(toErrorMessage(error, ERROR_MESSAGE.LOAD_APPEAL));
+		}
+	};
+	var submitAppeal = async (contentId, message) => {
+		addUserAppeal(await postAppeal(contentId, message));
+		closeAppealForm();
 	};
 	var closeUserMessages = () => {
 		nextCursor = null;
-		setState(INITIAL_STATE);
+		clearUserMessages();
 	};
-	var useUserMessages = useStore;
 	//#endregion
 	//#region src/utils/message.ts
 	var getReplyParentId = (message, maxDepth = 1) => message.depth < maxDepth ? message.id : message.parent_id ?? message.root_id;
@@ -25260,11 +25381,11 @@
 	};
 	var getAuthorRank = (author) => Object.values(USER_RANK).find((rank) => rank === author?.membership_tier?.toLowerCase()) ?? USER_RANK.FRIEND;
 	//#endregion
-	//#region src/store/replySlice.ts
-	var store = createStore({ replyTo: null });
-	var startReply = (replyTo) => store.setState({ replyTo });
-	var cancelReply = () => store.setState({ replyTo: null });
-	var useReply = store.useStore;
+	//#region src/store/slices/replySlice.ts
+	var { setState, useStore } = createStore({ replyTo: null });
+	var startReply = (replyTo) => setState({ replyTo });
+	var cancelReply = () => setState({ replyTo: null });
+	var useReply = useStore;
 	//#endregion
 	//#region src/utils/format.ts
 	var formatRelativeTime = (isoDate) => {
@@ -25314,14 +25435,15 @@
 		]);
 	};
 	//#endregion
-	//#region src/components/messageItem/MessageActions.tsx
-	var _jsxFileName$16 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageActions.tsx";
+	//#region src/components/messageItem/messageActions/index.tsx
+	var _jsxFileName$18 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/messageActions/index.tsx";
 	var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, onEdit }) => {
 		const { status } = useAuth();
 		const [isOpen, setIsOpen] = (0, import_react.useState)(false);
 		const [isPickingReason, setIsPickingReason] = (0, import_react.useState)(false);
 		const [feedback, setFeedback] = (0, import_react.useState)(null);
 		const [isReporting, setIsReporting] = (0, import_react.useState)(false);
+		const [isDeleting, setIsDeleting] = (0, import_react.useState)(false);
 		const [now, setNow] = (0, import_react.useState)(Date.now);
 		const containerRef = (0, import_react.useRef)(null);
 		const closeTimer = (0, import_react.useRef)(void 0);
@@ -25348,13 +25470,27 @@
 		const isSuper = message.kind === MESSAGE_KIND.SUPERCHAT;
 		const editTimeLeft = editableUntil === null ? 0 : editableUntil - now;
 		const canEdit = !isSuper && editTimeLeft > 0;
-		let editDisabledReason = EDIT_DISABLED_REASON.EXPIRED(formatDuration(editWindowSec));
-		if (isSuper) editDisabledReason = EDIT_DISABLED_REASON.SUPERCHAT;
-		else if (editableUntil === null) editDisabledReason = EDIT_DISABLED_REASON.ROOM;
+		const getDisabledReason = (reasons) => {
+			if (isSuper) return reasons.SUPERCHAT;
+			if (editableUntil === null) return reasons.ROOM;
+			return reasons.EXPIRED(formatDuration(editWindowSec));
+		};
 		const handleEdit = () => {
 			if (!canEdit) return;
 			close();
 			onEdit();
+		};
+		const handleDelete = async () => {
+			if (!canEdit || isDeleting) return;
+			setIsDeleting(true);
+			try {
+				await deleteComment(message.id);
+				close();
+			} catch {
+				flash(ERROR_MESSAGE.DELETE_MESSAGE);
+			} finally {
+				setIsDeleting(false);
+			}
 		};
 		const handleReport = () => {
 			if (status !== AUTH_STATUS.AUTHENTICATED) {
@@ -25398,13 +25534,13 @@
 					alt: "",
 					className: "message-actions__icon"
 				}, void 0, false, {
-					fileName: _jsxFileName$16,
-					lineNumber: 124,
+					fileName: _jsxFileName$18,
+					lineNumber: 144,
 					columnNumber: 9
 				}, void 0)
 			}, void 0, false, {
-				fileName: _jsxFileName$16,
-				lineNumber: 109,
+				fileName: _jsxFileName$18,
+				lineNumber: 129,
 				columnNumber: 7
 			}, void 0), isOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 				className: "message-actions__menu",
@@ -25415,8 +25551,8 @@
 						role: "status",
 						children: feedback
 					}, void 0, false, {
-						fileName: _jsxFileName$16,
-						lineNumber: 129,
+						fileName: _jsxFileName$18,
+						lineNumber: 149,
 						columnNumber: 13
 					}, void 0),
 					!feedback && isPickingReason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -25429,77 +25565,101 @@
 							disabled: isReporting,
 							children: label
 						}, reason, false, {
-							fileName: _jsxFileName$16,
-							lineNumber: 136,
+							fileName: _jsxFileName$18,
+							lineNumber: 156,
 							columnNumber: 17
 						}, void 0))
 					}, void 0, false, {
-						fileName: _jsxFileName$16,
-						lineNumber: 134,
+						fileName: _jsxFileName$18,
+						lineNumber: 154,
 						columnNumber: 13
 					}, void 0),
-					!feedback && !isPickingReason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [isOwn && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-						type: "button",
-						role: "menuitem",
-						className: "message-actions__item",
-						onClick: handleEdit,
-						"aria-disabled": !canEdit,
-						title: canEdit ? void 0 : editDisabledReason,
-						children: [
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-								src: MESSAGE_ACTION.EDIT.icon,
+					!feedback && !isPickingReason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
+						isOwn && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							role: "menuitem",
+							className: "message-actions__item",
+							onClick: handleEdit,
+							"aria-disabled": !canEdit,
+							title: canEdit ? void 0 : getDisabledReason(EDIT_DISABLED_REASON),
+							children: [
+								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+									src: MESSAGE_ACTION.EDIT.icon,
+									alt: "",
+									className: "message-actions__item-icon"
+								}, void 0, false, {
+									fileName: _jsxFileName$18,
+									lineNumber: 180,
+									columnNumber: 19
+								}, void 0),
+								MESSAGE_ACTION.EDIT.label,
+								canEdit && ` (${formatCountdown(editTimeLeft)})`
+							]
+						}, void 0, true, {
+							fileName: _jsxFileName$18,
+							lineNumber: 172,
+							columnNumber: 17
+						}, void 0),
+						isOwn && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							role: "menuitem",
+							className: "message-actions__item",
+							onClick: handleDelete,
+							"aria-disabled": !canEdit || isDeleting,
+							title: canEdit ? void 0 : getDisabledReason(DELETE_DISABLED_REASON),
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+								src: MESSAGE_ACTION.DELETE.icon,
 								alt: "",
 								className: "message-actions__item-icon"
 							}, void 0, false, {
-								fileName: _jsxFileName$16,
-								lineNumber: 160,
+								fileName: _jsxFileName$18,
+								lineNumber: 194,
 								columnNumber: 19
-							}, void 0),
-							MESSAGE_ACTION.EDIT.label,
-							canEdit && ` (${formatCountdown(editTimeLeft)})`
-						]
-					}, void 0, true, {
-						fileName: _jsxFileName$16,
-						lineNumber: 152,
-						columnNumber: 17
-					}, void 0), !isOwn && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-						type: "button",
-						role: "menuitem",
-						className: "message-actions__item",
-						onClick: handleReport,
-						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-							src: MESSAGE_ACTION.REPORT.icon,
-							alt: "",
-							className: "message-actions__item-icon"
-						}, void 0, false, {
-							fileName: _jsxFileName$16,
-							lineNumber: 173,
-							columnNumber: 19
-						}, void 0), MESSAGE_ACTION.REPORT.label]
-					}, void 0, true, {
-						fileName: _jsxFileName$16,
-						lineNumber: 172,
-						columnNumber: 17
-					}, void 0)] }, void 0, true, {
-						fileName: _jsxFileName$16,
-						lineNumber: 150,
+							}, void 0), MESSAGE_ACTION.DELETE.label]
+						}, void 0, true, {
+							fileName: _jsxFileName$18,
+							lineNumber: 186,
+							columnNumber: 17
+						}, void 0),
+						!isOwn && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							role: "menuitem",
+							className: "message-actions__item",
+							onClick: handleReport,
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+								src: MESSAGE_ACTION.REPORT.icon,
+								alt: "",
+								className: "message-actions__item-icon"
+							}, void 0, false, {
+								fileName: _jsxFileName$18,
+								lineNumber: 206,
+								columnNumber: 19
+							}, void 0), MESSAGE_ACTION.REPORT.label]
+						}, void 0, true, {
+							fileName: _jsxFileName$18,
+							lineNumber: 205,
+							columnNumber: 17
+						}, void 0)
+					] }, void 0, true, {
+						fileName: _jsxFileName$18,
+						lineNumber: 170,
 						columnNumber: 13
 					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$16,
-				lineNumber: 127,
+				fileName: _jsxFileName$18,
+				lineNumber: 147,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
-			fileName: _jsxFileName$16,
-			lineNumber: 108,
+			fileName: _jsxFileName$18,
+			lineNumber: 128,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
-	//#region src/components/messageItem/MessageEditor.tsx
-	var _jsxFileName$15 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageEditor.tsx";
+	//#region src/components/messageItem/messageEditor/index.tsx
+	var _jsxFileName$17 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/messageEditor/index.tsx";
 	var MessageEditor = ({ message, onClose }) => {
 		const [draft, setDraft] = (0, import_react.useState)(message.body);
 		const [isSaving, setIsSaving] = (0, import_react.useState)(false);
@@ -25539,7 +25699,7 @@
 					readOnly: isSaving,
 					autoFocus: true
 				}, void 0, false, {
-					fileName: _jsxFileName$15,
+					fileName: _jsxFileName$17,
 					lineNumber: 36,
 					columnNumber: 7
 				}, void 0),
@@ -25548,7 +25708,7 @@
 					role: "alert",
 					children: error
 				}, void 0, false, {
-					fileName: _jsxFileName$15,
+					fileName: _jsxFileName$17,
 					lineNumber: 55,
 					columnNumber: 9
 				}, void 0),
@@ -25560,7 +25720,7 @@
 						onClick: onClose,
 						children: "Cancel"
 					}, void 0, false, {
-						fileName: _jsxFileName$15,
+						fileName: _jsxFileName$17,
 						lineNumber: 60,
 						columnNumber: 9
 					}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -25570,18 +25730,18 @@
 						disabled: !canSave,
 						children: isSaving ? "Saving..." : "Save"
 					}, void 0, false, {
-						fileName: _jsxFileName$15,
+						fileName: _jsxFileName$17,
 						lineNumber: 63,
 						columnNumber: 9
 					}, void 0)]
 				}, void 0, true, {
-					fileName: _jsxFileName$15,
+					fileName: _jsxFileName$17,
 					lineNumber: 59,
 					columnNumber: 7
 				}, void 0)
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$15,
+			fileName: _jsxFileName$17,
 			lineNumber: 35,
 			columnNumber: 5
 		}, void 0);
@@ -25601,8 +25761,8 @@
 		}, [isActive, onEscape]);
 	};
 	//#endregion
-	//#region src/components/messageItem/MessageReactions.tsx
-	var _jsxFileName$14 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/MessageReactions.tsx";
+	//#region src/components/messageItem/messageReactions/index.tsx
+	var _jsxFileName$16 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/messageReactions/index.tsx";
 	var MessageReactions = ({ message, isOwn }) => {
 		const { status } = useAuth();
 		const { settings } = useComments();
@@ -25662,13 +25822,13 @@
 						alt: "",
 						className: "reaction-chip__icon"
 					}, void 0, false, {
-						fileName: _jsxFileName$14,
-						lineNumber: 76,
+						fileName: _jsxFileName$16,
+						lineNumber: 77,
 						columnNumber: 15
 					}, void 0), counts[myReaction.kind] ?? 0]
 				}, void 0, true, {
-					fileName: _jsxFileName$14,
-					lineNumber: 67,
+					fileName: _jsxFileName$16,
+					lineNumber: 68,
 					columnNumber: 13
 				}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 					type: "button",
@@ -25683,13 +25843,13 @@
 						alt: "",
 						className: "message-item__react-icon"
 					}, void 0, false, {
-						fileName: _jsxFileName$14,
-						lineNumber: 89,
+						fileName: _jsxFileName$16,
+						lineNumber: 90,
 						columnNumber: 15
 					}, void 0)
 				}, void 0, false, {
-					fileName: _jsxFileName$14,
-					lineNumber: 80,
+					fileName: _jsxFileName$16,
+					lineNumber: 81,
 					columnNumber: 13
 				}, void 0), isPickerOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 					className: `reaction-picker${opensDown ? " reaction-picker--down" : ""}`,
@@ -25705,31 +25865,31 @@
 							alt: "",
 							className: "reaction-picker__icon"
 						}, void 0, false, {
-							fileName: _jsxFileName$14,
-							lineNumber: 107,
+							fileName: _jsxFileName$16,
+							lineNumber: 108,
 							columnNumber: 19
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 							className: "reaction-picker__label",
 							"aria-hidden": "true",
 							children: label
 						}, void 0, false, {
-							fileName: _jsxFileName$14,
-							lineNumber: 108,
+							fileName: _jsxFileName$16,
+							lineNumber: 109,
 							columnNumber: 19
 						}, void 0)]
 					}, kind, true, {
-						fileName: _jsxFileName$14,
-						lineNumber: 100,
+						fileName: _jsxFileName$16,
+						lineNumber: 101,
 						columnNumber: 17
 					}, void 0))
 				}, void 0, false, {
-					fileName: _jsxFileName$14,
-					lineNumber: 94,
+					fileName: _jsxFileName$16,
+					lineNumber: 95,
 					columnNumber: 13
 				}, void 0)]
 			}, void 0, true, {
-				fileName: _jsxFileName$14,
-				lineNumber: 65,
+				fileName: _jsxFileName$16,
+				lineNumber: 66,
 				columnNumber: 9
 			}, void 0), otherReactions.map(({ kind, label, icon }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 				type: "button",
@@ -25742,30 +25902,30 @@
 					alt: "",
 					className: "reaction-chip__icon"
 				}, void 0, false, {
-					fileName: _jsxFileName$14,
-					lineNumber: 127,
+					fileName: _jsxFileName$16,
+					lineNumber: 128,
 					columnNumber: 11
 				}, void 0), counts[kind]]
 			}, kind, true, {
-				fileName: _jsxFileName$14,
-				lineNumber: 119,
+				fileName: _jsxFileName$16,
+				lineNumber: 120,
 				columnNumber: 9
 			}, void 0))]
 		}, void 0, true, {
-			fileName: _jsxFileName$14,
-			lineNumber: 63,
+			fileName: _jsxFileName$16,
+			lineNumber: 64,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/components/nameBadge/index.tsx
-	var _jsxFileName$13 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/nameBadge/index.tsx";
+	var _jsxFileName$15 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/nameBadge/index.tsx";
 	var NameBadge = ({ name, rank }) => {
 		if (rank === USER_RANK.FRIEND) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 			className: "name-plain",
 			children: name
 		}, void 0, false, {
-			fileName: _jsxFileName$13,
+			fileName: _jsxFileName$15,
 			lineNumber: 11,
 			columnNumber: 12
 		}, void 0);
@@ -25776,19 +25936,19 @@
 				alt: "",
 				className: "name-badge__icon"
 			}, void 0, false, {
-				fileName: _jsxFileName$13,
+				fileName: _jsxFileName$15,
 				lineNumber: 16,
 				columnNumber: 7
 			}, void 0), name]
 		}, void 0, true, {
-			fileName: _jsxFileName$13,
+			fileName: _jsxFileName$15,
 			lineNumber: 15,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
 	//#region src/components/messageItem/index.tsx
-	var _jsxFileName$12 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/index.tsx";
+	var _jsxFileName$14 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/index.tsx";
 	var MessageItem = ({ message, authorName = getAuthorName(message.author, message.author_id), authorRank = getAuthorRank(message.author), extraCoins = 0, onReply }) => {
 		const { status, user } = useAuth();
 		const { settings } = useComments();
@@ -25848,29 +26008,29 @@
 								name: authorName,
 								rank: authorRank
 							}, void 0, false, {
-								fileName: _jsxFileName$12,
-								lineNumber: 84,
+								fileName: _jsxFileName$14,
+								lineNumber: 85,
 								columnNumber: 11
 							}, void 0)
 						}, void 0, false, {
-							fileName: _jsxFileName$12,
-							lineNumber: 83,
+							fileName: _jsxFileName$14,
+							lineNumber: 84,
 							columnNumber: 9
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 							className: "message-item__time",
 							children: formatRelativeTime(message.created_at)
 						}, void 0, false, {
-							fileName: _jsxFileName$12,
-							lineNumber: 86,
+							fileName: _jsxFileName$14,
+							lineNumber: 87,
 							columnNumber: 9
 						}, void 0),
 						message.status === MESSAGE_STATUS.HELD && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 							className: "message-item__review-tag",
 							children: "Under review"
 						}, void 0, false, {
-							fileName: _jsxFileName$12,
-							lineNumber: 87,
+							fileName: _jsxFileName$14,
+							lineNumber: 88,
 							columnNumber: 52
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageActions, {
@@ -25880,22 +26040,22 @@
 							editWindowSec,
 							onEdit: () => setIsEditing(true)
 						}, void 0, false, {
-							fileName: _jsxFileName$12,
-							lineNumber: 88,
+							fileName: _jsxFileName$14,
+							lineNumber: 89,
 							columnNumber: 9
 						}, void 0)
 					]
 				}, void 0, true, {
-					fileName: _jsxFileName$12,
-					lineNumber: 82,
+					fileName: _jsxFileName$14,
+					lineNumber: 83,
 					columnNumber: 7
 				}, void 0),
 				isEditing ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageEditor, {
 					message,
 					onClose: () => setIsEditing(false)
 				}, void 0, false, {
-					fileName: _jsxFileName$12,
-					lineNumber: 98,
+					fileName: _jsxFileName$14,
+					lineNumber: 99,
 					columnNumber: 9
 				}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 					className: "message-item__text",
@@ -25903,13 +26063,13 @@
 						className: "message-text__mention",
 						children: ["@", getAuthorName(message.parent_author, message.parent_author_id)]
 					}, void 0, true, {
-						fileName: _jsxFileName$12,
-						lineNumber: 102,
+						fileName: _jsxFileName$14,
+						lineNumber: 103,
 						columnNumber: 13
 					}, void 0), message.body]
 				}, void 0, true, {
-					fileName: _jsxFileName$12,
-					lineNumber: 100,
+					fileName: _jsxFileName$14,
+					lineNumber: 101,
 					columnNumber: 9
 				}, void 0),
 				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -25925,13 +26085,13 @@
 								alt: "",
 								className: "message-item__reply-icon"
 							}, void 0, false, {
-								fileName: _jsxFileName$12,
-								lineNumber: 112,
+								fileName: _jsxFileName$14,
+								lineNumber: 113,
 								columnNumber: 11
 							}, void 0), "Reply"]
 						}, void 0, true, {
-							fileName: _jsxFileName$12,
-							lineNumber: 111,
+							fileName: _jsxFileName$14,
+							lineNumber: 112,
 							columnNumber: 9
 						}, void 0),
 						canLike && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -25945,47 +26105,75 @@
 								alt: "",
 								className: "message-item__like-icon"
 							}, void 0, false, {
-								fileName: _jsxFileName$12,
-								lineNumber: 123,
+								fileName: _jsxFileName$14,
+								lineNumber: 124,
 								columnNumber: 13
 							}, void 0), likeCount]
 						}, void 0, true, {
-							fileName: _jsxFileName$12,
-							lineNumber: 116,
+							fileName: _jsxFileName$14,
+							lineNumber: 117,
 							columnNumber: 11
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageReactions, {
 							message,
 							isOwn
 						}, void 0, false, {
-							fileName: _jsxFileName$12,
-							lineNumber: 127,
+							fileName: _jsxFileName$14,
+							lineNumber: 128,
 							columnNumber: 9
 						}, void 0),
 						isSuper && extraCoins > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 							className: "message-item__coins",
 							children: ["+", formatCoins(extraCoins)]
 						}, void 0, true, {
-							fileName: _jsxFileName$12,
-							lineNumber: 129,
+							fileName: _jsxFileName$14,
+							lineNumber: 130,
 							columnNumber: 11
 						}, void 0)
 					]
 				}, void 0, true, {
-					fileName: _jsxFileName$12,
-					lineNumber: 110,
+					fileName: _jsxFileName$14,
+					lineNumber: 111,
 					columnNumber: 7
 				}, void 0)
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$12,
-			lineNumber: 81,
+			fileName: _jsxFileName$14,
+			lineNumber: 82,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
-	//#region src/sections/comments/RepliesButton.tsx
-	var _jsxFileName$11 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/RepliesButton.tsx";
+	//#region src/components/tabs/index.tsx
+	var _jsxFileName$13 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/tabs/index.tsx";
+	var Tabs = ({ tabs, activeId, onChange }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+		className: "tabs",
+		role: "tablist",
+		children: tabs.map(({ id, label, className }) => {
+			let tabClassName = "tabs__tab";
+			if (id === activeId) tabClassName += " tabs__tab--active";
+			if (className) tabClassName += ` ${className}`;
+			return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+				type: "button",
+				role: "tab",
+				"aria-selected": id === activeId,
+				className: tabClassName,
+				onClick: () => onChange(id),
+				children: label
+			}, id, false, {
+				fileName: _jsxFileName$13,
+				lineNumber: 25,
+				columnNumber: 9
+			}, void 0);
+		})
+	}, void 0, false, {
+		fileName: _jsxFileName$13,
+		lineNumber: 14,
+		columnNumber: 3
+	}, void 0);
+	//#endregion
+	//#region src/sections/comments/repliesButton/index.tsx
+	var _jsxFileName$12 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/repliesButton/index.tsx";
 	var RepliesButton = ({ message, count }) => {
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 			type: "button",
@@ -25997,14 +26185,14 @@
 				count === 1 ? "reply" : "replies"
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$11,
+			fileName: _jsxFileName$12,
 			lineNumber: 11,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
-	//#region src/sections/comments/MessageThread.tsx
-	var _jsxFileName$10 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/MessageThread.tsx";
+	//#region src/sections/comments/messageThread/index.tsx
+	var _jsxFileName$11 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/messageThread/index.tsx";
 	var MessageThread = ({ root }) => {
 		const { threads } = useComments();
 		const thread = threads[root.id];
@@ -26021,8 +26209,8 @@
 				"aria-expanded": isOpen,
 				children: isOpen ? "Hide replies" : `View ${count} ${count === 1 ? "reply" : "replies"}`
 			}, void 0, false, {
-				fileName: _jsxFileName$10,
-				lineNumber: 22,
+				fileName: _jsxFileName$11,
+				lineNumber: 23,
 				columnNumber: 7
 			}, void 0), isOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 				className: "message-thread__replies",
@@ -26031,52 +26219,52 @@
 						className: "message-thread__status",
 						children: "Loading replies..."
 					}, void 0, false, {
-						fileName: _jsxFileName$10,
-						lineNumber: 27,
+						fileName: _jsxFileName$11,
+						lineNumber: 28,
 						columnNumber: 56
 					}, void 0),
 					thread.status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 						className: "message-thread__status",
 						children: ERROR_MESSAGE.LOAD_REPLIES
 					}, void 0, false, {
-						fileName: _jsxFileName$10,
-						lineNumber: 28,
+						fileName: _jsxFileName$11,
+						lineNumber: 29,
 						columnNumber: 55
 					}, void 0),
 					directReplies.map((reply) => {
 						const replyCount = getVisibleReplies(replies, reply.id).length;
 						return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, { message: reply }, void 0, false, {
-							fileName: _jsxFileName$10,
-							lineNumber: 33,
+							fileName: _jsxFileName$11,
+							lineNumber: 34,
 							columnNumber: 17
 						}, void 0), replyCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RepliesButton, {
 							message: reply,
 							count: replyCount
 						}, void 0, false, {
-							fileName: _jsxFileName$10,
-							lineNumber: 34,
+							fileName: _jsxFileName$11,
+							lineNumber: 35,
 							columnNumber: 36
 						}, void 0)] }, reply.id, true, {
-							fileName: _jsxFileName$10,
-							lineNumber: 32,
+							fileName: _jsxFileName$11,
+							lineNumber: 33,
 							columnNumber: 15
 						}, void 0);
 					})
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$10,
-				lineNumber: 26,
+				fileName: _jsxFileName$11,
+				lineNumber: 27,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
-			fileName: _jsxFileName$10,
-			lineNumber: 21,
+			fileName: _jsxFileName$11,
+			lineNumber: 22,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
-	//#region src/sections/comments/ThreadModal.tsx
-	var _jsxFileName$9 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/ThreadModal.tsx";
+	//#region src/sections/comments/threadModal/index.tsx
+	var _jsxFileName$10 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/threadModal/index.tsx";
 	var ThreadModal = () => {
 		const { status } = useAuth();
 		const { threads, threadStack, settings } = useComments();
@@ -26136,23 +26324,23 @@
 										strokeLinecap: "round",
 										strokeLinejoin: "round"
 									}, void 0, false, {
-										fileName: _jsxFileName$9,
-										lineNumber: 58,
+										fileName: _jsxFileName$10,
+										lineNumber: 59,
 										columnNumber: 15
 									}, void 0)
 								}, void 0, false, {
-									fileName: _jsxFileName$9,
-									lineNumber: 57,
+									fileName: _jsxFileName$10,
+									lineNumber: 58,
 									columnNumber: 13
 								}, void 0)
 							}, void 0, false, {
-								fileName: _jsxFileName$9,
-								lineNumber: 56,
+								fileName: _jsxFileName$10,
+								lineNumber: 57,
 								columnNumber: 11
 							}, void 0), "Back"]
 						}, void 0, true, {
-							fileName: _jsxFileName$9,
-							lineNumber: 55,
+							fileName: _jsxFileName$10,
+							lineNumber: 56,
 							columnNumber: 9
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
@@ -26160,8 +26348,8 @@
 							className: "thread-modal__title",
 							children: "Reply thread"
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
-							lineNumber: 63,
+							fileName: _jsxFileName$10,
+							lineNumber: 64,
 							columnNumber: 9
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -26179,24 +26367,24 @@
 									strokeWidth: "2",
 									strokeLinecap: "round"
 								}, void 0, false, {
-									fileName: _jsxFileName$9,
-									lineNumber: 68,
+									fileName: _jsxFileName$10,
+									lineNumber: 69,
 									columnNumber: 13
 								}, void 0)
 							}, void 0, false, {
-								fileName: _jsxFileName$9,
-								lineNumber: 67,
+								fileName: _jsxFileName$10,
+								lineNumber: 68,
 								columnNumber: 11
 							}, void 0)
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
-							lineNumber: 66,
+							fileName: _jsxFileName$10,
+							lineNumber: 67,
 							columnNumber: 9
 						}, void 0)
 					]
 				}, void 0, true, {
-					fileName: _jsxFileName$9,
-					lineNumber: 54,
+					fileName: _jsxFileName$10,
+					lineNumber: 55,
 					columnNumber: 7
 				}, void 0),
 				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -26206,24 +26394,24 @@
 							className: "thread-modal__status",
 							children: "Loading replies..."
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
-							lineNumber: 74,
+							fileName: _jsxFileName$10,
+							lineNumber: 75,
 							columnNumber: 55
 						}, void 0),
 						thread?.status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 							className: "thread-modal__status",
 							children: ERROR_MESSAGE.LOAD_REPLIES
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
-							lineNumber: 75,
+							fileName: _jsxFileName$10,
+							lineNumber: 76,
 							columnNumber: 54
 						}, void 0),
 						focused && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, {
 							message: focused,
 							onReply: () => handleItemReply(focused)
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
-							lineNumber: 76,
+							fileName: _jsxFileName$10,
+							lineNumber: 77,
 							columnNumber: 21
 						}, void 0),
 						directReplies.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -26234,31 +26422,31 @@
 									message: reply,
 									onReply: () => handleItemReply(reply)
 								}, void 0, false, {
-									fileName: _jsxFileName$9,
-									lineNumber: 83,
+									fileName: _jsxFileName$10,
+									lineNumber: 84,
 									columnNumber: 19
 								}, void 0), replyCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RepliesButton, {
 									message: reply,
 									count: replyCount
 								}, void 0, false, {
-									fileName: _jsxFileName$9,
-									lineNumber: 84,
+									fileName: _jsxFileName$10,
+									lineNumber: 85,
 									columnNumber: 38
 								}, void 0)] }, reply.id, true, {
-									fileName: _jsxFileName$9,
-									lineNumber: 82,
+									fileName: _jsxFileName$10,
+									lineNumber: 83,
 									columnNumber: 17
 								}, void 0);
 							})
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
-							lineNumber: 78,
+							fileName: _jsxFileName$10,
+							lineNumber: 79,
 							columnNumber: 11
 						}, void 0)
 					]
 				}, void 0, true, {
-					fileName: _jsxFileName$9,
-					lineNumber: 73,
+					fileName: _jsxFileName$10,
+					lineNumber: 74,
 					columnNumber: 7
 				}, void 0),
 				replyTarget && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("footer", {
@@ -26269,8 +26457,8 @@
 							className: "thread-modal__mention",
 							children: ["@", getAuthorName(replyTarget.author, replyTarget.author_id)]
 						}, void 0, true, {
-							fileName: _jsxFileName$9,
-							lineNumber: 96,
+							fileName: _jsxFileName$10,
+							lineNumber: 97,
 							columnNumber: 13
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
 							ref: inputRef,
@@ -26293,32 +26481,32 @@
 							readOnly: isSending,
 							disabled: !isLoggedIn
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
-							lineNumber: 97,
+							fileName: _jsxFileName$10,
+							lineNumber: 98,
 							columnNumber: 13
 						}, void 0)]
 					}, void 0, true, {
-						fileName: _jsxFileName$9,
-						lineNumber: 94,
+						fileName: _jsxFileName$10,
+						lineNumber: 95,
 						columnNumber: 11
 					}, void 0), error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 						className: "thread-modal__error",
 						role: "alert",
 						children: error
 					}, void 0, false, {
-						fileName: _jsxFileName$9,
-						lineNumber: 120,
+						fileName: _jsxFileName$10,
+						lineNumber: 121,
 						columnNumber: 13
 					}, void 0)]
 				}, void 0, true, {
-					fileName: _jsxFileName$9,
-					lineNumber: 93,
+					fileName: _jsxFileName$10,
+					lineNumber: 94,
 					columnNumber: 9
 				}, void 0)
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$9,
-			lineNumber: 53,
+			fileName: _jsxFileName$10,
+			lineNumber: 54,
 			columnNumber: 5
 		}, void 0);
 	};
@@ -26336,7 +26524,7 @@
 	};
 	//#endregion
 	//#region src/components/userAvatar/index.tsx
-	var _jsxFileName$8 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/userAvatar/index.tsx";
+	var _jsxFileName$9 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/userAvatar/index.tsx";
 	var UserAvatar = () => {
 		const { user, profile } = useAuth();
 		if (!user) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
@@ -26344,7 +26532,7 @@
 			alt: "",
 			className: "user-avatar"
 		}, void 0, false, {
-			fileName: _jsxFileName$8,
+			fileName: _jsxFileName$9,
 			lineNumber: 18,
 			columnNumber: 12
 		}, void 0);
@@ -26352,7 +26540,7 @@
 			className: "skeleton user-avatar",
 			"aria-hidden": "true"
 		}, void 0, false, {
-			fileName: _jsxFileName$8,
+			fileName: _jsxFileName$9,
 			lineNumber: 22,
 			columnNumber: 12
 		}, void 0);
@@ -26368,7 +26556,7 @@
 				"aria-hidden": "true",
 				children: getInitials(user.name)
 			}, void 0, false, {
-				fileName: _jsxFileName$8,
+				fileName: _jsxFileName$9,
 				lineNumber: 30,
 				columnNumber: 7
 			}, void 0);
@@ -26393,24 +26581,131 @@
 					},
 					children: getInitials(user.name)
 				}, void 0, false, {
-					fileName: _jsxFileName$8,
+					fileName: _jsxFileName$9,
 					lineNumber: 49,
 					columnNumber: 9
 				}, void 0)
 			}, void 0, false, {
-				fileName: _jsxFileName$8,
+				fileName: _jsxFileName$9,
 				lineNumber: 45,
 				columnNumber: 7
 			}, void 0)
 		}, void 0, false, {
-			fileName: _jsxFileName$8,
+			fileName: _jsxFileName$9,
 			lineNumber: 44,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
-	//#region src/sections/comments/UserMessagesPanel.tsx
-	var _jsxFileName$7 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/UserMessagesPanel.tsx";
+	//#region src/sections/comments/userMessagesPanel/appealForm/index.tsx
+	var _jsxFileName$8 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/userMessagesPanel/appealForm/index.tsx";
+	var AppealForm = ({ contentId }) => {
+		const { appealModeration: moderation, appealLoadError } = useUserMessages();
+		const [draft, setDraft] = (0, import_react.useState)("");
+		const [isSending, setIsSending] = (0, import_react.useState)(false);
+		const [sendError, setSendError] = (0, import_react.useState)(null);
+		const error = appealLoadError ?? sendError;
+		const send = async () => {
+			setIsSending(true);
+			setSendError(null);
+			try {
+				await submitAppeal(contentId, draft.trim());
+			} catch (postError) {
+				setSendError(toErrorMessage(postError, ERROR_MESSAGE.SEND_APPEAL));
+				setIsSending(false);
+			}
+		};
+		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "appeal-form",
+			children: [
+				!moderation && !error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+					className: "appeal-form__note",
+					children: "Loading..."
+				}, void 0, false, {
+					fileName: _jsxFileName$8,
+					lineNumber: 31,
+					columnNumber: 33
+				}, void 0),
+				moderation?.reason_text && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+					className: "appeal-form__note",
+					children: ["Removed: ", moderation.reason_text]
+				}, void 0, true, {
+					fileName: _jsxFileName$8,
+					lineNumber: 32,
+					columnNumber: 35
+				}, void 0),
+				moderation && !moderation.appealable && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+					className: "appeal-form__note",
+					children: "This comment can't be appealed."
+				}, void 0, false, {
+					fileName: _jsxFileName$8,
+					lineNumber: 33,
+					columnNumber: 48
+				}, void 0),
+				moderation?.appealable && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
+					className: "appeal-form__input",
+					"aria-label": "Why should this comment be restored?",
+					placeholder: "Why should this comment be restored? (optional)",
+					rows: 3,
+					maxLength: 1e3,
+					value: draft,
+					onChange: (event) => {
+						setDraft(event.target.value);
+						setSendError(null);
+					},
+					readOnly: isSending,
+					autoFocus: true
+				}, void 0, false, {
+					fileName: _jsxFileName$8,
+					lineNumber: 35,
+					columnNumber: 9
+				}, void 0),
+				error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+					className: "appeal-form__error",
+					role: "alert",
+					children: error
+				}, void 0, false, {
+					fileName: _jsxFileName$8,
+					lineNumber: 51,
+					columnNumber: 9
+				}, void 0),
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+					className: "appeal-form__actions",
+					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						className: "appeal-form__btn appeal-form__btn--cancel",
+						onClick: closeAppealForm,
+						children: "Cancel"
+					}, void 0, false, {
+						fileName: _jsxFileName$8,
+						lineNumber: 56,
+						columnNumber: 9
+					}, void 0), moderation?.appealable && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						className: "appeal-form__btn",
+						onClick: send,
+						disabled: isSending,
+						children: isSending ? "Sending..." : "Send appeal"
+					}, void 0, false, {
+						fileName: _jsxFileName$8,
+						lineNumber: 60,
+						columnNumber: 11
+					}, void 0)]
+				}, void 0, true, {
+					fileName: _jsxFileName$8,
+					lineNumber: 55,
+					columnNumber: 7
+				}, void 0)
+			]
+		}, void 0, true, {
+			fileName: _jsxFileName$8,
+			lineNumber: 30,
+			columnNumber: 5
+		}, void 0);
+	};
+	//#endregion
+	//#region src/sections/comments/userMessagesPanel/index.tsx
+	var _jsxFileName$7 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/userMessagesPanel/index.tsx";
 	var LOAD_MORE_OFFSET = 200;
 	var getActivityIcon = ({ type, reaction }) => {
 		if (type === ACTIVITY_TYPE.COMMENT) return {
@@ -26437,23 +26732,38 @@
 			" ",
 			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: getAuthorName(message.parent_author, message.parent_author_id) }, void 0, false, {
 				fileName: _jsxFileName$7,
-				lineNumber: 42,
+				lineNumber: 54,
 				columnNumber: 32
 			}, void 0)
 		] }, void 0, true, {
 			fileName: _jsxFileName$7,
-			lineNumber: 41,
+			lineNumber: 53,
 			columnNumber: 7
 		}, void 0);
 		if (type === ACTIVITY_TYPE.REACTION && reaction === "1f44d") return LIKED_LABEL;
 		return ACTIVITY_LABEL[type];
 	};
+	var getAppealTag = ({ status, outcome }) => {
+		if (status === APPEAL_STATUS.OPEN) return {
+			label: "Appealed",
+			modifier: "open"
+		};
+		if (outcome === APPEAL_OUTCOME.OVERTURNED) return {
+			label: "Restored",
+			modifier: "restored"
+		};
+		return {
+			label: "Rejected",
+			modifier: "rejected"
+		};
+	};
 	var UserMessagesPanel = () => {
 		const { user } = useAuth();
-		const { userId, userName, activityTab, status, items, error, hasMore, isLoadingMore } = useUserMessages();
+		const { userId, userName, activityTab, status, items, error, hasMore, isLoadingMore, appeals, appealingId } = useUserMessages();
 		const bodyRef = (0, import_react.useRef)(null);
 		const [isClosing, setIsClosing] = (0, import_react.useState)(false);
 		const isSelf = userId === user?.id;
+		const isRemovedTab = activityTab === ACTIVITY_TAB.REMOVED;
 		const emptyText = ACTIVITY_TABS.find(({ id }) => id === activityTab)?.emptyText;
 		const loadMoreNearBottom = () => {
 			const body = bodyRef.current;
@@ -26479,7 +26789,7 @@
 						children: [
 							isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 92,
+								lineNumber: 116,
 								columnNumber: 22
 							}, void 0),
 							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
@@ -26488,7 +26798,7 @@
 								children: userName
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 93,
+								lineNumber: 117,
 								columnNumber: 11
 							}, void 0),
 							isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -26507,17 +26817,17 @@
 										strokeLinejoin: "round"
 									}, void 0, false, {
 										fileName: _jsxFileName$7,
-										lineNumber: 99,
+										lineNumber: 123,
 										columnNumber: 17
 									}, void 0)
 								}, void 0, false, {
 									fileName: _jsxFileName$7,
-									lineNumber: 98,
+									lineNumber: 122,
 									columnNumber: 15
 								}, void 0), "Sign out"]
 							}, void 0, true, {
 								fileName: _jsxFileName$7,
-								lineNumber: 97,
+								lineNumber: 121,
 								columnNumber: 13
 							}, void 0),
 							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -26536,44 +26846,33 @@
 										strokeLinecap: "round"
 									}, void 0, false, {
 										fileName: _jsxFileName$7,
-										lineNumber: 113,
+										lineNumber: 137,
 										columnNumber: 15
 									}, void 0)
 								}, void 0, false, {
 									fileName: _jsxFileName$7,
-									lineNumber: 112,
+									lineNumber: 136,
 									columnNumber: 13
 								}, void 0)
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 111,
+								lineNumber: 135,
 								columnNumber: 11
 							}, void 0)
 						]
 					}, void 0, true, {
 						fileName: _jsxFileName$7,
-						lineNumber: 91,
+						lineNumber: 115,
 						columnNumber: 9
 					}, void 0),
-					isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "chat-tabs",
-						role: "tablist",
-						children: ACTIVITY_TABS.map(({ id, label }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-							type: "button",
-							role: "tab",
-							"aria-selected": activityTab === id,
-							className: `chat-tabs__tab${activityTab === id ? " chat-tabs__tab--active" : ""}`,
-							onClick: () => setActivityTab(id),
-							children: label
-						}, id, false, {
-							fileName: _jsxFileName$7,
-							lineNumber: 121,
-							columnNumber: 15
-						}, void 0))
+					isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Tabs, {
+						tabs: ACTIVITY_TABS,
+						activeId: activityTab,
+						onChange: setActivityTab
 					}, void 0, false, {
 						fileName: _jsxFileName$7,
-						lineNumber: 119,
-						columnNumber: 11
+						lineNumber: 142,
+						columnNumber: 20
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 						className: "user-panel__body",
@@ -26585,7 +26884,7 @@
 								children: "Loading comments..."
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 136,
+								lineNumber: 145,
 								columnNumber: 49
 							}, void 0),
 							status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -26593,7 +26892,7 @@
 								children: error
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 137,
+								lineNumber: 146,
 								columnNumber: 48
 							}, void 0),
 							status === REQUEST_STATUS.SUCCEEDED && items.length === 0 && !hasMore && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -26601,12 +26900,14 @@
 								children: emptyText
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 139,
+								lineNumber: 148,
 								columnNumber: 13
 							}, void 0),
 							items.map((item) => {
 								const isSuper = item.message.kind === MESSAGE_KIND.SUPERCHAT;
 								const icon = getActivityIcon(item);
+								const appeal = appeals[item.message.id];
+								const appealTag = appeal && getAppealTag(appeal);
 								return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("article", {
 									className: "user-panel__item",
 									children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
@@ -26615,70 +26916,123 @@
 										className: "user-panel__item-icon"
 									}, void 0, false, {
 										fileName: _jsxFileName$7,
-										lineNumber: 146,
+										lineNumber: 157,
 										columnNumber: 17
 									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 										className: "user-panel__item-content",
-										children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-											className: "user-panel__item-header",
-											children: [
-												/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-													className: "user-panel__item-title",
-													children: [
-														isSelf ? "You" : userName,
-														" ",
-														getActivityText(item)
-													]
-												}, void 0, true, {
-													fileName: _jsxFileName$7,
-													lineNumber: 149,
-													columnNumber: 21
-												}, void 0),
-												isSuper && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-													className: "user-panel__tag",
-													children: "YourSay+"
-												}, void 0, false, {
-													fileName: _jsxFileName$7,
-													lineNumber: 152,
-													columnNumber: 33
-												}, void 0),
-												/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-													className: "user-panel__item-time",
-													children: [formatRelativeTime(item.at), " ago"]
-												}, void 0, true, {
-													fileName: _jsxFileName$7,
-													lineNumber: 153,
-													columnNumber: 21
-												}, void 0),
-												item.message.status === MESSAGE_STATUS.HELD && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-													className: "message-item__review-tag",
-													children: "Under review"
-												}, void 0, false, {
-													fileName: _jsxFileName$7,
-													lineNumber: 155,
-													columnNumber: 23
-												}, void 0)
-											]
-										}, void 0, true, {
-											fileName: _jsxFileName$7,
-											lineNumber: 148,
-											columnNumber: 19
-										}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-											className: "user-panel__quote",
-											children: item.message.body
-										}, void 0, false, {
-											fileName: _jsxFileName$7,
-											lineNumber: 158,
-											columnNumber: 19
-										}, void 0)]
+										children: [
+											/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+												className: "user-panel__item-header",
+												children: [
+													/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+														className: "user-panel__item-title",
+														children: [
+															isSelf ? "You" : userName,
+															" ",
+															getActivityText(item)
+														]
+													}, void 0, true, {
+														fileName: _jsxFileName$7,
+														lineNumber: 160,
+														columnNumber: 21
+													}, void 0),
+													isSuper && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+														className: "user-panel__tag",
+														children: "YourSay+"
+													}, void 0, false, {
+														fileName: _jsxFileName$7,
+														lineNumber: 163,
+														columnNumber: 33
+													}, void 0),
+													/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+														className: "user-panel__item-time",
+														children: [formatRelativeTime(item.at), " ago"]
+													}, void 0, true, {
+														fileName: _jsxFileName$7,
+														lineNumber: 164,
+														columnNumber: 21
+													}, void 0),
+													item.message.status === MESSAGE_STATUS.HELD && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+														className: "message-item__review-tag",
+														children: "Under review"
+													}, void 0, false, {
+														fileName: _jsxFileName$7,
+														lineNumber: 166,
+														columnNumber: 23
+													}, void 0),
+													appealTag && item.type !== ACTIVITY_TYPE.REACTION && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+														className: `user-panel__appeal-tag user-panel__appeal-tag--${appealTag.modifier}`,
+														children: appealTag.label
+													}, void 0, false, {
+														fileName: _jsxFileName$7,
+														lineNumber: 169,
+														columnNumber: 23
+													}, void 0),
+													isRemovedTab && !appeal && appealingId !== item.message.id && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+														type: "button",
+														className: "user-panel__appeal",
+														onClick: () => openAppealForm(item.message.id),
+														children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
+															viewBox: "0 0 24 24",
+															"aria-hidden": "true",
+															children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
+																d: "M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11",
+																fill: "none",
+																stroke: "currentColor",
+																strokeWidth: "2",
+																strokeLinecap: "round",
+																strokeLinejoin: "round"
+															}, void 0, false, {
+																fileName: _jsxFileName$7,
+																lineNumber: 180,
+																columnNumber: 27
+															}, void 0)
+														}, void 0, false, {
+															fileName: _jsxFileName$7,
+															lineNumber: 179,
+															columnNumber: 25
+														}, void 0), "Appeal"]
+													}, void 0, true, {
+														fileName: _jsxFileName$7,
+														lineNumber: 174,
+														columnNumber: 23
+													}, void 0)
+												]
+											}, void 0, true, {
+												fileName: _jsxFileName$7,
+												lineNumber: 159,
+												columnNumber: 19
+											}, void 0),
+											/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+												className: "user-panel__quote",
+												children: item.message.body
+											}, void 0, false, {
+												fileName: _jsxFileName$7,
+												lineNumber: 193,
+												columnNumber: 19
+											}, void 0),
+											isRemovedTab && item.removal_reason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+												className: "user-panel__removal-reason",
+												children: REMOVAL_REASON_TEXT[item.removal_reason] ?? item.removal_reason
+											}, void 0, false, {
+												fileName: _jsxFileName$7,
+												lineNumber: 195,
+												columnNumber: 21
+											}, void 0),
+											isRemovedTab && !appeal && appealingId === item.message.id && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(AppealForm, { contentId: item.message.id }, void 0, false, {
+												fileName: _jsxFileName$7,
+												lineNumber: 198,
+												columnNumber: 21
+											}, void 0)
+										]
 									}, void 0, true, {
 										fileName: _jsxFileName$7,
-										lineNumber: 147,
+										lineNumber: 158,
 										columnNumber: 17
 									}, void 0)]
 								}, `${item.type}-${item.message.id}-${item.reaction ?? ""}`, true, {
 									fileName: _jsxFileName$7,
-									lineNumber: 145,
+									lineNumber: 156,
 									columnNumber: 15
 								}, void 0);
 							}),
@@ -26687,24 +27041,24 @@
 								children: "Loading more..."
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 163,
+								lineNumber: 204,
 								columnNumber: 29
 							}, void 0)
 						]
 					}, void 0, true, {
 						fileName: _jsxFileName$7,
-						lineNumber: 135,
+						lineNumber: 144,
 						columnNumber: 9
 					}, void 0)
 				]
 			}, void 0, true, {
 				fileName: _jsxFileName$7,
-				lineNumber: 80,
+				lineNumber: 104,
 				columnNumber: 7
 			}, void 0)
 		}, void 0, false, {
 			fileName: _jsxFileName$7,
-			lineNumber: 72,
+			lineNumber: 96,
 			columnNumber: 5
 		}, void 0);
 	};
@@ -26726,8 +27080,8 @@
 		return PROFANITY_PATTERNS.some((pattern) => pattern.test(normalized)) || MASKED_PATTERNS.some((pattern) => isMaskedMatch(normalized, pattern));
 	};
 	//#endregion
-	//#region src/sections/superChat/SuperChatConfirmDialog.tsx
-	var _jsxFileName$6 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/superChat/SuperChatConfirmDialog.tsx";
+	//#region src/sections/superChat/superChatConfirmDialog/index.tsx
+	var _jsxFileName$6 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/superChat/superChatConfirmDialog/index.tsx";
 	var FREE_COMMENTS_LEFT = 2;
 	var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose }) => {
 		const { user, profile } = useAuth();
@@ -27097,7 +27451,7 @@
 			onClose: closeSuperChatSheet
 		}, void 0, false, {
 			fileName: _jsxFileName$5,
-			lineNumber: 77,
+			lineNumber: 78,
 			columnNumber: 7
 		}, void 0);
 		const preview = {
@@ -27146,12 +27500,12 @@
 								alt: ""
 							}, void 0, false, {
 								fileName: _jsxFileName$5,
-								lineNumber: 128,
+								lineNumber: 129,
 								columnNumber: 13
 							}, void 0)
 						}, void 0, false, {
 							fileName: _jsxFileName$5,
-							lineNumber: 121,
+							lineNumber: 122,
 							columnNumber: 11
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
 							id: "sc-sheet-title",
@@ -27159,12 +27513,12 @@
 							children: "Send a YourSay+ Comment"
 						}, void 0, false, {
 							fileName: _jsxFileName$5,
-							lineNumber: 130,
+							lineNumber: 131,
 							columnNumber: 11
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$5,
-						lineNumber: 120,
+						lineNumber: 121,
 						columnNumber: 9
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -27177,12 +27531,12 @@
 							extraCoins: tier.extraCoins
 						}, void 0, false, {
 							fileName: _jsxFileName$5,
-							lineNumber: 136,
+							lineNumber: 137,
 							columnNumber: 11
 						}, void 0)
 					}, void 0, false, {
 						fileName: _jsxFileName$5,
-						lineNumber: 135,
+						lineNumber: 136,
 						columnNumber: 9
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -27192,7 +27546,7 @@
 							children: tier.extraCoins === 0 ? "Slide to get more prominence" : "Extra coins on your YourSay+ Comment"
 						}, void 0, false, {
 							fileName: _jsxFileName$5,
-							lineNumber: 145,
+							lineNumber: 146,
 							columnNumber: 11
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 							className: "sc-sheet__slider",
@@ -27205,7 +27559,7 @@
 									}
 								}, void 0, false, {
 									fileName: _jsxFileName$5,
-									lineNumber: 149,
+									lineNumber: 150,
 									columnNumber: 13
 								}, void 0),
 								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -27216,12 +27570,12 @@
 										style: { left: getThumbCenter(index) }
 									}, step.extraCoins, false, {
 										fileName: _jsxFileName$5,
-										lineNumber: 155,
+										lineNumber: 156,
 										columnNumber: 17
 									}, void 0))
 								}, void 0, false, {
 									fileName: _jsxFileName$5,
-									lineNumber: 153,
+									lineNumber: 154,
 									columnNumber: 13
 								}, void 0),
 								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("input", {
@@ -27238,18 +27592,18 @@
 									"aria-valuetext": `${formatCoins(tier.extraCoins)} extra`
 								}, void 0, false, {
 									fileName: _jsxFileName$5,
-									lineNumber: 164,
+									lineNumber: 165,
 									columnNumber: 13
 								}, void 0)
 							]
 						}, void 0, true, {
 							fileName: _jsxFileName$5,
-							lineNumber: 148,
+							lineNumber: 149,
 							columnNumber: 11
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$5,
-						lineNumber: 144,
+						lineNumber: 145,
 						columnNumber: 9
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -27262,18 +27616,18 @@
 							children: "Continue"
 						}, void 0, false, {
 							fileName: _jsxFileName$5,
-							lineNumber: 181,
+							lineNumber: 182,
 							columnNumber: 11
 						}, void 0)
 					}, void 0, false, {
 						fileName: _jsxFileName$5,
-						lineNumber: 180,
+						lineNumber: 181,
 						columnNumber: 9
 					}, void 0)
 				]
 			}, void 0, true, {
 				fileName: _jsxFileName$5,
-				lineNumber: 113,
+				lineNumber: 114,
 				columnNumber: 7
 			}, void 0), isConfirming && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatConfirmDialog, {
 				extraCoins: tier.extraCoins,
@@ -27283,12 +27637,12 @@
 				onClose: () => setIsConfirming(false)
 			}, void 0, false, {
 				fileName: _jsxFileName$5,
-				lineNumber: 193,
+				lineNumber: 194,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
 			fileName: _jsxFileName$5,
-			lineNumber: 105,
+			lineNumber: 106,
 			columnNumber: 5
 		}, void 0);
 	};
@@ -27298,7 +27652,7 @@
 	var LIST_COMPONENTS = {
 		Header: () => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "comment-list__spacer" }, void 0, false, {
 			fileName: _jsxFileName$4,
-			lineNumber: 41,
+			lineNumber: 37,
 			columnNumber: 17
 		}, void 0),
 		Footer: ({ context }) => context?.isLoadingMore ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -27307,12 +27661,12 @@
 			"aria-label": "Loading more comments",
 			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", { className: "comment-list__spinner" }, void 0, false, {
 				fileName: _jsxFileName$4,
-				lineNumber: 45,
+				lineNumber: 41,
 				columnNumber: 9
 			}, void 0)
 		}, void 0, false, {
 			fileName: _jsxFileName$4,
-			lineNumber: 44,
+			lineNumber: 40,
 			columnNumber: 7
 		}, void 0) : null
 	};
@@ -27394,33 +27748,22 @@
 				scrollToTop();
 			}
 		}, [scrollToTopRequest]);
+		const chatTabs = CHAT_TABS.map(({ id, label }) => ({
+			id,
+			label: `${label} (${comments.counts[id]})`,
+			className: id === CHAT_TAB.SUPER ? "comments__tab--yoursay" : void 0
+		}));
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 			className: "comments",
 			part: "comments",
 			children: [
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-					className: "chat-tabs",
-					role: "tablist",
-					children: CHAT_TABS.map(({ id, label }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-						type: "button",
-						role: "tab",
-						"aria-selected": activeTab === id,
-						className: `chat-tabs__tab${activeTab === id ? " chat-tabs__tab--active" : ""}${id === CHAT_TAB.SUPER ? " chat-tabs__tab--yoursay" : ""}`,
-						onClick: () => handleTabChange(id),
-						children: [
-							label,
-							" (",
-							comments.counts[id],
-							")"
-						]
-					}, id, true, {
-						fileName: _jsxFileName$4,
-						lineNumber: 144,
-						columnNumber: 11
-					}, void 0))
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Tabs, {
+					tabs: chatTabs,
+					activeId: activeTab,
+					onChange: handleTabChange
 				}, void 0, false, {
 					fileName: _jsxFileName$4,
-					lineNumber: 142,
+					lineNumber: 144,
 					columnNumber: 7
 				}, void 0),
 				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -27435,35 +27778,35 @@
 							children: [
 								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-skeleton__name" }, void 0, false, {
 									fileName: _jsxFileName$4,
-									lineNumber: 163,
+									lineNumber: 152,
 									columnNumber: 19
 								}, void 0),
 								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-skeleton__line" }, void 0, false, {
 									fileName: _jsxFileName$4,
-									lineNumber: 164,
+									lineNumber: 153,
 									columnNumber: 19
 								}, void 0),
 								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-skeleton__line message-skeleton__line--short" }, void 0, false, {
 									fileName: _jsxFileName$4,
-									lineNumber: 165,
+									lineNumber: 154,
 									columnNumber: 19
 								}, void 0)
 							]
 						}, index, true, {
 							fileName: _jsxFileName$4,
-							lineNumber: 162,
+							lineNumber: 151,
 							columnNumber: 17
 						}, void 0))
 					}, void 0, false, {
 						fileName: _jsxFileName$4,
-						lineNumber: 160,
+						lineNumber: 149,
 						columnNumber: 13
 					}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 						className: "comment-list__empty",
 						children: emptyText
 					}, void 0, false, {
 						fileName: _jsxFileName$4,
-						lineNumber: 170,
+						lineNumber: 159,
 						columnNumber: 13
 					}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(es, {
 						ref: listRef,
@@ -27475,16 +27818,16 @@
 							className: "comment-list__item",
 							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, { message }, void 0, false, {
 								fileName: _jsxFileName$4,
-								lineNumber: 182,
+								lineNumber: 171,
 								columnNumber: 17
 							}, void 0), message.kind === MESSAGE_KIND.NORMAL && message.reply_count > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageThread, { root: message }, void 0, false, {
 								fileName: _jsxFileName$4,
-								lineNumber: 184,
+								lineNumber: 173,
 								columnNumber: 19
 							}, void 0)]
 						}, void 0, true, {
 							fileName: _jsxFileName$4,
-							lineNumber: 181,
+							lineNumber: 170,
 							columnNumber: 15
 						}, void 0),
 						components: LIST_COMPONENTS,
@@ -27498,7 +27841,7 @@
 						}
 					}, activeTab, false, {
 						fileName: _jsxFileName$4,
-						lineNumber: 173,
+						lineNumber: 162,
 						columnNumber: 11
 					}, void 0), showGoToTop && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 						type: "button",
@@ -27510,7 +27853,7 @@
 								children: [newCount > 99 ? "99+" : newCount, " new"]
 							}, void 0, true, {
 								fileName: _jsxFileName$4,
-								lineNumber: 202,
+								lineNumber: 191,
 								columnNumber: 15
 							}, void 0),
 							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -27521,12 +27864,12 @@
 									alt: ""
 								}, void 0, false, {
 									fileName: _jsxFileName$4,
-									lineNumber: 205,
+									lineNumber: 194,
 									columnNumber: 15
 								}, void 0)
 							}, void 0, false, {
 								fileName: _jsxFileName$4,
-								lineNumber: 204,
+								lineNumber: 193,
 								columnNumber: 13
 							}, void 0),
 							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -27534,45 +27877,45 @@
 								children: "Go to Top"
 							}, void 0, false, {
 								fileName: _jsxFileName$4,
-								lineNumber: 207,
+								lineNumber: 196,
 								columnNumber: 13
 							}, void 0)
 						]
 					}, void 0, true, {
 						fileName: _jsxFileName$4,
-						lineNumber: 200,
+						lineNumber: 189,
 						columnNumber: 11
 					}, void 0)]
 				}, void 0, true, {
 					fileName: _jsxFileName$4,
-					lineNumber: 157,
+					lineNumber: 146,
 					columnNumber: 7
 				}, void 0),
 				comments.threadStack.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ThreadModal, {}, comments.threadStack[comments.threadStack.length - 1].id, false, {
 					fileName: _jsxFileName$4,
-					lineNumber: 212,
+					lineNumber: 201,
 					columnNumber: 43
 				}, void 0),
 				isSheetOpen && roomId && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(SuperChatSheet, { roomId }, void 0, false, {
 					fileName: _jsxFileName$4,
-					lineNumber: 213,
+					lineNumber: 202,
 					columnNumber: 33
 				}, void 0),
 				panelUserId && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserMessagesPanel, {}, void 0, false, {
 					fileName: _jsxFileName$4,
-					lineNumber: 214,
+					lineNumber: 203,
 					columnNumber: 23
 				}, void 0)
 			]
 		}, void 0, true, {
 			fileName: _jsxFileName$4,
-			lineNumber: 141,
+			lineNumber: 143,
 			columnNumber: 5
 		}, void 0);
 	};
 	//#endregion
-	//#region src/sections/messageBox/EnhanceWithAi.tsx
-	var _jsxFileName$3 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/EnhanceWithAi.tsx";
+	//#region src/sections/messageBox/enhanceWithAi/index.tsx
+	var _jsxFileName$3 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/enhanceWithAi/index.tsx";
 	var EnhanceWithAi = ({ message, isOnGradient }) => {
 		const { profile } = useAuth();
 		const isMember = getTierRank(profile.tierId) !== USER_RANK.FRIEND;
@@ -27622,8 +27965,8 @@
 		}, void 0);
 	};
 	//#endregion
-	//#region src/sections/messageBox/ModerationDialog.tsx
-	var _jsxFileName$2 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/ModerationDialog.tsx";
+	//#region src/sections/messageBox/moderationDialog/index.tsx
+	var _jsxFileName$2 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/moderationDialog/index.tsx";
 	var ModerationDialog = ({ kind, message, onSend, onClose }) => {
 		const noun = kind === MODERATION_KIND.SUPERCHAT ? "YourSay+" : "Comment";
 		useEscapeKey(true, onClose);
@@ -27815,59 +28158,54 @@
 		}, void 0);
 	};
 	//#endregion
-	//#region src/sections/messageBox/RemovedSnackbar.tsx
-	var _jsxFileName$1 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/RemovedSnackbar.tsx";
-	var RemovedSnackbar = ({ isSuperChat }) => {
-		const { user } = useAuth();
+	//#region src/components/snackbar/index.tsx
+	var _jsxFileName$1 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/snackbar/index.tsx";
+	var Snackbar = ({ message, actionLabel, onAction, onClose }) => {
 		(0, import_react.useEffect)(() => {
-			const timer = setTimeout(dismissRemovedNotice, SNACKBAR_DURATION_MS);
+			const timer = setTimeout(onClose, SNACKBAR_DURATION_MS);
 			return () => clearTimeout(timer);
-		}, []);
-		const handleView = () => {
-			dismissRemovedNotice();
-			if (user) openUserMessages(user.id, user.name, true, ACTIVITY_TAB.REMOVED);
-		};
+		}, [onClose]);
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "removed-snackbar",
+			className: "snackbar",
 			role: "alert",
 			children: [
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", { children: [REMOVED_NOTICE, isSuperChat && ` Any coins deducted for this YourSay+ will be refunded.`] }, void 0, true, {
+				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", { children: message }, void 0, false, {
 					fileName: _jsxFileName$1,
-					lineNumber: 29,
+					lineNumber: 20,
 					columnNumber: 7
 				}, void 0),
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+				actionLabel && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 					type: "button",
-					className: "removed-snackbar__view",
-					onClick: handleView,
-					children: "View"
+					className: "snackbar__action",
+					onClick: onAction,
+					children: actionLabel
 				}, void 0, false, {
 					fileName: _jsxFileName$1,
-					lineNumber: 33,
-					columnNumber: 7
+					lineNumber: 22,
+					columnNumber: 9
 				}, void 0),
 				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 					type: "button",
-					className: "removed-snackbar__close",
-					onClick: dismissRemovedNotice,
+					className: "snackbar__close",
+					onClick: onClose,
 					"aria-label": "Dismiss",
 					children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
 						src: close_default,
 						alt: ""
 					}, void 0, false, {
 						fileName: _jsxFileName$1,
-						lineNumber: 37,
+						lineNumber: 27,
 						columnNumber: 9
 					}, void 0)
 				}, void 0, false, {
 					fileName: _jsxFileName$1,
-					lineNumber: 36,
+					lineNumber: 26,
 					columnNumber: 7
 				}, void 0)
 			]
 		}, void 0, true, {
 			fileName: _jsxFileName$1,
-			lineNumber: 28,
+			lineNumber: 19,
 			columnNumber: 5
 		}, void 0);
 	};
@@ -27979,6 +28317,15 @@
 			cancelSuperChatModeration();
 			inputRef.current?.focus();
 		};
+		const getRemovedNoticeText = ({ isSuperChat, reason }) => {
+			const notice = reason ? REMOVED_NOTICE_WITH_REASON(REMOVAL_REASON_TEXT[reason] ?? reason) : REMOVED_NOTICE;
+			if (isSuperChat) return `${notice} ${REMOVED_SUPERCHAT_REFUND}`;
+			return notice;
+		};
+		const handleViewRemoved = () => {
+			dismissRemovedNotice();
+			if (user) openUserMessages(user.id, user.name, true, ACTIVITY_TAB.REMOVED);
+		};
 		if (status === AUTH_STATUS.CHECKING) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 			className: boxClassName,
 			part: "message-box",
@@ -27989,21 +28336,21 @@
 				"aria-hidden": "true",
 				children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton user-avatar" }, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 168,
+					lineNumber: 189,
 					columnNumber: 11
 				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-box__field-skeleton" }, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 169,
+					lineNumber: 190,
 					columnNumber: 11
 				}, void 0)]
 			}, void 0, true, {
 				fileName: _jsxFileName,
-				lineNumber: 167,
+				lineNumber: 188,
 				columnNumber: 9
 			}, void 0)
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 166,
+			lineNumber: 187,
 			columnNumber: 7
 		}, void 0);
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
@@ -28018,7 +28365,7 @@
 						children: "Log In"
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 179,
+						lineNumber: 200,
 						columnNumber: 11
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -28030,16 +28377,16 @@
 							"aria-label": "Your comments",
 							children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
 								fileName: _jsxFileName,
-								lineNumber: 191,
+								lineNumber: 212,
 								columnNumber: 15
 							}, void 0)
 						}, void 0, false, {
 							fileName: _jsxFileName,
-							lineNumber: 185,
+							lineNumber: 206,
 							columnNumber: 13
 						}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
 							fileName: _jsxFileName,
-							lineNumber: 194,
+							lineNumber: 215,
 							columnNumber: 13
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 							className: "message-box__field",
@@ -28051,7 +28398,7 @@
 										"You are replying to ",
 										/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: [replyTo.userName, "..."] }, void 0, true, {
 											fileName: _jsxFileName,
-											lineNumber: 200,
+											lineNumber: 221,
 											columnNumber: 39
 										}, void 0),
 										/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -28064,18 +28411,18 @@
 												className: "message-box__cancel-icon"
 											}, void 0, false, {
 												fileName: _jsxFileName,
-												lineNumber: 202,
+												lineNumber: 223,
 												columnNumber: 21
 											}, void 0), " Cancel"]
 										}, void 0, true, {
 											fileName: _jsxFileName,
-											lineNumber: 201,
+											lineNumber: 222,
 											columnNumber: 19
 										}, void 0)
 									]
 								}, void 0, true, {
 									fileName: _jsxFileName,
-									lineNumber: 199,
+									lineNumber: 220,
 									columnNumber: 17
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 									className: "message-box__input-row",
@@ -28084,7 +28431,7 @@
 										children: ["@", replyTo.userName]
 									}, void 0, true, {
 										fileName: _jsxFileName,
-										lineNumber: 207,
+										lineNumber: 228,
 										columnNumber: 29
 									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
 										ref: inputRef,
@@ -28109,17 +28456,17 @@
 										disabled: !user || isClosed
 									}, void 0, false, {
 										fileName: _jsxFileName,
-										lineNumber: 208,
+										lineNumber: 229,
 										columnNumber: 17
 									}, void 0)]
 								}, void 0, true, {
 									fileName: _jsxFileName,
-									lineNumber: 206,
+									lineNumber: 227,
 									columnNumber: 15
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 197,
+								lineNumber: 218,
 								columnNumber: 13
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 								className: "message-box__actions",
@@ -28134,12 +28481,12 @@
 										className: "message-box__btn-icon"
 									}, void 0, false, {
 										fileName: _jsxFileName,
-										lineNumber: 245,
+										lineNumber: 266,
 										columnNumber: 19
 									}, void 0)]
 								}, void 0, true, {
 									fileName: _jsxFileName,
-									lineNumber: 243,
+									lineNumber: 264,
 									columnNumber: 17
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 									type: "button",
@@ -28149,22 +28496,22 @@
 									children: "Send YourSay+"
 								}, void 0, false, {
 									fileName: _jsxFileName,
-									lineNumber: 248,
+									lineNumber: 269,
 									columnNumber: 15
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 241,
+								lineNumber: 262,
 								columnNumber: 13
 							}, void 0)]
 						}, void 0, true, {
 							fileName: _jsxFileName,
-							lineNumber: 196,
+							lineNumber: 217,
 							columnNumber: 11
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName,
-						lineNumber: 183,
+						lineNumber: 204,
 						columnNumber: 9
 					}, void 0),
 					isFlagged && !hasResponse && !hasSuperChatResponse && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -28173,7 +28520,7 @@
 						children: "Your message is unethical and breaks our community guidelines."
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 255,
+						lineNumber: 276,
 						columnNumber: 11
 					}, void 0),
 					error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -28182,7 +28529,7 @@
 						children: error
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 260,
+						lineNumber: 281,
 						columnNumber: 11
 					}, void 0),
 					isAiEnabled && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(EnhanceWithAi, {
@@ -28190,19 +28537,24 @@
 						isOnGradient: isYourSayTab
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 265,
+						lineNumber: 286,
 						columnNumber: 11
 					}, void 0)
 				]
 			}, void 0, true, {
 				fileName: _jsxFileName,
-				lineNumber: 177,
+				lineNumber: 198,
 				columnNumber: 7
 			}, void 0),
-			removedNotice && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RemovedSnackbar, { isSuperChat: removedNotice.isSuperChat }, removedNotice.id, false, {
+			removedNotice && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Snackbar, {
+				message: getRemovedNoticeText(removedNotice),
+				actionLabel: "View",
+				onAction: handleViewRemoved,
+				onClose: dismissRemovedNotice
+			}, removedNotice.id, false, {
 				fileName: _jsxFileName,
-				lineNumber: 268,
-				columnNumber: 25
+				lineNumber: 290,
+				columnNumber: 9
 			}, void 0),
 			activeModeration && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ModerationDialog, {
 				kind: activeModeration,
@@ -28211,12 +28563,12 @@
 				onClose: handleModerationCancel
 			}, void 0, false, {
 				fileName: _jsxFileName,
-				lineNumber: 270,
+				lineNumber: 299,
 				columnNumber: 9
 			}, void 0)
 		] }, void 0, true, {
 			fileName: _jsxFileName,
-			lineNumber: 176,
+			lineNumber: 197,
 			columnNumber: 5
 		}, void 0);
 	};
