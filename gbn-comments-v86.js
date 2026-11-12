@@ -138,6 +138,8 @@
 		UPHELD: "upheld",
 		OVERTURNED: "overturned"
 	};
+	var MESSAGE_MAX_LENGTH = 4e3;
+	`${MESSAGE_MAX_LENGTH}`;
 	var ACTIVITY_TYPE = {
 		COMMENT: "comment",
 		REPLY: "reply",
@@ -149,7 +151,15 @@
 		MESSAGE_REMOVE: "message.remove",
 		MESSAGE_STATUS: "message.status",
 		REACTION_COUNT: "reaction.count",
-		ROOM_MODE: "room.mode"
+		ROOM_MODE: "room.mode",
+		USER_STATE: "user.state"
+	};
+	var USER_STATE = {
+		PROBATION: "probation",
+		ESTABLISHED: "established",
+		TRUSTED: "trusted",
+		SUSPENDED: "suspended",
+		BANNED: "banned"
 	};
 	var LIVE_MESSAGE_TYPE = {
 		HELLO: "hello",
@@ -377,6 +387,10 @@
 		room_restricted: "Posting here is limited right now."
 	};
 	var REMOVED_SUPERCHAT_REFUND = "Any coins deducted for this YourSay+ will be refunded.";
+	var CLOSED_PLACEHOLDER = "Comments are closed";
+	var SUSPENDED_PLACEHOLDER = "Your account is suspended";
+	var SUSPENDED_UNTIL_PLACEHOLDER = (until) => `Your account is suspended until ${until}`;
+	var BANNED_PLACEHOLDER = "Your account has been banned";
 	var SNACKBAR_DURATION_MS = 5e3;
 	var SAMPLE_LOCKED_SUGGESTION = "Members get a rewritten version of their message that is far more likely to pass moderation.";
 	//#endregion
@@ -17471,7 +17485,7 @@
 	//#region src/index.css?inline
 	var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
 	var import_client = require_client();
-	var src_default = ".skeleton {\n  border-radius: 6px;\n  background: linear-gradient(\n    90deg,\n    var(--color-border) 25%,\n    var(--color-skeleton-shine) 37%,\n    var(--color-border) 63%\n  );\n  background-size: 400% 100%;\n  animation: skeleton-shimmer 1.4s ease infinite;\n}\n\n@keyframes skeleton-shimmer {\n  0% {\n    background-position: 100% 50%;\n  }\n\n  100% {\n    background-position: 0 50%;\n  }\n}\n\n.user-avatar {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 40px;\n  height: 40px;\n  overflow: hidden;\n  border-radius: 50%;\n}\n\n.user-avatar--initials {\n  color: var(--color-white);\n  font-weight: 700;\n}\n\n.user-avatar--tier-1 {\n  background: var(--color-tier-friend-bg);\n}\n\n.user-avatar--tier-2 {\n  background: var(--color-tier-supporter-bg);\n}\n\n.user-avatar--tier-3 {\n  background: var(--color-tier-defender-bg);\n}\n\n.user-avatar--tier-4 {\n  background: var(--color-tier-champion-bg);\n}\n\n.user-avatar__badge {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  background-position: center;\n  background-repeat: no-repeat;\n  background-size: cover;\n}\n\n.user-avatar__initials {\n  color: var(--color-white);\n  font-weight: 600;\n  line-height: normal;\n}\n\n.tabs {\n  flex-shrink: 0;\n  display: flex;\n}\n\n.tabs__tab {\n  display: flex;\n  flex: 1 1 0;\n  align-items: center;\n  justify-content: center;\n  min-width: 0;\n  height: 50px;\n  padding: 0 8px;\n  border: 0.5px solid var(--color-tab-border);\n  background: var(--color-light-grey);\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.2;\n  text-align: center;\n  transition: background 0.15s ease, border-color 0.15s ease;\n}\n\n.tabs__tab--active {\n  border: 1px solid var(--color-light-grey);\n  border-bottom: 3px solid var(--color-navy);\n  background: var(--color-white);\n}\n\n:host(gbn-comments) {\n  height: min(70vh, 560px);\n}\n\n.comments {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  overflow: hidden;\n  border: 1px solid var(--color-light-grey);\n  border-bottom: none;\n  background: var(--color-white);\n}\n\n.comments__tab--yoursay.tabs__tab--active {\n  border-color: var(--color-gradient-navy);\n  border-bottom-color: var(--color-red);\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.comment-list {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\n.comment-list__scroller {\n  flex: 1;\n  min-height: 0;\n}\n\n/* Inset, rounded track. Chrome and Safari only; Firefox falls back to a thin native bar. */\n.comment-list__scroller::-webkit-scrollbar {\n  width: 13px;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track,\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-track {\n  background-color: var(--color-scrollbar-track-dark);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-white);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .comment-list__scroller {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n\n  .comment-list--yoursay .comment-list__scroller {\n    scrollbar-color: var(--color-white) var(--color-scrollbar-track-dark);\n  }\n}\n\n.comment-list__item {\n  padding: 0 0 4px;\n}\n\n.comment-list--yoursay {\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n}\n\n.comment-list--yoursay .comment-list__item {\n  padding: 0;\n}\n\n.comment-list .message-item--super {\n  margin: 0 8px;\n  padding-inline: 8px;\n}\n\n.comment-list .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list--yoursay .message-item--super {\n  margin: 0;\n  padding-inline: 16px;\n  border-radius: 0;\n}\n\n.comment-list--yoursay .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list__spacer {\n  height: 10px;\n}\n\n.comment-list__loading {\n  display: flex;\n  justify-content: center;\n  padding: 6px 12px 12px;\n}\n\n.comment-list__spinner {\n  width: 22px;\n  height: 22px;\n  border: 3px solid var(--color-light-grey);\n  border-top-color: var(--color-navy);\n  border-radius: 50%;\n  animation: comment-list-spin 0.8s linear infinite;\n}\n\n.comment-list--yoursay .comment-list__spinner {\n  border-color: var(--color-scrollbar-track-dark);\n  border-top-color: var(--color-white);\n}\n\n@keyframes comment-list-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.comment-list__empty {\n  margin: auto 0;\n  padding: 24px 12px;\n  font-size: 13px;\n  text-align: center;\n}\n\n.go-to-top {\n  position: absolute;\n  right: 16px;\n  bottom: 16px;\n  z-index: 20;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 4px;\n  border: none;\n  background: none;\n}\n\n.go-to-top__badge {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-blue);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 700;\n  white-space: nowrap;\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n  animation: go-to-top-badge-pop 0.25s ease-out;\n}\n\n@keyframes go-to-top-badge-pop {\n  from {\n    transform: scale(0.6);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n\n.go-to-top__icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 44px;\n  height: 44px;\n  border-radius: 6px;\n  background: var(--color-navy);\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n}\n\n.go-to-top__icon img {\n  width: 16px;\n  height: 16px;\n}\n\n.go-to-top:hover .go-to-top__icon {\n  filter: brightness(1.1);\n}\n\n.go-to-top__label {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--color-white) 85%, transparent);\n  backdrop-filter: blur(4px);\n  box-shadow: 0 2px 8px var(--color-soft-shadow);\n  color: var(--color-blue);\n  font-size: 12px;\n  font-weight: 600;\n  letter-spacing: 0.04em;\n  text-transform: uppercase;\n  white-space: nowrap;\n}\n\n.comment-list__skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  padding: 20px 28px;\n}\n\n.message-skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}\n\n.message-skeleton__name {\n  width: 140px;\n  height: 16px;\n}\n\n.message-skeleton__line {\n  width: 100%;\n  height: 14px;\n}\n\n.message-skeleton__line--short {\n  width: 60%;\n}\n\n.name-plain {\n  font-size: 15px;\n  font-weight: 700;\n  overflow-wrap: anywhere;\n}\n\n.name-badge {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  min-height: 22px;\n  padding: 0 10px 0 11px;\n  border-radius: 0 100px 100px 0;\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1.2;\n  text-align: left;\n  overflow-wrap: anywhere;\n}\n\n.name-badge__icon {\n  flex-shrink: 0;\n  width: 12px;\n  height: 12px;\n}\n\n.name-badge--supporter {\n  background: linear-gradient(180deg, var(--color-rank-supporter-from), var(--color-rank-supporter-to));\n}\n\n.name-badge--defender {\n  background: linear-gradient(180deg, var(--color-rank-defender-from), var(--color-rank-defender-to));\n}\n\n.name-badge--champion {\n  background: linear-gradient(180deg, var(--color-rank-champion-from), var(--color-rank-champion-to));\n}\n\n.message-item {\n  padding: 10px 16px;\n}\n\n.message-item--super {\n  padding: 10px 15px;\n  border-radius: 10px;\n  color: var(--color-white);\n}\n\n.message-item--super .message-item__time,\n.message-item--super .message-item__action,\n.message-item--super .reaction-chip {\n  color: var(--color-superchat-meta);\n}\n\n.message-item__header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n}\n\n.message-item .name-badge {\n  margin-left: -8px;\n}\n\n.message-item--super .name-badge {\n  margin-left: -15px;\n}\n\n.message-item__time {\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__review-tag {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-tier-champion-bg);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.message-item__text {\n  margin-top: 4px;\n  font-size: 15px;\n  font-weight: 400;\n  line-height: 18px;\n  white-space: pre-wrap;\n  overflow-wrap: anywhere;\n}\n\n.message-text__mention {\n  margin-right: 4px;\n  font-weight: 500;\n}\n\n.message-item__footer {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 14px;\n  margin-top: 8px;\n}\n\n.message-item__action {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 14px;\n}\n\n.message-item__reply-icon {\n  width: 15px;\n  height: 15px;\n}\n\n.message-item__like-icon,\n.message-item__react-icon {\n  width: 15px;\n  height: 15px;\n}\n\n.message-item__coins {\n  display: inline-flex;\n  align-items: center;\n  height: 22px;\n  margin: 0 -15px 0 auto;\n  padding: 0 11px 0 10px;\n  border-radius: 100px 0 0 100px;\n  background: var(--color-coins);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n  white-space: nowrap;\n}\n\n.message-item__author {\n  min-width: 0;\n  padding: 0;\n  border: none;\n  background: none;\n  text-align: left;\n  overflow-wrap: anywhere;\n}\n\n.message-editor {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 4px;\n}\n\n.message-editor__input {\n  width: 100%;\n  min-height: 24px;\n  max-height: 140px;\n  padding: 8px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 10px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-editor__input:focus {\n  outline: none;\n  border-color: var(--color-navy);\n}\n\n.message-editor__error {\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.message-editor__actions {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n\n.message-editor__btn {\n  padding: 4px 14px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.message-editor__btn:disabled {\n  background: var(--color-light-grey);\n  color: var(--color-text-subtle);\n}\n\n.message-editor__btn--cancel {\n  border: 1px solid var(--color-border);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.message-reactions {\n  display: inline-flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 14px;\n}\n\n.message-reactions__react {\n  position: relative;\n  display: inline-flex;\n}\n\n.reaction-chip {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 14px;\n}\n\n.reaction-chip--mine,\n.message-item--super .reaction-chip--mine {\n  background: linear-gradient(180deg, var(--color-red-label-from), var(--color-red-label-to));\n  -webkit-background-clip: text;\n  background-clip: text;\n  color: transparent;\n  font-weight: 600;\n}\n\n.reaction-chip__icon {\n  flex-shrink: 0;\n  width: 15px;\n  height: 15px;\n}\n\n.reaction-picker {\n  position: absolute;\n  left: -6px;\n  bottom: calc(100% + 6px);\n  z-index: 22;\n  display: flex;\n  gap: 4px;\n  padding: 4px 6px;\n  border: 1px solid var(--color-reaction-picker-border);\n  border-radius: 12px;\n  background: var(--color-white);\n  box-shadow: 0 6px 20px var(--color-soft-shadow);\n  animation: reaction-picker-in 0.16s ease-out;\n}\n\n.reaction-picker--down {\n  top: calc(100% + 6px);\n  bottom: auto;\n}\n\n.reaction-picker__option {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 26px;\n  height: 26px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n  transition: transform 0.15s cubic-bezier(0.3, 1.6, 0.6, 1);\n}\n\n.reaction-picker__icon {\n  display: block;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n}\n\n.reaction-picker__option:hover,\n.reaction-picker__option:focus-visible {\n  transform: translateY(-4px) scale(1.2);\n  outline: none;\n}\n\n.reaction-picker__option--selected .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-navy);\n}\n\n.reaction-picker__option:focus-visible .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-blue);\n}\n\n.reaction-picker__label {\n  position: absolute;\n  bottom: calc(100% + 6px);\n  left: 50%;\n  padding: 3px 7px;\n  border-radius: 999px;\n  background: var(--color-reaction-label-bg);\n  color: var(--color-white);\n  font-size: 10px;\n  font-weight: 600;\n  line-height: 1.2;\n  white-space: nowrap;\n  pointer-events: none;\n  opacity: 0;\n  transform: translate(-50%, 2px) scale(calc(1 / 1.2));\n  transition: opacity 0.12s ease, transform 0.12s ease;\n}\n\n.reaction-picker__option:hover .reaction-picker__label,\n.reaction-picker__option:focus-visible .reaction-picker__label {\n  opacity: 1;\n  transform: translate(-50%, 0) scale(calc(1 / 1.2));\n}\n\n@keyframes reaction-picker-in {\n  from {\n    opacity: 0;\n    transform: translateY(6px) scale(0.96);\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .reaction-picker {\n    animation: none;\n  }\n\n  .reaction-picker__option,\n  .reaction-picker__label {\n    transition: none;\n  }\n}\n\n.replies-button {\n  margin: 0 16px 8px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-thread__replies {\n  margin-left: 16px;\n  border-left: 2px solid var(--color-border);\n}\n\n.message-thread__status {\n  padding: 6px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.message-actions {\n  position: relative;\n  flex-shrink: 0;\n  margin: -4px -6px -4px auto;\n}\n\n.message-actions__trigger {\n  padding: 4px 6px;\n  border: none;\n  border-radius: 6px;\n  background: none;\n  line-height: 1;\n}\n\n.message-actions__trigger:hover {\n  opacity: 0.7;\n}\n\n.message-actions__icon {\n  display: block;\n  width: 18px;\n  height: 18px;\n}\n\n.message-actions__menu {\n  position: absolute;\n  top: 100%;\n  right: 0;\n  z-index: 21;\n  width: max-content;\n  border: 1px solid var(--color-menu-border);\n  background: var(--color-white);\n  box-shadow: 0 4px 4px var(--color-menu-shadow);\n  color: var(--color-text);\n}\n\n.message-actions__item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: 100%;\n  height: 46px;\n  padding: 0 32px 0 20px;\n  border: none;\n  background: none;\n  font-size: 16px;\n  text-align: left;\n}\n\n.message-actions__item + .message-actions__item {\n  border-top: 1px solid var(--color-menu-border);\n}\n\n.message-actions__item:hover {\n  background: var(--color-light-grey);\n}\n\n.message-actions__item-icon {\n  width: 14px;\n  height: 14px;\n}\n\n.message-actions__item:disabled,\n.message-actions__item[aria-disabled=\"true\"] {\n  color: var(--color-text-subtle);\n  cursor: not-allowed;\n}\n\n.message-actions__item[aria-disabled=\"true\"] .message-actions__item-icon {\n  opacity: 0.5;\n}\n\n.message-actions__item[aria-disabled=\"true\"]:hover {\n  background: none;\n}\n\n.message-actions__feedback {\n  padding: 12px 20px;\n  font-size: 14px;\n  white-space: nowrap;\n}\n\n.message-actions__reasons {\n  max-height: 160px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n/* Same inset, rounded bar as the comment list. */\n.message-actions__reasons::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track,\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-actions__reasons {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box {\n  container: message-box / inline-size;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding: 16px;\n  background: var(--color-white);\n  box-shadow: 0 0 7px 0 var(--color-shadow);\n}\n\n.message-box--yoursay {\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-superchat-1));\n}\n\n.message-box__login {\n  align-self: flex-end;\n  padding: 0;\n  border: none;\n  background: none;\n  font-size: 16px;\n  font-weight: 600;\n}\n\n.message-box__login:hover {\n  color: var(--color-navy);\n}\n\n.message-box__login:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__row {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n}\n\n.message-box__field {\n  position: relative;\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  border: 1px solid var(--color-border);\n  border-radius: 14px;\n  background: var(--color-white);\n}\n\n.message-box__field::before {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: -6px;\n  width: 11px;\n  height: 11px;\n  border-left: 1px solid var(--color-border);\n  border-bottom: 1px solid var(--color-border);\n  border-bottom-left-radius: 3px;\n  background: var(--color-white);\n  transform: translateY(-50%) rotate(45deg);\n}\n\n.message-box__field-content {\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n}\n\n.message-box__reply-banner {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 18px 0;\n  font-size: 13px;\n  font-weight: 600;\n  color: var(--color-blue);\n}\n\n.message-box__reply-banner strong {\n  min-width: 0;\n  overflow-wrap: anywhere;\n}\n\n.message-box__cancel-reply {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 3px 12px;\n  border: none;\n  border-radius: 999px;\n  background: none;\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n  color: var(--color-confirm-close);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-box__cancel-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-box__input {\n  flex: 1;\n  min-width: 0;\n  min-height: 24px;\n  max-height: 155px;\n  padding: 10px 18px;\n  border: none;\n  background: transparent;\n  font-size: 16px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-box__input::placeholder {\n  color: var(--color-text-placeholder);\n}\n\n.message-box__input:focus {\n  outline: none;\n}\n\n.message-box__input::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-box__input::-webkit-scrollbar-track,\n.message-box__input::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-box__input::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-box__input::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-box__input {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box__actions {\n  flex-shrink: 0;\n  align-self: flex-end;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 10px 14px 10px 0;\n}\n\n.message-box__btn {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 6px 16px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 17px;\n  font-weight: 500;\n  line-height: 1.3;\n  white-space: nowrap;\n  transition: filter 0.15s ease;\n}\n\n.message-box__btn:hover:not(:disabled) {\n  filter: brightness(1.15);\n}\n\n.message-box__btn:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__btn:disabled {\n  background: var(--color-light-grey);\n}\n\n.message-box__btn-icon {\n  width: 18px;\n  height: 18px;\n}\n\n.message-box__field-skeleton {\n  flex: 1;\n  height: 67px;\n  border-radius: 14px;\n}\n\n.message-box__warning {\n  align-self: flex-start;\n  margin-left: 54px;\n  padding: 8px 18px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  font-size: 12px;\n  line-height: 1.35;\n}\n\n@container message-box (max-width: 560px) {\n  .message-box__row {\n    gap: 10px;\n  }\n\n  .message-box__field {\n    flex-wrap: wrap;\n  }\n\n  .message-box__field-content {\n    flex-basis: 100%;\n  }\n\n  .message-box__actions {\n    flex-wrap: wrap;\n    width: 100%;\n    gap: 8px;\n    padding: 8px 10px 10px;\n  }\n\n  .message-box__btn {\n    flex: 1 1 0;\n    justify-content: center;\n    gap: 6px;\n    padding: 7px 8px;\n    font-size: 14px;\n  }\n\n  .message-box__btn-icon {\n    width: 15px;\n    height: 15px;\n  }\n\n  .message-box__input {\n    max-height: 104px;\n    padding: 10px 14px;\n    font-size: 15px;\n  }\n}\n\n.message-box__avatar-btn {\n  flex-shrink: 0;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n}\n\n.message-box__input-row {\n  display: flex;\n  align-items: flex-start;\n}\n\n.message-box__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 10px 0 10px 18px;\n  font-size: 16px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.message-box__mention + .message-box__input {\n  padding-left: 6px;\n}\n\n.message-box--yoursay .message-box__login {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .message-box__login:hover {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .message-box__login:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.snackbar {\n  position: fixed;\n  bottom: 24px;\n  left: 50%;\n  z-index: 1100;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: max-content;\n  max-width: calc(100% - 32px);\n  padding: 12px 12px 12px 18px;\n  border-radius: 10px;\n  background: var(--color-white);\n  box-shadow: 0 8px 24px var(--color-sheet-shadow);\n  color: var(--color-text);\n  font-size: 14px;\n  line-height: 1.4;\n  transform: translateX(-50%);\n}\n\n.snackbar__action {\n  flex-shrink: 0;\n  padding: 4px 8px;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-weight: 600;\n}\n\n.snackbar__close {\n  flex-shrink: 0;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n}\n\n.snackbar__close img {\n  width: 12px;\n  height: 12px;\n}\n\n.enhance-ai {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 16px;\n  width: 100%;\n  padding-left: 54px;\n}\n\n.enhance-ai__button {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n  padding: 4px 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 16px;\n  white-space: nowrap;\n}\n\n.enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-navy);\n}\n\n.enhance-ai__button:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n  border-radius: 4px;\n}\n\n.enhance-ai__button:disabled {\n  cursor: not-allowed;\n}\n\n.enhance-ai__icon {\n  height: 22px;\n}\n\n.enhance-ai__pill {\n  flex: 1 1 260px;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  min-height: 36px;\n  padding: 6px 6px 6px 20px;\n  border-radius: 40px;\n  font-size: 15px;\n  line-height: 1.35;\n  animation: enhance-ai-in 0.15s ease;\n}\n\n.enhance-ai__pill--loading {\n  background: var(--color-light-grey);\n  color: var(--color-text-faded);\n}\n\n.enhance-ai__pill--info {\n  background: var(--color-enhance-bg);\n  color: var(--color-text);\n}\n\n.enhance-ai__pill--upsell {\n  padding-right: 20px;\n  background: var(--color-red);\n  color: var(--color-white);\n}\n\n.enhance-ai__text {\n  flex: 1;\n  min-width: 0;\n  overflow-wrap: break-word;\n}\n\n.enhance-ai__text--suggestion {\n  font-weight: 500;\n}\n\n.enhance-ai__use {\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font: inherit;\n  text-decoration: underline;\n  text-underline-offset: 2px;\n  white-space: nowrap;\n}\n\n.enhance-ai__close {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: var(--color-white);\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n}\n\n.enhance-ai__close img {\n  width: 8px;\n  height: 8px;\n}\n\n.enhance-ai__use:focus-visible,\n.enhance-ai__close:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box--yoursay .enhance-ai__button {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .enhance-ai__button:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__pill--loading {\n  background: var(--color-enhance-loading-dark-bg);\n  color: var(--color-superchat-meta);\n}\n\n@keyframes enhance-ai-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .enhance-ai__pill {\n    animation: none;\n  }\n}\n\n.sc-sheet {\n  position: absolute;\n  inset: 0;\n  z-index: 30;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n}\n\n.sc-sheet__panel {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  max-height: 100%;\n  padding: 10px 16px 14px;\n  overflow-y: auto;\n  border-top: 1px solid var(--color-border);\n  border-radius: 12px 12px 0 0;\n  background: var(--color-white);\n  box-shadow: 0 -12px 40px var(--color-sheet-shadow);\n  animation: sc-sheet-slide 0.25s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.sc-sheet__header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n\n.sc-sheet__close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: none;\n  background: none;\n}\n\n.sc-sheet__close img {\n  width: 12px;\n  height: 12px;\n  filter: brightness(0);\n  opacity: 0.55;\n}\n\n.sc-sheet__title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-sheet__preview {\n  pointer-events: none;\n}\n\n.sc-sheet__amount {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  width: 100%;\n  max-width: 480px;\n  margin-inline: auto;\n}\n\n.sc-sheet__amount-note {\n  color: var(--color-text-subtle);\n  font-size: 12px;\n  line-height: 1.3;\n}\n\n.sc-sheet__slider {\n  position: relative;\n  width: 100%;\n  height: 14px;\n}\n\n.sc-sheet__slider::before,\n.sc-sheet__fill {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: 0;\n  height: 3px;\n  border-radius: 999px;\n  transform: translateY(-50%);\n}\n\n.sc-sheet__slider::before {\n  right: 0;\n  background: var(--color-border);\n}\n\n.sc-sheet__ticks {\n  position: absolute;\n  inset: 0;\n  pointer-events: none;\n}\n\n.sc-sheet__tick {\n  position: absolute;\n  top: 50%;\n  width: 3px;\n  height: 3px;\n  border-radius: 50%;\n  background: var(--color-text);\n  opacity: 0.3;\n  transform: translate(-50%, -50%);\n}\n\n.sc-sheet__tick--on {\n  background: var(--color-white);\n  opacity: 0.9;\n}\n\n.sc-sheet__tick--current {\n  visibility: hidden;\n}\n\n.sc-sheet__range {\n  position: relative;\n  display: block;\n  width: 100%;\n  height: 14px;\n  background: transparent;\n  cursor: pointer;\n  appearance: none;\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range:focus {\n  outline: none;\n}\n\n.sc-sheet__range::-webkit-slider-runnable-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-moz-range-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-webkit-slider-thumb {\n  width: 14px;\n  height: 14px;\n  margin-top: -5.5px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range::-moz-range-thumb {\n  width: 14px;\n  height: 14px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n}\n\n.sc-sheet__footer {\n  display: flex;\n  justify-content: center;\n}\n\n.sc-sheet__continue {\n  padding: 8px 22px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n@keyframes sc-sheet-slide {\n  from {\n    transform: translateY(100%);\n  }\n}\n\n.sc-confirm__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.sc-confirm__frame {\n  position: relative;\n  display: flex;\n  width: 100%;\n  max-width: 678px;\n  max-height: 100%;\n}\n\n.sc-confirm {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 20px;\n  min-width: 0;\n  max-height: 100%;\n  padding: 28px 34px 30px;\n  overflow-y: auto;\n  border-radius: 15px;\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.sc-confirm__header {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n}\n\n.sc-confirm__title {\n  font-size: 22px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-confirm__summary {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  padding: 18px 28px;\n  border-radius: 12px;\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.sc-confirm__summary-row {\n  display: flex;\n  align-items: flex-end;\n  justify-content: space-between;\n  gap: 12px;\n  width: 100%;\n}\n\n.sc-confirm__summary-row--after {\n  align-items: baseline;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid var(--color-light-grey);\n}\n\n.sc-confirm__summary-col {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n}\n\n.sc-confirm__summary-col--end {\n  align-items: flex-end;\n}\n\n.sc-confirm__summary-label {\n  font-size: 15px;\n  line-height: 1.3;\n}\n\n.sc-confirm__summary-value {\n  font-size: 18px;\n  font-weight: 700;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.sc-confirm__summary-price {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 12px;\n}\n\n.sc-confirm__old-price,\n.sc-confirm__no-change {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  white-space: nowrap;\n}\n\n.sc-confirm__balance {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n}\n\n.sc-confirm__icon {\n  flex-shrink: 0;\n  width: 18px;\n  height: 18px;\n}\n\n.sc-confirm__free {\n  color: var(--color-coins);\n}\n\n.sc-confirm__summary-link {\n  margin-top: 8px;\n  color: var(--color-navy);\n  font-size: 15px;\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__note {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 18px;\n  border: 0.5px solid var(--color-scrollbar-track-dark);\n  border-radius: 20px;\n  background: var(--color-info-pill-bg);\n  box-shadow: 0 0 8px var(--color-info-pill-shadow);\n  font-size: 14px;\n  line-height: 1.35;\n}\n\n.sc-confirm__alert {\n  display: flex;\n  align-items: flex-start;\n  gap: 8px;\n  width: 100%;\n  margin-top: 12px;\n  padding: 8px 14px;\n  border-radius: 6px;\n  background: var(--color-warning-bg);\n  color: var(--color-red);\n  font-size: 15px;\n  line-height: 1.4;\n}\n\n.sc-confirm__alert .sc-confirm__icon {\n  margin-top: 2px;\n}\n\n.sc-confirm__upgrade-link {\n  color: var(--color-yellow);\n  font-weight: 600;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__error {\n  padding: 6px 14px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  color: var(--color-text);\n  font-size: 12px;\n  line-height: 1.35;\n  text-align: center;\n}\n\n.sc-confirm__actions {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-end;\n  justify-content: flex-end;\n  gap: 12px;\n}\n\n.sc-confirm__submit,\n.sc-confirm__cancel,\n.sc-confirm__buy-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 8px 26px;\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-navy);\n  font-size: 18px;\n  font-weight: 500;\n  line-height: 1.3;\n  text-decoration: none;\n  white-space: nowrap;\n}\n\n.sc-confirm__submit {\n  border: 1px solid var(--color-white);\n}\n\n.sc-confirm__buy-btn {\n  border: 1px solid var(--color-yellow);\n  background: var(--color-yellow);\n  color: var(--color-text);\n}\n\n.sc-confirm__cancel {\n  border: 1px solid var(--color-white);\n  background: none;\n  color: var(--color-white);\n}\n\n.sc-confirm__submit:disabled {\n  color: color-mix(in srgb, var(--color-navy) 40%, var(--color-white));\n}\n\n@media (max-width: 480px) {\n  .sc-confirm {\n    gap: 16px;\n    padding: 20px 16px;\n  }\n\n  .sc-confirm__title {\n    font-size: 20px;\n  }\n\n  .sc-confirm__summary {\n    padding: 14px 16px;\n  }\n\n  .sc-confirm__summary-label,\n  .sc-confirm__summary-link {\n    font-size: 14px;\n  }\n\n  .sc-confirm__summary-value {\n    font-size: 16px;\n  }\n\n  .sc-confirm__old-price,\n  .sc-confirm__no-change {\n    font-size: 13px;\n  }\n\n  .sc-confirm__summary-price {\n    gap: 6px;\n  }\n\n  .sc-confirm__summary-row--after {\n    flex-wrap: wrap;\n    row-gap: 4px;\n  }\n\n  .sc-confirm__summary-row--after > :last-child {\n    margin-left: auto;\n  }\n\n  .sc-confirm__note {\n    padding: 8px 14px;\n    font-size: 13px;\n  }\n\n  .sc-confirm__actions {\n    flex-direction: column-reverse;\n    align-items: stretch;\n    gap: 10px;\n  }\n\n  .sc-confirm__submit,\n  .sc-confirm__cancel,\n  .sc-confirm__buy-btn {\n    padding: 10px 20px;\n    font-size: 16px;\n  }\n}\n\n.mod-dialog__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.mod-dialog {\n  display: flex;\n  flex-direction: column;\n  gap: 14px;\n  width: 100%;\n  max-width: 560px;\n  max-height: 100%;\n  padding: 14px;\n  overflow-y: auto;\n  border-radius: 16px;\n  background: var(--color-white);\n  box-shadow: 0 12px 32px var(--color-dialog-shadow);\n}\n\n.mod-dialog__card {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  padding: 16px 14px;\n  border: 1px solid var(--color-border);\n  border-radius: 8px;\n}\n\n.mod-dialog__heading {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 10px;\n}\n\n.mod-dialog__title {\n  font-size: 17px;\n  font-weight: 400;\n  line-height: 1.2;\n}\n\n.mod-dialog__title--ai {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n}\n\n.mod-dialog__ai {\n  flex-shrink: 0;\n  height: 20px;\n}\n\n.mod-dialog__pill {\n  padding: 3px 12px;\n  border-radius: 100px;\n  color: var(--color-white);\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.mod-dialog__pill--warning {\n  background: var(--color-red);\n}\n\n.mod-dialog__pill--recommended {\n  background: var(--color-recommended);\n}\n\n.mod-dialog__row {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.mod-dialog__message {\n  flex: 1;\n  min-width: 0;\n  font-size: 13px;\n  line-height: 1.45;\n  overflow-wrap: break-word;\n}\n\n.mod-dialog__action {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 8px;\n  height: 40px;\n  padding: 0 18px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 15px;\n  font-weight: 500;\n  white-space: nowrap;\n}\n\n.mod-dialog__action-icon {\n  width: 16px;\n  height: 14px;\n}\n\n.mod-dialog__row--locked {\n  padding: 10px 12px;\n  border: 1px dashed var(--color-text);\n  border-radius: 6px;\n  background: var(--color-locked-suggestion-bg);\n  user-select: none;\n}\n\n.mod-dialog__row--locked > * {\n  filter: blur(4px);\n}\n\n.mod-dialog__upsell {\n  color: var(--color-red);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n.mod-dialog__footer {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.mod-dialog__cancel {\n  height: 40px;\n  padding: 0 18px;\n  border: 1px solid var(--color-cancel-btn-border);\n  border-radius: 100px;\n  background: linear-gradient(180deg, var(--color-cancel-btn-from), var(--color-border));\n  font-size: 15px;\n}\n\n@media (max-width: 480px) {\n  .mod-dialog__row:not(.mod-dialog__row--locked) {\n    flex-direction: column;\n    align-items: stretch;\n  }\n\n  .mod-dialog__action {\n    justify-content: center;\n  }\n}\n\n.thread-modal {\n  position: absolute;\n  inset: 0;\n  z-index: 25;\n  display: flex;\n  flex-direction: column;\n  background: var(--color-white);\n}\n\n.thread-modal__header {\n  display: grid;\n  grid-template-columns: 1fr auto 1fr;\n  align-items: center;\n  padding: 12px 16px;\n  border-bottom: 1px solid var(--color-border);\n}\n\n.thread-modal__back {\n  justify-self: start;\n  display: inline-flex;\n  align-items: center;\n  gap: 10px;\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 13px;\n  text-transform: uppercase;\n}\n\n.thread-modal__back-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: 1.5px solid var(--color-text);\n  border-radius: 50%;\n}\n\n.thread-modal__back-icon svg {\n  width: 16px;\n  height: 16px;\n}\n\n.thread-modal__title {\n  font-size: 13px;\n  font-weight: 500;\n  text-transform: uppercase;\n}\n\n.thread-modal__close {\n  justify-self: end;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.thread-modal__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.thread-modal__body {\n  flex: 1;\n  min-height: 0;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.thread-modal__status {\n  padding: 8px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.thread-modal__footer {\n  padding: 10px 16px 12px;\n  border-top: 1px solid var(--color-border);\n}\n\n.thread-modal__field {\n  display: flex;\n  align-items: flex-start;\n  border: 1px solid var(--color-navy);\n  border-radius: 6px;\n  background: var(--color-white);\n}\n\n.thread-modal__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 8px 0 8px 12px;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.thread-modal__input {\n  flex: 1;\n  min-width: 0;\n  max-height: 120px;\n  padding: 8px 12px;\n  border: none;\n  background: transparent;\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.thread-modal__input:focus {\n  outline: none;\n}\n\n.thread-modal__error {\n  margin-top: 6px;\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.thread-modal__mention + .thread-modal__input {\n  padding-left: 6px;\n}\n\n.user-panel__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  justify-content: flex-end;\n  background: var(--color-scrim);\n  animation: user-panel-fade-in 250ms ease-out;\n}\n\n.user-panel__backdrop--closing {\n  animation: user-panel-fade-out 250ms ease-in forwards;\n}\n\n.user-panel {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  max-width: 540px;\n  height: 100%;\n  background: var(--color-white);\n  box-shadow: -4px 0 24px var(--color-sheet-shadow);\n  animation: user-panel-slide-in 250ms ease-out;\n}\n\n.user-panel--closing {\n  animation: user-panel-slide-out 250ms ease-in forwards;\n}\n\n@keyframes user-panel-fade-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-fade-out {\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-slide-in {\n  from {\n    transform: translateX(100%);\n  }\n}\n\n@keyframes user-panel-slide-out {\n  to {\n    transform: translateX(100%);\n  }\n}\n\n.user-panel__header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding: 20px 20px 18px;\n  border-bottom: 1px solid var(--color-light-grey);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.user-panel__title {\n  flex: 1;\n  min-width: 0;\n  font-size: 20px;\n  font-weight: 600;\n  line-height: 30px;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__signout {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 6px;\n  padding: 6px 14px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-red);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.user-panel__signout svg {\n  width: 16px;\n  height: 16px;\n}\n\n.user-panel__close {\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.user-panel__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.user-panel__body {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  padding: 0 20px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.user-panel__item {\n  flex-shrink: 0;\n  display: flex;\n  gap: 14px;\n  padding: 18px 0;\n  border-bottom: 1px solid var(--color-light-grey);\n}\n\n.user-panel__item-icon {\n  flex-shrink: 0;\n  width: 20px;\n  height: 20px;\n  margin-top: 1px;\n  object-fit: contain;\n}\n\n.user-panel__item-content {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 8px;\n  min-width: 0;\n}\n\n.user-panel__item-header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 4px 8px;\n}\n\n.user-panel__item-title {\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__quote {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  line-height: 1.4;\n  white-space: pre-wrap;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__removal-reason {\n  margin-top: 4px;\n  color: var(--color-red);\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.user-panel__item-time {\n  color: var(--color-message-meta);\n  font-size: 13px;\n}\n\n.user-panel__tag {\n  padding: 1px 8px;\n  border-radius: 999px;\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.user-panel__status {\n  padding: 16px;\n  font-size: 13px;\n  color: var(--color-text-subtle);\n  text-align: center;\n}\n\n.user-panel__appeal {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n  margin-left: auto;\n  padding: 4px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.user-panel__appeal svg {\n  width: 14px;\n  height: 14px;\n}\n\n.user-panel__appeal-tag {\n  padding: 1px 8px;\n  border: 1px solid;\n  border-radius: 999px;\n  background: var(--color-white);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.user-panel__appeal-tag--open {\n  color: var(--color-rank-champion-to);\n}\n\n.user-panel__appeal-tag--restored {\n  color: var(--color-recommended);\n}\n\n.user-panel__appeal-tag--rejected {\n  color: var(--color-red);\n}\n\n.appeal-form {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}\n\n.appeal-form__note {\n  color: var(--color-text-subtle);\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.appeal-form__input {\n  width: 100%;\n  max-height: 140px;\n  padding: 8px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 10px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.appeal-form__input:focus {\n  outline: none;\n  border-color: var(--color-navy);\n}\n\n.appeal-form__error {\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.appeal-form__actions {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n\n.appeal-form__btn {\n  padding: 4px 14px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.appeal-form__btn:disabled {\n  background: var(--color-light-grey);\n  color: var(--color-text-subtle);\n}\n\n.appeal-form__btn--cancel {\n  border: 1px solid var(--color-border);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n:host {\n  --color-text: #000f55;\n  --color-text-placeholder: #A4A4A4;\n  --color-text-faded: #000F5580;\n  --color-enhance-bg: #E5F6FF;\n  --color-enhance-loading-dark-bg: #1938a6;\n  --color-navy: #004be3;\n  --color-border: #D4D7E3;\n  --color-white: #ffffff;\n  --color-text-subtle: #898989;\n  --color-message-meta: #909090;\n  --color-superchat-meta: #b1b1b1;\n  --color-blue: #2f6fed;\n  --color-light-grey: #EBEBEB;\n  --color-tab-border: #CBCBCB;\n  --color-coins: #22AB00;\n  --color-menu-border: #ACACAC;\n  --color-menu-shadow: #00000040;\n  --color-go-to-top-shadow: #101a3d14;\n  --color-soft-shadow: #101a3d1f;\n  --color-tier-friend-bg: #000e55;\n  --color-tier-supporter-bg: #fcebdf;\n  --color-tier-defender-bg: #ededed;\n  --color-tier-champion-bg: #fff1d0;\n  --color-avatar-1: #e07a5f;\n  --color-avatar-2: #3d7068;\n  --color-avatar-3: #4f6d9a;\n  --color-avatar-4: #8a5a44;\n  --color-avatar-5: #6b5ca5;\n  --color-avatar-6: #2f8f7a;\n  --color-avatar-7: #c9752f;\n  --color-avatar-8: #4a90c4;\n  --color-skeleton-shine: #f7f9fd;\n  --color-superchat-1: #031762;\n  --color-superchat-2: #0a2a8f;\n  --color-superchat-3: #0f3dbd;\n  --color-superchat-4: #014be3;\n  --color-gradient-blue: #2043bd;\n  --color-gradient-navy: #00135a;\n  --color-scrollbar-thumb: #CCCCCC;\n  --color-scrollbar-track-dark: #ffffff4d;\n  --color-info-pill-bg: #ffffff1a;\n  --color-info-pill-shadow: #00000012;\n  --color-yellow: #ffd86b;\n  --color-scrim: #00000033;\n  --color-sheet-shadow: #101a3d40;\n  --color-confirm-close: #eb0000;\n  --color-dialog-shadow: #101a3d2e;\n  --color-red: #d70000;\n  --color-warning-bg: #fff0f0;\n  --color-recommended: #39933C;\n  --color-locked-suggestion-bg: #E5F6FF80;\n  --color-cancel-btn-from: #f0f7fd;\n  --color-cancel-btn-border: #d8e1f0;\n  --color-rank-supporter-from: #f6ba92;\n  --color-rank-supporter-to: #c38154;\n  --color-rank-defender-from: #c2c2c2;\n  --color-rank-defender-to: #818181;\n  --color-rank-champion-from: #ffc241;\n  --color-rank-champion-to: #e99300;\n  --color-shadow: #0000001a;\n  --color-reaction-picker-border: #9B9B9B;\n  --color-reaction-label-bg: #000F55CC;\n  --color-cancel-reply-shadow: #00000026;\n  --color-red-label-from: #eb0101;\n  --color-red-label-to: #b90000;\n\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  font-family: \"Noto Sans\", sans-serif;\n  color: var(--color-text);\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n:host,\n:host(:focus),\n:host(:focus-within) {\n  outline: none !important;\n}\n\n:host > div {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\nbutton,\ntextarea {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\nbutton:disabled {\n  cursor: not-allowed;\n}\n";
+	var src_default = ".skeleton {\n  border-radius: 6px;\n  background: linear-gradient(\n    90deg,\n    var(--color-border) 25%,\n    var(--color-skeleton-shine) 37%,\n    var(--color-border) 63%\n  );\n  background-size: 400% 100%;\n  animation: skeleton-shimmer 1.4s ease infinite;\n}\n\n@keyframes skeleton-shimmer {\n  0% {\n    background-position: 100% 50%;\n  }\n\n  100% {\n    background-position: 0 50%;\n  }\n}\n\n.user-avatar {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 40px;\n  height: 40px;\n  overflow: hidden;\n  border-radius: 50%;\n}\n\n.user-avatar--initials {\n  color: var(--color-white);\n  font-weight: 700;\n}\n\n.user-avatar--tier-1 {\n  background: var(--color-tier-friend-bg);\n}\n\n.user-avatar--tier-2 {\n  background: var(--color-tier-supporter-bg);\n}\n\n.user-avatar--tier-3 {\n  background: var(--color-tier-defender-bg);\n}\n\n.user-avatar--tier-4 {\n  background: var(--color-tier-champion-bg);\n}\n\n.user-avatar__badge {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  background-position: center;\n  background-repeat: no-repeat;\n  background-size: cover;\n}\n\n.user-avatar__initials {\n  color: var(--color-white);\n  font-weight: 600;\n  line-height: normal;\n}\n\n.tabs {\n  flex-shrink: 0;\n  display: flex;\n}\n\n.tabs__tab {\n  display: flex;\n  flex: 1 1 0;\n  align-items: center;\n  justify-content: center;\n  min-width: 0;\n  height: 50px;\n  padding: 0 8px;\n  border: 0.5px solid var(--color-tab-border);\n  background: var(--color-light-grey);\n  font-size: 14px;\n  font-weight: 500;\n  line-height: 1.2;\n  text-align: center;\n  transition: background 0.15s ease, border-color 0.15s ease;\n}\n\n.tabs__tab--active {\n  border: 1px solid var(--color-light-grey);\n  border-bottom: 3px solid var(--color-navy);\n  background: var(--color-white);\n}\n\n:host(gbn-comments) {\n  height: min(70vh, 560px);\n}\n\n.comments {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  overflow: hidden;\n  border: 1px solid var(--color-light-grey);\n  border-bottom: none;\n  background: var(--color-white);\n}\n\n.comments__tab--yoursay.tabs__tab--active {\n  border-color: var(--color-gradient-navy);\n  border-bottom-color: var(--color-red);\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.comment-list {\n  position: relative;\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\n.comment-list__scroller {\n  flex: 1;\n  min-height: 0;\n}\n\n/* Inset, rounded track. Chrome and Safari only; Firefox falls back to a thin native bar. */\n.comment-list__scroller::-webkit-scrollbar {\n  width: 13px;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track,\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.comment-list__scroller::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-track {\n  background-color: var(--color-scrollbar-track-dark);\n}\n\n.comment-list--yoursay .comment-list__scroller::-webkit-scrollbar-thumb {\n  background-color: var(--color-white);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .comment-list__scroller {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n\n  .comment-list--yoursay .comment-list__scroller {\n    scrollbar-color: var(--color-white) var(--color-scrollbar-track-dark);\n  }\n}\n\n.comment-list__item {\n  padding: 0 0 4px;\n}\n\n.comment-list--yoursay {\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n}\n\n.comment-list--yoursay .comment-list__item {\n  padding: 0;\n}\n\n.comment-list .message-item--super {\n  margin: 0 8px;\n  padding-inline: 8px;\n}\n\n.comment-list .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list--yoursay .message-item--super {\n  margin: 0;\n  padding-inline: 16px;\n  border-radius: 0;\n}\n\n.comment-list--yoursay .message-item--super .name-badge {\n  margin-left: -8px;\n}\n\n.comment-list__spacer {\n  height: 10px;\n}\n\n.comment-list__loading {\n  display: flex;\n  justify-content: center;\n  padding: 6px 12px 12px;\n}\n\n.comment-list__spinner {\n  width: 22px;\n  height: 22px;\n  border: 3px solid var(--color-light-grey);\n  border-top-color: var(--color-navy);\n  border-radius: 50%;\n  animation: comment-list-spin 0.8s linear infinite;\n}\n\n.comment-list--yoursay .comment-list__spinner {\n  border-color: var(--color-scrollbar-track-dark);\n  border-top-color: var(--color-white);\n}\n\n@keyframes comment-list-spin {\n  to {\n    transform: rotate(360deg);\n  }\n}\n\n.comment-list__empty {\n  margin: auto 0;\n  padding: 24px 12px;\n  font-size: 13px;\n  text-align: center;\n}\n\n.go-to-top {\n  position: absolute;\n  right: 16px;\n  bottom: 16px;\n  z-index: 20;\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 4px;\n  border: none;\n  background: none;\n}\n\n.go-to-top__badge {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-blue);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 700;\n  white-space: nowrap;\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n  animation: go-to-top-badge-pop 0.25s ease-out;\n}\n\n@keyframes go-to-top-badge-pop {\n  from {\n    transform: scale(0.6);\n    opacity: 0;\n  }\n  to {\n    transform: scale(1);\n    opacity: 1;\n  }\n}\n\n.go-to-top__icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 44px;\n  height: 44px;\n  border-radius: 6px;\n  background: var(--color-navy);\n  box-shadow: 0 8px 24px var(--color-go-to-top-shadow);\n}\n\n.go-to-top__icon img {\n  width: 16px;\n  height: 16px;\n}\n\n.go-to-top:hover .go-to-top__icon {\n  filter: brightness(1.1);\n}\n\n.go-to-top__label {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: color-mix(in srgb, var(--color-white) 85%, transparent);\n  backdrop-filter: blur(4px);\n  box-shadow: 0 2px 8px var(--color-soft-shadow);\n  color: var(--color-blue);\n  font-size: 12px;\n  font-weight: 600;\n  letter-spacing: 0.04em;\n  text-transform: uppercase;\n  white-space: nowrap;\n}\n\n.comment-list__skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 20px;\n  padding: 20px 28px;\n}\n\n.message-skeleton {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}\n\n.message-skeleton__name {\n  width: 140px;\n  height: 16px;\n}\n\n.message-skeleton__line {\n  width: 100%;\n  height: 14px;\n}\n\n.message-skeleton__line--short {\n  width: 60%;\n}\n\n.name-plain {\n  font-size: 15px;\n  font-weight: 700;\n  overflow-wrap: anywhere;\n}\n\n.name-badge {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  min-height: 22px;\n  padding: 0 10px 0 11px;\n  border-radius: 0 100px 100px 0;\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1.2;\n  text-align: left;\n  overflow-wrap: anywhere;\n}\n\n.name-badge__icon {\n  flex-shrink: 0;\n  width: 12px;\n  height: 12px;\n}\n\n.name-badge--supporter {\n  background: linear-gradient(180deg, var(--color-rank-supporter-from), var(--color-rank-supporter-to));\n}\n\n.name-badge--defender {\n  background: linear-gradient(180deg, var(--color-rank-defender-from), var(--color-rank-defender-to));\n}\n\n.name-badge--champion {\n  background: linear-gradient(180deg, var(--color-rank-champion-from), var(--color-rank-champion-to));\n}\n\n.message-item {\n  padding: 10px 16px;\n}\n\n.message-item--super {\n  padding: 10px 15px;\n  border-radius: 10px;\n  color: var(--color-white);\n}\n\n.message-item--super .message-item__time,\n.message-item--super .message-item__action,\n.message-item--super .reaction-chip {\n  color: var(--color-superchat-meta);\n}\n\n.message-item__header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n}\n\n.message-item .name-badge {\n  margin-left: -8px;\n}\n\n.message-item--super .name-badge {\n  margin-left: -15px;\n}\n\n.message-item__time {\n  color: var(--color-message-meta);\n  font-size: 12px;\n}\n\n.message-item__review-tag {\n  padding: 2px 8px;\n  border-radius: 999px;\n  background: var(--color-tier-champion-bg);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.message-item__text {\n  margin-top: 4px;\n  font-size: 15px;\n  font-weight: 400;\n  line-height: 18px;\n  white-space: pre-wrap;\n  overflow-wrap: anywhere;\n}\n\n.message-text__mention {\n  margin-right: 4px;\n  font-weight: 500;\n}\n\n.message-item__footer {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 14px;\n  margin-top: 8px;\n}\n\n.message-item__action {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 14px;\n}\n\n.message-item__reply-icon {\n  width: 15px;\n  height: 15px;\n}\n\n.message-item__like-icon,\n.message-item__react-icon {\n  width: 15px;\n  height: 15px;\n}\n\n.message-item__coins {\n  display: inline-flex;\n  align-items: center;\n  height: 22px;\n  margin: 0 -15px 0 auto;\n  padding: 0 11px 0 10px;\n  border-radius: 100px 0 0 100px;\n  background: var(--color-coins);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 700;\n  line-height: 1;\n  white-space: nowrap;\n}\n\n.message-item__author {\n  min-width: 0;\n  padding: 0;\n  border: none;\n  background: none;\n  text-align: left;\n  overflow-wrap: anywhere;\n}\n\n.message-editor {\n  display: flex;\n  flex-direction: column;\n  gap: 6px;\n  margin-top: 4px;\n}\n\n.message-editor__input {\n  width: 100%;\n  min-height: 24px;\n  max-height: 140px;\n  padding: 8px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 10px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-editor__input:focus {\n  outline: none;\n  border-color: var(--color-navy);\n}\n\n.message-editor__error {\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.message-editor__actions {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n\n.message-editor__btn {\n  padding: 4px 14px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.message-editor__btn:disabled {\n  background: var(--color-light-grey);\n  color: var(--color-text-subtle);\n}\n\n.message-editor__btn--cancel {\n  border: 1px solid var(--color-border);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.message-reactions {\n  display: inline-flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 6px 14px;\n}\n\n.message-reactions__react {\n  position: relative;\n  display: inline-flex;\n}\n\n.reaction-chip {\n  display: inline-flex;\n  align-items: center;\n  gap: 5px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-message-meta);\n  font-size: 14px;\n}\n\n.reaction-chip--mine,\n.message-item--super .reaction-chip--mine {\n  background: linear-gradient(180deg, var(--color-red-label-from), var(--color-red-label-to));\n  -webkit-background-clip: text;\n  background-clip: text;\n  color: transparent;\n  font-weight: 600;\n}\n\n.reaction-chip__icon {\n  flex-shrink: 0;\n  width: 15px;\n  height: 15px;\n}\n\n.reaction-picker {\n  position: absolute;\n  left: -6px;\n  bottom: calc(100% + 6px);\n  z-index: 22;\n  display: flex;\n  gap: 4px;\n  padding: 4px 6px;\n  border: 1px solid var(--color-reaction-picker-border);\n  border-radius: 12px;\n  background: var(--color-white);\n  box-shadow: 0 6px 20px var(--color-soft-shadow);\n  animation: reaction-picker-in 0.16s ease-out;\n}\n\n.reaction-picker--down {\n  top: calc(100% + 6px);\n  bottom: auto;\n}\n\n.reaction-picker__option {\n  position: relative;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 26px;\n  height: 26px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n  transition: transform 0.15s cubic-bezier(0.3, 1.6, 0.6, 1);\n}\n\n.reaction-picker__icon {\n  display: block;\n  width: 24px;\n  height: 24px;\n  border-radius: 50%;\n}\n\n.reaction-picker__option:hover,\n.reaction-picker__option:focus-visible {\n  transform: translateY(-4px) scale(1.2);\n  outline: none;\n}\n\n.reaction-picker__option--selected .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-navy);\n}\n\n.reaction-picker__option:focus-visible .reaction-picker__icon {\n  box-shadow: 0 0 0 2px var(--color-white), 0 0 0 4px var(--color-blue);\n}\n\n.reaction-picker__label {\n  position: absolute;\n  bottom: calc(100% + 6px);\n  left: 50%;\n  padding: 3px 7px;\n  border-radius: 999px;\n  background: var(--color-reaction-label-bg);\n  color: var(--color-white);\n  font-size: 10px;\n  font-weight: 600;\n  line-height: 1.2;\n  white-space: nowrap;\n  pointer-events: none;\n  opacity: 0;\n  transform: translate(-50%, 2px) scale(calc(1 / 1.2));\n  transition: opacity 0.12s ease, transform 0.12s ease;\n}\n\n.reaction-picker__option:hover .reaction-picker__label,\n.reaction-picker__option:focus-visible .reaction-picker__label {\n  opacity: 1;\n  transform: translate(-50%, 0) scale(calc(1 / 1.2));\n}\n\n@keyframes reaction-picker-in {\n  from {\n    opacity: 0;\n    transform: translateY(6px) scale(0.96);\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .reaction-picker {\n    animation: none;\n  }\n\n  .reaction-picker__option,\n  .reaction-picker__label {\n    transition: none;\n  }\n}\n\n.replies-button {\n  margin: 0 16px 8px;\n  padding: 2px 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-thread__replies {\n  margin-left: 16px;\n  border-left: 2px solid var(--color-border);\n}\n\n.message-thread__status {\n  padding: 6px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.message-actions {\n  position: relative;\n  flex-shrink: 0;\n  margin: -4px -6px -4px auto;\n}\n\n.message-actions__trigger {\n  padding: 4px 6px;\n  border: none;\n  border-radius: 6px;\n  background: none;\n  line-height: 1;\n}\n\n.message-actions__trigger:hover {\n  opacity: 0.7;\n}\n\n.message-actions__icon {\n  display: block;\n  width: 18px;\n  height: 18px;\n}\n\n.message-actions__menu {\n  position: absolute;\n  top: 100%;\n  right: 0;\n  z-index: 21;\n  width: max-content;\n  border: 1px solid var(--color-menu-border);\n  background: var(--color-white);\n  box-shadow: 0 4px 4px var(--color-menu-shadow);\n  color: var(--color-text);\n}\n\n.message-actions__item {\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: 100%;\n  height: 46px;\n  padding: 0 32px 0 20px;\n  border: none;\n  background: none;\n  font-size: 16px;\n  text-align: left;\n}\n\n.message-actions__item + .message-actions__item {\n  border-top: 1px solid var(--color-menu-border);\n}\n\n.message-actions__item:hover {\n  background: var(--color-light-grey);\n}\n\n.message-actions__item-icon {\n  width: 14px;\n  height: 14px;\n}\n\n.message-actions__item:disabled,\n.message-actions__item[aria-disabled=\"true\"] {\n  color: var(--color-text-subtle);\n  cursor: not-allowed;\n}\n\n.message-actions__item[aria-disabled=\"true\"] .message-actions__item-icon {\n  opacity: 0.5;\n}\n\n.message-actions__item[aria-disabled=\"true\"]:hover {\n  background: none;\n}\n\n.message-actions__feedback {\n  padding: 12px 20px;\n  font-size: 14px;\n  white-space: nowrap;\n}\n\n.message-actions__reasons {\n  max-height: 160px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n/* Same inset, rounded bar as the comment list. */\n.message-actions__reasons::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track,\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-actions__reasons::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-actions__reasons::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-actions__reasons {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box {\n  container: message-box / inline-size;\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n  padding: 16px;\n  background: var(--color-white);\n  box-shadow: 0 0 7px 0 var(--color-shadow);\n}\n\n.message-box--yoursay {\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-superchat-1));\n}\n\n.message-box__login {\n  align-self: flex-end;\n  padding: 0;\n  border: none;\n  background: none;\n  font-size: 16px;\n  font-weight: 600;\n}\n\n.message-box__login:hover {\n  color: var(--color-navy);\n}\n\n.message-box__login:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__row {\n  display: flex;\n  align-items: center;\n  gap: 14px;\n}\n\n.message-box__field {\n  position: relative;\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  border: 1px solid var(--color-border);\n  border-radius: 14px;\n  background: var(--color-white);\n}\n\n.message-box__field::before {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: -6px;\n  width: 11px;\n  height: 11px;\n  border-left: 1px solid var(--color-border);\n  border-bottom: 1px solid var(--color-border);\n  border-bottom-left-radius: 3px;\n  background: var(--color-white);\n  transform: translateY(-50%) rotate(45deg);\n}\n\n.message-box__field-content {\n  flex: 1;\n  min-width: 0;\n  display: flex;\n  flex-direction: column;\n}\n\n.message-box__reply-banner {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px;\n  padding: 10px 18px 0;\n  font-size: 13px;\n  font-weight: 600;\n  color: var(--color-blue);\n}\n\n.message-box__reply-banner strong {\n  min-width: 0;\n  overflow-wrap: anywhere;\n}\n\n.message-box__cancel-reply {\n  display: inline-flex;\n  align-items: center;\n  gap: 4px;\n  padding: 3px 12px;\n  border: none;\n  border-radius: 999px;\n  background: none;\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n  color: var(--color-confirm-close);\n  font-size: 12px;\n  font-weight: 600;\n}\n\n.message-box__cancel-icon {\n  width: 12px;\n  height: 12px;\n}\n\n.message-box__input {\n  flex: 1;\n  min-width: 0;\n  min-height: 24px;\n  max-height: 155px;\n  padding: 10px 18px;\n  border: none;\n  background: transparent;\n  font-size: 16px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.message-box__input::placeholder {\n  color: var(--color-text-placeholder);\n}\n\n.message-box__input:focus {\n  outline: none;\n}\n\n.message-box__input::-webkit-scrollbar {\n  width: 13px;\n}\n\n.message-box__input::-webkit-scrollbar-track,\n.message-box__input::-webkit-scrollbar-thumb {\n  border: 4px solid transparent;\n  border-radius: 999px;\n  background-clip: padding-box;\n}\n\n.message-box__input::-webkit-scrollbar-track {\n  margin-block: 8px;\n  background-color: var(--color-light-grey);\n}\n\n.message-box__input::-webkit-scrollbar-thumb {\n  background-color: var(--color-scrollbar-thumb);\n}\n\n@supports not selector(::-webkit-scrollbar) {\n  .message-box__input {\n    scrollbar-width: thin;\n    scrollbar-color: var(--color-scrollbar-thumb) var(--color-light-grey);\n  }\n}\n\n.message-box__actions {\n  flex-shrink: 0;\n  align-self: flex-end;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  padding: 10px 14px 10px 0;\n}\n\n.message-box__btn {\n  display: inline-flex;\n  align-items: center;\n  gap: 8px;\n  padding: 6px 16px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 17px;\n  font-weight: 500;\n  line-height: 1.3;\n  white-space: nowrap;\n  transition: filter 0.15s ease;\n}\n\n.message-box__btn:hover:not(:disabled) {\n  filter: brightness(1.15);\n}\n\n.message-box__btn:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box__btn:disabled {\n  background: var(--color-light-grey);\n}\n\n.message-box__btn-icon {\n  width: 18px;\n  height: 18px;\n}\n\n.message-box__field-skeleton {\n  flex: 1;\n  height: 67px;\n  border-radius: 14px;\n}\n\n.message-box__warning {\n  align-self: flex-start;\n  margin-left: 54px;\n  padding: 8px 18px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  font-size: 12px;\n  line-height: 1.35;\n}\n\n@container message-box (max-width: 560px) {\n  .message-box__row {\n    gap: 10px;\n  }\n\n  .message-box__field {\n    flex-wrap: wrap;\n  }\n\n  .message-box__field-content {\n    flex-basis: 100%;\n  }\n\n  .message-box__actions {\n    flex-wrap: wrap;\n    width: 100%;\n    gap: 8px;\n    padding: 8px 10px 10px;\n  }\n\n  .message-box__btn {\n    flex: 1 1 0;\n    justify-content: center;\n    gap: 6px;\n    padding: 7px 8px;\n    font-size: 14px;\n  }\n\n  .message-box__btn-icon {\n    width: 15px;\n    height: 15px;\n  }\n\n  .message-box__input {\n    max-height: 104px;\n    padding: 10px 14px;\n    font-size: 15px;\n  }\n}\n\n.message-box__avatar-btn {\n  flex-shrink: 0;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: none;\n}\n\n.message-box__input-row {\n  display: flex;\n  align-items: flex-start;\n}\n\n.message-box__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 10px 0 10px 18px;\n  font-size: 16px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.message-box__mention + .message-box__input {\n  padding-left: 6px;\n}\n\n.message-box--yoursay .message-box__login {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .message-box__login:hover {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .message-box__login:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.snackbar {\n  position: fixed;\n  bottom: 24px;\n  left: 50%;\n  z-index: 1100;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  width: max-content;\n  max-width: calc(100% - 32px);\n  padding: 14px 12px 14px 16px;\n  border-left: 4px solid var(--color-navy);\n  border-radius: 10px;\n  background: var(--color-white);\n  box-shadow: 0 12px 32px var(--color-sheet-shadow);\n  color: var(--color-text);\n  font-size: 14px;\n  font-weight: 600;\n  line-height: 1.4;\n  transform: translateX(-50%);\n  animation: snackbar-slide-up 0.25s ease-out;\n}\n\n@keyframes snackbar-slide-up {\n  from {\n    opacity: 0;\n    transform: translate(-50%, 16px);\n  }\n}\n\n.snackbar__action {\n  flex-shrink: 0;\n  padding: 4px 8px;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font-weight: 600;\n}\n\n.snackbar__close {\n  flex-shrink: 0;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n}\n\n.snackbar__close img {\n  width: 12px;\n  height: 12px;\n}\n\n.enhance-ai {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 16px;\n  width: 100%;\n  padding-left: 54px;\n}\n\n.enhance-ai__button {\n  flex-shrink: 0;\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n  padding: 4px 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 16px;\n  white-space: nowrap;\n}\n\n.enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-navy);\n}\n\n.enhance-ai__button:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n  border-radius: 4px;\n}\n\n.enhance-ai__button:disabled {\n  cursor: not-allowed;\n}\n\n.enhance-ai__icon {\n  height: 22px;\n}\n\n.enhance-ai__pill {\n  flex: 1 1 260px;\n  min-width: 0;\n  display: flex;\n  align-items: center;\n  gap: 12px;\n  min-height: 36px;\n  padding: 6px 6px 6px 20px;\n  border-radius: 40px;\n  font-size: 15px;\n  line-height: 1.35;\n  animation: enhance-ai-in 0.15s ease;\n}\n\n.enhance-ai__pill--loading {\n  background: var(--color-light-grey);\n  color: var(--color-text-faded);\n}\n\n.enhance-ai__pill--info {\n  background: var(--color-enhance-bg);\n  color: var(--color-text);\n}\n\n.enhance-ai__pill--upsell {\n  padding-right: 20px;\n  background: var(--color-red);\n  color: var(--color-white);\n}\n\n.enhance-ai__text {\n  flex: 1;\n  min-width: 0;\n  overflow-wrap: break-word;\n}\n\n.enhance-ai__text--suggestion {\n  font-weight: 500;\n}\n\n.enhance-ai__use {\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-navy);\n  font: inherit;\n  text-decoration: underline;\n  text-underline-offset: 2px;\n  white-space: nowrap;\n}\n\n.enhance-ai__close {\n  flex-shrink: 0;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 22px;\n  height: 22px;\n  padding: 0;\n  border: none;\n  border-radius: 50%;\n  background: var(--color-white);\n  box-shadow: 0 1px 4px var(--color-cancel-reply-shadow);\n}\n\n.enhance-ai__close img {\n  width: 8px;\n  height: 8px;\n}\n\n.enhance-ai__use:focus-visible,\n.enhance-ai__close:focus-visible {\n  outline: 2px solid var(--color-navy);\n  outline-offset: 2px;\n}\n\n.message-box--yoursay .enhance-ai__button {\n  color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__button:hover:not(:disabled) {\n  color: var(--color-superchat-meta);\n}\n\n.message-box--yoursay .enhance-ai__button:focus-visible {\n  outline-color: var(--color-white);\n}\n\n.message-box--yoursay .enhance-ai__pill--loading {\n  background: var(--color-enhance-loading-dark-bg);\n  color: var(--color-superchat-meta);\n}\n\n@keyframes enhance-ai-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@media (prefers-reduced-motion: reduce) {\n  .enhance-ai__pill {\n    animation: none;\n  }\n}\n\n.sc-sheet {\n  position: absolute;\n  inset: 0;\n  z-index: 30;\n  display: flex;\n  flex-direction: column;\n  justify-content: flex-end;\n}\n\n.sc-sheet__panel {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  max-height: 100%;\n  padding: 10px 16px 14px;\n  overflow-y: auto;\n  border-top: 1px solid var(--color-border);\n  border-radius: 12px 12px 0 0;\n  background: var(--color-white);\n  box-shadow: 0 -12px 40px var(--color-sheet-shadow);\n  animation: sc-sheet-slide 0.25s cubic-bezier(0.4, 0, 0.2, 1);\n}\n\n.sc-sheet__header {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n}\n\n.sc-sheet__close {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: none;\n  background: none;\n}\n\n.sc-sheet__close img {\n  width: 12px;\n  height: 12px;\n  filter: brightness(0);\n  opacity: 0.55;\n}\n\n.sc-sheet__title {\n  font-size: 15px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-sheet__preview {\n  pointer-events: none;\n}\n\n.sc-sheet__amount {\n  display: flex;\n  flex-direction: column;\n  align-items: center;\n  gap: 8px;\n  width: 100%;\n  max-width: 480px;\n  margin-inline: auto;\n}\n\n.sc-sheet__amount-note {\n  color: var(--color-text-subtle);\n  font-size: 12px;\n  line-height: 1.3;\n}\n\n.sc-sheet__slider {\n  position: relative;\n  width: 100%;\n  height: 14px;\n}\n\n.sc-sheet__slider::before,\n.sc-sheet__fill {\n  content: \"\";\n  position: absolute;\n  top: 50%;\n  left: 0;\n  height: 3px;\n  border-radius: 999px;\n  transform: translateY(-50%);\n}\n\n.sc-sheet__slider::before {\n  right: 0;\n  background: var(--color-border);\n}\n\n.sc-sheet__ticks {\n  position: absolute;\n  inset: 0;\n  pointer-events: none;\n}\n\n.sc-sheet__tick {\n  position: absolute;\n  top: 50%;\n  width: 3px;\n  height: 3px;\n  border-radius: 50%;\n  background: var(--color-text);\n  opacity: 0.3;\n  transform: translate(-50%, -50%);\n}\n\n.sc-sheet__tick--on {\n  background: var(--color-white);\n  opacity: 0.9;\n}\n\n.sc-sheet__tick--current {\n  visibility: hidden;\n}\n\n.sc-sheet__range {\n  position: relative;\n  display: block;\n  width: 100%;\n  height: 14px;\n  background: transparent;\n  cursor: pointer;\n  appearance: none;\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range:focus {\n  outline: none;\n}\n\n.sc-sheet__range::-webkit-slider-runnable-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-moz-range-track {\n  height: 3px;\n  background: transparent;\n}\n\n.sc-sheet__range::-webkit-slider-thumb {\n  width: 14px;\n  height: 14px;\n  margin-top: -5.5px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n  -webkit-appearance: none;\n}\n\n.sc-sheet__range::-moz-range-thumb {\n  width: 14px;\n  height: 14px;\n  border: 2px solid var(--color-white);\n  border-radius: 50%;\n  background: var(--sc-tier-color);\n  box-shadow: 0 1px 3px var(--color-sheet-shadow);\n}\n\n.sc-sheet__footer {\n  display: flex;\n  justify-content: center;\n}\n\n.sc-sheet__continue {\n  padding: 8px 22px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n@keyframes sc-sheet-slide {\n  from {\n    transform: translateY(100%);\n  }\n}\n\n.sc-confirm__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.sc-confirm__frame {\n  position: relative;\n  display: flex;\n  width: 100%;\n  max-width: 678px;\n  max-height: 100%;\n}\n\n.sc-confirm {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 20px;\n  min-width: 0;\n  max-height: 100%;\n  padding: 28px 34px 30px;\n  overflow-y: auto;\n  border-radius: 15px;\n  background: linear-gradient(180deg, var(--color-gradient-blue), var(--color-gradient-navy));\n  color: var(--color-white);\n}\n\n.sc-confirm__header {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  gap: 8px;\n}\n\n.sc-confirm__title {\n  font-size: 22px;\n  font-weight: 600;\n  line-height: 1.2;\n}\n\n.sc-confirm__summary {\n  display: flex;\n  flex-direction: column;\n  align-items: flex-start;\n  padding: 18px 28px;\n  border-radius: 12px;\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.sc-confirm__summary-row {\n  display: flex;\n  align-items: flex-end;\n  justify-content: space-between;\n  gap: 12px;\n  width: 100%;\n}\n\n.sc-confirm__summary-row--after {\n  align-items: baseline;\n  margin-top: 10px;\n  padding-top: 10px;\n  border-top: 1px solid var(--color-light-grey);\n}\n\n.sc-confirm__summary-col {\n  display: flex;\n  flex-direction: column;\n  gap: 2px;\n}\n\n.sc-confirm__summary-col--end {\n  align-items: flex-end;\n}\n\n.sc-confirm__summary-label {\n  font-size: 15px;\n  line-height: 1.3;\n}\n\n.sc-confirm__summary-value {\n  font-size: 18px;\n  font-weight: 700;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.sc-confirm__summary-price {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 12px;\n}\n\n.sc-confirm__old-price,\n.sc-confirm__no-change {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  white-space: nowrap;\n}\n\n.sc-confirm__balance {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n}\n\n.sc-confirm__icon {\n  flex-shrink: 0;\n  width: 18px;\n  height: 18px;\n}\n\n.sc-confirm__free {\n  color: var(--color-coins);\n}\n\n.sc-confirm__summary-link {\n  margin-top: 8px;\n  color: var(--color-navy);\n  font-size: 15px;\n  font-weight: 500;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__note {\n  display: flex;\n  align-items: center;\n  gap: 8px;\n  padding: 8px 18px;\n  border: 0.5px solid var(--color-scrollbar-track-dark);\n  border-radius: 20px;\n  background: var(--color-info-pill-bg);\n  box-shadow: 0 0 8px var(--color-info-pill-shadow);\n  font-size: 14px;\n  line-height: 1.35;\n}\n\n.sc-confirm__alert {\n  display: flex;\n  align-items: flex-start;\n  gap: 8px;\n  width: 100%;\n  margin-top: 12px;\n  padding: 8px 14px;\n  border-radius: 6px;\n  background: var(--color-warning-bg);\n  color: var(--color-red);\n  font-size: 15px;\n  line-height: 1.4;\n}\n\n.sc-confirm__alert .sc-confirm__icon {\n  margin-top: 2px;\n}\n\n.sc-confirm__upgrade-link {\n  color: var(--color-yellow);\n  font-weight: 600;\n  text-decoration: underline;\n  text-underline-offset: 3px;\n}\n\n.sc-confirm__error {\n  padding: 6px 14px;\n  border-radius: 999px;\n  background: var(--color-warning-bg);\n  color: var(--color-text);\n  font-size: 12px;\n  line-height: 1.35;\n  text-align: center;\n}\n\n.sc-confirm__actions {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: flex-end;\n  justify-content: flex-end;\n  gap: 12px;\n}\n\n.sc-confirm__submit,\n.sc-confirm__cancel,\n.sc-confirm__buy-btn {\n  display: inline-flex;\n  align-items: center;\n  justify-content: center;\n  padding: 8px 26px;\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-navy);\n  font-size: 18px;\n  font-weight: 500;\n  line-height: 1.3;\n  text-decoration: none;\n  white-space: nowrap;\n}\n\n.sc-confirm__submit {\n  border: 1px solid var(--color-white);\n}\n\n.sc-confirm__buy-btn {\n  border: 1px solid var(--color-yellow);\n  background: var(--color-yellow);\n  color: var(--color-text);\n}\n\n.sc-confirm__cancel {\n  border: 1px solid var(--color-white);\n  background: none;\n  color: var(--color-white);\n}\n\n.sc-confirm__submit:disabled {\n  color: color-mix(in srgb, var(--color-navy) 40%, var(--color-white));\n}\n\n@media (max-width: 480px) {\n  .sc-confirm {\n    gap: 16px;\n    padding: 20px 16px;\n  }\n\n  .sc-confirm__title {\n    font-size: 20px;\n  }\n\n  .sc-confirm__summary {\n    padding: 14px 16px;\n  }\n\n  .sc-confirm__summary-label,\n  .sc-confirm__summary-link {\n    font-size: 14px;\n  }\n\n  .sc-confirm__summary-value {\n    font-size: 16px;\n  }\n\n  .sc-confirm__old-price,\n  .sc-confirm__no-change {\n    font-size: 13px;\n  }\n\n  .sc-confirm__summary-price {\n    gap: 6px;\n  }\n\n  .sc-confirm__summary-row--after {\n    flex-wrap: wrap;\n    row-gap: 4px;\n  }\n\n  .sc-confirm__summary-row--after > :last-child {\n    margin-left: auto;\n  }\n\n  .sc-confirm__note {\n    padding: 8px 14px;\n    font-size: 13px;\n  }\n\n  .sc-confirm__actions {\n    flex-direction: column-reverse;\n    align-items: stretch;\n    gap: 10px;\n  }\n\n  .sc-confirm__submit,\n  .sc-confirm__cancel,\n  .sc-confirm__buy-btn {\n    padding: 10px 20px;\n    font-size: 16px;\n  }\n}\n\n.mod-dialog__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  padding: 16px;\n  background: var(--color-scrim);\n}\n\n.mod-dialog {\n  display: flex;\n  flex-direction: column;\n  gap: 14px;\n  width: 100%;\n  max-width: 560px;\n  max-height: 100%;\n  padding: 14px;\n  overflow-y: auto;\n  border-radius: 16px;\n  background: var(--color-white);\n  box-shadow: 0 12px 32px var(--color-dialog-shadow);\n}\n\n.mod-dialog__card {\n  display: flex;\n  flex-direction: column;\n  gap: 12px;\n  padding: 16px 14px;\n  border: 1px solid var(--color-border);\n  border-radius: 8px;\n}\n\n.mod-dialog__heading {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 8px 10px;\n}\n\n.mod-dialog__title {\n  font-size: 17px;\n  font-weight: 400;\n  line-height: 1.2;\n}\n\n.mod-dialog__title--ai {\n  display: inline-flex;\n  align-items: baseline;\n  gap: 4px;\n}\n\n.mod-dialog__ai {\n  flex-shrink: 0;\n  height: 20px;\n}\n\n.mod-dialog__pill {\n  padding: 3px 12px;\n  border-radius: 100px;\n  color: var(--color-white);\n  font-size: 12px;\n  line-height: 1.3;\n  white-space: nowrap;\n}\n\n.mod-dialog__pill--warning {\n  background: var(--color-red);\n}\n\n.mod-dialog__pill--recommended {\n  background: var(--color-recommended);\n}\n\n.mod-dialog__row {\n  display: flex;\n  align-items: center;\n  gap: 16px;\n}\n\n.mod-dialog__message {\n  flex: 1;\n  min-width: 0;\n  font-size: 13px;\n  line-height: 1.45;\n  overflow-wrap: break-word;\n}\n\n.mod-dialog__action {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 8px;\n  height: 40px;\n  padding: 0 18px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 15px;\n  font-weight: 500;\n  white-space: nowrap;\n}\n\n.mod-dialog__action-icon {\n  width: 16px;\n  height: 14px;\n}\n\n.mod-dialog__row--locked {\n  padding: 10px 12px;\n  border: 1px dashed var(--color-text);\n  border-radius: 6px;\n  background: var(--color-locked-suggestion-bg);\n  user-select: none;\n}\n\n.mod-dialog__row--locked > * {\n  filter: blur(4px);\n}\n\n.mod-dialog__upsell {\n  color: var(--color-red);\n  font-size: 14px;\n  font-weight: 600;\n}\n\n.mod-dialog__footer {\n  display: flex;\n  justify-content: flex-end;\n}\n\n.mod-dialog__cancel {\n  height: 40px;\n  padding: 0 18px;\n  border: 1px solid var(--color-cancel-btn-border);\n  border-radius: 100px;\n  background: linear-gradient(180deg, var(--color-cancel-btn-from), var(--color-border));\n  font-size: 15px;\n}\n\n@media (max-width: 480px) {\n  .mod-dialog__row:not(.mod-dialog__row--locked) {\n    flex-direction: column;\n    align-items: stretch;\n  }\n\n  .mod-dialog__action {\n    justify-content: center;\n  }\n}\n\n.thread-modal {\n  position: absolute;\n  inset: 0;\n  z-index: 25;\n  display: flex;\n  flex-direction: column;\n  background: var(--color-white);\n}\n\n.thread-modal__header {\n  display: grid;\n  grid-template-columns: 1fr auto 1fr;\n  align-items: center;\n  padding: 12px 16px;\n  border-bottom: 1px solid var(--color-border);\n}\n\n.thread-modal__back {\n  justify-self: start;\n  display: inline-flex;\n  align-items: center;\n  gap: 10px;\n  padding: 0;\n  border: none;\n  background: none;\n  color: var(--color-text);\n  font-size: 13px;\n  text-transform: uppercase;\n}\n\n.thread-modal__back-icon {\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  width: 28px;\n  height: 28px;\n  border: 1.5px solid var(--color-text);\n  border-radius: 50%;\n}\n\n.thread-modal__back-icon svg {\n  width: 16px;\n  height: 16px;\n}\n\n.thread-modal__title {\n  font-size: 13px;\n  font-weight: 500;\n  text-transform: uppercase;\n}\n\n.thread-modal__close {\n  justify-self: end;\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.thread-modal__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.thread-modal__body {\n  flex: 1;\n  min-height: 0;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.thread-modal__status {\n  padding: 8px 16px;\n  font-size: 12px;\n  color: var(--color-text-subtle);\n}\n\n.thread-modal__footer {\n  padding: 10px 16px 12px;\n  border-top: 1px solid var(--color-border);\n}\n\n.thread-modal__field {\n  display: flex;\n  align-items: flex-start;\n  border: 1px solid var(--color-navy);\n  border-radius: 6px;\n  background: var(--color-white);\n}\n\n.thread-modal__mention {\n  flex-shrink: 0;\n  max-width: 50%;\n  padding: 8px 0 8px 12px;\n  font-size: 15px;\n  font-weight: 700;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.thread-modal__input {\n  flex: 1;\n  min-width: 0;\n  max-height: 120px;\n  padding: 8px 12px;\n  border: none;\n  background: transparent;\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.thread-modal__input:focus {\n  outline: none;\n}\n\n.thread-modal__error {\n  margin-top: 6px;\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.thread-modal__mention + .thread-modal__input {\n  padding-left: 6px;\n}\n\n.user-panel__backdrop {\n  position: fixed;\n  inset: 0;\n  z-index: 1000;\n  display: flex;\n  justify-content: flex-end;\n  background: var(--color-scrim);\n  animation: user-panel-fade-in 250ms ease-out;\n}\n\n.user-panel__backdrop--closing {\n  animation: user-panel-fade-out 250ms ease-in forwards;\n}\n\n.user-panel {\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  max-width: 540px;\n  height: 100%;\n  background: var(--color-white);\n  box-shadow: -4px 0 24px var(--color-sheet-shadow);\n  animation: user-panel-slide-in 250ms ease-out;\n}\n\n.user-panel--closing {\n  animation: user-panel-slide-out 250ms ease-in forwards;\n}\n\n@keyframes user-panel-fade-in {\n  from {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-fade-out {\n  to {\n    opacity: 0;\n  }\n}\n\n@keyframes user-panel-slide-in {\n  from {\n    transform: translateX(100%);\n  }\n}\n\n@keyframes user-panel-slide-out {\n  to {\n    transform: translateX(100%);\n  }\n}\n\n.user-panel__header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 12px;\n  padding: 20px 20px 18px;\n  border-bottom: 1px solid var(--color-light-grey);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n.user-panel__title {\n  flex: 1;\n  min-width: 0;\n  font-size: 20px;\n  font-weight: 600;\n  line-height: 30px;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__signout {\n  display: inline-flex;\n  flex-shrink: 0;\n  align-items: center;\n  gap: 6px;\n  padding: 6px 14px;\n  border: none;\n  border-radius: 100px;\n  background: var(--color-red);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 600;\n}\n\n.user-panel__signout svg {\n  width: 16px;\n  height: 16px;\n}\n\n.user-panel__close {\n  display: flex;\n  padding: 4px;\n  border: none;\n  background: none;\n  color: var(--color-text);\n}\n\n.user-panel__close svg {\n  width: 14px;\n  height: 14px;\n}\n\n.user-panel__body {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n  padding: 0 20px;\n  overflow-y: auto;\n  overscroll-behavior: contain;\n}\n\n.user-panel__item {\n  flex-shrink: 0;\n  display: flex;\n  gap: 14px;\n  padding: 18px 0;\n  border-bottom: 1px solid var(--color-light-grey);\n}\n\n.user-panel__item-icon {\n  flex-shrink: 0;\n  width: 20px;\n  height: 20px;\n  margin-top: 1px;\n  object-fit: contain;\n}\n\n.user-panel__item-content {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  gap: 8px;\n  min-width: 0;\n}\n\n.user-panel__item-header {\n  display: flex;\n  flex-wrap: wrap;\n  align-items: center;\n  gap: 4px 8px;\n}\n\n.user-panel__item-title {\n  font-size: 15px;\n  line-height: 1.4;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__quote {\n  color: var(--color-text-subtle);\n  font-size: 15px;\n  line-height: 1.4;\n  white-space: pre-wrap;\n  overflow-wrap: anywhere;\n}\n\n.user-panel__removal-reason {\n  margin-top: 4px;\n  color: var(--color-red);\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.user-panel__item-time {\n  color: var(--color-message-meta);\n  font-size: 13px;\n}\n\n.user-panel__tag {\n  padding: 1px 8px;\n  border-radius: 999px;\n  background: var(--color-superchat-1);\n  color: var(--color-white);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.user-panel__status {\n  padding: 16px;\n  font-size: 13px;\n  color: var(--color-text-subtle);\n  text-align: center;\n}\n\n.user-panel__appeal {\n  display: inline-flex;\n  align-items: center;\n  gap: 6px;\n  margin-left: auto;\n  padding: 4px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 999px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.user-panel__appeal svg {\n  width: 14px;\n  height: 14px;\n}\n\n.user-panel__appeal-tag {\n  padding: 1px 8px;\n  border: 1px solid;\n  border-radius: 999px;\n  background: var(--color-white);\n  font-size: 11px;\n  font-weight: 600;\n}\n\n.user-panel__appeal-tag--open {\n  color: var(--color-rank-champion-to);\n}\n\n.user-panel__appeal-tag--restored {\n  color: var(--color-recommended);\n}\n\n.user-panel__appeal-tag--rejected {\n  color: var(--color-red);\n}\n\n.appeal-form {\n  display: flex;\n  flex-direction: column;\n  gap: 8px;\n}\n\n.appeal-form__note {\n  color: var(--color-text-subtle);\n  font-size: 13px;\n  line-height: 1.4;\n}\n\n.appeal-form__input {\n  width: 100%;\n  max-height: 140px;\n  padding: 8px 12px;\n  border: 1px solid var(--color-border);\n  border-radius: 10px;\n  background: var(--color-white);\n  color: var(--color-text);\n  font-size: 15px;\n  line-height: 1.4;\n  resize: none;\n}\n\n.appeal-form__input:focus {\n  outline: none;\n  border-color: var(--color-navy);\n}\n\n.appeal-form__error {\n  font-size: 12px;\n  color: var(--color-red);\n}\n\n.appeal-form__actions {\n  display: flex;\n  justify-content: flex-end;\n  gap: 8px;\n}\n\n.appeal-form__btn {\n  padding: 4px 14px;\n  border: none;\n  border-radius: 999px;\n  background: var(--color-navy);\n  color: var(--color-white);\n  font-size: 13px;\n  font-weight: 500;\n}\n\n.appeal-form__btn:disabled {\n  background: var(--color-light-grey);\n  color: var(--color-text-subtle);\n}\n\n.appeal-form__btn--cancel {\n  border: 1px solid var(--color-border);\n  background: var(--color-white);\n  color: var(--color-text);\n}\n\n* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n:host {\n  --color-text: #000f55;\n  --color-text-placeholder: #A4A4A4;\n  --color-text-faded: #000F5580;\n  --color-enhance-bg: #E5F6FF;\n  --color-enhance-loading-dark-bg: #1938a6;\n  --color-navy: #004be3;\n  --color-border: #D4D7E3;\n  --color-white: #ffffff;\n  --color-text-subtle: #898989;\n  --color-message-meta: #909090;\n  --color-superchat-meta: #b1b1b1;\n  --color-blue: #2f6fed;\n  --color-light-grey: #EBEBEB;\n  --color-tab-border: #CBCBCB;\n  --color-coins: #22AB00;\n  --color-menu-border: #ACACAC;\n  --color-menu-shadow: #00000040;\n  --color-go-to-top-shadow: #101a3d14;\n  --color-soft-shadow: #101a3d1f;\n  --color-tier-friend-bg: #000e55;\n  --color-tier-supporter-bg: #fcebdf;\n  --color-tier-defender-bg: #ededed;\n  --color-tier-champion-bg: #fff1d0;\n  --color-avatar-1: #e07a5f;\n  --color-avatar-2: #3d7068;\n  --color-avatar-3: #4f6d9a;\n  --color-avatar-4: #8a5a44;\n  --color-avatar-5: #6b5ca5;\n  --color-avatar-6: #2f8f7a;\n  --color-avatar-7: #c9752f;\n  --color-avatar-8: #4a90c4;\n  --color-skeleton-shine: #f7f9fd;\n  --color-superchat-1: #031762;\n  --color-superchat-2: #0a2a8f;\n  --color-superchat-3: #0f3dbd;\n  --color-superchat-4: #014be3;\n  --color-gradient-blue: #2043bd;\n  --color-gradient-navy: #00135a;\n  --color-scrollbar-thumb: #CCCCCC;\n  --color-scrollbar-track-dark: #ffffff4d;\n  --color-info-pill-bg: #ffffff1a;\n  --color-info-pill-shadow: #00000012;\n  --color-yellow: #ffd86b;\n  --color-scrim: #00000033;\n  --color-sheet-shadow: #101a3d40;\n  --color-confirm-close: #eb0000;\n  --color-dialog-shadow: #101a3d2e;\n  --color-red: #d70000;\n  --color-warning-bg: #fff0f0;\n  --color-recommended: #39933C;\n  --color-locked-suggestion-bg: #E5F6FF80;\n  --color-cancel-btn-from: #f0f7fd;\n  --color-cancel-btn-border: #d8e1f0;\n  --color-rank-supporter-from: #f6ba92;\n  --color-rank-supporter-to: #c38154;\n  --color-rank-defender-from: #c2c2c2;\n  --color-rank-defender-to: #818181;\n  --color-rank-champion-from: #ffc241;\n  --color-rank-champion-to: #e99300;\n  --color-shadow: #0000001a;\n  --color-reaction-picker-border: #9B9B9B;\n  --color-reaction-label-bg: #000F55CC;\n  --color-cancel-reply-shadow: #00000026;\n  --color-red-label-from: #eb0101;\n  --color-red-label-to: #b90000;\n\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  font-family: \"Noto Sans\", sans-serif;\n  color: var(--color-text);\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n:host,\n:host(:focus),\n:host(:focus-within) {\n  outline: none !important;\n}\n\n:host > div {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\nbutton,\ntextarea {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\nbutton:disabled {\n  cursor: not-allowed;\n}\n";
 	//#endregion
 	//#region node_modules/react/cjs/react-jsx-dev-runtime.development.js
 	/**
@@ -20705,7 +20719,8 @@
 	var { getState: getState$3, setState: setState$4, useStore: useStore$4 } = createStore({
 		status: AUTH_STATUS.CHECKING,
 		user: null,
-		profile: PROFILE_PENDING
+		profile: PROFILE_PENDING,
+		standing: null
 	});
 	var getAuthState = getState$3;
 	var setUser = (user) => setState$4({
@@ -20715,10 +20730,12 @@
 	var setGuest = () => setState$4({
 		status: AUTH_STATUS.GUEST,
 		user: null,
-		profile: PROFILE_PENDING
+		profile: PROFILE_PENDING,
+		standing: null
 	});
 	var setProfile = (profile) => setState$4({ profile });
 	var resetProfile = () => setState$4({ profile: PROFILE_PENDING });
+	var setStanding = (standing) => setState$4({ standing });
 	var useAuth = useStore$4;
 	//#endregion
 	//#region src/utils/dom.ts
@@ -25145,7 +25162,10 @@
 					else pendingCounts.set(message_id, counts);
 				});
 				break;
-			case LIVE_FRAME_TYPE.ROOM_MODE: setRoomMode(frame.data.mode);
+			case LIVE_FRAME_TYPE.ROOM_MODE:
+				setRoomMode(frame.data.mode);
+				break;
+			case LIVE_FRAME_TYPE.USER_STATE: setStanding(frame.data);
 		}
 	};
 	var applyLiveMessage = (message) => {
@@ -25374,22 +25394,6 @@
 		clearUserMessages();
 	};
 	//#endregion
-	//#region src/utils/message.ts
-	var getReplyParentId = (message, maxDepth = 1) => message.depth < maxDepth ? message.id : message.parent_id ?? message.root_id;
-	var isVisibleMessage = (message) => message.status === MESSAGE_STATUS.PUBLISHED || message.status === MESSAGE_STATUS.HELD;
-	var getVisibleReplies = (replies, parentId) => replies.filter((reply) => reply.parent_id === parentId && isVisibleMessage(reply));
-	var getSuperChatTier = (extraCoins) => SUPERCHAT_TIERS.findLast((tier) => extraCoins >= tier.extraCoins) ?? SUPERCHAT_TIERS[0];
-	var getAuthorName = (author, authorId = "") => {
-		return [author?.first_name, author?.last_name].map((part) => part?.trim()).filter(Boolean).join(" ") || author?.display_name?.trim() || authorId;
-	};
-	var getAuthorRank = (author) => Object.values(USER_RANK).find((rank) => rank === author?.membership_tier?.toLowerCase()) ?? USER_RANK.FRIEND;
-	//#endregion
-	//#region src/store/slices/replySlice.ts
-	var { setState, useStore } = createStore({ replyTo: null });
-	var startReply = (replyTo) => setState({ replyTo });
-	var cancelReply = () => setState({ replyTo: null });
-	var useReply = useStore;
-	//#endregion
 	//#region src/utils/format.ts
 	var formatRelativeTime = (isoDate) => {
 		const seconds = Math.floor(Math.max(0, Date.now() - new Date(isoDate).getTime()) / 1e3);
@@ -25411,6 +25415,12 @@
 		}
 		return `${seconds} ${seconds === 1 ? "second" : "seconds"}`;
 	};
+	var formatDateTime = (isoDate) => new Date(isoDate).toLocaleString(LOCALE, {
+		day: "numeric",
+		month: "short",
+		hour: "2-digit",
+		minute: "2-digit"
+	});
 	var formatCoins = (coins) => `${coins.toLocaleString(LOCALE)} ${coins === 1 ? "Coin" : "Coins"}`;
 	var formatNextMonthStart = () => {
 		const now = /* @__PURE__ */ new Date();
@@ -25419,6 +25429,29 @@
 			year: "2-digit"
 		})}`;
 	};
+	//#endregion
+	//#region src/utils/message.ts
+	var getReplyParentId = (message, maxDepth = 1) => message.depth < maxDepth ? message.id : message.parent_id ?? message.root_id;
+	var isUnderReview = (message) => message.status === MESSAGE_STATUS.HELD || message.status === MESSAGE_STATUS.PENDING;
+	var isVisibleMessage = (message, userId) => message.status === MESSAGE_STATUS.PUBLISHED || isUnderReview(message) && message.author_id === userId;
+	var getVisibleReplies = (replies, parentId, userId) => replies.filter((reply) => reply.parent_id === parentId && isVisibleMessage(reply, userId));
+	var getComposerLockText = (mode, standing) => {
+		if (standing?.state === USER_STATE.BANNED) return BANNED_PLACEHOLDER;
+		if (standing?.state === USER_STATE.SUSPENDED) return standing.until ? SUSPENDED_UNTIL_PLACEHOLDER(formatDateTime(standing.until)) : SUSPENDED_PLACEHOLDER;
+		if (mode === ROOM_MODE.CLOSED) return CLOSED_PLACEHOLDER;
+		return null;
+	};
+	var getSuperChatTier = (extraCoins) => SUPERCHAT_TIERS.findLast((tier) => extraCoins >= tier.extraCoins) ?? SUPERCHAT_TIERS[0];
+	var getAuthorName = (author, authorId = "") => {
+		return [author?.first_name, author?.last_name].map((part) => part?.trim()).filter(Boolean).join(" ") || author?.display_name?.trim() || authorId;
+	};
+	var getAuthorRank = (author) => Object.values(USER_RANK).find((rank) => rank === author?.membership_tier?.toLowerCase()) ?? USER_RANK.FRIEND;
+	//#endregion
+	//#region src/store/slices/replySlice.ts
+	var { setState, useStore } = createStore({ replyTo: null });
+	var startReply = (replyTo) => setState({ replyTo });
+	var cancelReply = () => setState({ replyTo: null });
+	var useReply = useStore;
 	//#endregion
 	//#region src/hooks/useClickOutside.ts
 	var useClickOutside = (ref, isActive, onOutside) => {
@@ -26025,13 +26058,13 @@
 							lineNumber: 87,
 							columnNumber: 9
 						}, void 0),
-						message.status === MESSAGE_STATUS.HELD && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+						isUnderReview(message) && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 							className: "message-item__review-tag",
 							children: "Under review"
 						}, void 0, false, {
 							fileName: _jsxFileName$14,
 							lineNumber: 88,
-							columnNumber: 52
+							columnNumber: 36
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageActions, {
 							message,
@@ -26194,11 +26227,12 @@
 	//#region src/sections/comments/messageThread/index.tsx
 	var _jsxFileName$11 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/messageThread/index.tsx";
 	var MessageThread = ({ root }) => {
+		const { user } = useAuth();
 		const { threads } = useComments();
 		const thread = threads[root.id];
 		const isOpen = thread?.isOpen ?? false;
 		const replies = thread?.replies ?? [];
-		const directReplies = getVisibleReplies(replies, root.id);
+		const directReplies = getVisibleReplies(replies, root.id, user?.id);
 		const count = root.reply_count;
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 			className: "message-thread",
@@ -26210,7 +26244,7 @@
 				children: isOpen ? "Hide replies" : `View ${count} ${count === 1 ? "reply" : "replies"}`
 			}, void 0, false, {
 				fileName: _jsxFileName$11,
-				lineNumber: 23,
+				lineNumber: 25,
 				columnNumber: 7
 			}, void 0), isOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 				className: "message-thread__replies",
@@ -26220,7 +26254,7 @@
 						children: "Loading replies..."
 					}, void 0, false, {
 						fileName: _jsxFileName$11,
-						lineNumber: 28,
+						lineNumber: 30,
 						columnNumber: 56
 					}, void 0),
 					thread.status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -26228,37 +26262,37 @@
 						children: ERROR_MESSAGE.LOAD_REPLIES
 					}, void 0, false, {
 						fileName: _jsxFileName$11,
-						lineNumber: 29,
+						lineNumber: 31,
 						columnNumber: 55
 					}, void 0),
 					directReplies.map((reply) => {
-						const replyCount = getVisibleReplies(replies, reply.id).length;
+						const replyCount = getVisibleReplies(replies, reply.id, user?.id).length;
 						return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, { message: reply }, void 0, false, {
 							fileName: _jsxFileName$11,
-							lineNumber: 34,
+							lineNumber: 36,
 							columnNumber: 17
 						}, void 0), replyCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RepliesButton, {
 							message: reply,
 							count: replyCount
 						}, void 0, false, {
 							fileName: _jsxFileName$11,
-							lineNumber: 35,
+							lineNumber: 37,
 							columnNumber: 36
 						}, void 0)] }, reply.id, true, {
 							fileName: _jsxFileName$11,
-							lineNumber: 33,
+							lineNumber: 35,
 							columnNumber: 15
 						}, void 0);
 					})
 				]
 			}, void 0, true, {
 				fileName: _jsxFileName$11,
-				lineNumber: 27,
+				lineNumber: 29,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
 			fileName: _jsxFileName$11,
-			lineNumber: 22,
+			lineNumber: 24,
 			columnNumber: 5
 		}, void 0);
 	};
@@ -26266,27 +26300,29 @@
 	//#region src/sections/comments/threadModal/index.tsx
 	var _jsxFileName$10 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/threadModal/index.tsx";
 	var ThreadModal = () => {
-		const { status } = useAuth();
+		const { status, user, standing } = useAuth();
 		const { threads, threadStack, settings } = useComments();
 		const current = threadStack[threadStack.length - 1];
 		const thread = threads[current.rootId];
 		const replies = thread?.replies ?? [];
 		const focused = replies.find((reply) => reply.id === current.id);
-		const directReplies = focused ? getVisibleReplies(replies, focused.id) : [];
+		const directReplies = focused ? getVisibleReplies(replies, focused.id, user?.id) : [];
 		const [replyTarget, setReplyTarget] = (0, import_react.useState)(null);
 		const [text, setText] = (0, import_react.useState)("");
 		const [isSending, setIsSending] = (0, import_react.useState)(false);
 		const [error, setError] = (0, import_react.useState)(null);
 		const inputRef = (0, import_react.useRef)(null);
 		const isLoggedIn = status === AUTH_STATUS.AUTHENTICATED;
-		const isClosed = settings?.mode === ROOM_MODE.CLOSED;
+		const lockText = getComposerLockText(settings?.mode, standing);
+		const isLocked = Boolean(lockText);
+		const isTooLong = text.trim().length > MESSAGE_MAX_LENGTH;
 		const handleItemReply = (message) => {
 			setReplyTarget(message);
 			inputRef.current?.focus();
 		};
 		const send = async () => {
 			const body = text.trim();
-			if (!body || !replyTarget || isSending || isClosed) return;
+			if (!body || !replyTarget || isSending || isLocked || isTooLong) return;
 			setIsSending(true);
 			setError(null);
 			try {
@@ -26326,22 +26362,22 @@
 										strokeLinejoin: "round"
 									}, void 0, false, {
 										fileName: _jsxFileName$10,
-										lineNumber: 60,
+										lineNumber: 62,
 										columnNumber: 15
 									}, void 0)
 								}, void 0, false, {
 									fileName: _jsxFileName$10,
-									lineNumber: 59,
+									lineNumber: 61,
 									columnNumber: 13
 								}, void 0)
 							}, void 0, false, {
 								fileName: _jsxFileName$10,
-								lineNumber: 58,
+								lineNumber: 60,
 								columnNumber: 11
 							}, void 0), "Back"]
 						}, void 0, true, {
 							fileName: _jsxFileName$10,
-							lineNumber: 57,
+							lineNumber: 59,
 							columnNumber: 9
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
@@ -26350,7 +26386,7 @@
 							children: "Reply thread"
 						}, void 0, false, {
 							fileName: _jsxFileName$10,
-							lineNumber: 65,
+							lineNumber: 67,
 							columnNumber: 9
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -26369,23 +26405,23 @@
 									strokeLinecap: "round"
 								}, void 0, false, {
 									fileName: _jsxFileName$10,
-									lineNumber: 70,
+									lineNumber: 72,
 									columnNumber: 13
 								}, void 0)
 							}, void 0, false, {
 								fileName: _jsxFileName$10,
-								lineNumber: 69,
+								lineNumber: 71,
 								columnNumber: 11
 							}, void 0)
 						}, void 0, false, {
 							fileName: _jsxFileName$10,
-							lineNumber: 68,
+							lineNumber: 70,
 							columnNumber: 9
 						}, void 0)
 					]
 				}, void 0, true, {
 					fileName: _jsxFileName$10,
-					lineNumber: 56,
+					lineNumber: 58,
 					columnNumber: 7
 				}, void 0),
 				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -26396,7 +26432,7 @@
 							children: "Loading replies..."
 						}, void 0, false, {
 							fileName: _jsxFileName$10,
-							lineNumber: 76,
+							lineNumber: 78,
 							columnNumber: 55
 						}, void 0),
 						thread?.status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -26404,7 +26440,7 @@
 							children: ERROR_MESSAGE.LOAD_REPLIES
 						}, void 0, false, {
 							fileName: _jsxFileName$10,
-							lineNumber: 77,
+							lineNumber: 79,
 							columnNumber: 54
 						}, void 0),
 						focused && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, {
@@ -26412,102 +26448,114 @@
 							onReply: () => handleItemReply(focused)
 						}, void 0, false, {
 							fileName: _jsxFileName$10,
-							lineNumber: 78,
+							lineNumber: 80,
 							columnNumber: 21
 						}, void 0),
 						directReplies.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 							className: "message-thread__replies",
 							children: directReplies.map((reply) => {
-								const replyCount = getVisibleReplies(replies, reply.id).length;
+								const replyCount = getVisibleReplies(replies, reply.id, user?.id).length;
 								return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageItem, {
 									message: reply,
 									onReply: () => handleItemReply(reply)
 								}, void 0, false, {
 									fileName: _jsxFileName$10,
-									lineNumber: 85,
+									lineNumber: 87,
 									columnNumber: 19
 								}, void 0), replyCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RepliesButton, {
 									message: reply,
 									count: replyCount
 								}, void 0, false, {
 									fileName: _jsxFileName$10,
-									lineNumber: 86,
+									lineNumber: 88,
 									columnNumber: 38
 								}, void 0)] }, reply.id, true, {
 									fileName: _jsxFileName$10,
-									lineNumber: 84,
+									lineNumber: 86,
 									columnNumber: 17
 								}, void 0);
 							})
 						}, void 0, false, {
 							fileName: _jsxFileName$10,
-							lineNumber: 80,
+							lineNumber: 82,
 							columnNumber: 11
 						}, void 0)
 					]
 				}, void 0, true, {
 					fileName: _jsxFileName$10,
-					lineNumber: 75,
+					lineNumber: 77,
 					columnNumber: 7
 				}, void 0),
 				replyTarget && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("footer", {
 					className: "thread-modal__footer",
-					children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-						className: "thread-modal__field",
-						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-							className: "thread-modal__mention",
-							children: ["@", getAuthorName(replyTarget.author, replyTarget.author_id)]
+					children: [
+						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "thread-modal__field",
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+								className: "thread-modal__mention",
+								children: ["@", getAuthorName(replyTarget.author, replyTarget.author_id)]
+							}, void 0, true, {
+								fileName: _jsxFileName$10,
+								lineNumber: 100,
+								columnNumber: 13
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
+								ref: inputRef,
+								autoFocus: true,
+								className: "thread-modal__input",
+								placeholder: lockText ?? (isLoggedIn ? "Add your reply" : "Log in to reply"),
+								"aria-label": "Add your reply",
+								rows: 1,
+								value: text,
+								onChange: (event) => {
+									setText(event.target.value);
+									setError(null);
+								},
+								onKeyDown: (event) => {
+									if (event.key === "Enter" && !event.shiftKey) {
+										event.preventDefault();
+										send();
+									}
+								},
+								readOnly: isSending,
+								disabled: !isLoggedIn || isLocked
+							}, void 0, false, {
+								fileName: _jsxFileName$10,
+								lineNumber: 101,
+								columnNumber: 13
+							}, void 0)]
 						}, void 0, true, {
 							fileName: _jsxFileName$10,
 							lineNumber: 98,
-							columnNumber: 13
-						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
-							ref: inputRef,
-							autoFocus: true,
-							className: "thread-modal__input",
-							placeholder: isClosed ? "Comments are closed" : isLoggedIn ? "Add your reply" : "Log in to reply",
-							"aria-label": "Add your reply",
-							rows: 1,
-							value: text,
-							onChange: (event) => {
-								setText(event.target.value);
-								setError(null);
-							},
-							onKeyDown: (event) => {
-								if (event.key === "Enter" && !event.shiftKey) {
-									event.preventDefault();
-									send();
-								}
-							},
-							readOnly: isSending,
-							disabled: !isLoggedIn || isClosed
+							columnNumber: 11
+						}, void 0),
+						isTooLong && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+							className: "thread-modal__error",
+							role: "alert",
+							children: "Your comment is too long. Please keep it under 4000 characters."
 						}, void 0, false, {
 							fileName: _jsxFileName$10,
-							lineNumber: 99,
+							lineNumber: 124,
 							columnNumber: 13
-						}, void 0)]
-					}, void 0, true, {
-						fileName: _jsxFileName$10,
-						lineNumber: 96,
-						columnNumber: 11
-					}, void 0), error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-						className: "thread-modal__error",
-						role: "alert",
-						children: error
-					}, void 0, false, {
-						fileName: _jsxFileName$10,
-						lineNumber: 122,
-						columnNumber: 13
-					}, void 0)]
+						}, void 0),
+						error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+							className: "thread-modal__error",
+							role: "alert",
+							children: error
+						}, void 0, false, {
+							fileName: _jsxFileName$10,
+							lineNumber: 129,
+							columnNumber: 13
+						}, void 0)
+					]
 				}, void 0, true, {
 					fileName: _jsxFileName$10,
-					lineNumber: 95,
+					lineNumber: 97,
 					columnNumber: 9
 				}, void 0)
 			]
 		}, void 0, true, {
 			fileName: _jsxFileName$10,
-			lineNumber: 55,
+			lineNumber: 57,
 			columnNumber: 5
 		}, void 0);
 	};
@@ -26738,12 +26786,12 @@
 			" ",
 			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: getAuthorName(message.parent_author, message.parent_author_id) }, void 0, false, {
 				fileName: _jsxFileName$7,
-				lineNumber: 54,
+				lineNumber: 53,
 				columnNumber: 32
 			}, void 0)
 		] }, void 0, true, {
 			fileName: _jsxFileName$7,
-			lineNumber: 53,
+			lineNumber: 52,
 			columnNumber: 7
 		}, void 0);
 		if (type === ACTIVITY_TYPE.REACTION && reaction === "1f44d") return LIKED_LABEL;
@@ -26795,7 +26843,7 @@
 						children: [
 							isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 116,
+								lineNumber: 115,
 								columnNumber: 22
 							}, void 0),
 							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
@@ -26804,7 +26852,7 @@
 								children: userName
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 117,
+								lineNumber: 116,
 								columnNumber: 11
 							}, void 0),
 							isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -26823,17 +26871,17 @@
 										strokeLinejoin: "round"
 									}, void 0, false, {
 										fileName: _jsxFileName$7,
-										lineNumber: 123,
+										lineNumber: 122,
 										columnNumber: 17
 									}, void 0)
 								}, void 0, false, {
 									fileName: _jsxFileName$7,
-									lineNumber: 122,
+									lineNumber: 121,
 									columnNumber: 15
 								}, void 0), "Sign out"]
 							}, void 0, true, {
 								fileName: _jsxFileName$7,
-								lineNumber: 121,
+								lineNumber: 120,
 								columnNumber: 13
 							}, void 0),
 							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -26852,23 +26900,23 @@
 										strokeLinecap: "round"
 									}, void 0, false, {
 										fileName: _jsxFileName$7,
-										lineNumber: 137,
+										lineNumber: 136,
 										columnNumber: 15
 									}, void 0)
 								}, void 0, false, {
 									fileName: _jsxFileName$7,
-									lineNumber: 136,
+									lineNumber: 135,
 									columnNumber: 13
 								}, void 0)
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 135,
+								lineNumber: 134,
 								columnNumber: 11
 							}, void 0)
 						]
 					}, void 0, true, {
 						fileName: _jsxFileName$7,
-						lineNumber: 115,
+						lineNumber: 114,
 						columnNumber: 9
 					}, void 0),
 					isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Tabs, {
@@ -26877,7 +26925,7 @@
 						onChange: setActivityTab
 					}, void 0, false, {
 						fileName: _jsxFileName$7,
-						lineNumber: 142,
+						lineNumber: 141,
 						columnNumber: 20
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -26890,7 +26938,7 @@
 								children: "Loading comments..."
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 145,
+								lineNumber: 144,
 								columnNumber: 49
 							}, void 0),
 							status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -26898,7 +26946,7 @@
 								children: error
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 146,
+								lineNumber: 145,
 								columnNumber: 48
 							}, void 0),
 							status === REQUEST_STATUS.SUCCEEDED && items.length === 0 && !hasMore && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -26906,7 +26954,7 @@
 								children: emptyText
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 148,
+								lineNumber: 147,
 								columnNumber: 13
 							}, void 0),
 							items.map((item) => {
@@ -26922,7 +26970,7 @@
 										className: "user-panel__item-icon"
 									}, void 0, false, {
 										fileName: _jsxFileName$7,
-										lineNumber: 157,
+										lineNumber: 156,
 										columnNumber: 17
 									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 										className: "user-panel__item-content",
@@ -26939,7 +26987,7 @@
 														]
 													}, void 0, true, {
 														fileName: _jsxFileName$7,
-														lineNumber: 160,
+														lineNumber: 159,
 														columnNumber: 21
 													}, void 0),
 													isSuper && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -26947,7 +26995,7 @@
 														children: "YourSay+"
 													}, void 0, false, {
 														fileName: _jsxFileName$7,
-														lineNumber: 163,
+														lineNumber: 162,
 														columnNumber: 33
 													}, void 0),
 													/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -26955,15 +27003,15 @@
 														children: [formatRelativeTime(item.at), " ago"]
 													}, void 0, true, {
 														fileName: _jsxFileName$7,
-														lineNumber: 164,
+														lineNumber: 163,
 														columnNumber: 21
 													}, void 0),
-													item.message.status === MESSAGE_STATUS.HELD && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+													isUnderReview(item.message) && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 														className: "message-item__review-tag",
 														children: "Under review"
 													}, void 0, false, {
 														fileName: _jsxFileName$7,
-														lineNumber: 166,
+														lineNumber: 165,
 														columnNumber: 23
 													}, void 0),
 													appealTag && item.type !== ACTIVITY_TYPE.REACTION && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -26971,7 +27019,7 @@
 														children: appealTag.label
 													}, void 0, false, {
 														fileName: _jsxFileName$7,
-														lineNumber: 169,
+														lineNumber: 168,
 														columnNumber: 23
 													}, void 0),
 													isRemovedTab && !appeal && appealingId !== item.message.id && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -26990,23 +27038,23 @@
 																strokeLinejoin: "round"
 															}, void 0, false, {
 																fileName: _jsxFileName$7,
-																lineNumber: 180,
+																lineNumber: 179,
 																columnNumber: 27
 															}, void 0)
 														}, void 0, false, {
 															fileName: _jsxFileName$7,
-															lineNumber: 179,
+															lineNumber: 178,
 															columnNumber: 25
 														}, void 0), "Appeal"]
 													}, void 0, true, {
 														fileName: _jsxFileName$7,
-														lineNumber: 174,
+														lineNumber: 173,
 														columnNumber: 23
 													}, void 0)
 												]
 											}, void 0, true, {
 												fileName: _jsxFileName$7,
-												lineNumber: 159,
+												lineNumber: 158,
 												columnNumber: 19
 											}, void 0),
 											/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -27014,7 +27062,7 @@
 												children: item.message.body
 											}, void 0, false, {
 												fileName: _jsxFileName$7,
-												lineNumber: 193,
+												lineNumber: 192,
 												columnNumber: 19
 											}, void 0),
 											isRemovedTab && item.removal_reason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -27022,23 +27070,23 @@
 												children: REMOVAL_REASON_TEXT[item.removal_reason] ?? item.removal_reason
 											}, void 0, false, {
 												fileName: _jsxFileName$7,
-												lineNumber: 195,
+												lineNumber: 194,
 												columnNumber: 21
 											}, void 0),
 											isRemovedTab && !appeal && appealingId === item.message.id && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(AppealForm, { contentId: item.message.id }, void 0, false, {
 												fileName: _jsxFileName$7,
-												lineNumber: 198,
+												lineNumber: 197,
 												columnNumber: 21
 											}, void 0)
 										]
 									}, void 0, true, {
 										fileName: _jsxFileName$7,
-										lineNumber: 158,
+										lineNumber: 157,
 										columnNumber: 17
 									}, void 0)]
 								}, `${item.type}-${item.message.id}-${item.reaction ?? ""}`, true, {
 									fileName: _jsxFileName$7,
-									lineNumber: 156,
+									lineNumber: 155,
 									columnNumber: 15
 								}, void 0);
 							}),
@@ -27047,24 +27095,24 @@
 								children: "Loading more..."
 							}, void 0, false, {
 								fileName: _jsxFileName$7,
-								lineNumber: 204,
+								lineNumber: 203,
 								columnNumber: 29
 							}, void 0)
 						]
 					}, void 0, true, {
 						fileName: _jsxFileName$7,
-						lineNumber: 144,
+						lineNumber: 143,
 						columnNumber: 9
 					}, void 0)
 				]
 			}, void 0, true, {
 				fileName: _jsxFileName$7,
-				lineNumber: 104,
+				lineNumber: 103,
 				columnNumber: 7
 			}, void 0)
 		}, void 0, false, {
 			fileName: _jsxFileName$7,
-			lineNumber: 96,
+			lineNumber: 95,
 			columnNumber: 5
 		}, void 0);
 	};
@@ -27684,13 +27732,13 @@
 		const [hasScrolledTab, setHasScrolledTab] = (0, import_react.useState)(false);
 		const listRef = (0, import_react.useRef)(null);
 		const { isOpen: isSheetOpen } = useSuperChat();
-		const { status: authStatus } = useAuth();
+		const { status: authStatus, user } = useAuth();
 		const { userId: panelUserId } = useUserMessages();
 		const comments = useComments();
 		const { activeTab } = comments;
 		const feed = comments.feeds[activeTab];
 		const isLoaded = Object.values(comments.feeds).some((tabFeed) => tabFeed.status === REQUEST_STATUS.SUCCEEDED);
-		const messages = (0, import_react.useMemo)(() => feed.messages.filter(isVisibleMessage), [feed.messages]);
+		const messages = (0, import_react.useMemo)(() => feed.messages.filter((message) => isVisibleMessage(message, user?.id)), [feed.messages, user?.id]);
 		const newCount = seenTopId ? Math.max(0, messages.findIndex((message) => message.id === seenTopId)) : 0;
 		const emptyText = feed.error ?? CHAT_TABS.find((tab) => tab.id === activeTab)?.emptyText;
 		const isEmpty = messages.length === 0;
@@ -28219,13 +28267,14 @@
 	//#region src/sections/messageBox/index.tsx
 	var _jsxFileName = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/index.tsx";
 	var MessageBox = ({ roomId }) => {
-		const { status, user } = useAuth();
+		const { status, user, standing } = useAuth();
 		const { sentCount, needsModeration, hasResponse: hasSuperChatResponse } = useSuperChat();
 		const { replyTo } = useReply();
 		const { settings, activeTab, removedNotice } = useComments();
 		const isYourSayTab = activeTab === CHAT_TAB.SUPER;
 		const boxClassName = `message-box${isYourSayTab ? " message-box--yoursay" : ""}`;
-		const isClosed = settings?.mode === ROOM_MODE.CLOSED;
+		const lockText = getComposerLockText(settings?.mode, standing);
+		const isLocked = Boolean(lockText);
 		const isAiEnabled = Boolean(settings?.ai_enhance_enabled);
 		const [text, setText] = (0, import_react.useState)("");
 		const [moderationKind, setModerationKind] = (0, import_react.useState)(null);
@@ -28236,7 +28285,8 @@
 		const [prevStatus, setPrevStatus] = (0, import_react.useState)(status);
 		const inputRef = (0, import_react.useRef)(null);
 		const isFlagged = containsProfanity(text);
-		const canSend = Boolean(user && roomId && text.trim()) && !isSending && !isClosed;
+		const isTooLong = text.trim().length > MESSAGE_MAX_LENGTH;
+		const canSend = Boolean(user && roomId && text.trim()) && !isSending && !isLocked && !isTooLong;
 		const mustSendSuperChat = Boolean(replyTo?.isSuperChat);
 		const activeModeration = needsModeration ? MODERATION_KIND.SUPERCHAT : moderationKind;
 		if (status !== prevStatus) {
@@ -28269,8 +28319,8 @@
 			}
 		}, [text]);
 		(0, import_react.useEffect)(() => {
-			if (isClosed) closeSuperChatSheet();
-		}, [isClosed]);
+			if (isLocked) closeSuperChatSheet();
+		}, [isLocked]);
 		const handleCancelReply = () => {
 			setText("");
 			setError(null);
@@ -28342,21 +28392,21 @@
 				"aria-hidden": "true",
 				children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton user-avatar" }, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 189,
+					lineNumber: 193,
 					columnNumber: 11
 				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-box__field-skeleton" }, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 190,
+					lineNumber: 194,
 					columnNumber: 11
 				}, void 0)]
 			}, void 0, true, {
 				fileName: _jsxFileName,
-				lineNumber: 188,
+				lineNumber: 192,
 				columnNumber: 9
 			}, void 0)
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 187,
+			lineNumber: 191,
 			columnNumber: 7
 		}, void 0);
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
@@ -28371,7 +28421,7 @@
 						children: "Log In"
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 200,
+						lineNumber: 204,
 						columnNumber: 11
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -28383,16 +28433,16 @@
 							"aria-label": "Your comments",
 							children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
 								fileName: _jsxFileName,
-								lineNumber: 212,
+								lineNumber: 216,
 								columnNumber: 15
 							}, void 0)
 						}, void 0, false, {
 							fileName: _jsxFileName,
-							lineNumber: 206,
+							lineNumber: 210,
 							columnNumber: 13
 						}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
 							fileName: _jsxFileName,
-							lineNumber: 215,
+							lineNumber: 219,
 							columnNumber: 13
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 							className: "message-box__field",
@@ -28404,7 +28454,7 @@
 										"You are replying to ",
 										/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: [replyTo.userName, "..."] }, void 0, true, {
 											fileName: _jsxFileName,
-											lineNumber: 221,
+											lineNumber: 225,
 											columnNumber: 39
 										}, void 0),
 										/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -28417,18 +28467,18 @@
 												className: "message-box__cancel-icon"
 											}, void 0, false, {
 												fileName: _jsxFileName,
-												lineNumber: 223,
+												lineNumber: 227,
 												columnNumber: 21
 											}, void 0), " Cancel"]
 										}, void 0, true, {
 											fileName: _jsxFileName,
-											lineNumber: 222,
+											lineNumber: 226,
 											columnNumber: 19
 										}, void 0)
 									]
 								}, void 0, true, {
 									fileName: _jsxFileName,
-									lineNumber: 220,
+									lineNumber: 224,
 									columnNumber: 17
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 									className: "message-box__input-row",
@@ -28437,12 +28487,12 @@
 										children: ["@", replyTo.userName]
 									}, void 0, true, {
 										fileName: _jsxFileName,
-										lineNumber: 228,
+										lineNumber: 232,
 										columnNumber: 29
 									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
 										ref: inputRef,
 										className: "message-box__input",
-										placeholder: isClosed ? "Comments are closed" : user ? `Join the conversation, ${user.name}` : "Join the conversation",
+										placeholder: lockText ?? (user ? `Join the conversation, ${user.name}` : "Join the conversation"),
 										"aria-label": user ? "Message" : "Log in to join the conversation",
 										rows: 2,
 										value: text,
@@ -28459,20 +28509,20 @@
 											}
 										},
 										readOnly: isSending,
-										disabled: !user || isClosed
+										disabled: !user || isLocked
 									}, void 0, false, {
 										fileName: _jsxFileName,
-										lineNumber: 229,
+										lineNumber: 233,
 										columnNumber: 17
 									}, void 0)]
 								}, void 0, true, {
 									fileName: _jsxFileName,
-									lineNumber: 227,
+									lineNumber: 231,
 									columnNumber: 15
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 218,
+								lineNumber: 222,
 								columnNumber: 13
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 								className: "message-box__actions",
@@ -28487,12 +28537,12 @@
 										className: "message-box__btn-icon"
 									}, void 0, false, {
 										fileName: _jsxFileName,
-										lineNumber: 266,
+										lineNumber: 264,
 										columnNumber: 19
 									}, void 0)]
 								}, void 0, true, {
 									fileName: _jsxFileName,
-									lineNumber: 264,
+									lineNumber: 262,
 									columnNumber: 17
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 									type: "button",
@@ -28502,22 +28552,22 @@
 									children: "Send YourSay+"
 								}, void 0, false, {
 									fileName: _jsxFileName,
-									lineNumber: 269,
+									lineNumber: 267,
 									columnNumber: 15
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 262,
+								lineNumber: 260,
 								columnNumber: 13
 							}, void 0)]
 						}, void 0, true, {
 							fileName: _jsxFileName,
-							lineNumber: 217,
+							lineNumber: 221,
 							columnNumber: 11
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName,
-						lineNumber: 204,
+						lineNumber: 208,
 						columnNumber: 9
 					}, void 0),
 					isFlagged && !hasResponse && !hasSuperChatResponse && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -28526,7 +28576,16 @@
 						children: "Your message is unethical and breaks our community guidelines."
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 276,
+						lineNumber: 274,
+						columnNumber: 11
+					}, void 0),
+					isTooLong && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						className: "message-box__warning",
+						role: "alert",
+						children: "Your comment is too long. Please keep it under 4000 characters."
+					}, void 0, false, {
+						fileName: _jsxFileName,
+						lineNumber: 279,
 						columnNumber: 11
 					}, void 0),
 					error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -28535,7 +28594,7 @@
 						children: error
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 281,
+						lineNumber: 284,
 						columnNumber: 11
 					}, void 0),
 					isAiEnabled && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(EnhanceWithAi, {
@@ -28543,13 +28602,13 @@
 						isOnGradient: isYourSayTab
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 286,
+						lineNumber: 289,
 						columnNumber: 11
 					}, void 0)
 				]
 			}, void 0, true, {
 				fileName: _jsxFileName,
-				lineNumber: 198,
+				lineNumber: 202,
 				columnNumber: 7
 			}, void 0),
 			removedNotice && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Snackbar, {
@@ -28559,7 +28618,7 @@
 				onClose: dismissRemovedNotice
 			}, removedNotice.id, false, {
 				fileName: _jsxFileName,
-				lineNumber: 290,
+				lineNumber: 293,
 				columnNumber: 9
 			}, void 0),
 			activeModeration && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ModerationDialog, {
@@ -28569,12 +28628,12 @@
 				onClose: handleModerationCancel
 			}, void 0, false, {
 				fileName: _jsxFileName,
-				lineNumber: 299,
+				lineNumber: 302,
 				columnNumber: 9
 			}, void 0)
 		] }, void 0, true, {
 			fileName: _jsxFileName,
-			lineNumber: 197,
+			lineNumber: 201,
 			columnNumber: 5
 		}, void 0);
 	};
