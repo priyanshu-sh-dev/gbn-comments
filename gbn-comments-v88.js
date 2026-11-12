@@ -298,7 +298,8 @@
 	var EDIT_DISABLED_REASON = {
 		ROOM: "Editing is turned off in this room",
 		SUPERCHAT: "YourSay+ can't be edited",
-		EXPIRED: (duration) => `Messages can only be edited within ${duration} of posting`
+		EXPIRED: (duration) => `Messages can only be edited within ${duration} of posting`,
+		LIMIT: (maxEdits) => `Messages can only be edited ${maxEdits} ${maxEdits === 1 ? "time" : "times"}`
 	};
 	var DELETE_DISABLED_REASON = {
 		ROOM: "Deleting is turned off in this room",
@@ -25431,7 +25432,7 @@
 	//#endregion
 	//#region src/components/messageItem/messageActions/index.tsx
 	var _jsxFileName$18 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/messageActions/index.tsx";
-	var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, onEdit }) => {
+	var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, onEdit }) => {
 		const { status } = useAuth();
 		const [isOpen, setIsOpen] = (0, import_react.useState)(false);
 		const [isPickingReason, setIsPickingReason] = (0, import_react.useState)(false);
@@ -25464,13 +25465,19 @@
 		const isSuper = message.kind === MESSAGE_KIND.SUPERCHAT;
 		const editTimeLeft = editableUntil === null ? 0 : editableUntil - now;
 		const canEdit = !isSuper && editTimeLeft > 0;
+		const isEditLimitReached = message.body_version - 1 >= maxEdits;
+		const canEditBody = canEdit && !isEditLimitReached;
+		const getEditDisabledReason = () => {
+			if (canEdit && isEditLimitReached) return EDIT_DISABLED_REASON.LIMIT(maxEdits);
+			return getDisabledReason(EDIT_DISABLED_REASON);
+		};
 		const getDisabledReason = (reasons) => {
 			if (isSuper) return reasons.SUPERCHAT;
 			if (editableUntil === null) return reasons.ROOM;
 			return reasons.EXPIRED(formatDuration(editWindowSec));
 		};
 		const handleEdit = () => {
-			if (!canEdit) return;
+			if (!canEditBody) return;
 			close();
 			onEdit();
 		};
@@ -25529,12 +25536,12 @@
 					className: "message-actions__icon"
 				}, void 0, false, {
 					fileName: _jsxFileName$18,
-					lineNumber: 144,
+					lineNumber: 155,
 					columnNumber: 9
 				}, void 0)
 			}, void 0, false, {
 				fileName: _jsxFileName$18,
-				lineNumber: 129,
+				lineNumber: 140,
 				columnNumber: 7
 			}, void 0), isOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 				className: "message-actions__menu",
@@ -25546,7 +25553,7 @@
 						children: feedback
 					}, void 0, false, {
 						fileName: _jsxFileName$18,
-						lineNumber: 149,
+						lineNumber: 160,
 						columnNumber: 13
 					}, void 0),
 					!feedback && isPickingReason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -25560,12 +25567,12 @@
 							children: label
 						}, reason, false, {
 							fileName: _jsxFileName$18,
-							lineNumber: 156,
+							lineNumber: 167,
 							columnNumber: 17
 						}, void 0))
 					}, void 0, false, {
 						fileName: _jsxFileName$18,
-						lineNumber: 154,
+						lineNumber: 165,
 						columnNumber: 13
 					}, void 0),
 					!feedback && !isPickingReason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
@@ -25574,8 +25581,8 @@
 							role: "menuitem",
 							className: "message-actions__item",
 							onClick: handleEdit,
-							"aria-disabled": !canEdit,
-							title: canEdit ? void 0 : getDisabledReason(EDIT_DISABLED_REASON),
+							"aria-disabled": !canEditBody,
+							title: canEditBody ? void 0 : getEditDisabledReason(),
 							children: [
 								/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
 									src: MESSAGE_ACTION.EDIT.icon,
@@ -25583,15 +25590,15 @@
 									className: "message-actions__item-icon"
 								}, void 0, false, {
 									fileName: _jsxFileName$18,
-									lineNumber: 180,
+									lineNumber: 191,
 									columnNumber: 19
 								}, void 0),
 								MESSAGE_ACTION.EDIT.label,
-								canEdit && ` (${formatCountdown(editTimeLeft)})`
+								canEditBody && ` (${formatCountdown(editTimeLeft)})`
 							]
 						}, void 0, true, {
 							fileName: _jsxFileName$18,
-							lineNumber: 172,
+							lineNumber: 183,
 							columnNumber: 17
 						}, void 0),
 						isOwn && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -25607,12 +25614,12 @@
 								className: "message-actions__item-icon"
 							}, void 0, false, {
 								fileName: _jsxFileName$18,
-								lineNumber: 194,
+								lineNumber: 205,
 								columnNumber: 19
 							}, void 0), MESSAGE_ACTION.DELETE.label]
 						}, void 0, true, {
 							fileName: _jsxFileName$18,
-							lineNumber: 186,
+							lineNumber: 197,
 							columnNumber: 17
 						}, void 0),
 						!isOwn && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -25626,28 +25633,28 @@
 								className: "message-actions__item-icon"
 							}, void 0, false, {
 								fileName: _jsxFileName$18,
-								lineNumber: 206,
+								lineNumber: 217,
 								columnNumber: 19
 							}, void 0), MESSAGE_ACTION.REPORT.label]
 						}, void 0, true, {
 							fileName: _jsxFileName$18,
-							lineNumber: 205,
+							lineNumber: 216,
 							columnNumber: 17
 						}, void 0)
 					] }, void 0, true, {
 						fileName: _jsxFileName$18,
-						lineNumber: 170,
+						lineNumber: 181,
 						columnNumber: 13
 					}, void 0)
 				]
 			}, void 0, true, {
 				fileName: _jsxFileName$18,
-				lineNumber: 147,
+				lineNumber: 158,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
 			fileName: _jsxFileName$18,
-			lineNumber: 128,
+			lineNumber: 139,
 			columnNumber: 5
 		}, void 0);
 	};
@@ -25969,6 +25976,7 @@
 		const isOwn = user?.id === message.author_id;
 		const canEdit = isOwn && settings?.edit_mode === EDIT_MODE.WINDOW;
 		const editWindowSec = settings?.edit_window_sec ?? 0;
+		const maxEdits = settings?.max_edits ?? 0;
 		const editableUntil = canEdit ? Date.parse(message.created_at) + editWindowSec * 1e3 : null;
 		const likeCount = message.reaction_counts["2764"] ?? 0;
 		const isLiked = Boolean(message.my_reactions?.includes(LIKE_REACTION));
@@ -26021,12 +26029,12 @@
 								rank: authorRank
 							}, void 0, false, {
 								fileName: _jsxFileName$14,
-								lineNumber: 85,
+								lineNumber: 86,
 								columnNumber: 11
 							}, void 0)
 						}, void 0, false, {
 							fileName: _jsxFileName$14,
-							lineNumber: 84,
+							lineNumber: 85,
 							columnNumber: 9
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -26034,7 +26042,7 @@
 							children: formatRelativeTime(message.created_at)
 						}, void 0, false, {
 							fileName: _jsxFileName$14,
-							lineNumber: 87,
+							lineNumber: 88,
 							columnNumber: 9
 						}, void 0),
 						isUnderReview(message) && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -26042,7 +26050,7 @@
 							children: "Under review"
 						}, void 0, false, {
 							fileName: _jsxFileName$14,
-							lineNumber: 88,
+							lineNumber: 89,
 							columnNumber: 36
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageActions, {
@@ -26050,16 +26058,17 @@
 							isOwn,
 							editableUntil,
 							editWindowSec,
+							maxEdits,
 							onEdit: () => setIsEditing(true)
 						}, void 0, false, {
 							fileName: _jsxFileName$14,
-							lineNumber: 89,
+							lineNumber: 90,
 							columnNumber: 9
 						}, void 0)
 					]
 				}, void 0, true, {
 					fileName: _jsxFileName$14,
-					lineNumber: 83,
+					lineNumber: 84,
 					columnNumber: 7
 				}, void 0),
 				isEditing ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageEditor, {
@@ -26067,7 +26076,7 @@
 					onClose: () => setIsEditing(false)
 				}, void 0, false, {
 					fileName: _jsxFileName$14,
-					lineNumber: 99,
+					lineNumber: 101,
 					columnNumber: 9
 				}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 					className: "message-item__text",
@@ -26076,12 +26085,12 @@
 						children: ["@", getAuthorName(message.parent_author, message.parent_author_id)]
 					}, void 0, true, {
 						fileName: _jsxFileName$14,
-						lineNumber: 103,
+						lineNumber: 105,
 						columnNumber: 13
 					}, void 0), message.body]
 				}, void 0, true, {
 					fileName: _jsxFileName$14,
-					lineNumber: 101,
+					lineNumber: 103,
 					columnNumber: 9
 				}, void 0),
 				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -26098,12 +26107,12 @@
 								className: "message-item__reply-icon"
 							}, void 0, false, {
 								fileName: _jsxFileName$14,
-								lineNumber: 113,
+								lineNumber: 115,
 								columnNumber: 11
 							}, void 0), "Reply"]
 						}, void 0, true, {
 							fileName: _jsxFileName$14,
-							lineNumber: 112,
+							lineNumber: 114,
 							columnNumber: 9
 						}, void 0),
 						canLike && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -26118,12 +26127,12 @@
 								className: "message-item__like-icon"
 							}, void 0, false, {
 								fileName: _jsxFileName$14,
-								lineNumber: 124,
+								lineNumber: 126,
 								columnNumber: 13
 							}, void 0), likeCount]
 						}, void 0, true, {
 							fileName: _jsxFileName$14,
-							lineNumber: 117,
+							lineNumber: 119,
 							columnNumber: 11
 						}, void 0),
 						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(MessageReactions, {
@@ -26131,7 +26140,7 @@
 							isOwn
 						}, void 0, false, {
 							fileName: _jsxFileName$14,
-							lineNumber: 128,
+							lineNumber: 130,
 							columnNumber: 9
 						}, void 0),
 						isSuper && extraCoins > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -26139,19 +26148,19 @@
 							children: ["+", formatCoins(extraCoins)]
 						}, void 0, true, {
 							fileName: _jsxFileName$14,
-							lineNumber: 130,
+							lineNumber: 132,
 							columnNumber: 11
 						}, void 0)
 					]
 				}, void 0, true, {
 					fileName: _jsxFileName$14,
-					lineNumber: 111,
+					lineNumber: 113,
 					columnNumber: 7
 				}, void 0)
 			]
 		}, void 0, true, {
 			fileName: _jsxFileName$14,
-			lineNumber: 82,
+			lineNumber: 83,
 			columnNumber: 5
 		}, void 0);
 	};
