@@ -1,7 +1,8 @@
 import { r as __toESM, t as __commonJSMin } from "./chunks/rolldown-runtime-Bk_YeHJf.js";
-import { _ as ROOM_ID_ATTRIBUTE, h as FONT_URL, m as require_react, o as startAuth, p as require_jsx_dev_runtime, r as loadStylesheet, v as TAG_NAME } from "./chunks/dom-S2PFfva1.js";
-import { t as require_react_dom } from "./chunks/react-dom-BMuKuDi4.js";
-//#region node_modules/scheduler/cjs/scheduler.development.js
+import { d as require_react, f as FONT_URL, g as TAG_NAME, h as ROOM_ID_ATTRIBUTE, m as PRICE_CODE_ATTRIBUTE, r as startAuth, u as require_jsx_dev_runtime } from "./chunks/authThunks-Blk6MJzv.js";
+import { t as require_react_dom } from "./chunks/react-dom-DWYiaJUS.js";
+import { r as loadStylesheet } from "./chunks/dom-lf66zKCS.js";
+//#region node_modules/.pnpm/scheduler@0.28.0/node_modules/scheduler/cjs/scheduler.development.js
 /**
 * @license React
 * scheduler.development.js
@@ -244,12 +245,12 @@ var require_scheduler_development = /* @__PURE__ */ __commonJSMin(((exports) => 
 	})();
 }));
 //#endregion
-//#region node_modules/scheduler/index.js
+//#region node_modules/.pnpm/scheduler@0.28.0/node_modules/scheduler/index.js
 var require_scheduler = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_scheduler_development();
 }));
 //#endregion
-//#region node_modules/react-dom/cjs/react-dom-client.development.js
+//#region node_modules/.pnpm/react-dom@19.3.1_react@19.3.1/node_modules/react-dom/cjs/react-dom-client.development.js
 /**
 * @license React
 * react-dom-client.development.js
@@ -15842,7 +15843,7 @@ var require_react_dom_client_development = /* @__PURE__ */ __commonJSMin(((expor
 	})();
 }));
 //#endregion
-//#region node_modules/react-dom/client.js
+//#region node_modules/.pnpm/react-dom@19.3.1_react@19.3.1/node_modules/react-dom/client.js
 var require_client = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_react_dom_client_development();
 }));
@@ -15850,7 +15851,7 @@ var require_client = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 //#region src/index.css?inline
 var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
 var import_client = require_client();
-var src_default = "* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n:host {\n  --color-text: #000f55;\n  --color-text-placeholder: #A4A4A4;\n  --color-text-faded: #000F5580;\n  --color-enhance-bg: #E5F6FF;\n  --color-enhance-loading-dark-bg: #1938a6;\n  --color-navy: #004be3;\n  --color-border: #D4D7E3;\n  --color-white: #ffffff;\n  --color-text-subtle: #898989;\n  --color-message-meta: #909090;\n  --color-superchat-meta: #b1b1b1;\n  --color-blue: #2f6fed;\n  --color-light-grey: #EBEBEB;\n  --color-tab-border: #CBCBCB;\n  --color-coins: #22AB00;\n  --color-menu-border: #ACACAC;\n  --color-menu-shadow: #00000040;\n  --color-go-to-top-shadow: #101a3d14;\n  --color-soft-shadow: #101a3d1f;\n  --color-tier-friend-bg: #000e55;\n  --color-tier-supporter-bg: #fcebdf;\n  --color-tier-defender-bg: #ededed;\n  --color-tier-champion-bg: #fff1d0;\n  --color-avatar-1: #e07a5f;\n  --color-avatar-2: #3d7068;\n  --color-avatar-3: #4f6d9a;\n  --color-avatar-4: #8a5a44;\n  --color-avatar-5: #6b5ca5;\n  --color-avatar-6: #2f8f7a;\n  --color-avatar-7: #c9752f;\n  --color-avatar-8: #4a90c4;\n  --color-skeleton-shine: #f7f9fd;\n  --color-superchat-1: #031762;\n  --color-superchat-2: #0a2a8f;\n  --color-superchat-3: #0f3dbd;\n  --color-superchat-4: #014be3;\n  --color-gradient-blue: #2043bd;\n  --color-gradient-navy: #00135a;\n  --color-scrollbar-thumb: #CCCCCC;\n  --color-scrollbar-track-dark: #ffffff4d;\n  --color-info-pill-bg: #ffffff1a;\n  --color-info-pill-shadow: #00000012;\n  --color-yellow: #ffd86b;\n  --color-scrim: #00000033;\n  --color-sheet-shadow: #101a3d40;\n  --color-confirm-close: #eb0000;\n  --color-dialog-shadow: #101a3d2e;\n  --color-red: #d70000;\n  --color-warning-bg: #fff0f0;\n  --color-recommended: #39933C;\n  --color-locked-suggestion-bg: #E5F6FF80;\n  --color-cancel-btn-from: #f0f7fd;\n  --color-cancel-btn-border: #d8e1f0;\n  --color-rank-supporter-from: #f6ba92;\n  --color-rank-supporter-to: #c38154;\n  --color-rank-defender-from: #c2c2c2;\n  --color-rank-defender-to: #818181;\n  --color-rank-champion-from: #ffc241;\n  --color-rank-champion-to: #e99300;\n  --color-shadow: #0000001a;\n  --color-reaction-picker-border: #9B9B9B;\n  --color-cancel-reply-shadow: #00000026;\n  --color-red-label-from: #eb0101;\n  --color-red-label-to: #b90000;\n\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  font-family: \"Noto Sans\", sans-serif;\n  color: var(--color-text);\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n:host,\n:host(:focus),\n:host(:focus-within) {\n  outline: none !important;\n}\n\n:host > div {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\nbutton,\ntextarea {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\nbutton:disabled {\n  cursor: not-allowed;\n}\n";
+var src_default = "* {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n:host {\n  --color-text: #000f55;\n  --color-text-placeholder: #A4A4A4;\n  --color-text-faded: #000F5580;\n  --color-enhance-bg: #E5F6FF;\n  --color-enhance-loading-dark-bg: #1938a6;\n  --color-navy: #004be3;\n  --color-border: #D4D7E3;\n  --color-white: #ffffff;\n  --color-text-subtle: #898989;\n  --color-message-meta: #909090;\n  --color-superchat-meta: #b1b1b1;\n  --color-blue: #2f6fed;\n  --color-light-grey: #EBEBEB;\n  --color-tab-border: #CBCBCB;\n  --color-coins: #22AB00;\n  --color-menu-border: #ACACAC;\n  --color-menu-shadow: #00000040;\n  --color-go-to-top-shadow: #101a3d14;\n  --color-soft-shadow: #101a3d1f;\n  --color-tier-friend-bg: #000e55;\n  --color-tier-supporter-bg: #fcebdf;\n  --color-tier-defender-bg: #ededed;\n  --color-tier-champion-bg: #fff1d0;\n  --color-avatar-1: #e07a5f;\n  --color-avatar-2: #3d7068;\n  --color-avatar-3: #4f6d9a;\n  --color-avatar-4: #8a5a44;\n  --color-avatar-5: #6b5ca5;\n  --color-avatar-6: #2f8f7a;\n  --color-avatar-7: #c9752f;\n  --color-avatar-8: #4a90c4;\n  --color-skeleton-shine: #f7f9fd;\n  --color-superchat-1: #031762;\n  --color-superchat-2: #0a2a8f;\n  --color-superchat-3: #0f3dbd;\n  --color-superchat-4: #014be3;\n  --color-gradient-blue: #2043bd;\n  --color-gradient-navy: #00135a;\n  --color-scrollbar-thumb: #CCCCCC;\n  --color-scrollbar-track-dark: #ffffff4d;\n  --color-info-pill-bg: #ffffff1a;\n  --color-info-pill-shadow: #00000012;\n  --color-yellow: #ffd86b;\n  --color-scrim: #00000033;\n  --color-sheet-shadow: #101a3d40;\n  --color-confirm-close: #eb0000;\n  --color-dialog-shadow: #101a3d2e;\n  --color-red: #d70000;\n  --color-warning-bg: #fff0f0;\n  --color-recommended: #39933C;\n  --color-locked-suggestion-bg: #E5F6FF80;\n  --color-cancel-btn-from: #f0f7fd;\n  --color-cancel-btn-border: #d8e1f0;\n  --color-rank-supporter-from: #f6ba92;\n  --color-rank-supporter-to: #c38154;\n  --color-rank-defender-from: #c2c2c2;\n  --color-rank-defender-to: #818181;\n  --color-rank-champion-from: #ffc241;\n  --color-rank-champion-to: #e99300;\n  --color-shadow: #0000001a;\n  --color-reaction-picker-border: #9B9B9B;\n  --color-cancel-reply-shadow: #00000026;\n  --color-red-label-from: #eb0101;\n  --color-red-label-to: #b90000;\n\n  --color-checkout-navy: #001446;\n  --color-checkout-blue: #0a3a9e;\n  --color-checkout-blue-dark: #082c78;\n  --color-checkout-text: #0b1533;\n  --color-checkout-muted: #5d6578;\n  --color-checkout-border: #c9ced8;\n  --color-checkout-surface: #f3f3f3;\n  --color-checkout-success: #2e7d32;\n  --color-checkout-success-bg: #d9f8c8;\n  --color-checkout-error: #c62828;\n  --color-checkout-divider: #c4c4c4;\n  --color-checkout-pay-disabled: #8a9cc6;\n  --color-checkout-overlay: #000a23a6;\n  --color-checkout-shadow: #00000059;\n  --color-checkout-close-bg: #ffffff33;\n  --color-checkout-close-hover-bg: #ffffff59;\n  --color-checkout-gold-from: #f8d35e;\n  --color-checkout-gold-to: #f0b92e;\n\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  font-family: \"Noto Sans\", sans-serif;\n  color: var(--color-text);\n}\n\n:host([hidden]) {\n  display: none;\n}\n\n:host,\n:host(:focus),\n:host(:focus-within) {\n  outline: none !important;\n}\n\n:host > div {\n  display: flex;\n  flex: 1;\n  flex-direction: column;\n  min-height: 0;\n}\n\nbutton,\ntextarea {\n  font: inherit;\n  color: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\nbutton:disabled {\n  cursor: not-allowed;\n}\n";
 //#endregion
 //#region src/createWidgetElement.tsx
 var import_jsx_dev_runtime = require_jsx_dev_runtime();
@@ -15869,7 +15870,11 @@ var createWidgetElement = (loadWidget) => {
 			const mountNode = document.createElement("div");
 			shadow.replaceChildren(style, mountNode);
 			this.#root = (0, import_client.createRoot)(mountNode);
-			this.#root.render(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_react.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Component, { roomId: this.getAttribute(ROOM_ID_ATTRIBUTE) }, void 0, false, {
+			this.#root.render(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_react.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Component, {
+				roomId: this.getAttribute(ROOM_ID_ATTRIBUTE),
+				priceCode: this.getAttribute(PRICE_CODE_ATTRIBUTE),
+				onClose: () => this.remove()
+			}, void 0, false, {
 				fileName: _jsxFileName,
 				lineNumber: 32,
 				columnNumber: 11
@@ -15897,6 +15902,7 @@ var defineElement = (tagName, loadWidget) => {
 //#region src/main.tsx
 loadStylesheet(FONT_URL);
 startAuth();
-defineElement(TAG_NAME.COMMENTS, () => Promise.all([import("./chunks/comments-CYyIL48e.js"), import("./chunks/comments-B9a-r2W2.js")]));
-defineElement(TAG_NAME.MESSAGE_BOX, () => Promise.all([import("./chunks/messageBox-DBog5Ax2.js"), import("./chunks/messageBox-DWIw3xEk.js")]));
+defineElement(TAG_NAME.COMMENTS, () => Promise.all([import("./chunks/comments-D_lv3ZZo.js"), import("./chunks/comments-BlTUIgnG.js")]));
+defineElement(TAG_NAME.MESSAGE_BOX, () => Promise.all([import("./chunks/messageBox-BOVFubLx.js"), import("./chunks/messageBox-DWIw3xEk.js")]));
+defineElement(TAG_NAME.CHECKOUT, () => Promise.all([import("./chunks/coinsCheckout-DCml0-IO.js"), import("./chunks/coinsCheckout-BuCgjGUj.js")]));
 //#endregion

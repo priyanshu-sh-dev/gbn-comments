@@ -1,13 +1,12 @@
 import { r as __toESM, t as __commonJSMin } from "./rolldown-runtime-Bk_YeHJf.js";
-import { A as CHAT_TAB, At as REQUEST_STATUS, B as MESSAGE_ACTION, D as ACTIVITY_TABS, E as ACTIVITY_TAB, Et as MESSAGE_STATUS, F as DELETE_DISABLED_REASON, I as EDIT_DISABLED_REASON, L as LIKED_LABEL, M as CHAT_TAB_QUERY_PARAM, P as COPY_URL_ACTION, Q as SHARED_THREAD_QUERY_PARAM, R as LIKE_REACTION, St as LIVE_SOCKET_PARAM, T as ACTIVITY_LABEL, Tt as MESSAGE_MAX_LENGTH, V as MESSAGE_ACTION_FEEDBACK_MS, W as REMOVAL_REASON_TEXT, X as SHARED_FOCUS_QUERY_PARAM, Z as SHARED_MESSAGE_QUERY_PARAM, _t as LIVE_BASE_RETRY_DELAY_MS, at as ACTIVITY_TYPE, bt as LIVE_MAX_RETRY_DELAY_MS, c as useAuth, ct as APPEAL_STATUS, d as logoutGbn, dt as EDIT_MODE, et as SHARE_LINKS, f as openGbnLogin, ft as ERROR_MESSAGE, gt as LIVE_API, i as setQueryParam, j as CHAT_TABS, k as BUY_COINS_URL, kt as REPORT_REASONS, m as require_react, mt as HTTP_STATUS, n as getUrlWithQueryParams, nt as SUPERCHAT_TIERS, p as require_jsx_dev_runtime, s as setStanding, st as APPEAL_OUTCOME, t as getQueryParam, u as getTierRank, vt as LIVE_CHANNEL, w as USER_RANK, wt as MESSAGE_KIND, x as RANK_ICONS, xt as LIVE_MESSAGE_TYPE, y as AUTH_STATUS, yt as LIVE_FRAME_TYPE } from "./dom-S2PFfva1.js";
-import { $ as formatNextMonthStart, A as loadMoreComments, B as toggleThread, D as editComment, E as deleteComment, F as reactionsInFlight, G as getSuperChatTier, H as getAuthorRank, I as reportComment, J as isUnderReview, K as getThreadRootId, L as sendComment, M as openSharedThread, N as openThread, O as joinRoom, P as parseLiveCursor, Q as formatDuration, R as sendSuperChat, S as requestSuperChatModeration, T as cursors, U as getComposerLockText, V as getAuthorName, W as getReplyParentId, X as formatCoins, Y as isVisibleMessage, Z as formatCountdown, a as useClickOutside, at as closeThreads, b as markSuperChatSent, c as useReply, ct as setActiveTab, d as openAppealForm, dt as setRoomMode, et as formatRelativeTime, f as openUserMessages, ft as setThread, g as useUserMessages, gt as close_default, h as closeAppealForm, ht as useComments, i as useEscapeKey, it as closeThreadLevel, j as loadSnapshot, k as loadComments, l as closeUserMessages, lt as setCounts, m as submitAppeal, mt as updateMessage, n as UserAvatar, nt as getErrorStatus, p as setActivityTab, pt as showRemovedNotice, q as getVisibleReplies, r as codeToEmoji, rt as toErrorMessage, s as startReply, st as getCommentsState, t as containsProfanity, tt as createCommentsTicket, u as loadMoreUserMessages, ut as setFeed, v as closeSuperChatSheet, w as useSuperChat, y as markSuperChatFailed, z as toggleReaction } from "./profanity-Ca6WYJMH.js";
-import { t as require_react_dom } from "./react-dom-BMuKuDi4.js";
+import { C as ACTIVITY_LABEL, Ct as LIVE_MAX_RETRY_DELAY_MS, D as CHAT_TAB, Dt as MESSAGE_KIND, F as LIKE_REACTION, Ft as REPORT_REASONS, H as REMOVAL_REASON_TEXT, It as REQUEST_STATUS, J as SHARED_FOCUS_QUERY_PARAM, L as MESSAGE_ACTION, M as DELETE_DISABLED_REASON, Mt as PAYMENT_KIND, N as EDIT_DISABLED_REASON, Nt as PAYMENT_STATUS, O as CHAT_TABS, Ot as MESSAGE_MAX_LENGTH, P as LIKED_LABEL, Pt as PRICE_PRICING, Q as SHARE_LINKS, R as MESSAGE_ACTION_FEEDBACK_MS, S as USER_RANK, St as LIVE_FRAME_TYPE, T as ACTIVITY_TABS, Tt as LIVE_SOCKET_PARAM, V as PAYMENTS_EMPTY_TEXT, X as SHARED_THREAD_QUERY_PARAM, Y as SHARED_MESSAGE_QUERY_PARAM, _ as AUTH_STATUS, _t as HTTP_STATUS, a as useAuth, at as comment_default, bt as LIVE_BASE_RETRY_DELAY_MS, c as logoutGbn, ct as APPEAL_OUTCOME, d as require_react, et as SUPERCHAT_TIERS, g as TAG_NAME, ht as ERROR_MESSAGE, i as setStanding, it as payments_default, j as COPY_URL_ACTION, k as CHAT_TAB_QUERY_PARAM, kt as MESSAGE_STATUS, l as openGbnLogin, lt as APPEAL_STATUS, m as PRICE_CODE_ATTRIBUTE, mt as EDIT_MODE, ot as ACTIVITY_TYPE, rt as USER_PANEL_SECTIONS, s as getTierRank, t as handleSessionExpired, u as require_jsx_dev_runtime, w as ACTIVITY_TAB, wt as LIVE_MESSAGE_TYPE, xt as LIVE_CHANNEL, y as RANK_ICONS, yt as LIVE_API } from "./authThunks-Blk6MJzv.js";
+import { $ as getCommentsState, A as loadSnapshot, B as getAuthorName, C as useSuperChat, D as joinRoom, E as editComment, F as reportComment, G as getThreadRootId, H as getComposerLockText, I as sendComment, J as isVisibleMessage, K as getVisibleReplies, L as sendSuperChat, M as openThread, N as parseLiveCursor, O as loadComments, P as reactionsInFlight, R as toggleReaction, T as deleteComment, U as getReplyParentId, V as getAuthorRank, W as getSuperChatTier, X as closeThreadLevel, Y as createCommentsTicket, Z as closeThreads, _ as closeSuperChatSheet, at as showRemovedNotice, c as closeUserMessages, ct as close_default, d as openUserMessages, et as setActiveTab, f as setActivityTab, h as useUserMessages, i as useClickOutside, it as setThread, j as openSharedThread, k as loadMoreComments, l as loadMoreUserMessages, m as closeAppealForm, n as UserAvatar, nt as setFeed, o as startReply, ot as updateMessage, p as submitAppeal, q as isUnderReview, r as useEscapeKey, rt as setRoomMode, s as useReply, st as useComments, t as containsProfanity, tt as setCounts, u as openAppealForm, v as markSuperChatFailed, w as cursors, x as requestSuperChatModeration, y as markSuperChatSent, z as toggleThread } from "./profanity-wVkzlLSg.js";
+import { t as require_react_dom } from "./react-dom-DWYiaJUS.js";
+import { i as setQueryParam, n as getUrlWithQueryParams, t as getQueryParam } from "./dom-lf66zKCS.js";
+import { S as getErrorStatus, d as formatNextMonthStart, f as formatRelativeTime, l as formatDuration, o as formatCoins, p as fetchCoinCatalogue, s as formatCountdown, t as codeToEmoji, u as formatMinorAmount, w as toErrorMessage } from "./string-DcEcR3IM.js";
 //#endregion
 //#region src/assets/coin.svg
 var coin_default = "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M17.9%2010C17.9%2014.363%2014.363%2017.9%2010%2017.9C5.63695%2017.9%202.1%2014.363%202.1%2010C2.1%205.63695%205.63695%202.1%2010%202.1C14.363%202.1%2017.9%205.63695%2017.9%2010Z'%20fill='url(%23paint0_linear_22385_21230)'%20stroke-width='0.2'%20stroke='url(%23paint1_linear_22385_21230)'/%3e%3cg%20filter='url(%23filter0_d_22385_21230)'%3e%3ccircle%20cx='10'%20cy='10'%20r='6'%20fill='url(%23paint2_linear_22385_21230)'/%3e%3ccircle%20cx='10'%20cy='10'%20r='5.5'%20stroke='url(%23paint3_linear_22385_21230)'/%3e%3c/g%3e%3cg%20filter='url(%23filter1_d_22385_21230)'%3e%3ccircle%20cx='10'%20cy='10'%20r='5'%20fill='url(%23paint4_linear_22385_21230)'/%3e%3ccircle%20cx='10'%20cy='10'%20r='4.95'%20stroke='url(%23paint5_linear_22385_21230)'%20stroke-width='0.1'/%3e%3c/g%3e%3cdefs%3e%3cfilter%20id='filter0_d_22385_21230'%20x='0'%20y='0'%20width='20'%20height='20'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset/%3e%3cfeGaussianBlur%20stdDeviation='2'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.25%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_22385_21230'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_22385_21230'%20result='shape'/%3e%3c/filter%3e%3cfilter%20id='filter1_d_22385_21230'%20x='1'%20y='1'%20width='18'%20height='18'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset/%3e%3cfeGaussianBlur%20stdDeviation='2'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.25%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_22385_21230'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_22385_21230'%20result='shape'/%3e%3c/filter%3e%3clinearGradient%20id='paint0_linear_22385_21230'%20x1='10'%20y1='2'%20x2='10'%20y2='18'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.283654'%20stop-color='%23FFB916'/%3e%3cstop%20offset='1'%20stop-color='%23FFD87C'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint1_linear_22385_21230'%20x1='10'%20y1='18'%20x2='10'%20y2='2'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23F5B728'/%3e%3cstop%20offset='1'%20stop-color='%23D7A531'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint2_linear_22385_21230'%20x1='4'%20y1='10'%20x2='16'%20y2='10'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23DB9D0D'/%3e%3cstop%20offset='1'%20stop-color='%23FFD269'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint3_linear_22385_21230'%20x1='10'%20y1='16'%20x2='10'%20y2='4'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.274038'%20stop-color='%23E2A006'/%3e%3cstop%20offset='1'%20stop-color='%23FFE175'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint4_linear_22385_21230'%20x1='5'%20y1='10'%20x2='15'%20y2='10'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23DB9D0D'/%3e%3cstop%20offset='1'%20stop-color='%23F8C346'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint5_linear_22385_21230'%20x1='10'%20y1='5'%20x2='10'%20y2='15'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.274038'%20stop-color='%23E2A006'/%3e%3cstop%20offset='1'%20stop-color='%23FCDD96'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
-//#endregion
-//#region src/assets/comment.svg
-var comment_default = "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M3%204.5C3%203.67%203.67%203%204.5%203H15.5C16.33%203%2017%203.67%2017%204.5V12.5C17%2013.33%2016.33%2014%2015.5%2014H8L4.5%2017V14H4.5C3.67%2014%203%2013.33%203%2012.5V4.5Z'%20stroke='%23898989'%20stroke-width='1.5'%20stroke-linejoin='round'/%3e%3c/svg%3e";
 //#endregion
 //#region src/assets/heartFilled.svg
 var heartFilled_default = "data:image/svg+xml,%3csvg%20width='16'%20height='14'%20viewBox='0%200%2016%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M7.99999%201.60047C9.61378%20-0.302475%2012.4986%20-0.55847%2014.4242%201.10192C16.4213%202.82419%2016.5355%205.87886%2014.6789%207.74656L8.78523%2013.6752C8.35455%2014.1083%207.64542%2014.1083%207.21475%2013.6752L1.3211%207.74656C-0.535492%205.87886%20-0.421305%202.82419%201.57576%201.10192C3.50133%20-0.558478%206.38622%20-0.302481%207.99999%201.60047Z'%20fill='%23EB0000'/%3e%3c/svg%3e";
@@ -21,7 +20,7 @@ var moreWhite_default = "data:image/svg+xml,%3csvg%20width='20'%20height='4'%20v
 //#region src/assets/reply.svg
 var reply_default = "data:image/svg+xml,%3csvg%20width='13'%20height='9'%20viewBox='0%200%2013%209'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M4.94811%200.171914C5.17888%200.401132%205.17888%200.772778%204.94811%201.002L2.01749%203.91304H8.4697C9.22086%203.91304%2010.3344%204.13202%2011.2771%204.80623C12.2499%205.50205%2013%206.65656%2013%208.41304C13%208.7372%2012.7354%209%2012.4091%209C12.0828%209%2011.8182%208.7372%2011.8182%208.41304C11.8182%207.0391%2011.2551%206.23708%2010.5866%205.75898C9.88788%205.25929%209.03169%205.08696%208.4697%205.08696H2.01749L4.94811%207.99803C5.17888%208.22725%205.17888%208.59883%204.94811%208.82806C4.71738%209.05729%204.34323%209.05729%204.11247%208.82806L0.173071%204.91502C-0.0576905%204.68579%20-0.0576905%204.31421%200.173071%204.08498L4.11247%200.171914C4.34323%20-0.0573046%204.71738%20-0.0573046%204.94811%200.171914Z'%20fill='%23898989'/%3e%3c/svg%3e";
 //#endregion
-//#region node_modules/react/cjs/react-jsx-runtime.development.js
+//#region node_modules/.pnpm/react@19.3.1/node_modules/react/cjs/react-jsx-runtime.development.js
 /**
 * @license React
 * react-jsx-runtime.development.js
@@ -233,7 +232,7 @@ var require_react_jsx_runtime_development = /* @__PURE__ */ __commonJSMin(((expo
 	})();
 }));
 //#endregion
-//#region node_modules/react-virtuoso/dist/index.mjs
+//#region node_modules/.pnpm/react-virtuoso@4.18.19_react-dom@19.3.1_react@19.3.1__react@19.3.1/node_modules/react-virtuoso/dist/index.mjs
 var import_jsx_runtime = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_react_jsx_runtime_development();
 })))();
@@ -3155,7 +3154,7 @@ var startLiveComments = () => openLiveSocket(getCommentsState().roomId, {
 //#endregion
 //#region src/components/messageItem/messageActions/index.tsx
 var import_jsx_dev_runtime = require_jsx_dev_runtime();
-var _jsxFileName$13 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/messageActions/index.tsx";
+var _jsxFileName$14 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/messageActions/index.tsx";
 var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, isReply, onEdit }) => {
 	const { status } = useAuth();
 	const [isOpen, setIsOpen] = (0, import_react.useState)(false);
@@ -3286,12 +3285,12 @@ var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, 
 				alt: "",
 				className: "message-actions__icon"
 			}, void 0, false, {
-				fileName: _jsxFileName$13,
+				fileName: _jsxFileName$14,
 				lineNumber: 205,
 				columnNumber: 9
 			}, void 0)
 		}, void 0, false, {
-			fileName: _jsxFileName$13,
+			fileName: _jsxFileName$14,
 			lineNumber: 190,
 			columnNumber: 7
 		}, void 0), isOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -3303,7 +3302,7 @@ var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, 
 					role: "status",
 					children: feedback
 				}, void 0, false, {
-					fileName: _jsxFileName$13,
+					fileName: _jsxFileName$14,
 					lineNumber: 210,
 					columnNumber: 13
 				}, void 0),
@@ -3317,12 +3316,12 @@ var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, 
 						disabled: isReporting,
 						children: label
 					}, reason, false, {
-						fileName: _jsxFileName$13,
+						fileName: _jsxFileName$14,
 						lineNumber: 217,
 						columnNumber: 17
 					}, void 0))
 				}, void 0, false, {
-					fileName: _jsxFileName$13,
+					fileName: _jsxFileName$14,
 					lineNumber: 215,
 					columnNumber: 13
 				}, void 0),
@@ -3338,12 +3337,12 @@ var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, 
 						alt: "",
 						className: "message-actions__item-icon"
 					}, void 0, false, {
-						fileName: _jsxFileName$13,
+						fileName: _jsxFileName$14,
 						lineNumber: 242,
 						columnNumber: 19
 					}, void 0), label]
 				}, label, true, {
-					fileName: _jsxFileName$13,
+					fileName: _jsxFileName$14,
 					lineNumber: 233,
 					columnNumber: 17
 				}, void 0)), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -3356,16 +3355,16 @@ var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, 
 						alt: "",
 						className: "message-actions__item-icon"
 					}, void 0, false, {
-						fileName: _jsxFileName$13,
+						fileName: _jsxFileName$14,
 						lineNumber: 247,
 						columnNumber: 17
 					}, void 0), COPY_URL_ACTION.label]
 				}, void 0, true, {
-					fileName: _jsxFileName$13,
+					fileName: _jsxFileName$14,
 					lineNumber: 246,
 					columnNumber: 15
 				}, void 0)] }, void 0, true, {
-					fileName: _jsxFileName$13,
+					fileName: _jsxFileName$14,
 					lineNumber: 231,
 					columnNumber: 13
 				}, void 0),
@@ -3383,7 +3382,7 @@ var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, 
 								alt: "",
 								className: "message-actions__item-icon"
 							}, void 0, false, {
-								fileName: _jsxFileName$13,
+								fileName: _jsxFileName$14,
 								lineNumber: 263,
 								columnNumber: 19
 							}, void 0),
@@ -3391,7 +3390,7 @@ var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, 
 							canEditBody && ` (${formatCountdown(editTimeLeft)})`
 						]
 					}, void 0, true, {
-						fileName: _jsxFileName$13,
+						fileName: _jsxFileName$14,
 						lineNumber: 255,
 						columnNumber: 17
 					}, void 0),
@@ -3407,12 +3406,12 @@ var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, 
 							alt: "",
 							className: "message-actions__item-icon"
 						}, void 0, false, {
-							fileName: _jsxFileName$13,
+							fileName: _jsxFileName$14,
 							lineNumber: 277,
 							columnNumber: 19
 						}, void 0), MESSAGE_ACTION.DELETE.label]
 					}, void 0, true, {
-						fileName: _jsxFileName$13,
+						fileName: _jsxFileName$14,
 						lineNumber: 269,
 						columnNumber: 17
 					}, void 0),
@@ -3428,12 +3427,12 @@ var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, 
 							alt: "",
 							className: "message-actions__item-icon"
 						}, void 0, false, {
-							fileName: _jsxFileName$13,
+							fileName: _jsxFileName$14,
 							lineNumber: 289,
 							columnNumber: 17
 						}, void 0), MESSAGE_ACTION.SHARE.label]
 					}, void 0, true, {
-						fileName: _jsxFileName$13,
+						fileName: _jsxFileName$14,
 						lineNumber: 281,
 						columnNumber: 15
 					}, void 0),
@@ -3447,35 +3446,35 @@ var MessageActions = ({ message, isOwn, editableUntil, editWindowSec, maxEdits, 
 							alt: "",
 							className: "message-actions__item-icon"
 						}, void 0, false, {
-							fileName: _jsxFileName$13,
+							fileName: _jsxFileName$14,
 							lineNumber: 294,
 							columnNumber: 19
 						}, void 0), MESSAGE_ACTION.REPORT.label]
 					}, void 0, true, {
-						fileName: _jsxFileName$13,
+						fileName: _jsxFileName$14,
 						lineNumber: 293,
 						columnNumber: 17
 					}, void 0)
 				] }, void 0, true, {
-					fileName: _jsxFileName$13,
+					fileName: _jsxFileName$14,
 					lineNumber: 253,
 					columnNumber: 13
 				}, void 0)
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$13,
+			fileName: _jsxFileName$14,
 			lineNumber: 208,
 			columnNumber: 9
 		}, void 0)]
 	}, void 0, true, {
-		fileName: _jsxFileName$13,
+		fileName: _jsxFileName$14,
 		lineNumber: 189,
 		columnNumber: 5
 	}, void 0);
 };
 //#endregion
 //#region src/components/messageItem/messageEditor/index.tsx
-var _jsxFileName$12 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/messageEditor/index.tsx";
+var _jsxFileName$13 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/messageEditor/index.tsx";
 var MessageEditor = ({ message, onClose }) => {
 	const [draft, setDraft] = (0, import_react.useState)(message.body);
 	const [isSaving, setIsSaving] = (0, import_react.useState)(false);
@@ -3515,7 +3514,7 @@ var MessageEditor = ({ message, onClose }) => {
 				readOnly: isSaving,
 				autoFocus: true
 			}, void 0, false, {
-				fileName: _jsxFileName$12,
+				fileName: _jsxFileName$13,
 				lineNumber: 36,
 				columnNumber: 7
 			}, void 0),
@@ -3524,7 +3523,7 @@ var MessageEditor = ({ message, onClose }) => {
 				role: "alert",
 				children: error
 			}, void 0, false, {
-				fileName: _jsxFileName$12,
+				fileName: _jsxFileName$13,
 				lineNumber: 55,
 				columnNumber: 9
 			}, void 0),
@@ -3536,7 +3535,7 @@ var MessageEditor = ({ message, onClose }) => {
 					onClick: onClose,
 					children: "Cancel"
 				}, void 0, false, {
-					fileName: _jsxFileName$12,
+					fileName: _jsxFileName$13,
 					lineNumber: 60,
 					columnNumber: 9
 				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -3546,25 +3545,25 @@ var MessageEditor = ({ message, onClose }) => {
 					disabled: !canSave,
 					children: isSaving ? "Saving..." : "Save"
 				}, void 0, false, {
-					fileName: _jsxFileName$12,
+					fileName: _jsxFileName$13,
 					lineNumber: 63,
 					columnNumber: 9
 				}, void 0)]
 			}, void 0, true, {
-				fileName: _jsxFileName$12,
+				fileName: _jsxFileName$13,
 				lineNumber: 59,
 				columnNumber: 7
 			}, void 0)
 		]
 	}, void 0, true, {
-		fileName: _jsxFileName$12,
+		fileName: _jsxFileName$13,
 		lineNumber: 35,
 		columnNumber: 5
 	}, void 0);
 };
 //#endregion
 //#region src/components/messageItem/messageReactions/index.tsx
-var _jsxFileName$11 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/messageReactions/index.tsx";
+var _jsxFileName$12 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/messageReactions/index.tsx";
 var MessageReactions = ({ message, isOwn }) => {
 	const { status } = useAuth();
 	const { settings } = useComments();
@@ -3627,19 +3626,19 @@ var MessageReactions = ({ message, isOwn }) => {
 					"aria-hidden": "true",
 					children: codeToEmoji(myReaction)
 				}, void 0, false, {
-					fileName: _jsxFileName$11,
+					fileName: _jsxFileName$12,
 					lineNumber: 81,
 					columnNumber: 15
 				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 					className: "reaction-chip__count",
 					children: counts[myReaction] ?? 0
 				}, void 0, false, {
-					fileName: _jsxFileName$11,
+					fileName: _jsxFileName$12,
 					lineNumber: 84,
 					columnNumber: 15
 				}, void 0)]
 			}, void 0, true, {
-				fileName: _jsxFileName$11,
+				fileName: _jsxFileName$12,
 				lineNumber: 72,
 				columnNumber: 13
 			}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -3655,12 +3654,12 @@ var MessageReactions = ({ message, isOwn }) => {
 					alt: "",
 					className: "message-item__react-icon"
 				}, void 0, false, {
-					fileName: _jsxFileName$11,
+					fileName: _jsxFileName$12,
 					lineNumber: 96,
 					columnNumber: 15
 				}, void 0)
 			}, void 0, false, {
-				fileName: _jsxFileName$11,
+				fileName: _jsxFileName$12,
 				lineNumber: 87,
 				columnNumber: 13
 			}, void 0), isPickerOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -3678,22 +3677,22 @@ var MessageReactions = ({ message, isOwn }) => {
 						"aria-hidden": "true",
 						children: codeToEmoji(kind)
 					}, void 0, false, {
-						fileName: _jsxFileName$11,
+						fileName: _jsxFileName$12,
 						lineNumber: 115,
 						columnNumber: 19
 					}, void 0)
 				}, kind, false, {
-					fileName: _jsxFileName$11,
+					fileName: _jsxFileName$12,
 					lineNumber: 108,
 					columnNumber: 17
 				}, void 0))
 			}, void 0, false, {
-				fileName: _jsxFileName$11,
+				fileName: _jsxFileName$12,
 				lineNumber: 101,
 				columnNumber: 13
 			}, void 0)]
 		}, void 0, true, {
-			fileName: _jsxFileName$11,
+			fileName: _jsxFileName$12,
 			lineNumber: 70,
 			columnNumber: 9
 		}, void 0), otherReactions.map((kind) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
@@ -3704,30 +3703,30 @@ var MessageReactions = ({ message, isOwn }) => {
 				"aria-hidden": "true",
 				children: codeToEmoji(kind)
 			}, void 0, false, {
-				fileName: _jsxFileName$11,
+				fileName: _jsxFileName$12,
 				lineNumber: 128,
 				columnNumber: 11
 			}, void 0), counts[kind]]
 		}, kind, true, {
-			fileName: _jsxFileName$11,
+			fileName: _jsxFileName$12,
 			lineNumber: 127,
 			columnNumber: 9
 		}, void 0))]
 	}, void 0, true, {
-		fileName: _jsxFileName$11,
+		fileName: _jsxFileName$12,
 		lineNumber: 68,
 		columnNumber: 5
 	}, void 0);
 };
 //#endregion
 //#region src/components/nameBadge/index.tsx
-var _jsxFileName$10 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/nameBadge/index.tsx";
+var _jsxFileName$11 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/nameBadge/index.tsx";
 var NameBadge = ({ name, rank }) => {
 	if (rank === USER_RANK.FRIEND) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 		className: "name-plain",
 		children: name
 	}, void 0, false, {
-		fileName: _jsxFileName$10,
+		fileName: _jsxFileName$11,
 		lineNumber: 11,
 		columnNumber: 12
 	}, void 0);
@@ -3738,19 +3737,19 @@ var NameBadge = ({ name, rank }) => {
 			alt: "",
 			className: "name-badge__icon"
 		}, void 0, false, {
-			fileName: _jsxFileName$10,
+			fileName: _jsxFileName$11,
 			lineNumber: 16,
 			columnNumber: 7
 		}, void 0), name]
 	}, void 0, true, {
-		fileName: _jsxFileName$10,
+		fileName: _jsxFileName$11,
 		lineNumber: 15,
 		columnNumber: 5
 	}, void 0);
 };
 //#endregion
 //#region src/components/messageItem/index.tsx
-var _jsxFileName$9 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/index.tsx";
+var _jsxFileName$10 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/messageItem/index.tsx";
 var MessageItem = ({ message, authorName = getAuthorName(message.author, message.author_id), authorRank = getAuthorRank(message.author), extraCoins = 0, isReply = false, onReply }) => {
 	const { status, user } = useAuth();
 	const { settings } = useComments();
@@ -3811,12 +3810,12 @@ var MessageItem = ({ message, authorName = getAuthorName(message.author, message
 							name: authorName,
 							rank: authorRank
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
+							fileName: _jsxFileName$10,
 							lineNumber: 88,
 							columnNumber: 11
 						}, void 0)
 					}, void 0, false, {
-						fileName: _jsxFileName$9,
+						fileName: _jsxFileName$10,
 						lineNumber: 87,
 						columnNumber: 9
 					}, void 0),
@@ -3824,7 +3823,7 @@ var MessageItem = ({ message, authorName = getAuthorName(message.author, message
 						className: "message-item__time",
 						children: formatRelativeTime(message.created_at)
 					}, void 0, false, {
-						fileName: _jsxFileName$9,
+						fileName: _jsxFileName$10,
 						lineNumber: 90,
 						columnNumber: 9
 					}, void 0),
@@ -3832,7 +3831,7 @@ var MessageItem = ({ message, authorName = getAuthorName(message.author, message
 						className: "message-item__review-tag",
 						children: "Under review"
 					}, void 0, false, {
-						fileName: _jsxFileName$9,
+						fileName: _jsxFileName$10,
 						lineNumber: 91,
 						columnNumber: 36
 					}, void 0),
@@ -3845,13 +3844,13 @@ var MessageItem = ({ message, authorName = getAuthorName(message.author, message
 						isReply,
 						onEdit: () => setIsEditing(true)
 					}, void 0, false, {
-						fileName: _jsxFileName$9,
+						fileName: _jsxFileName$10,
 						lineNumber: 92,
 						columnNumber: 9
 					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$9,
+				fileName: _jsxFileName$10,
 				lineNumber: 86,
 				columnNumber: 7
 			}, void 0),
@@ -3859,7 +3858,7 @@ var MessageItem = ({ message, authorName = getAuthorName(message.author, message
 				message,
 				onClose: () => setIsEditing(false)
 			}, void 0, false, {
-				fileName: _jsxFileName$9,
+				fileName: _jsxFileName$10,
 				lineNumber: 104,
 				columnNumber: 9
 			}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -3868,12 +3867,12 @@ var MessageItem = ({ message, authorName = getAuthorName(message.author, message
 					className: "message-text__mention",
 					children: ["@", getAuthorName(message.parent_author, message.parent_author_id)]
 				}, void 0, true, {
-					fileName: _jsxFileName$9,
+					fileName: _jsxFileName$10,
 					lineNumber: 108,
 					columnNumber: 13
 				}, void 0), message.body]
 			}, void 0, true, {
-				fileName: _jsxFileName$9,
+				fileName: _jsxFileName$10,
 				lineNumber: 106,
 				columnNumber: 9
 			}, void 0),
@@ -3890,12 +3889,12 @@ var MessageItem = ({ message, authorName = getAuthorName(message.author, message
 							alt: "",
 							className: "message-item__reply-icon"
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
+							fileName: _jsxFileName$10,
 							lineNumber: 118,
 							columnNumber: 11
 						}, void 0), "Reply"]
 					}, void 0, true, {
-						fileName: _jsxFileName$9,
+						fileName: _jsxFileName$10,
 						lineNumber: 117,
 						columnNumber: 9
 					}, void 0),
@@ -3910,12 +3909,12 @@ var MessageItem = ({ message, authorName = getAuthorName(message.author, message
 							alt: "",
 							className: "message-item__like-icon"
 						}, void 0, false, {
-							fileName: _jsxFileName$9,
+							fileName: _jsxFileName$10,
 							lineNumber: 129,
 							columnNumber: 13
 						}, void 0), likeCount]
 					}, void 0, true, {
-						fileName: _jsxFileName$9,
+						fileName: _jsxFileName$10,
 						lineNumber: 122,
 						columnNumber: 11
 					}, void 0),
@@ -3923,7 +3922,7 @@ var MessageItem = ({ message, authorName = getAuthorName(message.author, message
 						message,
 						isOwn
 					}, void 0, false, {
-						fileName: _jsxFileName$9,
+						fileName: _jsxFileName$10,
 						lineNumber: 133,
 						columnNumber: 9
 					}, void 0),
@@ -3931,26 +3930,26 @@ var MessageItem = ({ message, authorName = getAuthorName(message.author, message
 						className: "message-item__coins",
 						children: ["+", formatCoins(extraCoins)]
 					}, void 0, true, {
-						fileName: _jsxFileName$9,
+						fileName: _jsxFileName$10,
 						lineNumber: 135,
 						columnNumber: 11
 					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$9,
+				fileName: _jsxFileName$10,
 				lineNumber: 116,
 				columnNumber: 7
 			}, void 0)
 		]
 	}, void 0, true, {
-		fileName: _jsxFileName$9,
+		fileName: _jsxFileName$10,
 		lineNumber: 85,
 		columnNumber: 5
 	}, void 0);
 };
 //#endregion
 //#region src/components/tabs/index.tsx
-var _jsxFileName$8 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/tabs/index.tsx";
+var _jsxFileName$9 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/components/tabs/index.tsx";
 var Tabs = ({ tabs, activeId, onChange }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 	className: "tabs",
 	role: "tablist",
@@ -3966,19 +3965,19 @@ var Tabs = ({ tabs, activeId, onChange }) => /* @__PURE__ */ (0, import_jsx_dev_
 			onClick: () => onChange(id),
 			children: label
 		}, id, false, {
-			fileName: _jsxFileName$8,
+			fileName: _jsxFileName$9,
 			lineNumber: 25,
 			columnNumber: 9
 		}, void 0);
 	})
 }, void 0, false, {
-	fileName: _jsxFileName$8,
+	fileName: _jsxFileName$9,
 	lineNumber: 14,
 	columnNumber: 3
 }, void 0);
 //#endregion
 //#region src/sections/comments/repliesButton/index.tsx
-var _jsxFileName$7 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/repliesButton/index.tsx";
+var _jsxFileName$8 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/repliesButton/index.tsx";
 var RepliesButton = ({ message, count }) => {
 	return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 		type: "button",
@@ -3990,14 +3989,14 @@ var RepliesButton = ({ message, count }) => {
 			count === 1 ? "reply" : "replies"
 		]
 	}, void 0, true, {
-		fileName: _jsxFileName$7,
+		fileName: _jsxFileName$8,
 		lineNumber: 11,
 		columnNumber: 5
 	}, void 0);
 };
 //#endregion
 //#region src/sections/comments/messageThread/index.tsx
-var _jsxFileName$6 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/messageThread/index.tsx";
+var _jsxFileName$7 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/messageThread/index.tsx";
 var MessageThread = ({ root }) => {
 	const { user } = useAuth();
 	const { threads } = useComments();
@@ -4015,7 +4014,7 @@ var MessageThread = ({ root }) => {
 			"aria-expanded": isOpen,
 			children: isOpen ? "Hide replies" : `View ${count} ${count === 1 ? "reply" : "replies"}`
 		}, void 0, false, {
-			fileName: _jsxFileName$6,
+			fileName: _jsxFileName$7,
 			lineNumber: 25,
 			columnNumber: 7
 		}, void 0), isOpen && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -4025,7 +4024,7 @@ var MessageThread = ({ root }) => {
 					className: "message-thread__status",
 					children: "Loading replies..."
 				}, void 0, false, {
-					fileName: _jsxFileName$6,
+					fileName: _jsxFileName$7,
 					lineNumber: 30,
 					columnNumber: 56
 				}, void 0),
@@ -4033,7 +4032,7 @@ var MessageThread = ({ root }) => {
 					className: "message-thread__status",
 					children: ERROR_MESSAGE.LOAD_REPLIES
 				}, void 0, false, {
-					fileName: _jsxFileName$6,
+					fileName: _jsxFileName$7,
 					lineNumber: 31,
 					columnNumber: 55
 				}, void 0),
@@ -4043,37 +4042,37 @@ var MessageThread = ({ root }) => {
 						message: reply,
 						isReply: true
 					}, void 0, false, {
-						fileName: _jsxFileName$6,
+						fileName: _jsxFileName$7,
 						lineNumber: 36,
 						columnNumber: 17
 					}, void 0), replyCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RepliesButton, {
 						message: reply,
 						count: replyCount
 					}, void 0, false, {
-						fileName: _jsxFileName$6,
+						fileName: _jsxFileName$7,
 						lineNumber: 37,
 						columnNumber: 36
 					}, void 0)] }, reply.id, true, {
-						fileName: _jsxFileName$6,
+						fileName: _jsxFileName$7,
 						lineNumber: 35,
 						columnNumber: 15
 					}, void 0);
 				})
 			]
 		}, void 0, true, {
-			fileName: _jsxFileName$6,
+			fileName: _jsxFileName$7,
 			lineNumber: 29,
 			columnNumber: 9
 		}, void 0)]
 	}, void 0, true, {
-		fileName: _jsxFileName$6,
+		fileName: _jsxFileName$7,
 		lineNumber: 24,
 		columnNumber: 5
 	}, void 0);
 };
 //#endregion
 //#region src/sections/comments/threadModal/index.tsx
-var _jsxFileName$5 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/threadModal/index.tsx";
+var _jsxFileName$6 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/threadModal/index.tsx";
 var ThreadModal = () => {
 	const { status, user, standing } = useAuth();
 	const { threads, threadStack, settings } = useComments();
@@ -4137,22 +4136,22 @@ var ThreadModal = () => {
 									strokeLinecap: "round",
 									strokeLinejoin: "round"
 								}, void 0, false, {
-									fileName: _jsxFileName$5,
+									fileName: _jsxFileName$6,
 									lineNumber: 65,
 									columnNumber: 15
 								}, void 0)
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 64,
 								columnNumber: 13
 							}, void 0)
 						}, void 0, false, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 63,
 							columnNumber: 11
 						}, void 0), "Back"]
 					}, void 0, true, {
-						fileName: _jsxFileName$5,
+						fileName: _jsxFileName$6,
 						lineNumber: 62,
 						columnNumber: 9
 					}, void 0),
@@ -4161,7 +4160,7 @@ var ThreadModal = () => {
 						className: "thread-modal__title",
 						children: current.sharedId ? "Shared comment" : "Reply thread"
 					}, void 0, false, {
-						fileName: _jsxFileName$5,
+						fileName: _jsxFileName$6,
 						lineNumber: 70,
 						columnNumber: 9
 					}, void 0),
@@ -4180,23 +4179,23 @@ var ThreadModal = () => {
 								strokeWidth: "2",
 								strokeLinecap: "round"
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 75,
 								columnNumber: 13
 							}, void 0)
 						}, void 0, false, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 74,
 							columnNumber: 11
 						}, void 0)
 					}, void 0, false, {
-						fileName: _jsxFileName$5,
+						fileName: _jsxFileName$6,
 						lineNumber: 73,
 						columnNumber: 9
 					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$5,
+				fileName: _jsxFileName$6,
 				lineNumber: 61,
 				columnNumber: 7
 			}, void 0),
@@ -4207,7 +4206,7 @@ var ThreadModal = () => {
 						className: "thread-modal__status",
 						children: "Loading replies..."
 					}, void 0, false, {
-						fileName: _jsxFileName$5,
+						fileName: _jsxFileName$6,
 						lineNumber: 81,
 						columnNumber: 55
 					}, void 0),
@@ -4215,7 +4214,7 @@ var ThreadModal = () => {
 						className: "thread-modal__status",
 						children: ERROR_MESSAGE.LOAD_REPLIES
 					}, void 0, false, {
-						fileName: _jsxFileName$5,
+						fileName: _jsxFileName$6,
 						lineNumber: 82,
 						columnNumber: 54
 					}, void 0),
@@ -4225,12 +4224,12 @@ var ThreadModal = () => {
 							message: focused,
 							onReply: () => handleItemReply(focused)
 						}, void 0, false, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 85,
 							columnNumber: 13
 						}, void 0)
 					}, void 0, false, {
-						fileName: _jsxFileName$5,
+						fileName: _jsxFileName$6,
 						lineNumber: 84,
 						columnNumber: 11
 					}, void 0),
@@ -4245,35 +4244,35 @@ var ThreadModal = () => {
 									isReply: true,
 									onReply: () => handleItemReply(reply)
 								}, void 0, false, {
-									fileName: _jsxFileName$5,
+									fileName: _jsxFileName$6,
 									lineNumber: 95,
 									columnNumber: 21
 								}, void 0)
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 94,
 								columnNumber: 19
 							}, void 0), replyCount > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(RepliesButton, {
 								message: reply,
 								count: replyCount
 							}, void 0, false, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 97,
 								columnNumber: 38
 							}, void 0)] }, reply.id, true, {
-								fileName: _jsxFileName$5,
+								fileName: _jsxFileName$6,
 								lineNumber: 93,
 								columnNumber: 17
 							}, void 0);
 						})
 					}, void 0, false, {
-						fileName: _jsxFileName$5,
+						fileName: _jsxFileName$6,
 						lineNumber: 89,
 						columnNumber: 11
 					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$5,
+				fileName: _jsxFileName$6,
 				lineNumber: 80,
 				columnNumber: 7
 			}, void 0),
@@ -4286,7 +4285,7 @@ var ThreadModal = () => {
 							className: "thread-modal__mention",
 							children: ["@", getAuthorName(replyTarget.author, replyTarget.author_id)]
 						}, void 0, true, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 109,
 							columnNumber: 13
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
@@ -4310,12 +4309,12 @@ var ThreadModal = () => {
 							readOnly: isSending,
 							disabled: !isLoggedIn || isLocked
 						}, void 0, false, {
-							fileName: _jsxFileName$5,
+							fileName: _jsxFileName$6,
 							lineNumber: 110,
 							columnNumber: 13
 						}, void 0)]
 					}, void 0, true, {
-						fileName: _jsxFileName$5,
+						fileName: _jsxFileName$6,
 						lineNumber: 107,
 						columnNumber: 11
 					}, void 0),
@@ -4324,7 +4323,7 @@ var ThreadModal = () => {
 						role: "alert",
 						children: "Your comment is too long. Please keep it under 4000 characters."
 					}, void 0, false, {
-						fileName: _jsxFileName$5,
+						fileName: _jsxFileName$6,
 						lineNumber: 133,
 						columnNumber: 13
 					}, void 0),
@@ -4333,26 +4332,26 @@ var ThreadModal = () => {
 						role: "alert",
 						children: error
 					}, void 0, false, {
-						fileName: _jsxFileName$5,
+						fileName: _jsxFileName$6,
 						lineNumber: 138,
 						columnNumber: 13
 					}, void 0)
 				]
 			}, void 0, true, {
-				fileName: _jsxFileName$5,
+				fileName: _jsxFileName$6,
 				lineNumber: 106,
 				columnNumber: 9
 			}, void 0)
 		]
 	}, void 0, true, {
-		fileName: _jsxFileName$5,
+		fileName: _jsxFileName$6,
 		lineNumber: 60,
 		columnNumber: 5
 	}, void 0);
 };
 //#endregion
 //#region src/sections/comments/userMessagesPanel/appealForm/index.tsx
-var _jsxFileName$4 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/userMessagesPanel/appealForm/index.tsx";
+var _jsxFileName$5 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/userMessagesPanel/appealForm/index.tsx";
 var AppealForm = ({ contentId }) => {
 	const { appealModeration: moderation, appealLoadError } = useUserMessages();
 	const [draft, setDraft] = (0, import_react.useState)("");
@@ -4376,7 +4375,7 @@ var AppealForm = ({ contentId }) => {
 				className: "appeal-form__note",
 				children: "Loading..."
 			}, void 0, false, {
-				fileName: _jsxFileName$4,
+				fileName: _jsxFileName$5,
 				lineNumber: 31,
 				columnNumber: 33
 			}, void 0),
@@ -4384,7 +4383,7 @@ var AppealForm = ({ contentId }) => {
 				className: "appeal-form__note",
 				children: ["Removed: ", moderation.reason_text]
 			}, void 0, true, {
-				fileName: _jsxFileName$4,
+				fileName: _jsxFileName$5,
 				lineNumber: 32,
 				columnNumber: 35
 			}, void 0),
@@ -4392,7 +4391,7 @@ var AppealForm = ({ contentId }) => {
 				className: "appeal-form__note",
 				children: "This comment can't be appealed."
 			}, void 0, false, {
-				fileName: _jsxFileName$4,
+				fileName: _jsxFileName$5,
 				lineNumber: 33,
 				columnNumber: 48
 			}, void 0),
@@ -4410,7 +4409,7 @@ var AppealForm = ({ contentId }) => {
 				readOnly: isSending,
 				autoFocus: true
 			}, void 0, false, {
-				fileName: _jsxFileName$4,
+				fileName: _jsxFileName$5,
 				lineNumber: 35,
 				columnNumber: 9
 			}, void 0),
@@ -4419,7 +4418,7 @@ var AppealForm = ({ contentId }) => {
 				role: "alert",
 				children: error
 			}, void 0, false, {
-				fileName: _jsxFileName$4,
+				fileName: _jsxFileName$5,
 				lineNumber: 51,
 				columnNumber: 9
 			}, void 0),
@@ -4431,7 +4430,7 @@ var AppealForm = ({ contentId }) => {
 					onClick: closeAppealForm,
 					children: "Cancel"
 				}, void 0, false, {
-					fileName: _jsxFileName$4,
+					fileName: _jsxFileName$5,
 					lineNumber: 56,
 					columnNumber: 9
 				}, void 0), moderation?.appealable && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -4441,33 +4440,33 @@ var AppealForm = ({ contentId }) => {
 					disabled: isSending,
 					children: isSending ? "Sending..." : "Send appeal"
 				}, void 0, false, {
-					fileName: _jsxFileName$4,
+					fileName: _jsxFileName$5,
 					lineNumber: 60,
 					columnNumber: 11
 				}, void 0)]
 			}, void 0, true, {
-				fileName: _jsxFileName$4,
+				fileName: _jsxFileName$5,
 				lineNumber: 55,
 				columnNumber: 7
 			}, void 0)
 		]
 	}, void 0, true, {
-		fileName: _jsxFileName$4,
+		fileName: _jsxFileName$5,
 		lineNumber: 30,
 		columnNumber: 5
 	}, void 0);
 };
 //#endregion
 //#region src/sections/comments/userMessagesPanel/index.tsx
-var _jsxFileName$3 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/userMessagesPanel/index.tsx";
+var _jsxFileName$4 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/userMessagesPanel/index.tsx";
 var LOAD_MORE_OFFSET = 200;
 var ActivityIcon = ({ type, reaction }) => {
 	if (type === ACTIVITY_TYPE.REACTION && reaction && reaction !== "2764") return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 		className: "user-panel__item-icon",
 		children: codeToEmoji(reaction)
 	}, void 0, false, {
-		fileName: _jsxFileName$3,
-		lineNumber: 37,
+		fileName: _jsxFileName$4,
+		lineNumber: 41,
 		columnNumber: 12
 	}, void 0);
 	let icon = comment_default;
@@ -4478,8 +4477,8 @@ var ActivityIcon = ({ type, reaction }) => {
 		alt: "",
 		className: "user-panel__item-icon"
 	}, void 0, false, {
-		fileName: _jsxFileName$3,
-		lineNumber: 45,
+		fileName: _jsxFileName$4,
+		lineNumber: 49,
 		columnNumber: 10
 	}, void 0);
 };
@@ -4488,13 +4487,13 @@ var getActivityText = ({ type, reaction, message }) => {
 		ACTIVITY_LABEL[type],
 		" ",
 		/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: getAuthorName(message.parent_author, message.parent_author_id) }, void 0, false, {
-			fileName: _jsxFileName$3,
-			lineNumber: 52,
+			fileName: _jsxFileName$4,
+			lineNumber: 56,
 			columnNumber: 32
 		}, void 0)
 	] }, void 0, true, {
-		fileName: _jsxFileName$3,
-		lineNumber: 51,
+		fileName: _jsxFileName$4,
+		lineNumber: 55,
 		columnNumber: 7
 	}, void 0);
 	if (type === ACTIVITY_TYPE.REACTION && reaction === "2764") return LIKED_LABEL;
@@ -4514,14 +4513,76 @@ var getAppealTag = ({ status, outcome }) => {
 		modifier: "rejected"
 	};
 };
+var PaymentItem = ({ kind, amountMinor, currency, status, coins, cardBrand, cardLast4, occurredAt }) => {
+	const details = [formatMinorAmount(amountMinor, currency)];
+	if (cardBrand && cardLast4) details.push(`${cardBrand.charAt(0).toUpperCase()}${cardBrand.slice(1)} •••• ${cardLast4}`);
+	if (status !== PAYMENT_STATUS.SUCCEEDED) details.push(status.charAt(0).toUpperCase() + status.slice(1));
+	return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("article", {
+		className: "user-panel__item",
+		children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+			src: payments_default,
+			alt: "",
+			className: "user-panel__item-icon"
+		}, void 0, false, {
+			fileName: _jsxFileName$4,
+			lineNumber: 86,
+			columnNumber: 7
+		}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "user-panel__item-content",
+			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: "user-panel__item-header",
+				children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+					className: "user-panel__item-title",
+					children: [
+						kind === PAYMENT_KIND.REFUND ? "Refunded" : "You bought",
+						" ",
+						formatCoins(Number(coins))
+					]
+				}, void 0, true, {
+					fileName: _jsxFileName$4,
+					lineNumber: 89,
+					columnNumber: 11
+				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+					className: "user-panel__item-time",
+					children: [formatRelativeTime(occurredAt), " ago"]
+				}, void 0, true, {
+					fileName: _jsxFileName$4,
+					lineNumber: 92,
+					columnNumber: 11
+				}, void 0)]
+			}, void 0, true, {
+				fileName: _jsxFileName$4,
+				lineNumber: 88,
+				columnNumber: 9
+			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+				className: "user-panel__quote",
+				children: details.join(" · ")
+			}, void 0, false, {
+				fileName: _jsxFileName$4,
+				lineNumber: 94,
+				columnNumber: 9
+			}, void 0)]
+		}, void 0, true, {
+			fileName: _jsxFileName$4,
+			lineNumber: 87,
+			columnNumber: 7
+		}, void 0)]
+	}, void 0, true, {
+		fileName: _jsxFileName$4,
+		lineNumber: 85,
+		columnNumber: 5
+	}, void 0);
+};
 var UserMessagesPanel = () => {
 	const { user } = useAuth();
-	const { userId, userName, activityTab, status, items, error, hasMore, isLoadingMore, appeals, appealingId } = useUserMessages();
+	const { userId, userName, activityTab, status, items, payments, error, hasMore, isLoadingMore, appeals, appealingId } = useUserMessages();
 	const bodyRef = (0, import_react.useRef)(null);
 	const [isClosing, setIsClosing] = (0, import_react.useState)(false);
 	const isSelf = userId === user?.id;
 	const isRemovedTab = activityTab === ACTIVITY_TAB.REMOVED;
-	const emptyText = ACTIVITY_TABS.find(({ id }) => id === activityTab)?.emptyText;
+	const isPaymentsTab = activityTab === ACTIVITY_TAB.PAYMENTS;
+	const listLength = isPaymentsTab ? payments.length : items.length;
+	const emptyText = isPaymentsTab ? PAYMENTS_EMPTY_TEXT : ACTIVITY_TABS.find(({ id }) => id === activityTab)?.emptyText;
 	const loadMoreNearBottom = () => {
 		const body = bodyRef.current;
 		if (body && hasMore && body.scrollHeight - body.scrollTop - body.clientHeight < LOAD_MORE_OFFSET) loadMoreUserMessages();
@@ -4540,277 +4601,417 @@ var UserMessagesPanel = () => {
 			role: "dialog",
 			"aria-modal": "true",
 			"aria-labelledby": "user-panel-title",
-			children: [
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("header", {
-					className: "user-panel__header",
-					children: [
-						isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
-							fileName: _jsxFileName$3,
-							lineNumber: 114,
-							columnNumber: 22
-						}, void 0),
-						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
-							id: "user-panel-title",
-							className: "user-panel__title",
-							children: userName
+			children: [isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("nav", {
+				className: "user-panel__rail",
+				"aria-label": "Profile sections",
+				children: USER_PANEL_SECTIONS.map(({ id, label, icon }) => {
+					const isActive = id === ACTIVITY_TAB.PAYMENTS === isPaymentsTab;
+					return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						className: isActive ? "user-panel__rail-button user-panel__rail-button--active" : "user-panel__rail-button",
+						"aria-label": label,
+						"aria-current": isActive ? "page" : void 0,
+						onClick: () => {
+							if (!isActive) setActivityTab(id);
+						},
+						children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+							src: icon,
+							alt: "",
+							className: "user-panel__rail-icon"
 						}, void 0, false, {
-							fileName: _jsxFileName$3,
-							lineNumber: 115,
-							columnNumber: 11
-						}, void 0),
-						isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-							type: "button",
-							className: "user-panel__signout",
-							onClick: logoutGbn,
-							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
-								viewBox: "0 0 24 24",
-								"aria-hidden": "true",
-								children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-									d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9",
-									fill: "none",
-									stroke: "currentColor",
-									strokeWidth: "2",
-									strokeLinecap: "round",
-									strokeLinejoin: "round"
-								}, void 0, false, {
-									fileName: _jsxFileName$3,
-									lineNumber: 121,
-									columnNumber: 17
-								}, void 0)
+							fileName: _jsxFileName$4,
+							lineNumber: 175,
+							columnNumber: 19
+						}, void 0)
+					}, id, false, {
+						fileName: _jsxFileName$4,
+						lineNumber: 161,
+						columnNumber: 17
+					}, void 0);
+				})
+			}, void 0, false, {
+				fileName: _jsxFileName$4,
+				lineNumber: 157,
+				columnNumber: 11
+			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: "user-panel__main",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("header", {
+						className: "user-panel__header",
+						children: [
+							isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
+								fileName: _jsxFileName$4,
+								lineNumber: 183,
+								columnNumber: 24
+							}, void 0),
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
+								id: "user-panel-title",
+								className: "user-panel__title",
+								children: userName
 							}, void 0, false, {
-								fileName: _jsxFileName$3,
-								lineNumber: 120,
-								columnNumber: 15
-							}, void 0), "Sign out"]
-						}, void 0, true, {
-							fileName: _jsxFileName$3,
-							lineNumber: 119,
-							columnNumber: 13
-						}, void 0),
-						/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-							type: "button",
-							className: "user-panel__close",
-							onClick: () => setIsClosing(true),
-							"aria-label": "Close",
-							children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
-								viewBox: "0 0 18 18",
-								"aria-hidden": "true",
-								children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-									d: "M3 3l12 12M15 3L3 15",
-									fill: "none",
-									stroke: "currentColor",
-									strokeWidth: "2",
-									strokeLinecap: "round"
+								fileName: _jsxFileName$4,
+								lineNumber: 184,
+								columnNumber: 13
+							}, void 0),
+							isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+								type: "button",
+								className: "user-panel__signout",
+								onClick: logoutGbn,
+								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
+									viewBox: "0 0 24 24",
+									"aria-hidden": "true",
+									children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
+										d: "M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9",
+										fill: "none",
+										stroke: "currentColor",
+										strokeWidth: "2",
+										strokeLinecap: "round",
+										strokeLinejoin: "round"
+									}, void 0, false, {
+										fileName: _jsxFileName$4,
+										lineNumber: 190,
+										columnNumber: 19
+									}, void 0)
 								}, void 0, false, {
-									fileName: _jsxFileName$3,
-									lineNumber: 135,
+									fileName: _jsxFileName$4,
+									lineNumber: 189,
+									columnNumber: 17
+								}, void 0), "Sign out"]
+							}, void 0, true, {
+								fileName: _jsxFileName$4,
+								lineNumber: 188,
+								columnNumber: 15
+							}, void 0),
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+								type: "button",
+								className: "user-panel__close",
+								onClick: () => setIsClosing(true),
+								"aria-label": "Close",
+								children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
+									viewBox: "0 0 18 18",
+									"aria-hidden": "true",
+									children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
+										d: "M3 3l12 12M15 3L3 15",
+										fill: "none",
+										stroke: "currentColor",
+										strokeWidth: "2",
+										strokeLinecap: "round"
+									}, void 0, false, {
+										fileName: _jsxFileName$4,
+										lineNumber: 204,
+										columnNumber: 17
+									}, void 0)
+								}, void 0, false, {
+									fileName: _jsxFileName$4,
+									lineNumber: 203,
 									columnNumber: 15
 								}, void 0)
 							}, void 0, false, {
-								fileName: _jsxFileName$3,
-								lineNumber: 134,
+								fileName: _jsxFileName$4,
+								lineNumber: 202,
 								columnNumber: 13
 							}, void 0)
-						}, void 0, false, {
-							fileName: _jsxFileName$3,
-							lineNumber: 133,
-							columnNumber: 11
-						}, void 0)
-					]
-				}, void 0, true, {
-					fileName: _jsxFileName$3,
-					lineNumber: 113,
-					columnNumber: 9
-				}, void 0),
-				isSelf && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Tabs, {
-					tabs: ACTIVITY_TABS,
-					activeId: activityTab,
-					onChange: setActivityTab
-				}, void 0, false, {
-					fileName: _jsxFileName$3,
-					lineNumber: 140,
-					columnNumber: 20
-				}, void 0),
-				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-					className: "user-panel__body",
-					ref: bodyRef,
-					onScroll: loadMoreNearBottom,
-					children: [
-						status === REQUEST_STATUS.LOADING && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-							className: "user-panel__status",
-							children: "Loading comments..."
-						}, void 0, false, {
-							fileName: _jsxFileName$3,
-							lineNumber: 143,
-							columnNumber: 49
-						}, void 0),
-						status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-							className: "user-panel__status",
-							children: error
-						}, void 0, false, {
-							fileName: _jsxFileName$3,
-							lineNumber: 144,
-							columnNumber: 48
-						}, void 0),
-						status === REQUEST_STATUS.SUCCEEDED && items.length === 0 && !hasMore && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-							className: "user-panel__status",
-							children: emptyText
-						}, void 0, false, {
-							fileName: _jsxFileName$3,
-							lineNumber: 146,
-							columnNumber: 13
-						}, void 0),
-						items.map((item) => {
-							const isSuper = item.message.kind === MESSAGE_KIND.SUPERCHAT;
-							const appeal = appeals[item.message.id];
-							const appealTag = appeal && getAppealTag(appeal);
-							return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("article", {
-								className: "user-panel__item",
-								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ActivityIcon, { ...item }, void 0, false, {
-									fileName: _jsxFileName$3,
-									lineNumber: 154,
-									columnNumber: 17
-								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-									className: "user-panel__item-content",
-									children: [
-										/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-											className: "user-panel__item-header",
-											children: [
-												/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-													className: "user-panel__item-title",
-													children: [
-														isSelf ? "You" : userName,
-														" ",
-														getActivityText(item)
-													]
-												}, void 0, true, {
-													fileName: _jsxFileName$3,
-													lineNumber: 157,
-													columnNumber: 21
-												}, void 0),
-												isSuper && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-													className: "user-panel__tag",
-													children: "YourSay+"
-												}, void 0, false, {
-													fileName: _jsxFileName$3,
-													lineNumber: 160,
-													columnNumber: 33
-												}, void 0),
-												/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-													className: "user-panel__item-time",
-													children: [formatRelativeTime(item.at), " ago"]
-												}, void 0, true, {
-													fileName: _jsxFileName$3,
-													lineNumber: 161,
-													columnNumber: 21
-												}, void 0),
-												isUnderReview(item.message) && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-													className: "message-item__review-tag",
-													children: "Under review"
-												}, void 0, false, {
-													fileName: _jsxFileName$3,
-													lineNumber: 163,
-													columnNumber: 23
-												}, void 0),
-												appealTag && item.type !== ACTIVITY_TYPE.REACTION && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-													className: `user-panel__appeal-tag user-panel__appeal-tag--${appealTag.modifier}`,
-													children: appealTag.label
-												}, void 0, false, {
-													fileName: _jsxFileName$3,
-													lineNumber: 166,
-													columnNumber: 23
-												}, void 0),
-												isRemovedTab && !appeal && appealingId !== item.message.id && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-													type: "button",
-													className: "user-panel__appeal",
-													onClick: () => openAppealForm(item.message.id),
-													children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
-														viewBox: "0 0 24 24",
-														"aria-hidden": "true",
-														children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
-															d: "M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11",
-															fill: "none",
-															stroke: "currentColor",
-															strokeWidth: "2",
-															strokeLinecap: "round",
-															strokeLinejoin: "round"
-														}, void 0, false, {
-															fileName: _jsxFileName$3,
-															lineNumber: 177,
-															columnNumber: 27
-														}, void 0)
-													}, void 0, false, {
-														fileName: _jsxFileName$3,
-														lineNumber: 176,
-														columnNumber: 25
-													}, void 0), "Appeal"]
-												}, void 0, true, {
-													fileName: _jsxFileName$3,
-													lineNumber: 171,
-													columnNumber: 23
-												}, void 0)
-											]
-										}, void 0, true, {
-											fileName: _jsxFileName$3,
-											lineNumber: 156,
-											columnNumber: 19
-										}, void 0),
-										/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-											className: "user-panel__quote",
-											children: item.message.body
-										}, void 0, false, {
-											fileName: _jsxFileName$3,
-											lineNumber: 190,
-											columnNumber: 19
-										}, void 0),
-										isRemovedTab && item.removal_reason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-											className: "user-panel__removal-reason",
-											children: REMOVAL_REASON_TEXT[item.removal_reason] ?? item.removal_reason
-										}, void 0, false, {
-											fileName: _jsxFileName$3,
-											lineNumber: 192,
-											columnNumber: 21
-										}, void 0),
-										isRemovedTab && !appeal && appealingId === item.message.id && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(AppealForm, { contentId: item.message.id }, void 0, false, {
-											fileName: _jsxFileName$3,
-											lineNumber: 195,
-											columnNumber: 21
-										}, void 0)
-									]
-								}, void 0, true, {
-									fileName: _jsxFileName$3,
-									lineNumber: 155,
-									columnNumber: 17
-								}, void 0)]
-							}, `${item.type}-${item.message.id}-${item.reaction ?? ""}`, true, {
-								fileName: _jsxFileName$3,
-								lineNumber: 153,
+						]
+					}, void 0, true, {
+						fileName: _jsxFileName$4,
+						lineNumber: 182,
+						columnNumber: 11
+					}, void 0),
+					isSelf && !isPaymentsTab && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Tabs, {
+						tabs: ACTIVITY_TABS,
+						activeId: activityTab,
+						onChange: setActivityTab
+					}, void 0, false, {
+						fileName: _jsxFileName$4,
+						lineNumber: 209,
+						columnNumber: 40
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "user-panel__body",
+						ref: bodyRef,
+						onScroll: loadMoreNearBottom,
+						children: [
+							status === REQUEST_STATUS.LOADING && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "user-panel__status",
+								children: isPaymentsTab ? "Loading payments..." : "Loading comments..."
+							}, void 0, false, {
+								fileName: _jsxFileName$4,
+								lineNumber: 213,
 								columnNumber: 15
-							}, void 0);
-						}),
-						isLoadingMore && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-							className: "user-panel__status",
-							children: "Loading more..."
-						}, void 0, false, {
-							fileName: _jsxFileName$3,
-							lineNumber: 201,
-							columnNumber: 29
-						}, void 0)
-					]
-				}, void 0, true, {
-					fileName: _jsxFileName$3,
-					lineNumber: 142,
-					columnNumber: 9
-				}, void 0)
-			]
+							}, void 0),
+							status === REQUEST_STATUS.FAILED && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "user-panel__status",
+								children: error
+							}, void 0, false, {
+								fileName: _jsxFileName$4,
+								lineNumber: 215,
+								columnNumber: 50
+							}, void 0),
+							status === REQUEST_STATUS.SUCCEEDED && listLength === 0 && !hasMore && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "user-panel__status",
+								children: emptyText
+							}, void 0, false, {
+								fileName: _jsxFileName$4,
+								lineNumber: 217,
+								columnNumber: 15
+							}, void 0),
+							isPaymentsTab && payments.map((payment) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(PaymentItem, { ...payment }, payment.id, false, {
+								fileName: _jsxFileName$4,
+								lineNumber: 219,
+								columnNumber: 57
+							}, void 0)),
+							!isPaymentsTab && items.map((item) => {
+								const isSuper = item.message.kind === MESSAGE_KIND.SUPERCHAT;
+								const appeal = appeals[item.message.id];
+								const appealTag = appeal && getAppealTag(appeal);
+								return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("article", {
+									className: "user-panel__item",
+									children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ActivityIcon, { ...item }, void 0, false, {
+										fileName: _jsxFileName$4,
+										lineNumber: 226,
+										columnNumber: 19
+									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+										className: "user-panel__item-content",
+										children: [
+											/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+												className: "user-panel__item-header",
+												children: [
+													/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+														className: "user-panel__item-title",
+														children: [
+															isSelf ? "You" : userName,
+															" ",
+															getActivityText(item)
+														]
+													}, void 0, true, {
+														fileName: _jsxFileName$4,
+														lineNumber: 229,
+														columnNumber: 23
+													}, void 0),
+													isSuper && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+														className: "user-panel__tag",
+														children: "YourSay+"
+													}, void 0, false, {
+														fileName: _jsxFileName$4,
+														lineNumber: 232,
+														columnNumber: 35
+													}, void 0),
+													/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+														className: "user-panel__item-time",
+														children: [formatRelativeTime(item.at), " ago"]
+													}, void 0, true, {
+														fileName: _jsxFileName$4,
+														lineNumber: 233,
+														columnNumber: 23
+													}, void 0),
+													isUnderReview(item.message) && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+														className: "message-item__review-tag",
+														children: "Under review"
+													}, void 0, false, {
+														fileName: _jsxFileName$4,
+														lineNumber: 235,
+														columnNumber: 25
+													}, void 0),
+													appealTag && item.type !== ACTIVITY_TYPE.REACTION && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+														className: `user-panel__appeal-tag user-panel__appeal-tag--${appealTag.modifier}`,
+														children: appealTag.label
+													}, void 0, false, {
+														fileName: _jsxFileName$4,
+														lineNumber: 238,
+														columnNumber: 25
+													}, void 0),
+													isRemovedTab && !appeal && appealingId !== item.message.id && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+														type: "button",
+														className: "user-panel__appeal",
+														onClick: () => openAppealForm(item.message.id),
+														children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("svg", {
+															viewBox: "0 0 24 24",
+															"aria-hidden": "true",
+															children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("path", {
+																d: "M9 14L4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11",
+																fill: "none",
+																stroke: "currentColor",
+																strokeWidth: "2",
+																strokeLinecap: "round",
+																strokeLinejoin: "round"
+															}, void 0, false, {
+																fileName: _jsxFileName$4,
+																lineNumber: 249,
+																columnNumber: 29
+															}, void 0)
+														}, void 0, false, {
+															fileName: _jsxFileName$4,
+															lineNumber: 248,
+															columnNumber: 27
+														}, void 0), "Appeal"]
+													}, void 0, true, {
+														fileName: _jsxFileName$4,
+														lineNumber: 243,
+														columnNumber: 25
+													}, void 0)
+												]
+											}, void 0, true, {
+												fileName: _jsxFileName$4,
+												lineNumber: 228,
+												columnNumber: 21
+											}, void 0),
+											/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+												className: "user-panel__quote",
+												children: item.message.body
+											}, void 0, false, {
+												fileName: _jsxFileName$4,
+												lineNumber: 262,
+												columnNumber: 21
+											}, void 0),
+											isRemovedTab && item.removal_reason && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+												className: "user-panel__removal-reason",
+												children: REMOVAL_REASON_TEXT[item.removal_reason] ?? item.removal_reason
+											}, void 0, false, {
+												fileName: _jsxFileName$4,
+												lineNumber: 264,
+												columnNumber: 23
+											}, void 0),
+											isRemovedTab && !appeal && appealingId === item.message.id && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(AppealForm, { contentId: item.message.id }, void 0, false, {
+												fileName: _jsxFileName$4,
+												lineNumber: 267,
+												columnNumber: 23
+											}, void 0)
+										]
+									}, void 0, true, {
+										fileName: _jsxFileName$4,
+										lineNumber: 227,
+										columnNumber: 19
+									}, void 0)]
+								}, `${item.type}-${item.message.id}-${item.reaction ?? ""}`, true, {
+									fileName: _jsxFileName$4,
+									lineNumber: 225,
+									columnNumber: 17
+								}, void 0);
+							}),
+							isLoadingMore && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "user-panel__status",
+								children: "Loading more..."
+							}, void 0, false, {
+								fileName: _jsxFileName$4,
+								lineNumber: 273,
+								columnNumber: 31
+							}, void 0)
+						]
+					}, void 0, true, {
+						fileName: _jsxFileName$4,
+						lineNumber: 211,
+						columnNumber: 11
+					}, void 0)
+				]
+			}, void 0, true, {
+				fileName: _jsxFileName$4,
+				lineNumber: 181,
+				columnNumber: 9
+			}, void 0)]
 		}, void 0, true, {
-			fileName: _jsxFileName$3,
-			lineNumber: 102,
+			fileName: _jsxFileName$4,
+			lineNumber: 145,
 			columnNumber: 7
 		}, void 0)
 	}, void 0, false, {
+		fileName: _jsxFileName$4,
+		lineNumber: 137,
+		columnNumber: 5
+	}, void 0);
+};
+//#endregion
+//#region src/sections/comments/superChat/superChatConfirmDialog/coinPackPicker/index.tsx
+var _jsxFileName$3 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/superChat/superChatConfirmDialog/coinPackPicker/index.tsx";
+var SKELETON_PACK_COUNT = 4;
+var CoinPackPicker = ({ onContinue }) => {
+	const [packs, setPacks] = (0, import_react.useState)(null);
+	const [selectedCode, setSelectedCode] = (0, import_react.useState)(null);
+	const [error, setError] = (0, import_react.useState)(null);
+	(0, import_react.useEffect)(() => {
+		let isCancelled = false;
+		fetchCoinCatalogue().then(({ products }) => {
+			if (isCancelled) return;
+			const fixedPacks = products.flatMap((product) => product.prices).filter((price) => price.pricing === PRICE_PRICING.FIXED);
+			setPacks(fixedPacks);
+			setSelectedCode(fixedPacks[0]?.code ?? null);
+		}).catch((catalogueError) => {
+			if (isCancelled) return;
+			if (getErrorStatus(catalogueError) === HTTP_STATUS.UNAUTHORIZED) handleSessionExpired();
+			setError(toErrorMessage(catalogueError, "Couldn't load the coin packs."));
+		});
+		return () => {
+			isCancelled = true;
+		};
+	}, []);
+	const handleContinue = () => {
+		if (selectedCode) onContinue(selectedCode);
+	};
+	if (error) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+		className: "coin-packs__error",
+		children: error
+	}, void 0, false, {
 		fileName: _jsxFileName$3,
-		lineNumber: 94,
+		lineNumber: 54,
+		columnNumber: 12
+	}, void 0);
+	return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+		className: "coin-packs",
+		children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+			className: "coin-packs__grid",
+			role: "radiogroup",
+			"aria-label": "Coin packs",
+			"aria-busy": !packs,
+			children: [!packs && Array.from({ length: SKELETON_PACK_COUNT }, (_, index) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: "skeleton coin-packs__skeleton",
+				"aria-hidden": "true"
+			}, index, false, {
+				fileName: _jsxFileName$3,
+				lineNumber: 62,
+				columnNumber: 13
+			}, void 0)), packs?.map((pack) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+				type: "button",
+				role: "radio",
+				"aria-checked": pack.code === selectedCode,
+				className: pack.code === selectedCode ? "coin-packs__pack coin-packs__pack--selected" : "coin-packs__pack",
+				onClick: () => setSelectedCode(pack.code),
+				children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+					className: "coin-packs__coins",
+					children: formatCoins(Number(pack.coinAmount))
+				}, void 0, false, {
+					fileName: _jsxFileName$3,
+					lineNumber: 73,
+					columnNumber: 13
+				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+					className: "coin-packs__price",
+					children: formatMinorAmount(pack.unitAmountMinor ?? 0, pack.currency)
+				}, void 0, false, {
+					fileName: _jsxFileName$3,
+					lineNumber: 74,
+					columnNumber: 13
+				}, void 0)]
+			}, pack.code, true, {
+				fileName: _jsxFileName$3,
+				lineNumber: 65,
+				columnNumber: 11
+			}, void 0))]
+		}, void 0, true, {
+			fileName: _jsxFileName$3,
+			lineNumber: 59,
+			columnNumber: 7
+		}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+			type: "button",
+			className: "coin-packs__continue",
+			onClick: handleContinue,
+			disabled: !selectedCode,
+			children: "Continue to payment"
+		}, void 0, false, {
+			fileName: _jsxFileName$3,
+			lineNumber: 78,
+			columnNumber: 7
+		}, void 0)]
+	}, void 0, true, {
+		fileName: _jsxFileName$3,
+		lineNumber: 58,
 		columnNumber: 5
 	}, void 0);
 };
@@ -4828,6 +5029,13 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 	const hasFreeComment = isMember && FREE_COMMENTS_LEFT > 0;
 	const coinCost = hasFreeComment ? extraCoins : baseCoins + extraCoins;
 	const spendsCoins = coinCost > 0;
+	const [isPickingPack, setIsPickingPack] = (0, import_react.useState)(false);
+	const openCheckout = (priceCode) => {
+		const checkout = document.createElement(TAG_NAME.CHECKOUT);
+		checkout.setAttribute(PRICE_CODE_ATTRIBUTE, priceCode);
+		document.body.append(checkout);
+		setIsPickingPack(false);
+	};
 	let commentPrice = /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 		className: "sc-confirm__summary-price",
 		children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("s", {
@@ -4835,19 +5043,19 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 			children: formatCoins(baseCoins)
 		}, void 0, false, {
 			fileName: _jsxFileName$2,
-			lineNumber: 35,
+			lineNumber: 55,
 			columnNumber: 7
 		}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
 			className: "sc-confirm__summary-value sc-confirm__free",
 			children: "Free"
 		}, void 0, false, {
 			fileName: _jsxFileName$2,
-			lineNumber: 36,
+			lineNumber: 56,
 			columnNumber: 7
 		}, void 0)]
 	}, void 0, true, {
 		fileName: _jsxFileName$2,
-		lineNumber: 34,
+		lineNumber: 54,
 		columnNumber: 5
 	}, void 0);
 	if (spendsCoins) commentPrice = /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
@@ -4855,7 +5063,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 		children: ["−", formatCoins(coinCost)]
 	}, void 0, true, {
 		fileName: _jsxFileName$2,
-		lineNumber: 41,
+		lineNumber: 61,
 		columnNumber: 7
 	}, void 0);
 	return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -4875,7 +5083,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							rank
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 53,
+							lineNumber: 73,
 							columnNumber: 26
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
 							id: "sc-confirm-title",
@@ -4883,12 +5091,12 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							children: "Confirm your YourSay+ Comment"
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 54,
+							lineNumber: 74,
 							columnNumber: 13
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$2,
-						lineNumber: 52,
+						lineNumber: 72,
 						columnNumber: 11
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
@@ -4903,7 +5111,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 									children: "Available Coin Balance"
 								}, void 0, false, {
 									fileName: _jsxFileName$2,
-									lineNumber: 62,
+									lineNumber: 82,
 									columnNumber: 17
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
 									className: "sc-confirm__summary-value sc-confirm__balance",
@@ -4913,17 +5121,17 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 										className: "sc-confirm__icon"
 									}, void 0, false, {
 										fileName: _jsxFileName$2,
-										lineNumber: 64,
+										lineNumber: 84,
 										columnNumber: 19
 									}, void 0), formatCoins(coinBalance)]
 								}, void 0, true, {
 									fileName: _jsxFileName$2,
-									lineNumber: 63,
+									lineNumber: 83,
 									columnNumber: 17
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName$2,
-								lineNumber: 61,
+								lineNumber: 81,
 								columnNumber: 15
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 								className: "sc-confirm__summary-col sc-confirm__summary-col--end",
@@ -4932,71 +5140,79 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 									children: "This Comment"
 								}, void 0, false, {
 									fileName: _jsxFileName$2,
-									lineNumber: 69,
+									lineNumber: 89,
 									columnNumber: 17
 								}, void 0), commentPrice]
 							}, void 0, true, {
 								fileName: _jsxFileName$2,
-								lineNumber: 68,
+								lineNumber: 88,
 								columnNumber: 15
 							}, void 0)]
 						}, void 0, true, {
 							fileName: _jsxFileName$2,
-							lineNumber: 60,
+							lineNumber: 80,
 							columnNumber: 13
-						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-							className: "sc-confirm__summary-row sc-confirm__summary-row--after",
-							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								className: "sc-confirm__summary-label",
-								children: "Balance after comment"
-							}, void 0, false, {
-								fileName: _jsxFileName$2,
-								lineNumber: 77,
-								columnNumber: 19
-							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-								className: "sc-confirm__summary-price",
-								children: [!spendsCoins && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-									className: "sc-confirm__no-change",
-									children: "(No Change)"
+						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+								className: "sc-confirm__summary-row sc-confirm__summary-row--after",
+								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+									className: "sc-confirm__summary-label",
+									children: "Balance after comment"
 								}, void 0, false, {
 									fileName: _jsxFileName$2,
-									lineNumber: 79,
-									columnNumber: 38
-								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
-									className: "sc-confirm__summary-value",
-									children: formatCoins(Math.max(0, coinBalance - coinCost))
-								}, void 0, false, {
+									lineNumber: 97,
+									columnNumber: 19
+								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+									className: "sc-confirm__summary-price",
+									children: [!spendsCoins && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: "sc-confirm__no-change",
+										children: "(No Change)"
+									}, void 0, false, {
+										fileName: _jsxFileName$2,
+										lineNumber: 99,
+										columnNumber: 38
+									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
+										className: "sc-confirm__summary-value",
+										children: formatCoins(Math.max(0, coinBalance - coinCost))
+									}, void 0, false, {
+										fileName: _jsxFileName$2,
+										lineNumber: 100,
+										columnNumber: 21
+									}, void 0)]
+								}, void 0, true, {
 									fileName: _jsxFileName$2,
-									lineNumber: 80,
-									columnNumber: 21
+									lineNumber: 98,
+									columnNumber: 19
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName$2,
-								lineNumber: 78,
-								columnNumber: 19
-							}, void 0)]
-						}, void 0, true, {
+								lineNumber: 96,
+								columnNumber: 17
+							}, void 0),
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+								type: "button",
+								className: "sc-confirm__summary-link",
+								"aria-expanded": isPickingPack,
+								onClick: () => setIsPickingPack(!isPickingPack),
+								children: "Buy More Coins"
+							}, void 0, false, {
+								fileName: _jsxFileName$2,
+								lineNumber: 103,
+								columnNumber: 17
+							}, void 0),
+							isPickingPack && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(CoinPackPicker, { onContinue: openCheckout }, void 0, false, {
+								fileName: _jsxFileName$2,
+								lineNumber: 111,
+								columnNumber: 35
+							}, void 0)
+						] }, void 0, true, {
 							fileName: _jsxFileName$2,
-							lineNumber: 76,
-							columnNumber: 17
-						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("a", {
-							className: "sc-confirm__summary-link",
-							href: BUY_COINS_URL,
-							target: "_blank",
-							rel: "noopener noreferrer",
-							children: "Buy More Coins"
-						}, void 0, false, {
-							fileName: _jsxFileName$2,
-							lineNumber: 83,
-							columnNumber: 17
-						}, void 0)] }, void 0, true, {
-							fileName: _jsxFileName$2,
-							lineNumber: 75,
+							lineNumber: 95,
 							columnNumber: 15
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$2,
-						lineNumber: 59,
+						lineNumber: 79,
 						columnNumber: 11
 					}, void 0),
 					hasFreeComment && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -5008,7 +5224,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 								className: "sc-confirm__icon"
 							}, void 0, false, {
 								fileName: _jsxFileName$2,
-								lineNumber: 106,
+								lineNumber: 132,
 								columnNumber: 15
 							}, void 0),
 							"You have ",
@@ -5019,7 +5235,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 						]
 					}, void 0, true, {
 						fileName: _jsxFileName$2,
-						lineNumber: 105,
+						lineNumber: 131,
 						columnNumber: 13
 					}, void 0),
 					isMember && !hasFreeComment && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -5030,24 +5246,24 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							className: "sc-confirm__icon"
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 113,
+							lineNumber: 139,
 							columnNumber: 15
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", { children: [
 							"You've used this month's free YourSay+ comment.",
 							" ",
 							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: ["Next free comments available on ", formatNextMonthStart()] }, void 0, true, {
 								fileName: _jsxFileName$2,
-								lineNumber: 116,
+								lineNumber: 142,
 								columnNumber: 17
 							}, void 0)
 						] }, void 0, true, {
 							fileName: _jsxFileName$2,
-							lineNumber: 114,
+							lineNumber: 140,
 							columnNumber: 15
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$2,
-						lineNumber: 112,
+						lineNumber: 138,
 						columnNumber: 13
 					}, void 0),
 					!isMember && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -5058,7 +5274,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							className: "sc-confirm__icon"
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 122,
+							lineNumber: 148,
 							columnNumber: 15
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", { children: [
 							"Members get free YourSay+ Comments Every Month.",
@@ -5071,17 +5287,17 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 								children: "Upgrade Membership"
 							}, void 0, false, {
 								fileName: _jsxFileName$2,
-								lineNumber: 125,
+								lineNumber: 151,
 								columnNumber: 17
 							}, void 0)
 						] }, void 0, true, {
 							fileName: _jsxFileName$2,
-							lineNumber: 123,
+							lineNumber: 149,
 							columnNumber: 15
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$2,
-						lineNumber: 121,
+						lineNumber: 147,
 						columnNumber: 13
 					}, void 0),
 					error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -5090,7 +5306,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 						children: error
 					}, void 0, false, {
 						fileName: _jsxFileName$2,
-						lineNumber: 133,
+						lineNumber: 159,
 						columnNumber: 13
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -5103,7 +5319,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							children: "Cancel"
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 139,
+							lineNumber: 165,
 							columnNumber: 13
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 							type: "button",
@@ -5114,28 +5330,28 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							children: isSending ? "Sending..." : `Send YourSay+(${extraCoins > 0 ? formatCoins(extraCoins) : "Free"})`
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 143,
+							lineNumber: 169,
 							columnNumber: 15
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$2,
-						lineNumber: 138,
+						lineNumber: 164,
 						columnNumber: 11
 					}, void 0)
 				]
 			}, void 0, true, {
 				fileName: _jsxFileName$2,
-				lineNumber: 51,
+				lineNumber: 71,
 				columnNumber: 9
 			}, void 0)
 		}, void 0, false, {
 			fileName: _jsxFileName$2,
-			lineNumber: 50,
+			lineNumber: 70,
 			columnNumber: 7
 		}, void 0)
 	}, void 0, false, {
 		fileName: _jsxFileName$2,
-		lineNumber: 49,
+		lineNumber: 69,
 		columnNumber: 5
 	}, void 0);
 };

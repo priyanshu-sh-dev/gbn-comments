@@ -1,6 +1,6 @@
 import { t as __commonJSMin } from "./rolldown-runtime-Bk_YeHJf.js";
-import { m as require_react } from "./dom-S2PFfva1.js";
-//#region node_modules/react-dom/cjs/react-dom.development.js
+import { d as require_react } from "./authThunks-Blk6MJzv.js";
+//#region node_modules/.pnpm/react-dom@19.3.1_react@19.3.1/node_modules/react-dom/cjs/react-dom.development.js
 /**
 * @license React
 * react-dom.development.js
@@ -189,7 +189,7 @@ var require_react_dom_development = /* @__PURE__ */ __commonJSMin(((exports) => 
 	})();
 }));
 //#endregion
-//#region node_modules/react-dom/index.js
+//#region node_modules/.pnpm/react-dom@19.3.1_react@19.3.1/node_modules/react-dom/index.js
 var require_react_dom = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_react_dom_development();
 }));

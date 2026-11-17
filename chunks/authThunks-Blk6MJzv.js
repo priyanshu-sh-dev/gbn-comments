@@ -20,6 +20,27 @@ var MODERATION_API = {
 	CONTENT_APPEALS: (contentId) => `/moderation/me/content/${encodeURIComponent(contentId)}/appeals`,
 	CONTENT_MODERATION: (contentId) => `/moderation/me/content/${encodeURIComponent(contentId)}/moderation`
 };
+var BILLING_API = {
+	CATALOGUE: "/billing/catalogue",
+	CHECKOUT: `https://api.gbnlab.com/gbnid/api/v2/billing/checkout`,
+	ORDER: (orderId) => `/billing/orders/${encodeURIComponent(orderId)}`,
+	PAYMENTS: "/billing/payments"
+};
+var COINS_PRODUCT_KIND = "coins";
+var PRICE_PRICING = {
+	FIXED: "fixed",
+	CUSTOM: "custom"
+};
+var PAYMENT_KIND = {
+	CHARGE: "charge",
+	REFUND: "refund"
+};
+var PAYMENT_STATUS = {
+	PENDING: "pending",
+	SUCCEEDED: "succeeded",
+	FAILED: "failed",
+	CANCELED: "canceled"
+};
 var LIVE_API = { ROOM_SOCKET: (roomId) => `/v1/rooms/${encodeURIComponent(roomId)}/ws` };
 var IDEMPOTENCY_HEADER = "idempotency-key";
 var HTTP_STATUS = {
@@ -93,6 +114,7 @@ var ERROR_MESSAGE = {
 	DELETE_MESSAGE: "Couldn't delete, try again",
 	LOAD_REPLIES: "Couldn't load replies.",
 	LOAD_USER_MESSAGES: "Couldn't load this user's comments.",
+	LOAD_PAYMENTS: "Couldn't load your payments.",
 	REPORT_MESSAGE: "Couldn't report, try again",
 	ALREADY_REPORTED: "Already reported",
 	COPY_LINK: "Couldn't copy link, try again",
@@ -148,6 +170,9 @@ var LIVE_CHANNEL = {
 var LIVE_BASE_RETRY_DELAY_MS = 1e3;
 var LIVE_MAX_RETRY_DELAY_MS = 3e4;
 //#endregion
+//#region src/assets/comment.svg
+var comment_default = "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M3%204.5C3%203.67%203.67%203%204.5%203H15.5C16.33%203%2017%203.67%2017%204.5V12.5C17%2013.33%2016.33%2014%2015.5%2014H8L4.5%2017V14H4.5C3.67%2014%203%2013.33%203%2012.5V4.5Z'%20stroke='%23898989'%20stroke-width='1.5'%20stroke-linejoin='round'/%3e%3c/svg%3e";
+//#endregion
 //#region src/assets/copy.svg
 var copy_default = "data:image/svg+xml,%3csvg%20width='14'%20height='14'%20viewBox='0%200%2014%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20x='4.1'%20y='3.6'%20width='8.3'%20height='9.8'%20rx='1'%20stroke='%23000F55'%20stroke-width='1.2'/%3e%3cpath%20d='M1.6%2010.8V1.6C1.6%201%202%200.6%202.6%200.6H9.6'%20stroke='%23000F55'%20stroke-width='1.2'%20stroke-linecap='round'/%3e%3c/svg%3e";
 //#endregion
@@ -162,6 +187,9 @@ var email_default = "data:image/svg+xml,%3csvg%20width='16'%20height='12'%20view
 //#endregion
 //#region src/assets/facebook.svg
 var facebook_default = "data:image/svg+xml,%3csvg%20width='8'%20height='14'%20viewBox='0%200%208%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M5.2%2014V7.6H7.3L7.6%205.1H5.2V3.5C5.2%202.8%205.4%202.3%206.4%202.3H7.7V0.1C7.5%200.1%206.7%200%205.9%200C4%200%202.7%201.1%202.7%203.3V5.1H0.6V7.6H2.7V14H5.2Z'%20fill='%23000F55'/%3e%3c/svg%3e";
+//#endregion
+//#region src/assets/payments.svg
+var payments_default = "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3crect%20x='2.5'%20y='4.5'%20width='15'%20height='11'%20rx='1.5'%20stroke='%23898989'%20stroke-width='1.5'/%3e%3cpath%20d='M2.5%208H17.5M5.5%2012.5H8.5'%20stroke='%23898989'%20stroke-width='1.5'%20stroke-linecap='round'/%3e%3c/svg%3e";
 //#endregion
 //#region src/assets/report.svg
 var report_default = "data:image/svg+xml,%3csvg%20width='12'%20height='14'%20viewBox='0%200%2012%2014'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M9.23077%2010.2667C9.48567%2010.2667%209.69231%2010.4756%209.69231%2010.7333C9.69231%2010.9911%209.48567%2011.2%209.23077%2011.2H2.76923C2.51433%2011.2%202.30769%2010.9911%202.30769%2010.7333C2.30769%2010.4756%202.51433%2010.2667%202.76923%2010.2667H9.23077Z'%20fill='%23000F55'/%3e%3cpath%20d='M7.84615%207.93333C8.10106%207.93333%208.30769%208.14227%208.30769%208.4C8.30769%208.65773%208.10106%208.86667%207.84615%208.86667H2.76923C2.51433%208.86667%202.30769%208.65773%202.30769%208.4C2.30769%208.14227%202.51433%207.93333%202.76923%207.93333H7.84615Z'%20fill='%23000F55'/%3e%3cpath%20d='M6.46154%205.6C6.71644%205.6%206.92308%205.80893%206.92308%206.06667C6.92308%206.3244%206.71644%206.53333%206.46154%206.53333H2.76923C2.51433%206.53333%202.30769%206.3244%202.30769%206.06667C2.30769%205.80893%202.51433%205.6%202.76923%205.6H6.46154Z'%20fill='%23000F55'/%3e%3cpath%20d='M10.6866%200.00182292C11.4182%200.0393002%2012%200.650951%2012%201.4V12.6L11.9982%2012.672C11.9623%2013.3879%2011.3946%2013.9619%2010.6866%2013.9982L10.6154%2014H1.38462C0.643798%2014%200.0388682%2013.4117%200.00180288%2012.672L0%2012.6V1.4C1.78412e-07%200.626801%200.619914%203.75816e-09%201.38462%200H10.6154L10.6866%200.00182292ZM1.38462%200.933333C1.12972%200.933333%200.923077%201.14227%200.923077%201.4V12.6C0.923077%2012.8577%201.12971%2013.0667%201.38462%2013.0667H10.6154C10.8703%2013.0667%2011.0769%2012.8577%2011.0769%2012.6V1.4C11.0769%201.14227%2010.8703%200.933333%2010.6154%200.933333H1.38462Z'%20fill-rule='evenodd'%20clip-rule='evenodd'%20fill='%23000F55'/%3e%3c/svg%3e";
@@ -238,7 +266,8 @@ var ACTIVITY_LABEL = {
 var LIKED_LABEL = "liked a comment";
 var ACTIVITY_TAB = {
 	ALL: "all",
-	REMOVED: "removed"
+	REMOVED: "removed",
+	PAYMENTS: "payments"
 };
 var ACTIVITY_TABS = [{
 	id: ACTIVITY_TAB.ALL,
@@ -248,6 +277,16 @@ var ACTIVITY_TABS = [{
 	id: ACTIVITY_TAB.REMOVED,
 	label: "Removed",
 	emptyText: "No removed comments."
+}];
+var PAYMENTS_EMPTY_TEXT = "No payments yet.";
+var USER_PANEL_SECTIONS = [{
+	id: ACTIVITY_TAB.ALL,
+	label: "Activity",
+	icon: comment_default
+}, {
+	id: ACTIVITY_TAB.PAYMENTS,
+	label: "Payments",
+	icon: payments_default
 }];
 var MESSAGE_ACTION = {
 	EDIT: {
@@ -299,7 +338,6 @@ var SUPERCHAT_TIERS = [
 	}
 ];
 var MEMBERSHIP_URL = "https://www.gbnews.com/support";
-var BUY_COINS_URL = "https://www.gbnews.com/support";
 var MODERATION_KIND = {
 	COMMENT: "comment",
 	SUPERCHAT: "superchat"
@@ -394,13 +432,15 @@ var AVATAR_COLORS = [
 //#region src/constants/index.ts
 var TAG_NAME = {
 	COMMENTS: "gbn-comments",
-	MESSAGE_BOX: "gbn-message-box"
+	MESSAGE_BOX: "gbn-message-box",
+	CHECKOUT: "gbn-checkout"
 };
 var ROOM_ID_ATTRIBUTE = "room-id";
+var PRICE_CODE_ATTRIBUTE = "price-code";
 var LOCALE = "en-GB";
 var FONT_URL = "https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap";
 //#endregion
-//#region node_modules/react/cjs/react.development.js
+//#region node_modules/.pnpm/react@19.3.1/node_modules/react/cjs/react.development.js
 /**
 * @license React
 * react.development.js
@@ -1180,12 +1220,12 @@ var require_react_development = /* @__PURE__ */ __commonJSMin(((exports, module)
 	})();
 }));
 //#endregion
-//#region node_modules/react/index.js
+//#region node_modules/.pnpm/react@19.3.1/node_modules/react/index.js
 var require_react = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_react_development();
 }));
 //#endregion
-//#region node_modules/react/cjs/react-jsx-dev-runtime.development.js
+//#region node_modules/.pnpm/react@19.3.1/node_modules/react/cjs/react-jsx-dev-runtime.development.js
 /**
 * @license React
 * react-jsx-dev-runtime.development.js
@@ -1387,7 +1427,7 @@ var require_react_jsx_dev_runtime_development = /* @__PURE__ */ __commonJSMin(((
 	})();
 }));
 //#endregion
-//#region node_modules/react/jsx-dev-runtime.js
+//#region node_modules/.pnpm/react@19.3.1/node_modules/react/jsx-dev-runtime.js
 var require_jsx_dev_runtime = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_react_jsx_dev_runtime_development();
 }));
@@ -1571,6 +1611,7 @@ var startAuth = () => {
 		});
 	});
 };
+var refreshCoins = () => onGbnCEReady(refreshProfile);
 var handleSessionExpired = () => {
 	if (getAuthState().status !== AUTH_STATUS.AUTHENTICATED) return;
 	latestRefresh += 1;
@@ -1578,24 +1619,4 @@ var handleSessionExpired = () => {
 	openGbnLogin();
 };
 //#endregion
-//#region src/utils/dom.ts
-var loadStylesheet = (href) => {
-	if (document.querySelector(`link[href="${href}"]`)) return;
-	const link = document.createElement("link");
-	link.rel = "stylesheet";
-	link.href = href;
-	document.head.append(link);
-};
-var getQueryParam = (name) => new URLSearchParams(window.location.search).get(name);
-var getUrlWithQueryParams = (params) => {
-	const url = new URL(window.location.href);
-	Object.entries(params).forEach(([name, value]) => {
-		url.searchParams.set(name, value);
-	});
-	return url.toString();
-};
-var setQueryParam = (name, value) => {
-	window.history.replaceState(window.history.state, "", getUrlWithQueryParams({ [name]: value }));
-};
-//#endregion
-export { SHARE_DISABLED_REASON as $, CHAT_TAB as A, REQUEST_STATUS as At, MESSAGE_ACTION as B, TIER_AVATAR_BADGE_SCALE as C, MESSAGES_FROM_MEMBERS as Ct, ACTIVITY_TABS as D, MESSAGE_TOO_LONG as Dt, ACTIVITY_TAB as E, MESSAGE_STATUS as Et, DELETE_DISABLED_REASON as F, REMOVED_NOTICE as G, MODERATION_KIND as H, EDIT_DISABLED_REASON as I, SAMPLE_LOCKED_SUGGESTION as J, REMOVED_NOTICE_WITH_REASON as K, LIKED_LABEL as L, CHAT_TAB_QUERY_PARAM as M, USER_STATE as Mt, CLOSED_PLACEHOLDER as N, BANNED_PLACEHOLDER as O, MODERATION_API as Ot, COPY_URL_ACTION as P, SHARED_THREAD_QUERY_PARAM as Q, LIKE_REACTION as R, TIER_AVATARS as S, LIVE_SOCKET_PARAM as St, ACTIVITY_LABEL as T, MESSAGE_MAX_LENGTH as Tt, MODERATION_WARNING as U, MESSAGE_ACTION_FEEDBACK_MS as V, REMOVAL_REASON_TEXT as W, SHARED_FOCUS_QUERY_PARAM as X, SAMPLE_USER_NAME as Y, SHARED_MESSAGE_QUERY_PARAM as Z, ROOM_ID_ATTRIBUTE as _, LIVE_BASE_RETRY_DELAY_MS as _t, handleSessionExpired as a, ACTIVITY_TYPE as at, AVATAR_COLORS as b, LIVE_MAX_RETRY_DELAY_MS as bt, useAuth as c, APPEAL_STATUS as ct, logoutGbn as d, EDIT_MODE as dt, SHARE_LINKS as et, openGbnLogin as f, ERROR_MESSAGE as ft, LOCALE as g, LIVE_API as gt, FONT_URL as h, IDEMPOTENCY_HEADER as ht, setQueryParam as i, SUSPENDED_UNTIL_PLACEHOLDER as it, CHAT_TABS as j, ROOM_MODE as jt, BUY_COINS_URL as k, REPORT_REASONS as kt, createStore as l, COMMENTS_API as lt, require_react as m, HTTP_STATUS as mt, getUrlWithQueryParams as n, SUPERCHAT_TIERS as nt, startAuth as o, APPEAL_MAX_LENGTH as ot, require_jsx_dev_runtime as p, GBNID_API_BASE_URL as pt, REMOVED_SUPERCHAT_REFUND as q, loadStylesheet as r, SUSPENDED_PLACEHOLDER as rt, setStanding as s, APPEAL_OUTCOME as st, getQueryParam as t, SNACKBAR_DURATION_MS as tt, getTierRank as u, COMMENTS_SORT as ut, TAG_NAME as v, LIVE_CHANNEL as vt, USER_RANK as w, MESSAGE_KIND as wt, RANK_ICONS as x, LIVE_MESSAGE_TYPE as xt, AUTH_STATUS as y, LIVE_FRAME_TYPE as yt, MEMBERSHIP_URL as z };
+export { SNACKBAR_DURATION_MS as $, CLOSED_PLACEHOLDER as A, MESSAGE_TOO_LONG as At, MODERATION_WARNING as B, ACTIVITY_LABEL as C, LIVE_MAX_RETRY_DELAY_MS as Ct, CHAT_TAB as D, MESSAGE_KIND as Dt, BANNED_PLACEHOLDER as E, MESSAGES_FROM_MEMBERS as Et, LIKE_REACTION as F, REPORT_REASONS as Ft, REMOVED_SUPERCHAT_REFUND as G, REMOVAL_REASON_TEXT as H, MEMBERSHIP_URL as I, REQUEST_STATUS as It, SHARED_FOCUS_QUERY_PARAM as J, SAMPLE_LOCKED_SUGGESTION as K, MESSAGE_ACTION as L, ROOM_MODE as Lt, DELETE_DISABLED_REASON as M, PAYMENT_KIND as Mt, EDIT_DISABLED_REASON as N, PAYMENT_STATUS as Nt, CHAT_TABS as O, MESSAGE_MAX_LENGTH as Ot, LIKED_LABEL as P, PRICE_PRICING as Pt, SHARE_LINKS as Q, MESSAGE_ACTION_FEEDBACK_MS as R, USER_STATE as Rt, USER_RANK as S, LIVE_FRAME_TYPE as St, ACTIVITY_TABS as T, LIVE_SOCKET_PARAM as Tt, REMOVED_NOTICE as U, PAYMENTS_EMPTY_TEXT as V, REMOVED_NOTICE_WITH_REASON as W, SHARED_THREAD_QUERY_PARAM as X, SHARED_MESSAGE_QUERY_PARAM as Y, SHARE_DISABLED_REASON as Z, AUTH_STATUS as _, HTTP_STATUS as _t, useAuth as a, comment_default as at, TIER_AVATARS as b, LIVE_BASE_RETRY_DELAY_MS as bt, logoutGbn as c, APPEAL_OUTCOME as ct, require_react as d, COINS_PRODUCT_KIND as dt, SUPERCHAT_TIERS as et, FONT_URL as f, COMMENTS_API as ft, TAG_NAME as g, GBNID_API_BASE_URL as gt, ROOM_ID_ATTRIBUTE as h, ERROR_MESSAGE as ht, setStanding as i, payments_default as it, COPY_URL_ACTION as j, MODERATION_API as jt, CHAT_TAB_QUERY_PARAM as k, MESSAGE_STATUS as kt, openGbnLogin as l, APPEAL_STATUS as lt, PRICE_CODE_ATTRIBUTE as m, EDIT_MODE as mt, refreshCoins as n, SUSPENDED_UNTIL_PLACEHOLDER as nt, createStore as o, ACTIVITY_TYPE as ot, LOCALE as p, COMMENTS_SORT as pt, SAMPLE_USER_NAME as q, startAuth as r, USER_PANEL_SECTIONS as rt, getTierRank as s, APPEAL_MAX_LENGTH as st, handleSessionExpired as t, SUSPENDED_PLACEHOLDER as tt, require_jsx_dev_runtime as u, BILLING_API as ut, AVATAR_COLORS as v, IDEMPOTENCY_HEADER as vt, ACTIVITY_TAB as w, LIVE_MESSAGE_TYPE as wt, TIER_AVATAR_BADGE_SCALE as x, LIVE_CHANNEL as xt, RANK_ICONS as y, LIVE_API as yt, MODERATION_KIND as z };
