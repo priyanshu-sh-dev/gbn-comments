@@ -1,6 +1,7 @@
 import { r as __toESM, t as __commonJSMin } from "./chunks/rolldown-runtime-Bk_YeHJf.js";
-import { d as require_react, f as FONT_URL, g as TAG_NAME, h as ROOM_ID_ATTRIBUTE, m as PRICE_CODE_ATTRIBUTE, r as startAuth, u as require_jsx_dev_runtime } from "./chunks/authThunks-Blk6MJzv.js";
-import { t as require_react_dom } from "./chunks/react-dom-DWYiaJUS.js";
+import { _ as ROOM_ID_ATTRIBUTE, d as require_react, g as PRICE_CODE_ATTRIBUTE, h as ORDER_ID_ATTRIBUTE, p as FONT_URL, r as startAuth, u as require_jsx_dev_runtime, v as TAG_NAME } from "./chunks/authThunks-DiZu72eC.js";
+import { t as require_react_dom } from "./chunks/react-dom-Djl_RwUp.js";
+import { n as takeReturnedOrderId } from "./chunks/checkoutReturn-B3eDEzJb.js";
 import { r as loadStylesheet } from "./chunks/dom-lf66zKCS.js";
 //#region node_modules/.pnpm/scheduler@0.28.0/node_modules/scheduler/cjs/scheduler.development.js
 /**
@@ -15873,6 +15874,7 @@ var createWidgetElement = (loadWidget) => {
 			this.#root.render(/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_react.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Component, {
 				roomId: this.getAttribute(ROOM_ID_ATTRIBUTE),
 				priceCode: this.getAttribute(PRICE_CODE_ATTRIBUTE),
+				orderId: this.getAttribute(ORDER_ID_ATTRIBUTE),
 				onClose: () => this.remove()
 			}, void 0, false, {
 				fileName: _jsxFileName,
@@ -15902,7 +15904,13 @@ var defineElement = (tagName, loadWidget) => {
 //#region src/main.tsx
 loadStylesheet(FONT_URL);
 startAuth();
-defineElement(TAG_NAME.COMMENTS, () => Promise.all([import("./chunks/comments-JKYVMj0f.js"), import("./chunks/comments-BXqRXqvW.js")]));
-defineElement(TAG_NAME.MESSAGE_BOX, () => Promise.all([import("./chunks/messageBox-mZFziZt4.js"), import("./chunks/messageBox-DWIw3xEk.js")]));
-defineElement(TAG_NAME.CHECKOUT, () => Promise.all([import("./chunks/coinsCheckout-DEpvemOl.js"), import("./chunks/coinsCheckout-D768LW9E.js")]));
+defineElement(TAG_NAME.COMMENTS, () => Promise.all([import("./chunks/comments-Dh10wwTW.js"), import("./chunks/comments-BXqRXqvW.js")]));
+defineElement(TAG_NAME.MESSAGE_BOX, () => Promise.all([import("./chunks/messageBox-Bhe6TNSE.js"), import("./chunks/messageBox-DWIw3xEk.js")]));
+defineElement(TAG_NAME.CHECKOUT, () => Promise.all([import("./chunks/coinsCheckout-xoxvV63s.js"), import("./chunks/coinsCheckout-D768LW9E.js")]));
+var returnedOrderId = takeReturnedOrderId();
+if (returnedOrderId) {
+	const checkout = document.createElement(TAG_NAME.CHECKOUT);
+	checkout.setAttribute(ORDER_ID_ATTRIBUTE, returnedOrderId);
+	document.body.append(checkout);
+}
 //#endregion
