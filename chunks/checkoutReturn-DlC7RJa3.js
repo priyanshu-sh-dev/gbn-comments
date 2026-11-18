@@ -1,4 +1,4 @@
-import { f as CHECKOUT_RETURN_PARAM } from "./authThunks-DiZu72eC.js";
+import { f as CHECKOUT_RETURN_PARAM } from "./authThunks-S_lX3qJ6.js";
 //#region src/utils/checkoutReturn.ts
 var withoutReturnParams = () => {
 	const url = new URL(window.location.href);
@@ -6,7 +6,13 @@ var withoutReturnParams = () => {
 	url.searchParams.delete(CHECKOUT_RETURN_PARAM.SESSION);
 	return url;
 };
-var getCheckoutReturnUrl = () => withoutReturnParams().toString();
+var getCheckoutReturnUrl = (extraParams) => {
+	const url = withoutReturnParams();
+	new URLSearchParams(extraParams ?? "").forEach((value, name) => {
+		url.searchParams.set(name, value);
+	});
+	return url.toString();
+};
 var takeReturnedOrderId = () => {
 	const params = new URLSearchParams(window.location.search);
 	const orderId = params.get(CHECKOUT_RETURN_PARAM.ORDER);

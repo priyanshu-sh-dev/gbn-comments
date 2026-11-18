@@ -1,7 +1,7 @@
 import { r as __toESM } from "./rolldown-runtime-Bk_YeHJf.js";
-import { A as CHAT_TABS, Bt as USER_STATE, C as TIER_AVATAR_BADGE_SCALE, Ct as LIVE_CHANNEL, E as ACTIVITY_TAB, L as LIKE_REACTION, M as CLOSED_PLACEHOLDER, Nt as MODERATION_API, O as BANNED_PLACEHOLDER, Ot as MESSAGES_FROM_MEMBERS, Rt as REQUEST_STATUS, S as TIER_AVATARS, _t as ERROR_MESSAGE, a as useAuth, b as AVATAR_COLORS, ct as ACTIVITY_TYPE, d as require_react, ht as COMMENTS_SORT, it as SUSPENDED_UNTIL_PLACEHOLDER, jt as MESSAGE_STATUS, k as CHAT_TAB, kt as MESSAGE_KIND, mt as COMMENTS_API, nt as SUPERCHAT_TIERS, o as createStore, rt as SUSPENDED_PLACEHOLDER, t as handleSessionExpired, u as require_jsx_dev_runtime, w as USER_RANK, yt as HTTP_STATUS, zt as ROOM_MODE } from "./authThunks-DiZu72eC.js";
-import { t as getQueryParam } from "./dom-lf66zKCS.js";
-import { C as axiosPut, E as toErrorMessage, S as axiosPost, T as idempotencyHeaders, b as axiosGet, c as formatDateTime, g as fetchMyPayments, i as hashString, n as escapeRegExp, r as getInitials, w as getErrorStatus, x as axiosPatch, y as axiosDelete } from "./string-C69DFbqT.js";
+import { A as CHAT_TAB, C as TIER_AVATARS, Ct as HTTP_STATUS, D as ACTIVITY_TAB, Dt as LIVE_CHANNEL, Ft as MESSAGE_STATUS, Ht as REQUEST_STATUS, Lt as MODERATION_API, Mt as MESSAGES_FROM_MEMBERS, N as CLOSED_PLACEHOLDER, Nt as MESSAGE_KIND, R as LIKE_REACTION, T as USER_RANK, Ut as ROOM_MODE, Wt as USER_STATE, a as useAuth, ct as SUSPENDED_UNTIL_PLACEHOLDER, d as require_react, ft as ACTIVITY_TYPE, j as CHAT_TABS, k as BANNED_PLACEHOLDER, o as createStore, ot as SUPERCHAT_TIERS, st as SUSPENDED_PLACEHOLDER, t as handleSessionExpired, u as require_jsx_dev_runtime, vt as COMMENTS_API, w as TIER_AVATAR_BADGE_SCALE, x as AVATAR_COLORS, xt as ERROR_MESSAGE, yt as COMMENTS_SORT } from "./authThunks-S_lX3qJ6.js";
+import { p as getQueryParam } from "./superChatSlice-DQqejYMf.js";
+import { C as axiosPut, E as toErrorMessage, S as axiosPost, T as idempotencyHeaders, b as axiosGet, c as formatDateTime, g as fetchMyPayments, i as hashString, n as escapeRegExp, r as getInitials, w as getErrorStatus, x as axiosPatch, y as axiosDelete } from "./string-Bjivs9wH.js";
 //#region src/assets/close.svg
 var close_default = "data:image/svg+xml,%3csvg%20width='10'%20height='10'%20viewBox='0%200%2010%2010'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M9.81286%201.12981C9.9343%201.00407%2010.0015%200.835672%209.99997%200.660874C9.99846%200.486076%209.92834%200.318868%209.80474%200.195262C9.68113%200.0716569%209.51392%200.00154415%209.33913%202.52016e-05C9.16433%20-0.00149374%208.99593%200.0657028%208.87019%200.187141L5.00819%204.04914L1.14619%200.187141C1.02046%200.0657028%200.852056%20-0.00149374%200.677258%202.52016e-05C0.50246%200.00154415%200.335252%200.0716569%200.211646%200.195262C0.088041%200.318868%200.0179282%200.486076%200.0164093%200.660874C0.0148903%200.835672%200.0820869%201.00407%200.203526%201.12981L4.06553%204.99181L0.203526%208.85381C0.139852%208.91531%200.0890639%208.98887%200.0541246%209.0702C0.0191852%209.15154%200.000794382%209.23902%202.51714e-05%209.32754C-0.000744039%209.41606%200.0161236%209.50385%200.0496442%209.58578C0.0831648%209.66771%200.132667%209.74214%200.195262%209.80474C0.257857%209.86733%200.332292%209.91683%200.414223%209.95036C0.496154%209.98388%200.58394%2010.0007%200.67246%209.99997C0.760979%209.99921%200.848459%209.98081%200.929795%209.94587C1.01113%209.91094%201.08469%209.86015%201.14619%209.79647L5.00819%205.93447L8.87019%209.79647C8.99593%209.91791%209.16433%209.98511%209.33913%209.98359C9.51392%209.98207%209.68113%209.91196%209.80474%209.78835C9.92834%209.66475%209.99846%209.49754%209.99997%209.32274C10.0015%209.14794%209.9343%208.97954%209.81286%208.85381L5.95086%204.99181L9.81286%201.12981Z'%20fill='%23EB0000'/%3e%3c/svg%3e";
 //#endregion
@@ -212,7 +212,7 @@ var createFeed = () => ({
 var getInitialTab = () => {
 	return CHAT_TABS.find(({ id }) => id === getQueryParam("commentsTab"))?.id ?? CHAT_TAB.SUPER;
 };
-var { getState: getState$2, setState: setState$3, useStore: useStore$3 } = createStore({
+var { getState: getState$1, setState: setState$1, useStore: useStore$1 } = createStore({
 	roomId: "",
 	activeTab: getInitialTab(),
 	feeds: {
@@ -231,29 +231,29 @@ var { getState: getState$2, setState: setState$3, useStore: useStore$3 } = creat
 	lastSent: null,
 	removedNotice: null
 });
-var getCommentsState = getState$2;
-var setRoomId = (roomId) => setState$3({ roomId });
-var setSettings = (settings) => setState$3({ settings });
+var getCommentsState = getState$1;
+var setRoomId = (roomId) => setState$1({ roomId });
+var setSettings = (settings) => setState$1({ settings });
 var setRoomMode = (mode) => {
-	const { settings } = getState$2();
-	if (settings) setState$3({ settings: {
+	const { settings } = getState$1();
+	if (settings) setState$1({ settings: {
 		...settings,
 		mode
 	} });
 };
-var setActiveTab = (activeTab) => setState$3({ activeTab });
-var setFeed = (tab, next) => setState$3({ feeds: {
-	...getState$2().feeds,
+var setActiveTab = (activeTab) => setState$1({ activeTab });
+var setFeed = (tab, next) => setState$1({ feeds: {
+	...getState$1().feeds,
 	[tab]: {
-		...getState$2().feeds[tab],
+		...getState$1().feeds[tab],
 		...next
 	}
 } });
-var setCounts = (counts) => setState$3({ counts });
+var setCounts = (counts) => setState$1({ counts });
 var updateIn = (list, id, update) => list.map((message) => message.id === id ? update(message) : message);
 var updateMessage = (id, update) => {
-	const { feeds, threads } = getState$2();
-	setState$3({
+	const { feeds, threads } = getState$1();
+	setState$1({
 		feeds: {
 			[CHAT_TAB.SUPER]: {
 				...feeds[CHAT_TAB.SUPER],
@@ -275,13 +275,13 @@ var updateMessage = (id, update) => {
 	});
 };
 var setThread = (rootId, next) => {
-	const { threads } = getState$2();
+	const { threads } = getState$1();
 	const thread = threads[rootId] ?? {
 		isOpen: false,
 		status: REQUEST_STATUS.IDLE,
 		replies: []
 	};
-	setState$3({ threads: {
+	setState$1({ threads: {
 		...threads,
 		[rootId]: {
 			...thread,
@@ -289,24 +289,24 @@ var setThread = (rootId, next) => {
 		}
 	} });
 };
-var addThreadLevel = (id, rootId, sharedId) => setState$3({ threadStack: [...getState$2().threadStack, {
+var addThreadLevel = (id, rootId, sharedId) => setState$1({ threadStack: [...getState$1().threadStack, {
 	id,
 	rootId,
 	sharedId
 }] });
-var closeThreadLevel = () => setState$3({ threadStack: getState$2().threadStack.slice(0, -1) });
-var closeThreads = () => setState$3({ threadStack: [] });
-var markSent = (tab) => setState$3({ lastSent: {
+var closeThreadLevel = () => setState$1({ threadStack: getState$1().threadStack.slice(0, -1) });
+var closeThreads = () => setState$1({ threadStack: [] });
+var markSent = (tab) => setState$1({ lastSent: {
 	tab,
-	id: (getState$2().lastSent?.id ?? 0) + 1
+	id: (getState$1().lastSent?.id ?? 0) + 1
 } });
-var showRemovedNotice = (id, isSuperChat, reason) => setState$3({ removedNotice: {
+var showRemovedNotice = (id, isSuperChat, reason) => setState$1({ removedNotice: {
 	id,
 	isSuperChat,
 	reason
 } });
-var dismissRemovedNotice = () => setState$3({ removedNotice: null });
-var useComments = useStore$3;
+var dismissRemovedNotice = () => setState$1({ removedNotice: null });
+var useComments = useStore$1;
 //#endregion
 //#region src/api/comments.ts
 var fetchRoomSettings = (roomId) => axiosGet(COMMENTS_API.ROOM(roomId));
@@ -535,42 +535,6 @@ var toggleReaction = async (message, reaction) => {
 	}
 };
 //#endregion
-//#region src/store/slices/superChatSlice.ts
-var { getState: getState$1, setState: setState$2, useStore: useStore$2 } = createStore({
-	isOpen: false,
-	text: "",
-	approvedText: null,
-	needsModeration: false,
-	sentCount: 0,
-	hasResponse: false
-});
-var setSuperChatText = (text) => setState$2(text.trim() ? {
-	text,
-	hasResponse: false
-} : {
-	text,
-	isOpen: false,
-	hasResponse: false
-});
-var openSuperChatSheet = (approvedText = null) => setState$2({
-	isOpen: true,
-	approvedText,
-	needsModeration: false
-});
-var closeSuperChatSheet = () => setState$2({ isOpen: false });
-var requestSuperChatModeration = () => setState$2({
-	isOpen: false,
-	needsModeration: true
-});
-var cancelSuperChatModeration = () => setState$2({ needsModeration: false });
-var markSuperChatSent = () => setState$2({
-	isOpen: false,
-	approvedText: null,
-	sentCount: getState$1().sentCount + 1
-});
-var markSuperChatFailed = () => setState$2({ hasResponse: true });
-var useSuperChat = useStore$2;
-//#endregion
 //#region src/store/slices/userMessagesSlice.ts
 var INITIAL_STATE = {
 	userId: null,
@@ -587,9 +551,9 @@ var INITIAL_STATE = {
 	appealModeration: null,
 	appealLoadError: null
 };
-var { getState, setState: setState$1, useStore: useStore$1 } = createStore(INITIAL_STATE);
+var { getState, setState, useStore } = createStore(INITIAL_STATE);
 var getUserMessagesState = getState;
-var startUserMessages = (userId, userName, activityTab, appeals = {}) => setState$1({
+var startUserMessages = (userId, userName, activityTab, appeals = {}) => setState({
 	...INITIAL_STATE,
 	userId,
 	userName,
@@ -597,53 +561,53 @@ var startUserMessages = (userId, userName, activityTab, appeals = {}) => setStat
 	appeals,
 	status: REQUEST_STATUS.LOADING
 });
-var setUserMessages = (items, hasMore) => setState$1({
+var setUserMessages = (items, hasMore) => setState({
 	items,
 	status: REQUEST_STATUS.SUCCEEDED,
 	hasMore
 });
-var appendUserMessages = (items, hasMore) => setState$1({
+var appendUserMessages = (items, hasMore) => setState({
 	items: [...getState().items, ...items],
 	hasMore
 });
-var setUserPayments = (payments, hasMore) => setState$1({
+var setUserPayments = (payments, hasMore) => setState({
 	payments,
 	status: REQUEST_STATUS.SUCCEEDED,
 	hasMore
 });
-var appendUserPayments = (payments, hasMore) => setState$1({
+var appendUserPayments = (payments, hasMore) => setState({
 	payments: [...getState().payments, ...payments],
 	hasMore
 });
-var setUserMessagesError = (error) => setState$1({
+var setUserMessagesError = (error) => setState({
 	status: REQUEST_STATUS.FAILED,
 	error
 });
-var setUserMessagesHasMore = (hasMore) => setState$1({ hasMore });
-var setUserMessagesLoadingMore = (isLoadingMore) => setState$1({ isLoadingMore });
+var setUserMessagesHasMore = (hasMore) => setState({ hasMore });
+var setUserMessagesLoadingMore = (isLoadingMore) => setState({ isLoadingMore });
 var setUserAppeals = (appeals) => {
 	const byContentId = {};
 	for (const appeal of appeals) byContentId[appeal.content_id] = appeal;
-	setState$1({ appeals: byContentId });
+	setState({ appeals: byContentId });
 };
-var addUserAppeal = (appeal) => setState$1({ appeals: {
+var addUserAppeal = (appeal) => setState({ appeals: {
 	...getState().appeals,
 	[appeal.content_id]: appeal
 } });
-var startAppealForm = (appealingId) => setState$1({
+var startAppealForm = (appealingId) => setState({
 	appealingId,
 	appealModeration: null,
 	appealLoadError: null
 });
-var setAppealModeration = (appealModeration) => setState$1({ appealModeration });
-var setAppealLoadError = (appealLoadError) => setState$1({ appealLoadError });
-var closeAppealForm = () => setState$1({
+var setAppealModeration = (appealModeration) => setState({ appealModeration });
+var setAppealLoadError = (appealLoadError) => setState({ appealLoadError });
+var closeAppealForm = () => setState({
 	appealingId: null,
 	appealModeration: null,
 	appealLoadError: null
 });
-var clearUserMessages = () => setState$1(INITIAL_STATE);
-var useUserMessages = useStore$1;
+var clearUserMessages = () => setState(INITIAL_STATE);
+var useUserMessages = useStore;
 //#endregion
 //#region src/api/moderation.ts
 var fetchMyAppeals = async () => {
@@ -762,12 +726,6 @@ var closeUserMessages = () => {
 	nextCursor = null;
 	clearUserMessages();
 };
-//#endregion
-//#region src/store/slices/replySlice.ts
-var { setState, useStore } = createStore({ replyTo: null });
-var startReply = (replyTo) => setState({ replyTo });
-var cancelReply = () => setState({ replyTo: null });
-var useReply = useStore;
 //#endregion
 //#region src/hooks/useClickOutside.ts
 var import_react = /* @__PURE__ */ __toESM(require_react(), 1);
@@ -894,4 +852,4 @@ var containsProfanity = (text) => {
 	return PROFANITY_PATTERNS.some((pattern) => pattern.test(normalized)) || MASKED_PATTERNS.some((pattern) => isMaskedMatch(normalized, pattern));
 };
 //#endregion
-export { getCommentsState as $, loadSnapshot as A, getAuthorName as B, useSuperChat as C, joinRoom as D, editComment as E, reportComment as F, getThreadRootId as G, getComposerLockText as H, sendComment as I, isVisibleMessage as J, getVisibleReplies as K, sendSuperChat as L, openThread as M, parseLiveCursor as N, loadComments as O, reactionsInFlight as P, dismissRemovedNotice as Q, toggleReaction as R, setSuperChatText as S, deleteComment as T, getReplyParentId as U, getAuthorRank as V, getSuperChatTier as W, closeThreadLevel as X, createCommentsTicket as Y, closeThreads as Z, closeSuperChatSheet as _, cancelReply as a, showRemovedNotice as at, openSuperChatSheet as b, closeUserMessages as c, close_default as ct, openUserMessages as d, setActiveTab as et, setActivityTab as f, cancelSuperChatModeration as g, useUserMessages as h, useClickOutside as i, setThread as it, openSharedThread as j, loadMoreComments as k, loadMoreUserMessages as l, closeAppealForm as m, UserAvatar as n, setFeed as nt, startReply as o, updateMessage as ot, submitAppeal as p, isUnderReview as q, useEscapeKey as r, setRoomMode as rt, useReply as s, useComments as st, containsProfanity as t, setCounts as tt, openAppealForm as u, markSuperChatFailed as v, cursors as w, requestSuperChatModeration as x, markSuperChatSent as y, toggleThread as z };
+export { getAuthorRank as A, closeThreads as B, reactionsInFlight as C, toggleReaction as D, sendSuperChat as E, getVisibleReplies as F, setFeed as G, getCommentsState as H, isUnderReview as I, showRemovedNotice as J, setRoomMode as K, isVisibleMessage as L, getReplyParentId as M, getSuperChatTier as N, toggleThread as O, getThreadRootId as P, createCommentsTicket as R, parseLiveCursor as S, sendComment as T, setActiveTab as U, dismissRemovedNotice as V, setCounts as W, useComments as X, updateMessage as Y, close_default as Z, loadComments as _, closeUserMessages as a, openSharedThread as b, openUserMessages as c, closeAppealForm as d, useUserMessages as f, joinRoom as g, editComment as h, useClickOutside as i, getComposerLockText as j, getAuthorName as k, setActivityTab as l, deleteComment as m, UserAvatar as n, loadMoreUserMessages as o, cursors as p, setThread as q, useEscapeKey as r, openAppealForm as s, containsProfanity as t, submitAppeal as u, loadMoreComments as v, reportComment as w, openThread as x, loadSnapshot as y, closeThreadLevel as z };

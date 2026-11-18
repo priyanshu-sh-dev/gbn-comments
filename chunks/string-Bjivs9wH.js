@@ -1,5 +1,5 @@
 import { n as __exportAll } from "./rolldown-runtime-Bk_YeHJf.js";
-import { bt as IDEMPOTENCY_HEADER, ft as BILLING_API, m as LOCALE, mt as COMMENTS_API, pt as COINS_PRODUCT_KIND, t as handleSessionExpired, vt as GBNID_API_BASE_URL, yt as HTTP_STATUS } from "./authThunks-DiZu72eC.js";
+import { Ct as HTTP_STATUS, St as GBNID_API_BASE_URL, _t as COINS_PRODUCT_KIND, gt as BILLING_API, m as LOCALE, t as handleSessionExpired, vt as COMMENTS_API, wt as IDEMPOTENCY_HEADER } from "./authThunks-S_lX3qJ6.js";
 //#region node_modules/.pnpm/axios@1.20.0_debug@4.4.3/node_modules/axios/lib/helpers/bind.js
 /**
 * Create a bound version of a function with a specified `this` context
@@ -3830,12 +3830,7 @@ var axiosDelete = async (url, config) => {
 //#endregion
 //#region src/api/billing.ts
 var fetchCoinCatalogue = () => axiosGet(BILLING_API.CATALOGUE, { kind: COINS_PRODUCT_KIND });
-var startCheckout = (priceCode, idempotencyKey, returnUrl, amountMinor) => axiosPost(BILLING_API.CHECKOUT, {
-	priceCode,
-	amountMinor,
-	idempotencyKey,
-	returnUrl
-});
+var startCheckout = (body) => axiosPost(BILLING_API.CHECKOUT, body);
 var fetchOrder = (orderId) => axiosGet(BILLING_API.ORDER(orderId));
 var fetchMyPayments = (pageToken) => axiosGet(BILLING_API.PAYMENTS, {
 	pageSize: 20,

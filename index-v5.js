@@ -1,8 +1,9 @@
 import { r as __toESM, t as __commonJSMin } from "./chunks/rolldown-runtime-Bk_YeHJf.js";
-import { _ as ROOM_ID_ATTRIBUTE, d as require_react, g as PRICE_CODE_ATTRIBUTE, h as ORDER_ID_ATTRIBUTE, p as FONT_URL, r as startAuth, u as require_jsx_dev_runtime, v as TAG_NAME } from "./chunks/authThunks-DiZu72eC.js";
-import { t as require_react_dom } from "./chunks/react-dom-Djl_RwUp.js";
-import { n as takeReturnedOrderId } from "./chunks/checkoutReturn-B3eDEzJb.js";
-import { r as loadStylesheet } from "./chunks/dom-lf66zKCS.js";
+import { _ as RETURN_PARAMS_ATTRIBUTE, d as require_react, g as PRICE_CODE_ATTRIBUTE, h as ORDER_ID_ATTRIBUTE, p as FONT_URL, r as startAuth, u as require_jsx_dev_runtime, v as ROOM_ID_ATTRIBUTE, y as TAG_NAME } from "./chunks/authThunks-S_lX3qJ6.js";
+import { t as require_react_dom } from "./chunks/react-dom-CUKGPVnS.js";
+import { n as takeReturnedOrderId } from "./chunks/checkoutReturn-DlC7RJa3.js";
+import { h as loadStylesheet } from "./chunks/superChatSlice-DQqejYMf.js";
+import { t as resumeSuperChatDraft } from "./chunks/superChatDraft-a9pcYQAD.js";
 //#region node_modules/.pnpm/scheduler@0.28.0/node_modules/scheduler/cjs/scheduler.development.js
 /**
 * @license React
@@ -15875,6 +15876,7 @@ var createWidgetElement = (loadWidget) => {
 				roomId: this.getAttribute(ROOM_ID_ATTRIBUTE),
 				priceCode: this.getAttribute(PRICE_CODE_ATTRIBUTE),
 				orderId: this.getAttribute(ORDER_ID_ATTRIBUTE),
+				returnParams: this.getAttribute(RETURN_PARAMS_ATTRIBUTE),
 				onClose: () => this.remove()
 			}, void 0, false, {
 				fileName: _jsxFileName,
@@ -15904,11 +15906,12 @@ var defineElement = (tagName, loadWidget) => {
 //#region src/main.tsx
 loadStylesheet(FONT_URL);
 startAuth();
-defineElement(TAG_NAME.COMMENTS, () => Promise.all([import("./chunks/comments-Dh10wwTW.js"), import("./chunks/comments-BXqRXqvW.js")]));
-defineElement(TAG_NAME.MESSAGE_BOX, () => Promise.all([import("./chunks/messageBox-Bhe6TNSE.js"), import("./chunks/messageBox-DWIw3xEk.js")]));
-defineElement(TAG_NAME.CHECKOUT, () => Promise.all([import("./chunks/coinsCheckout-xoxvV63s.js"), import("./chunks/coinsCheckout-D768LW9E.js")]));
+defineElement(TAG_NAME.COMMENTS, () => Promise.all([import("./chunks/comments-C2bsmw5u.js"), import("./chunks/comments-BXqRXqvW.js")]));
+defineElement(TAG_NAME.MESSAGE_BOX, () => Promise.all([import("./chunks/messageBox-D19E_Sqb.js"), import("./chunks/messageBox-DWIw3xEk.js")]));
+defineElement(TAG_NAME.CHECKOUT, () => Promise.all([import("./chunks/coinsCheckout-C1AhR9bz.js"), import("./chunks/coinsCheckout-D768LW9E.js")]));
 var returnedOrderId = takeReturnedOrderId();
 if (returnedOrderId) {
+	resumeSuperChatDraft();
 	const checkout = document.createElement(TAG_NAME.CHECKOUT);
 	checkout.setAttribute(ORDER_ID_ATTRIBUTE, returnedOrderId);
 	document.body.append(checkout);

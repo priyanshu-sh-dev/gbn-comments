@@ -1,7 +1,8 @@
 import { r as __toESM } from "./rolldown-runtime-Bk_YeHJf.js";
-import { At as MESSAGE_MAX_LENGTH, E as ACTIVITY_TAB, G as REMOVED_NOTICE, J as SAMPLE_LOCKED_SUGGESTION, K as REMOVED_NOTICE_WITH_REASON, V as MODERATION_KIND, W as REMOVAL_REASON_TEXT, _t as ERROR_MESSAGE, a as useAuth, d as require_react, k as CHAT_TAB, l as openGbnLogin, q as REMOVED_SUPERCHAT_REFUND, s as getTierRank, tt as SNACKBAR_DURATION_MS, u as require_jsx_dev_runtime, w as USER_RANK, y as AUTH_STATUS } from "./authThunks-DiZu72eC.js";
-import { C as useSuperChat, D as joinRoom, H as getComposerLockText, I as sendComment, Q as dismissRemovedNotice, S as setSuperChatText, _ as closeSuperChatSheet, a as cancelReply, b as openSuperChatSheet, ct as close_default, d as openUserMessages, g as cancelSuperChatModeration, i as useClickOutside, n as UserAvatar, r as useEscapeKey, s as useReply, st as useComments, t as containsProfanity } from "./profanity-Bf0dJUj7.js";
-import { E as toErrorMessage } from "./string-C69DFbqT.js";
+import { A as CHAT_TAB, D as ACTIVITY_TAB, G as REMOVAL_REASON_TEXT, H as MODERATION_KIND, J as REMOVED_SUPERCHAT_REFUND, K as REMOVED_NOTICE, Pt as MESSAGE_MAX_LENGTH, T as USER_RANK, Y as SAMPLE_LOCKED_SUGGESTION, a as useAuth, b as AUTH_STATUS, d as require_react, l as openGbnLogin, nt as SNACKBAR_DURATION_MS, q as REMOVED_NOTICE_WITH_REASON, s as getTierRank, u as require_jsx_dev_runtime, xt as ERROR_MESSAGE } from "./authThunks-S_lX3qJ6.js";
+import { T as sendComment, V as dismissRemovedNotice, X as useComments, Z as close_default, c as openUserMessages, g as joinRoom, i as useClickOutside, j as getComposerLockText, n as UserAvatar, r as useEscapeKey, t as containsProfanity } from "./profanity-CMEMQRhj.js";
+import { a as openSuperChatSheet, c as setSuperChatText, f as useReply, l as useSuperChat, n as closeSuperChatSheet, t as cancelSuperChatModeration, u as cancelReply } from "./superChatSlice-DQqejYMf.js";
+import { E as toErrorMessage } from "./string-Bjivs9wH.js";
 //#region src/assets/send.svg
 var send_default = "data:image/svg+xml,%3csvg%20width='20'%20height='21'%20viewBox='0%200%2020%2021'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20fill-rule='evenodd'%20clip-rule='evenodd'%20d='M19.4118%209.06477C19.582%209.14935%2019.7263%209.27822%2019.8296%209.4378L19.8396%209.45344L19.8493%209.46932C19.9478%209.63387%2020%209.82223%2020%2010.0143C20%2010.2126%2019.9446%2010.4068%2019.8398%2010.575C19.736%2010.7418%2019.5879%2010.8763%2019.4122%2010.9635L1.5293%2019.9162L1.52768%2019.9171L1.52605%2019.9179C1.3457%2020.0069%201.14372%2020.0425%200.943813%2020.0207C0.743908%2019.9989%200.554327%2019.9204%200.397286%2019.7946C0.240236%2019.6688%200.122214%2019.5007%200.0570656%2019.3101C-0.00808261%2019.1196%20-0.017665%2018.9144%200.0294286%2018.7186L0.0327681%2018.7047L2.58384%209.8696L0.0358956%201.32443L0.0319178%201.30795C-0.0152533%201.11215%20-0.00575219%200.906945%200.0593183%200.716406C0.124391%200.525871%200.242348%200.357868%200.399343%200.232087L0.414164%200.220429C0.5682%200.101467%200.752137%200.0272698%200.94578%200.00619672L0.964531%200.00432713C1.15829%20-0.0132654%201.3533%200.022995%201.52805%200.10928L1.52967%200.110053L19.4118%209.06477ZM3.72149%2010.5076L1.39615%2018.5609L17.2115%2010.6433L3.72149%2010.5076ZM1.40387%201.46861L3.71984%209.23588L17.1853%209.37132L1.40387%201.46861Z'%20fill='white'/%3e%3c/svg%3e";
 //#endregion
@@ -313,7 +314,7 @@ var Snackbar = ({ message, actionLabel, onAction, onClose }) => {
 var _jsxFileName = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/messageBox/index.tsx";
 var MessageBox = ({ roomId }) => {
 	const { status, user, standing } = useAuth();
-	const { sentCount, needsModeration, hasResponse: hasSuperChatResponse } = useSuperChat();
+	const { text: storedText, sentCount, needsModeration, hasResponse: hasSuperChatResponse } = useSuperChat();
 	const { replyTo } = useReply();
 	const { settings, activeTab, removedNotice } = useComments();
 	const isYourSayTab = activeTab === CHAT_TAB.SUPER;
@@ -321,7 +322,7 @@ var MessageBox = ({ roomId }) => {
 	const lockText = getComposerLockText(settings?.mode, standing);
 	const isLocked = Boolean(lockText);
 	const isAiEnabled = Boolean(settings?.ai_enhance_enabled);
-	const [text, setText] = (0, import_react.useState)("");
+	const [text, setText] = (0, import_react.useState)(storedText);
 	const [moderationKind, setModerationKind] = (0, import_react.useState)(null);
 	const [isSending, setIsSending] = (0, import_react.useState)(false);
 	const [error, setError] = (0, import_react.useState)(null);
@@ -437,21 +438,21 @@ var MessageBox = ({ roomId }) => {
 			"aria-hidden": "true",
 			children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton user-avatar" }, void 0, false, {
 				fileName: _jsxFileName,
-				lineNumber: 193,
+				lineNumber: 194,
 				columnNumber: 11
 			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { className: "skeleton message-box__field-skeleton" }, void 0, false, {
 				fileName: _jsxFileName,
-				lineNumber: 194,
+				lineNumber: 195,
 				columnNumber: 11
 			}, void 0)]
 		}, void 0, true, {
 			fileName: _jsxFileName,
-			lineNumber: 192,
+			lineNumber: 193,
 			columnNumber: 9
 		}, void 0)
 	}, void 0, false, {
 		fileName: _jsxFileName,
-		lineNumber: 191,
+		lineNumber: 192,
 		columnNumber: 7
 	}, void 0);
 	return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
@@ -466,7 +467,7 @@ var MessageBox = ({ roomId }) => {
 					children: "Log In"
 				}, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 204,
+					lineNumber: 205,
 					columnNumber: 11
 				}, void 0),
 				/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -478,16 +479,16 @@ var MessageBox = ({ roomId }) => {
 						"aria-label": "Your comments",
 						children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
 							fileName: _jsxFileName,
-							lineNumber: 216,
+							lineNumber: 217,
 							columnNumber: 15
 						}, void 0)
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 210,
+						lineNumber: 211,
 						columnNumber: 13
 					}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(UserAvatar, {}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 219,
+						lineNumber: 220,
 						columnNumber: 13
 					}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 						className: "message-box__field",
@@ -499,7 +500,7 @@ var MessageBox = ({ roomId }) => {
 									"You are replying to ",
 									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: [replyTo.userName, "..."] }, void 0, true, {
 										fileName: _jsxFileName,
-										lineNumber: 225,
+										lineNumber: 226,
 										columnNumber: 39
 									}, void 0),
 									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -512,18 +513,18 @@ var MessageBox = ({ roomId }) => {
 											className: "message-box__cancel-icon"
 										}, void 0, false, {
 											fileName: _jsxFileName,
-											lineNumber: 227,
+											lineNumber: 228,
 											columnNumber: 21
 										}, void 0), " Cancel"]
 									}, void 0, true, {
 										fileName: _jsxFileName,
-										lineNumber: 226,
+										lineNumber: 227,
 										columnNumber: 19
 									}, void 0)
 								]
 							}, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 224,
+								lineNumber: 225,
 								columnNumber: 17
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 								className: "message-box__input-row",
@@ -532,7 +533,7 @@ var MessageBox = ({ roomId }) => {
 									children: ["@", replyTo.userName]
 								}, void 0, true, {
 									fileName: _jsxFileName,
-									lineNumber: 232,
+									lineNumber: 233,
 									columnNumber: 29
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("textarea", {
 									ref: inputRef,
@@ -557,17 +558,17 @@ var MessageBox = ({ roomId }) => {
 									disabled: !user || isLocked
 								}, void 0, false, {
 									fileName: _jsxFileName,
-									lineNumber: 233,
+									lineNumber: 234,
 									columnNumber: 17
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 231,
+								lineNumber: 232,
 								columnNumber: 15
 							}, void 0)]
 						}, void 0, true, {
 							fileName: _jsxFileName,
-							lineNumber: 222,
+							lineNumber: 223,
 							columnNumber: 13
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 							className: "message-box__actions",
@@ -582,12 +583,12 @@ var MessageBox = ({ roomId }) => {
 									className: "message-box__btn-icon"
 								}, void 0, false, {
 									fileName: _jsxFileName,
-									lineNumber: 264,
+									lineNumber: 265,
 									columnNumber: 19
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 262,
+								lineNumber: 263,
 								columnNumber: 17
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 								type: "button",
@@ -597,22 +598,22 @@ var MessageBox = ({ roomId }) => {
 								children: "Send YourSay+"
 							}, void 0, false, {
 								fileName: _jsxFileName,
-								lineNumber: 267,
+								lineNumber: 268,
 								columnNumber: 15
 							}, void 0)]
 						}, void 0, true, {
 							fileName: _jsxFileName,
-							lineNumber: 260,
+							lineNumber: 261,
 							columnNumber: 13
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName,
-						lineNumber: 221,
+						lineNumber: 222,
 						columnNumber: 11
 					}, void 0)]
 				}, void 0, true, {
 					fileName: _jsxFileName,
-					lineNumber: 208,
+					lineNumber: 209,
 					columnNumber: 9
 				}, void 0),
 				isFlagged && !hasResponse && !hasSuperChatResponse && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -621,7 +622,7 @@ var MessageBox = ({ roomId }) => {
 					children: "Your message is unethical and breaks our community guidelines."
 				}, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 274,
+					lineNumber: 275,
 					columnNumber: 11
 				}, void 0),
 				isTooLong && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -630,7 +631,7 @@ var MessageBox = ({ roomId }) => {
 					children: "Your comment is too long. Please keep it under 4000 characters."
 				}, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 279,
+					lineNumber: 280,
 					columnNumber: 11
 				}, void 0),
 				error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -639,7 +640,7 @@ var MessageBox = ({ roomId }) => {
 					children: error
 				}, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 284,
+					lineNumber: 285,
 					columnNumber: 11
 				}, void 0),
 				isAiEnabled && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(EnhanceWithAi, {
@@ -647,13 +648,13 @@ var MessageBox = ({ roomId }) => {
 					isOnGradient: isYourSayTab
 				}, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 289,
+					lineNumber: 290,
 					columnNumber: 11
 				}, void 0)
 			]
 		}, void 0, true, {
 			fileName: _jsxFileName,
-			lineNumber: 202,
+			lineNumber: 203,
 			columnNumber: 7
 		}, void 0),
 		removedNotice && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(Snackbar, {
@@ -663,7 +664,7 @@ var MessageBox = ({ roomId }) => {
 			onClose: dismissRemovedNotice
 		}, removedNotice.id, false, {
 			fileName: _jsxFileName,
-			lineNumber: 293,
+			lineNumber: 294,
 			columnNumber: 9
 		}, void 0),
 		activeModeration && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(ModerationDialog, {
@@ -673,12 +674,12 @@ var MessageBox = ({ roomId }) => {
 			onClose: handleModerationCancel
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 302,
+			lineNumber: 303,
 			columnNumber: 9
 		}, void 0)
 	] }, void 0, true, {
 		fileName: _jsxFileName,
-		lineNumber: 201,
+		lineNumber: 202,
 		columnNumber: 5
 	}, void 0);
 };
