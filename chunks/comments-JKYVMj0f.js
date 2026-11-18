@@ -1,9 +1,10 @@
 import { r as __toESM, t as __commonJSMin } from "./rolldown-runtime-Bk_YeHJf.js";
 import { C as ACTIVITY_LABEL, Ct as LIVE_MAX_RETRY_DELAY_MS, D as CHAT_TAB, Dt as MESSAGE_KIND, F as LIKE_REACTION, Ft as REPORT_REASONS, H as REMOVAL_REASON_TEXT, It as REQUEST_STATUS, J as SHARED_FOCUS_QUERY_PARAM, L as MESSAGE_ACTION, M as DELETE_DISABLED_REASON, Mt as PAYMENT_KIND, N as EDIT_DISABLED_REASON, Nt as PAYMENT_STATUS, O as CHAT_TABS, Ot as MESSAGE_MAX_LENGTH, P as LIKED_LABEL, Pt as PRICE_PRICING, Q as SHARE_LINKS, R as MESSAGE_ACTION_FEEDBACK_MS, S as USER_RANK, St as LIVE_FRAME_TYPE, T as ACTIVITY_TABS, Tt as LIVE_SOCKET_PARAM, V as PAYMENTS_EMPTY_TEXT, X as SHARED_THREAD_QUERY_PARAM, Y as SHARED_MESSAGE_QUERY_PARAM, _ as AUTH_STATUS, _t as HTTP_STATUS, a as useAuth, at as comment_default, bt as LIVE_BASE_RETRY_DELAY_MS, c as logoutGbn, ct as APPEAL_OUTCOME, d as require_react, et as SUPERCHAT_TIERS, g as TAG_NAME, ht as ERROR_MESSAGE, i as setStanding, it as payments_default, j as COPY_URL_ACTION, k as CHAT_TAB_QUERY_PARAM, kt as MESSAGE_STATUS, l as openGbnLogin, lt as APPEAL_STATUS, m as PRICE_CODE_ATTRIBUTE, mt as EDIT_MODE, ot as ACTIVITY_TYPE, rt as USER_PANEL_SECTIONS, s as getTierRank, t as handleSessionExpired, u as require_jsx_dev_runtime, w as ACTIVITY_TAB, wt as LIVE_MESSAGE_TYPE, xt as LIVE_CHANNEL, y as RANK_ICONS, yt as LIVE_API } from "./authThunks-Blk6MJzv.js";
-import { $ as getCommentsState, A as loadSnapshot, B as getAuthorName, C as useSuperChat, D as joinRoom, E as editComment, F as reportComment, G as getThreadRootId, H as getComposerLockText, I as sendComment, J as isVisibleMessage, K as getVisibleReplies, L as sendSuperChat, M as openThread, N as parseLiveCursor, O as loadComments, P as reactionsInFlight, R as toggleReaction, T as deleteComment, U as getReplyParentId, V as getAuthorRank, W as getSuperChatTier, X as closeThreadLevel, Y as createCommentsTicket, Z as closeThreads, _ as closeSuperChatSheet, at as showRemovedNotice, c as closeUserMessages, ct as close_default, d as openUserMessages, et as setActiveTab, f as setActivityTab, h as useUserMessages, i as useClickOutside, it as setThread, j as openSharedThread, k as loadMoreComments, l as loadMoreUserMessages, m as closeAppealForm, n as UserAvatar, nt as setFeed, o as startReply, ot as updateMessage, p as submitAppeal, q as isUnderReview, r as useEscapeKey, rt as setRoomMode, s as useReply, st as useComments, t as containsProfanity, tt as setCounts, u as openAppealForm, v as markSuperChatFailed, w as cursors, x as requestSuperChatModeration, y as markSuperChatSent, z as toggleThread } from "./profanity-wVkzlLSg.js";
+import { $ as getCommentsState, A as loadSnapshot, B as getAuthorName, C as useSuperChat, D as joinRoom, E as editComment, F as reportComment, G as getThreadRootId, H as getComposerLockText, I as sendComment, J as isVisibleMessage, K as getVisibleReplies, L as sendSuperChat, M as openThread, N as parseLiveCursor, O as loadComments, P as reactionsInFlight, R as toggleReaction, T as deleteComment, U as getReplyParentId, V as getAuthorRank, W as getSuperChatTier, X as closeThreadLevel, Y as createCommentsTicket, Z as closeThreads, _ as closeSuperChatSheet, at as showRemovedNotice, c as closeUserMessages, ct as close_default, d as openUserMessages, et as setActiveTab, f as setActivityTab, h as useUserMessages, i as useClickOutside, it as setThread, j as openSharedThread, k as loadMoreComments, l as loadMoreUserMessages, m as closeAppealForm, n as UserAvatar, nt as setFeed, o as startReply, ot as updateMessage, p as submitAppeal, q as isUnderReview, r as useEscapeKey, rt as setRoomMode, s as useReply, st as useComments, t as containsProfanity, tt as setCounts, u as openAppealForm, v as markSuperChatFailed, w as cursors, x as requestSuperChatModeration, y as markSuperChatSent, z as toggleThread } from "./profanity-DDXoHxvC.js";
 import { t as require_react_dom } from "./react-dom-DWYiaJUS.js";
 import { i as setQueryParam, n as getUrlWithQueryParams, t as getQueryParam } from "./dom-lf66zKCS.js";
-import { S as getErrorStatus, d as formatNextMonthStart, f as formatRelativeTime, l as formatDuration, o as formatCoins, p as fetchCoinCatalogue, s as formatCountdown, t as codeToEmoji, u as formatMinorAmount, w as toErrorMessage } from "./string-DcEcR3IM.js";
+import { E as toErrorMessage, d as formatNextMonthStart, f as formatPackPrice, h as fetchCoinCatalogue, l as formatDuration, m as formatRelativeTime, o as formatCoins, p as formatPriceRange, s as formatCountdown, t as codeToEmoji, u as formatMinorAmount, w as getErrorStatus } from "./string-D5PHZoOm.js";
+import { n as useCheckoutState } from "./checkoutSlice-B-mFrR_q.js";
 //#endregion
 //#region src/assets/coin.svg
 var coin_default = "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M17.9%2010C17.9%2014.363%2014.363%2017.9%2010%2017.9C5.63695%2017.9%202.1%2014.363%202.1%2010C2.1%205.63695%205.63695%202.1%2010%202.1C14.363%202.1%2017.9%205.63695%2017.9%2010Z'%20fill='url(%23paint0_linear_22385_21230)'%20stroke-width='0.2'%20stroke='url(%23paint1_linear_22385_21230)'/%3e%3cg%20filter='url(%23filter0_d_22385_21230)'%3e%3ccircle%20cx='10'%20cy='10'%20r='6'%20fill='url(%23paint2_linear_22385_21230)'/%3e%3ccircle%20cx='10'%20cy='10'%20r='5.5'%20stroke='url(%23paint3_linear_22385_21230)'/%3e%3c/g%3e%3cg%20filter='url(%23filter1_d_22385_21230)'%3e%3ccircle%20cx='10'%20cy='10'%20r='5'%20fill='url(%23paint4_linear_22385_21230)'/%3e%3ccircle%20cx='10'%20cy='10'%20r='4.95'%20stroke='url(%23paint5_linear_22385_21230)'%20stroke-width='0.1'/%3e%3c/g%3e%3cdefs%3e%3cfilter%20id='filter0_d_22385_21230'%20x='0'%20y='0'%20width='20'%20height='20'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset/%3e%3cfeGaussianBlur%20stdDeviation='2'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.25%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_22385_21230'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_22385_21230'%20result='shape'/%3e%3c/filter%3e%3cfilter%20id='filter1_d_22385_21230'%20x='1'%20y='1'%20width='18'%20height='18'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset/%3e%3cfeGaussianBlur%20stdDeviation='2'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.25%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_22385_21230'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_22385_21230'%20result='shape'/%3e%3c/filter%3e%3clinearGradient%20id='paint0_linear_22385_21230'%20x1='10'%20y1='2'%20x2='10'%20y2='18'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.283654'%20stop-color='%23FFB916'/%3e%3cstop%20offset='1'%20stop-color='%23FFD87C'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint1_linear_22385_21230'%20x1='10'%20y1='18'%20x2='10'%20y2='2'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23F5B728'/%3e%3cstop%20offset='1'%20stop-color='%23D7A531'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint2_linear_22385_21230'%20x1='4'%20y1='10'%20x2='16'%20y2='10'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23DB9D0D'/%3e%3cstop%20offset='1'%20stop-color='%23FFD269'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint3_linear_22385_21230'%20x1='10'%20y1='16'%20x2='10'%20y2='4'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.274038'%20stop-color='%23E2A006'/%3e%3cstop%20offset='1'%20stop-color='%23FFE175'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint4_linear_22385_21230'%20x1='5'%20y1='10'%20x2='15'%20y2='10'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23DB9D0D'/%3e%3cstop%20offset='1'%20stop-color='%23F8C346'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint5_linear_22385_21230'%20x1='10'%20y1='5'%20x2='10'%20y2='15'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.274038'%20stop-color='%23E2A006'/%3e%3cstop%20offset='1'%20stop-color='%23FCDD96'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e";
@@ -4922,18 +4923,22 @@ var UserMessagesPanel = () => {
 //#endregion
 //#region src/sections/comments/superChat/superChatConfirmDialog/coinPackPicker/index.tsx
 var _jsxFileName$3 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/comments/superChat/superChatConfirmDialog/coinPackPicker/index.tsx";
-var SKELETON_PACK_COUNT = 4;
+var SKELETON_PACK_COUNT = 3;
+var SCROLL_STEP = 200;
 var CoinPackPicker = ({ onContinue }) => {
 	const [packs, setPacks] = (0, import_react.useState)(null);
 	const [selectedCode, setSelectedCode] = (0, import_react.useState)(null);
 	const [error, setError] = (0, import_react.useState)(null);
+	const trackRef = (0, import_react.useRef)(null);
+	const selected = packs?.find((pack) => pack.code === selectedCode);
+	const isSelectedCustom = selected?.pricing === PRICE_PRICING.CUSTOM;
 	(0, import_react.useEffect)(() => {
 		let isCancelled = false;
 		fetchCoinCatalogue().then(({ products }) => {
 			if (isCancelled) return;
-			const fixedPacks = products.flatMap((product) => product.prices).filter((price) => price.pricing === PRICE_PRICING.FIXED);
-			setPacks(fixedPacks);
-			setSelectedCode(fixedPacks[0]?.code ?? null);
+			const allPacks = products.flatMap((product) => product.prices);
+			setPacks(allPacks);
+			setSelectedCode(allPacks[0]?.code ?? null);
 		}).catch((catalogueError) => {
 			if (isCancelled) return;
 			if (getErrorStatus(catalogueError) === HTTP_STATUS.UNAUTHORIZED) handleSessionExpired();
@@ -4943,6 +4948,12 @@ var CoinPackPicker = ({ onContinue }) => {
 			isCancelled = true;
 		};
 	}, []);
+	const scrollTrack = (direction) => {
+		trackRef.current?.scrollBy({
+			left: direction * SCROLL_STEP,
+			behavior: "smooth"
+		});
+	};
 	const handleContinue = () => {
 		if (selectedCode) onContinue(selectedCode);
 	};
@@ -4951,67 +4962,225 @@ var CoinPackPicker = ({ onContinue }) => {
 		children: error
 	}, void 0, false, {
 		fileName: _jsxFileName$3,
-		lineNumber: 54,
+		lineNumber: 61,
 		columnNumber: 12
 	}, void 0);
-	return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+	return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
 		className: "coin-packs",
-		children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-			className: "coin-packs__grid",
-			role: "radiogroup",
-			"aria-label": "Coin packs",
-			"aria-busy": !packs,
-			children: [!packs && Array.from({ length: SKELETON_PACK_COUNT }, (_, index) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-				className: "skeleton coin-packs__skeleton",
-				"aria-hidden": "true"
-			}, index, false, {
+		"aria-labelledby": "coin-packs-title",
+		children: [
+			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h3", {
+				id: "coin-packs-title",
+				className: "coin-packs__title",
+				children: "Choose your Coin package"
+			}, void 0, false, {
 				fileName: _jsxFileName$3,
-				lineNumber: 62,
-				columnNumber: 13
-			}, void 0)), packs?.map((pack) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-				type: "button",
-				role: "radio",
-				"aria-checked": pack.code === selectedCode,
-				className: pack.code === selectedCode ? "coin-packs__pack coin-packs__pack--selected" : "coin-packs__pack",
-				onClick: () => setSelectedCode(pack.code),
-				children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-					className: "coin-packs__coins",
-					children: formatCoins(Number(pack.coinAmount))
-				}, void 0, false, {
-					fileName: _jsxFileName$3,
-					lineNumber: 73,
-					columnNumber: 13
-				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-					className: "coin-packs__price",
-					children: formatMinorAmount(pack.unitAmountMinor ?? 0, pack.currency)
-				}, void 0, false, {
-					fileName: _jsxFileName$3,
-					lineNumber: 74,
-					columnNumber: 13
-				}, void 0)]
-			}, pack.code, true, {
+				lineNumber: 66,
+				columnNumber: 7
+			}, void 0),
+			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: "coin-packs__carousel",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						className: "coin-packs__arrow",
+						"aria-label": "Previous packages",
+						onClick: () => scrollTrack(-1),
+						children: "‹"
+					}, void 0, false, {
+						fileName: _jsxFileName$3,
+						lineNumber: 71,
+						columnNumber: 9
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "coin-packs__track",
+						ref: trackRef,
+						role: "radiogroup",
+						"aria-label": "Coin packs",
+						"aria-busy": !packs,
+						children: [!packs && Array.from({ length: SKELETON_PACK_COUNT }, (_, index) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "skeleton coin-packs__skeleton",
+							"aria-hidden": "true"
+						}, index, false, {
+							fileName: _jsxFileName$3,
+							lineNumber: 82,
+							columnNumber: 15
+						}, void 0)), packs?.map((price) => {
+							const isSelected = price.code === selectedCode;
+							return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+								type: "button",
+								role: "radio",
+								"aria-checked": isSelected,
+								className: isSelected ? "coin-packs__card coin-packs__card--selected" : "coin-packs__card",
+								onClick: () => setSelectedCode(price.code),
+								children: [
+									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: "coin-packs__code",
+										children: price.code
+									}, void 0, false, {
+										fileName: _jsxFileName$3,
+										lineNumber: 95,
+										columnNumber: 17
+									}, void 0),
+									price.pricing === PRICE_PRICING.CUSTOM ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: "coin-packs__range",
+										children: formatPriceRange(price)
+									}, void 0, false, {
+										fileName: _jsxFileName$3,
+										lineNumber: 97,
+										columnNumber: 19
+									}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: "coin-packs__price",
+										children: formatPackPrice(price.unitAmountMinor ?? 0, price.currency)
+									}, void 0, false, {
+										fileName: _jsxFileName$3,
+										lineNumber: 100,
+										columnNumber: 21
+									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: "coin-packs__coins",
+										children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+											src: coin_default,
+											alt: "",
+											className: "coin-packs__coin-icon"
+										}, void 0, false, {
+											fileName: _jsxFileName$3,
+											lineNumber: 104,
+											columnNumber: 23
+										}, void 0), formatCoins(Number(price.coinAmount))]
+									}, void 0, true, {
+										fileName: _jsxFileName$3,
+										lineNumber: 103,
+										columnNumber: 21
+									}, void 0)] }, void 0, true, {
+										fileName: _jsxFileName$3,
+										lineNumber: 99,
+										columnNumber: 19
+									}, void 0),
+									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+										className: isSelected ? "coin-packs__choose coin-packs__choose--selected" : "coin-packs__choose",
+										children: isSelected ? "✓ Package Selected" : "Choose Package"
+									}, void 0, false, {
+										fileName: _jsxFileName$3,
+										lineNumber: 109,
+										columnNumber: 17
+									}, void 0)
+								]
+							}, price.code, true, {
+								fileName: _jsxFileName$3,
+								lineNumber: 87,
+								columnNumber: 15
+							}, void 0);
+						})]
+					}, void 0, true, {
+						fileName: _jsxFileName$3,
+						lineNumber: 79,
+						columnNumber: 9
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						className: "coin-packs__arrow",
+						"aria-label": "Next packages",
+						onClick: () => scrollTrack(1),
+						children: "›"
+					}, void 0, false, {
+						fileName: _jsxFileName$3,
+						lineNumber: 116,
+						columnNumber: 9
+					}, void 0)
+				]
+			}, void 0, true, {
 				fileName: _jsxFileName$3,
-				lineNumber: 65,
-				columnNumber: 11
-			}, void 0))]
-		}, void 0, true, {
-			fileName: _jsxFileName$3,
-			lineNumber: 59,
-			columnNumber: 7
-		}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-			type: "button",
-			className: "coin-packs__continue",
-			onClick: handleContinue,
-			disabled: !selectedCode,
-			children: "Continue to payment"
-		}, void 0, false, {
-			fileName: _jsxFileName$3,
-			lineNumber: 78,
-			columnNumber: 7
-		}, void 0)]
+				lineNumber: 70,
+				columnNumber: 7
+			}, void 0),
+			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+				className: "coin-packs__note",
+				children: "More Coins. More value. No subscription."
+			}, void 0, false, {
+				fileName: _jsxFileName$3,
+				lineNumber: 126,
+				columnNumber: 7
+			}, void 0),
+			selected && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+				className: "coin-packs__summary",
+				children: [
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+						className: "coin-packs__summary-pack",
+						children: [
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "coin-packs__summary-label",
+								children: "You have selected"
+							}, void 0, false, {
+								fileName: _jsxFileName$3,
+								lineNumber: 131,
+								columnNumber: 13
+							}, void 0),
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "coin-packs__summary-coins",
+								children: [selected.code, !isSelectedCustom && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
+									" · ",
+									/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+										src: "data:image/svg+xml,%3csvg%20width='20'%20height='20'%20viewBox='0%200%2020%2020'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M17.9%2010C17.9%2014.363%2014.363%2017.9%2010%2017.9C5.63695%2017.9%202.1%2014.363%202.1%2010C2.1%205.63695%205.63695%202.1%2010%202.1C14.363%202.1%2017.9%205.63695%2017.9%2010Z'%20fill='url(%23paint0_linear_22385_21230)'%20stroke-width='0.2'%20stroke='url(%23paint1_linear_22385_21230)'/%3e%3cg%20filter='url(%23filter0_d_22385_21230)'%3e%3ccircle%20cx='10'%20cy='10'%20r='6'%20fill='url(%23paint2_linear_22385_21230)'/%3e%3ccircle%20cx='10'%20cy='10'%20r='5.5'%20stroke='url(%23paint3_linear_22385_21230)'/%3e%3c/g%3e%3cg%20filter='url(%23filter1_d_22385_21230)'%3e%3ccircle%20cx='10'%20cy='10'%20r='5'%20fill='url(%23paint4_linear_22385_21230)'/%3e%3ccircle%20cx='10'%20cy='10'%20r='4.95'%20stroke='url(%23paint5_linear_22385_21230)'%20stroke-width='0.1'/%3e%3c/g%3e%3cdefs%3e%3cfilter%20id='filter0_d_22385_21230'%20x='0'%20y='0'%20width='20'%20height='20'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset/%3e%3cfeGaussianBlur%20stdDeviation='2'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.25%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_22385_21230'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_22385_21230'%20result='shape'/%3e%3c/filter%3e%3cfilter%20id='filter1_d_22385_21230'%20x='1'%20y='1'%20width='18'%20height='18'%20filterUnits='userSpaceOnUse'%20color-interpolation-filters='sRGB'%3e%3cfeFlood%20flood-opacity='0'%20result='BackgroundImageFix'/%3e%3cfeColorMatrix%20in='SourceAlpha'%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%20127%200'%20result='hardAlpha'/%3e%3cfeOffset/%3e%3cfeGaussianBlur%20stdDeviation='2'/%3e%3cfeComposite%20in2='hardAlpha'%20operator='out'/%3e%3cfeColorMatrix%20type='matrix'%20values='0%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200%200.25%200'/%3e%3cfeBlend%20mode='normal'%20in2='BackgroundImageFix'%20result='effect1_dropShadow_22385_21230'/%3e%3cfeBlend%20mode='normal'%20in='SourceGraphic'%20in2='effect1_dropShadow_22385_21230'%20result='shape'/%3e%3c/filter%3e%3clinearGradient%20id='paint0_linear_22385_21230'%20x1='10'%20y1='2'%20x2='10'%20y2='18'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.283654'%20stop-color='%23FFB916'/%3e%3cstop%20offset='1'%20stop-color='%23FFD87C'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint1_linear_22385_21230'%20x1='10'%20y1='18'%20x2='10'%20y2='2'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23F5B728'/%3e%3cstop%20offset='1'%20stop-color='%23D7A531'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint2_linear_22385_21230'%20x1='4'%20y1='10'%20x2='16'%20y2='10'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23DB9D0D'/%3e%3cstop%20offset='1'%20stop-color='%23FFD269'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint3_linear_22385_21230'%20x1='10'%20y1='16'%20x2='10'%20y2='4'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.274038'%20stop-color='%23E2A006'/%3e%3cstop%20offset='1'%20stop-color='%23FFE175'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint4_linear_22385_21230'%20x1='5'%20y1='10'%20x2='15'%20y2='10'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20stop-color='%23DB9D0D'/%3e%3cstop%20offset='1'%20stop-color='%23F8C346'/%3e%3c/linearGradient%3e%3clinearGradient%20id='paint5_linear_22385_21230'%20x1='10'%20y1='5'%20x2='10'%20y2='15'%20gradientUnits='userSpaceOnUse'%3e%3cstop%20offset='0.274038'%20stop-color='%23E2A006'/%3e%3cstop%20offset='1'%20stop-color='%23FCDD96'/%3e%3c/linearGradient%3e%3c/defs%3e%3c/svg%3e",
+										alt: "",
+										className: "coin-packs__coin-icon"
+									}, void 0, false, {
+										fileName: _jsxFileName$3,
+										lineNumber: 137,
+										columnNumber: 19
+									}, void 0),
+									formatCoins(Number(selected.coinAmount))
+								] }, void 0, true, {
+									fileName: _jsxFileName$3,
+									lineNumber: 135,
+									columnNumber: 17
+								}, void 0)]
+							}, void 0, true, {
+								fileName: _jsxFileName$3,
+								lineNumber: 132,
+								columnNumber: 13
+							}, void 0),
+							isSelectedCustom && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+								className: "coin-packs__summary-hint",
+								children: "Enter your amount at checkout"
+							}, void 0, false, {
+								fileName: _jsxFileName$3,
+								lineNumber: 142,
+								columnNumber: 34
+							}, void 0)
+						]
+					}, void 0, true, {
+						fileName: _jsxFileName$3,
+						lineNumber: 130,
+						columnNumber: 11
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						className: "coin-packs__summary-price",
+						children: isSelectedCustom ? formatPriceRange(selected) : formatPackPrice(selected.unitAmountMinor ?? 0, selected.currency)
+					}, void 0, false, {
+						fileName: _jsxFileName$3,
+						lineNumber: 144,
+						columnNumber: 11
+					}, void 0),
+					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+						type: "button",
+						className: "coin-packs__continue",
+						onClick: handleContinue,
+						children: "Continue to Payment"
+					}, void 0, false, {
+						fileName: _jsxFileName$3,
+						lineNumber: 149,
+						columnNumber: 11
+					}, void 0)
+				]
+			}, void 0, true, {
+				fileName: _jsxFileName$3,
+				lineNumber: 129,
+				columnNumber: 9
+			}, void 0)
+		]
 	}, void 0, true, {
 		fileName: _jsxFileName$3,
-		lineNumber: 58,
+		lineNumber: 65,
 		columnNumber: 5
 	}, void 0);
 };
@@ -5030,11 +5199,16 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 	const coinCost = hasFreeComment ? extraCoins : baseCoins + extraCoins;
 	const spendsCoins = coinCost > 0;
 	const [isPickingPack, setIsPickingPack] = (0, import_react.useState)(false);
+	const { completedOrderId } = useCheckoutState();
+	const [seenOrderId, setSeenOrderId] = (0, import_react.useState)(completedOrderId);
+	if (completedOrderId !== seenOrderId) {
+		setSeenOrderId(completedOrderId);
+		setIsPickingPack(false);
+	}
 	const openCheckout = (priceCode) => {
 		const checkout = document.createElement(TAG_NAME.CHECKOUT);
 		checkout.setAttribute(PRICE_CODE_ATTRIBUTE, priceCode);
 		document.body.append(checkout);
-		setIsPickingPack(false);
 	};
 	let commentPrice = /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 		className: "sc-confirm__summary-price",
@@ -5043,19 +5217,19 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 			children: formatCoins(baseCoins)
 		}, void 0, false, {
 			fileName: _jsxFileName$2,
-			lineNumber: 55,
+			lineNumber: 63,
 			columnNumber: 7
 		}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
 			className: "sc-confirm__summary-value sc-confirm__free",
 			children: "Free"
 		}, void 0, false, {
 			fileName: _jsxFileName$2,
-			lineNumber: 56,
+			lineNumber: 64,
 			columnNumber: 7
 		}, void 0)]
 	}, void 0, true, {
 		fileName: _jsxFileName$2,
-		lineNumber: 54,
+		lineNumber: 62,
 		columnNumber: 5
 	}, void 0);
 	if (spendsCoins) commentPrice = /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
@@ -5063,7 +5237,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 		children: ["−", formatCoins(coinCost)]
 	}, void 0, true, {
 		fileName: _jsxFileName$2,
-		lineNumber: 61,
+		lineNumber: 69,
 		columnNumber: 7
 	}, void 0);
 	return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -5083,7 +5257,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							rank
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 73,
+							lineNumber: 81,
 							columnNumber: 26
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
 							id: "sc-confirm-title",
@@ -5091,12 +5265,12 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							children: "Confirm your YourSay+ Comment"
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 74,
+							lineNumber: 82,
 							columnNumber: 13
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$2,
-						lineNumber: 72,
+						lineNumber: 80,
 						columnNumber: 11
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("section", {
@@ -5111,7 +5285,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 									children: "Available Coin Balance"
 								}, void 0, false, {
 									fileName: _jsxFileName$2,
-									lineNumber: 82,
+									lineNumber: 90,
 									columnNumber: 17
 								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
 									className: "sc-confirm__summary-value sc-confirm__balance",
@@ -5121,17 +5295,17 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 										className: "sc-confirm__icon"
 									}, void 0, false, {
 										fileName: _jsxFileName$2,
-										lineNumber: 84,
+										lineNumber: 92,
 										columnNumber: 19
 									}, void 0), formatCoins(coinBalance)]
 								}, void 0, true, {
 									fileName: _jsxFileName$2,
-									lineNumber: 83,
+									lineNumber: 91,
 									columnNumber: 17
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName$2,
-								lineNumber: 81,
+								lineNumber: 89,
 								columnNumber: 15
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 								className: "sc-confirm__summary-col sc-confirm__summary-col--end",
@@ -5140,80 +5314,77 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 									children: "This Comment"
 								}, void 0, false, {
 									fileName: _jsxFileName$2,
-									lineNumber: 89,
+									lineNumber: 97,
 									columnNumber: 17
 								}, void 0), commentPrice]
 							}, void 0, true, {
 								fileName: _jsxFileName$2,
-								lineNumber: 88,
+								lineNumber: 96,
 								columnNumber: 15
 							}, void 0)]
 						}, void 0, true, {
 							fileName: _jsxFileName$2,
-							lineNumber: 80,
+							lineNumber: 88,
 							columnNumber: 13
-						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
-								className: "sc-confirm__summary-row sc-confirm__summary-row--after",
-								children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-									className: "sc-confirm__summary-label",
-									children: "Balance after comment"
+						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+							className: "sc-confirm__summary-row sc-confirm__summary-row--after",
+							children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+								className: "sc-confirm__summary-label",
+								children: "Balance after comment"
+							}, void 0, false, {
+								fileName: _jsxFileName$2,
+								lineNumber: 105,
+								columnNumber: 19
+							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+								className: "sc-confirm__summary-price",
+								children: [!spendsCoins && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
+									className: "sc-confirm__no-change",
+									children: "(No Change)"
 								}, void 0, false, {
 									fileName: _jsxFileName$2,
-									lineNumber: 97,
-									columnNumber: 19
-								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-									className: "sc-confirm__summary-price",
-									children: [!spendsCoins && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
-										className: "sc-confirm__no-change",
-										children: "(No Change)"
-									}, void 0, false, {
-										fileName: _jsxFileName$2,
-										lineNumber: 99,
-										columnNumber: 38
-									}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
-										className: "sc-confirm__summary-value",
-										children: formatCoins(Math.max(0, coinBalance - coinCost))
-									}, void 0, false, {
-										fileName: _jsxFileName$2,
-										lineNumber: 100,
-										columnNumber: 21
-									}, void 0)]
-								}, void 0, true, {
+									lineNumber: 107,
+									columnNumber: 38
+								}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", {
+									className: "sc-confirm__summary-value",
+									children: formatCoins(Math.max(0, coinBalance - coinCost))
+								}, void 0, false, {
 									fileName: _jsxFileName$2,
-									lineNumber: 98,
-									columnNumber: 19
+									lineNumber: 108,
+									columnNumber: 21
 								}, void 0)]
 							}, void 0, true, {
 								fileName: _jsxFileName$2,
-								lineNumber: 96,
-								columnNumber: 17
-							}, void 0),
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
-								type: "button",
-								className: "sc-confirm__summary-link",
-								"aria-expanded": isPickingPack,
-								onClick: () => setIsPickingPack(!isPickingPack),
-								children: "Buy More Coins"
-							}, void 0, false, {
-								fileName: _jsxFileName$2,
-								lineNumber: 103,
-								columnNumber: 17
-							}, void 0),
-							isPickingPack && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(CoinPackPicker, { onContinue: openCheckout }, void 0, false, {
-								fileName: _jsxFileName$2,
-								lineNumber: 111,
-								columnNumber: 35
-							}, void 0)
-						] }, void 0, true, {
+								lineNumber: 106,
+								columnNumber: 19
+							}, void 0)]
+						}, void 0, true, {
 							fileName: _jsxFileName$2,
-							lineNumber: 95,
+							lineNumber: 104,
+							columnNumber: 17
+						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
+							type: "button",
+							className: "sc-confirm__summary-link",
+							"aria-expanded": isPickingPack,
+							onClick: () => setIsPickingPack(!isPickingPack),
+							children: "Buy More Coins"
+						}, void 0, false, {
+							fileName: _jsxFileName$2,
+							lineNumber: 111,
+							columnNumber: 17
+						}, void 0)] }, void 0, true, {
+							fileName: _jsxFileName$2,
+							lineNumber: 103,
 							columnNumber: 15
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$2,
-						lineNumber: 79,
+						lineNumber: 87,
 						columnNumber: 11
+					}, void 0),
+					isPickingPack && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(CoinPackPicker, { onContinue: openCheckout }, void 0, false, {
+						fileName: _jsxFileName$2,
+						lineNumber: 137,
+						columnNumber: 29
 					}, void 0),
 					hasFreeComment && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 						className: "sc-confirm__note",
@@ -5224,7 +5395,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 								className: "sc-confirm__icon"
 							}, void 0, false, {
 								fileName: _jsxFileName$2,
-								lineNumber: 132,
+								lineNumber: 141,
 								columnNumber: 15
 							}, void 0),
 							"You have ",
@@ -5235,7 +5406,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 						]
 					}, void 0, true, {
 						fileName: _jsxFileName$2,
-						lineNumber: 131,
+						lineNumber: 140,
 						columnNumber: 13
 					}, void 0),
 					isMember && !hasFreeComment && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -5246,46 +5417,12 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							className: "sc-confirm__icon"
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 139,
+							lineNumber: 148,
 							columnNumber: 15
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", { children: [
 							"You've used this month's free YourSay+ comment.",
 							" ",
 							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: ["Next free comments available on ", formatNextMonthStart()] }, void 0, true, {
-								fileName: _jsxFileName$2,
-								lineNumber: 142,
-								columnNumber: 17
-							}, void 0)
-						] }, void 0, true, {
-							fileName: _jsxFileName$2,
-							lineNumber: 140,
-							columnNumber: 15
-						}, void 0)]
-					}, void 0, true, {
-						fileName: _jsxFileName$2,
-						lineNumber: 138,
-						columnNumber: 13
-					}, void 0),
-					!isMember && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
-						className: "sc-confirm__note",
-						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
-							src: "data:image/svg+xml,%3csvg%20width='14'%20height='13'%20viewBox='0%200%2014%2013'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M5.81015%200.5156C6.03466%20-0.175383%207.01222%20-0.175382%207.23673%200.5156L8.26342%203.67543C8.36383%203.98445%208.65179%204.19367%208.97671%204.19367L12.2992%204.19367C13.0257%204.19367%2013.3278%205.12338%2012.74%205.55043L10.0521%207.50331C9.78922%207.6943%209.67922%208.03282%209.77963%208.34184L10.8063%2011.5017C11.0308%2012.1927%2010.24%2012.7672%209.65219%2012.3402L6.96428%2010.3873C6.70141%2010.1963%206.34546%2010.1963%206.0826%2010.3873L3.39469%2012.3402C2.8069%2012.7672%202.01604%2012.1927%202.24056%2011.5017L3.26725%208.34184C3.36765%208.03282%203.25766%207.6943%202.99479%207.50331L0.30688%205.55043C-0.280905%205.12338%200.0211766%204.19367%200.747719%204.19367L4.07016%204.19367C4.39508%204.19367%204.68305%203.98445%204.78345%203.67543L5.81015%200.5156Z'%20fill='%23FFD86B'/%3e%3c/svg%3e",
-							alt: "",
-							className: "sc-confirm__icon"
-						}, void 0, false, {
-							fileName: _jsxFileName$2,
-							lineNumber: 148,
-							columnNumber: 15
-						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", { children: [
-							"Members get free YourSay+ Comments Every Month.",
-							" ",
-							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("a", {
-								className: "sc-confirm__upgrade-link",
-								href: "https://www.gbnews.com/support",
-								target: "_blank",
-								rel: "noopener noreferrer",
-								children: "Upgrade Membership"
-							}, void 0, false, {
 								fileName: _jsxFileName$2,
 								lineNumber: 151,
 								columnNumber: 17
@@ -5300,13 +5437,47 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 						lineNumber: 147,
 						columnNumber: 13
 					}, void 0),
+					!isMember && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+						className: "sc-confirm__note",
+						children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
+							src: "data:image/svg+xml,%3csvg%20width='14'%20height='13'%20viewBox='0%200%2014%2013'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M5.81015%200.5156C6.03466%20-0.175383%207.01222%20-0.175382%207.23673%200.5156L8.26342%203.67543C8.36383%203.98445%208.65179%204.19367%208.97671%204.19367L12.2992%204.19367C13.0257%204.19367%2013.3278%205.12338%2012.74%205.55043L10.0521%207.50331C9.78922%207.6943%209.67922%208.03282%209.77963%208.34184L10.8063%2011.5017C11.0308%2012.1927%2010.24%2012.7672%209.65219%2012.3402L6.96428%2010.3873C6.70141%2010.1963%206.34546%2010.1963%206.0826%2010.3873L3.39469%2012.3402C2.8069%2012.7672%202.01604%2012.1927%202.24056%2011.5017L3.26725%208.34184C3.36765%208.03282%203.25766%207.6943%202.99479%207.50331L0.30688%205.55043C-0.280905%205.12338%200.0211766%204.19367%200.747719%204.19367L4.07016%204.19367C4.39508%204.19367%204.68305%203.98445%204.78345%203.67543L5.81015%200.5156Z'%20fill='%23FFD86B'/%3e%3c/svg%3e",
+							alt: "",
+							className: "sc-confirm__icon"
+						}, void 0, false, {
+							fileName: _jsxFileName$2,
+							lineNumber: 157,
+							columnNumber: 15
+						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", { children: [
+							"Members get free YourSay+ Comments Every Month.",
+							" ",
+							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("a", {
+								className: "sc-confirm__upgrade-link",
+								href: "https://www.gbnews.com/support",
+								target: "_blank",
+								rel: "noopener noreferrer",
+								children: "Upgrade Membership"
+							}, void 0, false, {
+								fileName: _jsxFileName$2,
+								lineNumber: 160,
+								columnNumber: 17
+							}, void 0)
+						] }, void 0, true, {
+							fileName: _jsxFileName$2,
+							lineNumber: 158,
+							columnNumber: 15
+						}, void 0)]
+					}, void 0, true, {
+						fileName: _jsxFileName$2,
+						lineNumber: 156,
+						columnNumber: 13
+					}, void 0),
 					error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 						className: "sc-confirm__error",
 						role: "alert",
 						children: error
 					}, void 0, false, {
 						fileName: _jsxFileName$2,
-						lineNumber: 159,
+						lineNumber: 168,
 						columnNumber: 13
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
@@ -5319,7 +5490,7 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							children: "Cancel"
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 165,
+							lineNumber: 174,
 							columnNumber: 13
 						}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 							type: "button",
@@ -5330,28 +5501,28 @@ var SuperChatConfirmDialog = ({ extraCoins, isSending, error, onSend, onClose })
 							children: isSending ? "Sending..." : `Send YourSay+(${extraCoins > 0 ? formatCoins(extraCoins) : "Free"})`
 						}, void 0, false, {
 							fileName: _jsxFileName$2,
-							lineNumber: 169,
+							lineNumber: 178,
 							columnNumber: 15
 						}, void 0)]
 					}, void 0, true, {
 						fileName: _jsxFileName$2,
-						lineNumber: 164,
+						lineNumber: 173,
 						columnNumber: 11
 					}, void 0)
 				]
 			}, void 0, true, {
 				fileName: _jsxFileName$2,
-				lineNumber: 71,
+				lineNumber: 79,
 				columnNumber: 9
 			}, void 0)
 		}, void 0, false, {
 			fileName: _jsxFileName$2,
-			lineNumber: 70,
+			lineNumber: 78,
 			columnNumber: 7
 		}, void 0)
 	}, void 0, false, {
 		fileName: _jsxFileName$2,
-		lineNumber: 69,
+		lineNumber: 77,
 		columnNumber: 5
 	}, void 0);
 };

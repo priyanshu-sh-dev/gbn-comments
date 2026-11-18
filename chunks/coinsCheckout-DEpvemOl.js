@@ -1,7 +1,8 @@
 import { r as __toESM, t as __commonJSMin } from "./rolldown-runtime-Bk_YeHJf.js";
-import { d as require_react, f as FONT_URL, n as refreshCoins, u as require_jsx_dev_runtime } from "./authThunks-Blk6MJzv.js";
+import { Pt as PRICE_PRICING, d as require_react, f as FONT_URL, n as refreshCoins, u as require_jsx_dev_runtime } from "./authThunks-Blk6MJzv.js";
 import { t as require_react_dom } from "./react-dom-DWYiaJUS.js";
-import { S as getErrorStatus, a as isWholePounds, g as startCheckout, h as fetchOrder, o as formatCoins, u as formatMinorAmount, w as toErrorMessage } from "./string-DcEcR3IM.js";
+import { E as toErrorMessage, _ as fetchOrder, a as isWholePounds, h as fetchCoinCatalogue, o as formatCoins, p as formatPriceRange, u as formatMinorAmount, v as startCheckout, w as getErrorStatus } from "./string-D5PHZoOm.js";
+import { t as markCheckoutCompleted } from "./checkoutSlice-B-mFrR_q.js";
 //#region src/assets/applePay.png
 var applePay_default = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMgAAACjCAMAAAD4taE1AAAAJ1BMVEVMaXEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACv15x2AAAADHRSTlMAA/ugI1riwz9+E+/IY2M9AAAACXBIWXMAAAsSAAALEgHS3X78AAAED0lEQVR4nO2Y23LkIAxEJe4Y/v97tyQuJo6dzcsSZ6vPQ+IZ7CnaElIDEQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/heYONnoiB+G+WHgbTAdttZ4PAnRW34BTEespsZltke2Czl9pfFFsK2m1jwny+RCXTHxHHwzqRojmUWrELNSq31cQa+AdXK+mhqWiY6IdA168fUSeoEMZiJbTUxLdWoRqdYrOcoHUzO9FSY6DtHisz/ocHq9CJkzd1HD4uiVMB3exmizzE8vo81tnUwh3JCqJhGid+Jiy/9gsw16WWtIEpNrRJiSjJcerpMXLBomX3ph6hW2XRcvbf4ihIjjyC0mdrmFz8mdxElYSl7yyaddEvtUuwTJm6FGZv9ZiNSDaqQgUJLm2bBO8k6GikayBS/szEKmczofOp8E5AshTF7uGiVZ4+flVYyGyZTlo/7MFh2p3AqxOoGn1EpEXgpxNSEU1VIS9VI9XYG9NKV/LCTf6giXqnU+IA3SODVlplrnnPOhVbKeW23qowNtKwPNXV3zaqT2RQi3hKpR/8/vnQSlHNSi25JJE+1cMZvs7mch/iKkdZHmWHQ012DEq6gHyGPdxDO3WDNri4o20e8JaZ96FkneuZSSJJEqSfIbEoksoWl9/5Ac3GaVvykk9O2Iro+bfJlCnFSANL8z7fInU2tdI+uAmYVZtRwuJe+zrjPRzppb+qiVHdrGhn+72HXpztozu705vYuMeRtKKWUMaBB1heuTYa9Nfiq/UjdHQ5w6TAnxdJNqhBf8KGC67MWT7XTJrUr+rbPHth/x3vVc6f6jmhDFbMUpRAM8WordmVmL1bokl7j62dbm/bwsLWN9crKR6Yt9vJfApIXY7zTFT16rZfgQ0rcj41Sr26rZthchkoolaYqFrZt7dfH3QpK8/4/+aZJ7GW5tUtOzpZaOZP1r925SJCS3OrRvfyWkv3FuRnII8XI8wdszS0jPq/1BSIuB3KEhkX4+hchmOOSwO7OUm1Yix42Lh/0kRA/AQtKZZzX03QxIvapGNsx2//53FK5zvzvc+GNqNRdforUxGBPLIiSVpX5vRfJaRfRg6NUw4y7U8llI6yPjieikvU97JgctrQbvZlQufcF6pRv2JqTcRoRlx94bjmU3q1arW4L9iZMVpmRjzO1IIcdoPX84jfe3D2UbQ4g2ER1ijafTdRKofcb3Oi136EmpLIxDT3f+9oA84/Spuyr4E5nVpzXsx/TofeRs6Ndn5v3rTZpaP3k+zOdsv/0ybzUeUuf6NvHXchyHFIE3H9h/ByYb5Rh543HWv6G3kGZe6Bcz/Ge5Lde/CCYbZDf8u/MKAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0+QMM+jc/eplPYAAAAABJRU5ErkJggg==";
 //#endregion
@@ -1545,6 +1546,8 @@ var loadStripe = function loadStripe() {
 		return initStripe(maybeStripe, args, startTime);
 	});
 };
+//#endregion
+//#region src/constants/coinsCheckout.ts
 var CHECKOUT_ATTEMPTS_STORAGE_KEY = "gbn-checkout-attempts";
 var ORDER_STATUS = {
 	OPEN: "open",
@@ -1663,10 +1666,10 @@ var clearAttemptKey = (attemptId) => {
 //#region src/sections/coinsCheckout/amountStep/index.tsx
 var import_jsx_dev_runtime = require_jsx_dev_runtime();
 var _jsxFileName$6 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/coinsCheckout/amountStep/index.tsx";
-var AmountStep = ({ pounds, isLocked, isStarting, error, onPoundsChange, onContinue }) => {
+var AmountStep = ({ pounds, isLocked, isStarting, canContinue, hint, error, onPoundsChange, onContinue }) => {
 	const handleSubmit = (event) => {
 		event.preventDefault();
-		if (isWholePounds(pounds) && !isStarting) onContinue();
+		if (canContinue && !isStarting) onContinue();
 	};
 	return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("form", {
 		className: "amount-step",
@@ -1680,7 +1683,7 @@ var AmountStep = ({ pounds, isLocked, isStarting, error, onPoundsChange, onConti
 					children: "£"
 				}, void 0, false, {
 					fileName: _jsxFileName$6,
-					lineNumber: 24,
+					lineNumber: 35,
 					columnNumber: 9
 				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("input", {
 					className: "amount-step__input",
@@ -1693,106 +1696,86 @@ var AmountStep = ({ pounds, isLocked, isStarting, error, onPoundsChange, onConti
 					onChange: (event) => onPoundsChange(event.target.value.trim())
 				}, void 0, false, {
 					fileName: _jsxFileName$6,
-					lineNumber: 27,
+					lineNumber: 38,
 					columnNumber: 9
 				}, void 0)]
 			}, void 0, true, {
 				fileName: _jsxFileName$6,
-				lineNumber: 23,
+				lineNumber: 34,
 				columnNumber: 7
+			}, void 0),
+			!isLocked && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+				className: "amount-step__hint",
+				children: ["Whole pounds, ", hint]
+			}, void 0, true, {
+				fileName: _jsxFileName$6,
+				lineNumber: 49,
+				columnNumber: 21
 			}, void 0),
 			error && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 				className: "payment-modal__error",
 				children: error
 			}, void 0, false, {
 				fileName: _jsxFileName$6,
-				lineNumber: 38,
+				lineNumber: 50,
 				columnNumber: 17
 			}, void 0),
 			!isLocked && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 				type: "submit",
 				className: "payment-modal__pay",
-				disabled: !isWholePounds(pounds) || isStarting,
+				disabled: !canContinue || isStarting,
 				children: isStarting ? "Starting checkout…" : "Continue"
 			}, void 0, false, {
 				fileName: _jsxFileName$6,
-				lineNumber: 40,
+				lineNumber: 52,
 				columnNumber: 9
 			}, void 0)
 		]
 	}, void 0, true, {
 		fileName: _jsxFileName$6,
-		lineNumber: 22,
+		lineNumber: 33,
 		columnNumber: 5
 	}, void 0);
 };
 //#endregion
 //#region src/sections/coinsCheckout/orderSummary/index.tsx
 var _jsxFileName$5 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/coinsCheckout/orderSummary/index.tsx";
-var OrderSummary = ({ total, coins }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
+var OrderSummary = ({ total }) => /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 	className: "order-summary",
 	children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 		className: "order-summary__headline",
 		children: ["You are about to be charged ", /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("strong", { children: total }, void 0, false, {
 			fileName: _jsxFileName$5,
-			lineNumber: 11,
+			lineNumber: 8,
 			columnNumber: 35
 		}, void 0)]
 	}, void 0, true, {
 		fileName: _jsxFileName$5,
-		lineNumber: 10,
+		lineNumber: 7,
 		columnNumber: 5
 	}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dl", {
 		className: "order-summary__grid",
-		children: [
-			Boolean(coins) && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dt", { children: "You receive" }, void 0, false, {
-				fileName: _jsxFileName$5,
-				lineNumber: 16,
-				columnNumber: 11
-			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dd", { children: formatCoins(coins ?? 0) }, void 0, false, {
-				fileName: _jsxFileName$5,
-				lineNumber: 17,
-				columnNumber: 11
-			}, void 0)] }, void 0, true, {
-				fileName: _jsxFileName$5,
-				lineNumber: 15,
-				columnNumber: 9
-			}, void 0),
-			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dt", { children: "Billing" }, void 0, false, {
-				fileName: _jsxFileName$5,
-				lineNumber: 21,
-				columnNumber: 9
-			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dd", { children: [total, " one off"] }, void 0, true, {
-				fileName: _jsxFileName$5,
-				lineNumber: 22,
-				columnNumber: 9
-			}, void 0)] }, void 0, true, {
-				fileName: _jsxFileName$5,
-				lineNumber: 20,
-				columnNumber: 7
-			}, void 0),
-			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dt", { children: "First Billing Date" }, void 0, false, {
-				fileName: _jsxFileName$5,
-				lineNumber: 25,
-				columnNumber: 9
-			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dd", { children: "Today" }, void 0, false, {
-				fileName: _jsxFileName$5,
-				lineNumber: 26,
-				columnNumber: 9
-			}, void 0)] }, void 0, true, {
-				fileName: _jsxFileName$5,
-				lineNumber: 24,
-				columnNumber: 7
-			}, void 0)
-		]
-	}, void 0, true, {
+		children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dt", { children: "Billing" }, void 0, false, {
+			fileName: _jsxFileName$5,
+			lineNumber: 12,
+			columnNumber: 9
+		}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dd", { children: [total, " one off"] }, void 0, true, {
+			fileName: _jsxFileName$5,
+			lineNumber: 13,
+			columnNumber: 9
+		}, void 0)] }, void 0, true, {
+			fileName: _jsxFileName$5,
+			lineNumber: 11,
+			columnNumber: 7
+		}, void 0)
+	}, void 0, false, {
 		fileName: _jsxFileName$5,
-		lineNumber: 13,
+		lineNumber: 10,
 		columnNumber: 5
 	}, void 0)]
 }, void 0, true, {
 	fileName: _jsxFileName$5,
-	lineNumber: 9,
+	lineNumber: 6,
 	columnNumber: 3
 }, void 0);
 //#endregion
@@ -1963,7 +1946,7 @@ var WalletButton = ({ method, onConfirmed }) => {
 //#endregion
 //#region src/sections/coinsCheckout/paymentStep/index.tsx
 var _jsxFileName$1 = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/coinsCheckout/paymentStep/index.tsx";
-var PaymentStep = ({ order, onConfirmed, children }) => {
+var PaymentStep = ({ onConfirmed, children }) => {
 	const checkoutState = useCheckout();
 	const [method, setMethod] = (0, import_react.useState)(PAYMENT_METHOD.CARD);
 	if (checkoutState.type === "loading") return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -1971,7 +1954,7 @@ var PaymentStep = ({ order, onConfirmed, children }) => {
 		children: "Loading payment options…"
 	}, void 0, false, {
 		fileName: _jsxFileName$1,
-		lineNumber: 21,
+		lineNumber: 20,
 		columnNumber: 12
 	}, void 0);
 	if (checkoutState.type === "error") return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -1979,22 +1962,19 @@ var PaymentStep = ({ order, onConfirmed, children }) => {
 		children: checkoutState.error.message
 	}, void 0, false, {
 		fileName: _jsxFileName$1,
-		lineNumber: 24,
+		lineNumber: 23,
 		columnNumber: 12
 	}, void 0);
 	const total = checkoutState.checkout.total.total.amount;
 	return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
-		/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(OrderSummary, {
-			total,
-			coins: Number(order.coins)
-		}, void 0, false, {
+		/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(OrderSummary, { total }, void 0, false, {
 			fileName: _jsxFileName$1,
-			lineNumber: 32,
+			lineNumber: 31,
 			columnNumber: 7
 		}, void 0),
 		/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("hr", { className: "payment-modal__divider" }, void 0, false, {
 			fileName: _jsxFileName$1,
-			lineNumber: 34,
+			lineNumber: 33,
 			columnNumber: 7
 		}, void 0),
 		children,
@@ -2005,7 +1985,7 @@ var PaymentStep = ({ order, onConfirmed, children }) => {
 				children: "Select a payment method"
 			}, void 0, false, {
 				fileName: _jsxFileName$1,
-				lineNumber: 39,
+				lineNumber: 38,
 				columnNumber: 9
 			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 				className: "method-selector",
@@ -2023,7 +2003,7 @@ var PaymentStep = ({ order, onConfirmed, children }) => {
 						children: "✓"
 					}, void 0, false, {
 						fileName: _jsxFileName$1,
-						lineNumber: 53,
+						lineNumber: 52,
 						columnNumber: 17
 					}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("img", {
 						src: icon,
@@ -2031,34 +2011,34 @@ var PaymentStep = ({ order, onConfirmed, children }) => {
 						className: `method-selector__icon method-selector__icon--${id}`
 					}, void 0, false, {
 						fileName: _jsxFileName$1,
-						lineNumber: 57,
+						lineNumber: 56,
 						columnNumber: 15
 					}, void 0)]
 				}, id, true, {
 					fileName: _jsxFileName$1,
-					lineNumber: 42,
+					lineNumber: 41,
 					columnNumber: 13
 				}, void 0))
 			}, void 0, false, {
 				fileName: _jsxFileName$1,
-				lineNumber: 40,
+				lineNumber: 39,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
 			fileName: _jsxFileName$1,
-			lineNumber: 38,
+			lineNumber: 37,
 			columnNumber: 7
 		}, void 0),
 		/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 			className: method === PAYMENT_METHOD.CARD ? void 0 : "payment-modal__hidden",
 			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(CardForm, { onConfirmed }, void 0, false, {
 				fileName: _jsxFileName$1,
-				lineNumber: 65,
+				lineNumber: 64,
 				columnNumber: 9
 			}, void 0)
 		}, void 0, false, {
 			fileName: _jsxFileName$1,
-			lineNumber: 64,
+			lineNumber: 63,
 			columnNumber: 7
 		}, void 0),
 		method !== PAYMENT_METHOD.CARD && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(WalletButton, {
@@ -2066,12 +2046,12 @@ var PaymentStep = ({ order, onConfirmed, children }) => {
 			onConfirmed
 		}, method, false, {
 			fileName: _jsxFileName$1,
-			lineNumber: 68,
+			lineNumber: 67,
 			columnNumber: 42
 		}, void 0)
 	] }, void 0, true, {
 		fileName: _jsxFileName$1,
-		lineNumber: 31,
+		lineNumber: 30,
 		columnNumber: 5
 	}, void 0);
 };
@@ -2079,9 +2059,10 @@ var PaymentStep = ({ order, onConfirmed, children }) => {
 //#region src/sections/coinsCheckout/index.tsx
 var _jsxFileName = "/Users/priyanshusharma/Desktop/Projects/super-chat/src/sections/coinsCheckout/index.tsx";
 var Checkout = ({ priceCode, onClose }) => {
-	const isCustomAmount = !priceCode;
+	const [price, setPrice] = (0, import_react.useState)(null);
+	const [priceError, setPriceError] = (0, import_react.useState)(null);
 	const [checkout, setCheckout] = (0, import_react.useState)(null);
-	const [isStarting, setIsStarting] = (0, import_react.useState)(!isCustomAmount);
+	const [isStarting, setIsStarting] = (0, import_react.useState)(true);
 	const [startError, setStartError] = (0, import_react.useState)(null);
 	const [pounds, setPounds] = (0, import_react.useState)("");
 	const [isConfirmed, setIsConfirmed] = (0, import_react.useState)(false);
@@ -2089,12 +2070,14 @@ var Checkout = ({ priceCode, onClose }) => {
 	const [paidOrder, setPaidOrder] = (0, import_react.useState)(null);
 	const [expiredNotice, setExpiredNotice] = (0, import_react.useState)(null);
 	const attemptIdRef = (0, import_react.useRef)("");
-	const amountMinor = isWholePounds(pounds) ? Number(pounds) * 100 : void 0;
+	const isCustomAmount = price?.pricing === PRICE_PRICING.CUSTOM;
+	const amountMinor = isWholePounds(pounds) ? Number(pounds) * 100 : 0;
+	const isAmountInRange = amountMinor >= Number(price?.minAmountMinor ?? 0) && amountMinor <= Number(price?.maxAmountMinor ?? 0);
 	const requestCheckout = async (customAmountMinor) => {
-		const code = priceCode ?? "gbp_custom";
-		attemptIdRef.current = `${code}:${customAmountMinor ?? ""}`;
+		if (!priceCode) return;
+		attemptIdRef.current = `${priceCode}:${customAmountMinor ?? ""}`;
 		try {
-			setCheckout(await startCheckout(code, getAttemptKey(attemptIdRef.current), customAmountMinor));
+			setCheckout(await startCheckout(priceCode, getAttemptKey(attemptIdRef.current), customAmountMinor));
 		} catch (error) {
 			const status = getErrorStatus(error);
 			if (status && status < 500) clearAttemptKey(attemptIdRef.current);
@@ -2109,7 +2092,28 @@ var Checkout = ({ priceCode, onClose }) => {
 		requestCheckout(customAmountMinor);
 	};
 	(0, import_react.useEffect)(() => {
-		if (!isCustomAmount) requestCheckout();
+		if (!priceCode) return;
+		let isCancelled = false;
+		fetchCoinCatalogue().then(({ products }) => {
+			if (isCancelled) return;
+			const foundPrice = products.flatMap((product) => product.prices).find((item) => item.code === priceCode);
+			if (!foundPrice) {
+				setPriceError("This price isn't available.");
+				setIsStarting(false);
+				return;
+			}
+			setPrice(foundPrice);
+			if (foundPrice.pricing === PRICE_PRICING.FIXED) requestCheckout();
+			else setIsStarting(false);
+		}).catch((error) => {
+			if (!isCancelled) {
+				setPriceError(toErrorMessage(error, "Couldn't load this price."));
+				setIsStarting(false);
+			}
+		});
+		return () => {
+			isCancelled = true;
+		};
 	}, []);
 	(0, import_react.useEffect)(() => {
 		document.body.style.overflow = "hidden";
@@ -2128,6 +2132,7 @@ var Checkout = ({ priceCode, onClose }) => {
 			if (order?.status === ORDER_STATUS.COMPLETE) {
 				clearAttemptKey(attemptIdRef.current);
 				setPaidOrder(order);
+				markCheckoutCompleted(order.id);
 				if (Number(order.coins) > 0) refreshCoins();
 				return;
 			}
@@ -2149,12 +2154,12 @@ var Checkout = ({ priceCode, onClose }) => {
 		};
 	}, [checkout, isConfirmed]);
 	const renderBody = () => {
-		if (!stripePromise) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+		if (!stripePromise || !priceCode) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
 			className: "payment-modal__error",
 			children: "Payments are currently unavailable."
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 120,
+			lineNumber: 156,
 			columnNumber: 14
 		}, void 0);
 		if (paidOrder) {
@@ -2168,7 +2173,7 @@ var Checkout = ({ priceCode, onClose }) => {
 						children: "✓"
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 126,
+						lineNumber: 162,
 						columnNumber: 11
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("h2", {
@@ -2176,7 +2181,7 @@ var Checkout = ({ priceCode, onClose }) => {
 						children: "Payment successful!"
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 129,
+						lineNumber: 165,
 						columnNumber: 11
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -2184,7 +2189,7 @@ var Checkout = ({ priceCode, onClose }) => {
 						children: grantsCoins ? "Your GB Coins have been successfully added to your account" : "Thank you for your payment"
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 130,
+						lineNumber: 166,
 						columnNumber: 11
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dl", {
@@ -2192,47 +2197,47 @@ var Checkout = ({ priceCode, onClose }) => {
 						children: [
 							grantsCoins && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dt", { children: "Coins credited" }, void 0, false, {
 								fileName: _jsxFileName,
-								lineNumber: 136,
+								lineNumber: 172,
 								columnNumber: 17
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dd", { children: formatCoins(Number(paidOrder.coins)) }, void 0, false, {
 								fileName: _jsxFileName,
-								lineNumber: 137,
+								lineNumber: 173,
 								columnNumber: 17
 							}, void 0)] }, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 135,
+								lineNumber: 171,
 								columnNumber: 15
 							}, void 0),
 							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dt", { children: "Amount paid" }, void 0, false, {
 								fileName: _jsxFileName,
-								lineNumber: 141,
+								lineNumber: 177,
 								columnNumber: 15
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dd", { children: formatMinorAmount(paidOrder.amountMinor, paidOrder.currency) }, void 0, false, {
 								fileName: _jsxFileName,
-								lineNumber: 142,
+								lineNumber: 178,
 								columnNumber: 15
 							}, void 0)] }, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 140,
+								lineNumber: 176,
 								columnNumber: 13
 							}, void 0),
 							/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dt", { children: "Transaction ID" }, void 0, false, {
 								fileName: _jsxFileName,
-								lineNumber: 145,
+								lineNumber: 181,
 								columnNumber: 15
 							}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("dd", { children: paidOrder.id }, void 0, false, {
 								fileName: _jsxFileName,
-								lineNumber: 146,
+								lineNumber: 182,
 								columnNumber: 15
 							}, void 0)] }, void 0, true, {
 								fileName: _jsxFileName,
-								lineNumber: 144,
+								lineNumber: 180,
 								columnNumber: 13
 							}, void 0)
 						]
 					}, void 0, true, {
 						fileName: _jsxFileName,
-						lineNumber: 133,
+						lineNumber: 169,
 						columnNumber: 11
 					}, void 0),
 					/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
@@ -2242,13 +2247,13 @@ var Checkout = ({ priceCode, onClose }) => {
 						children: grantsCoins ? "Explore GB Coins" : "Done"
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 149,
+						lineNumber: 185,
 						columnNumber: 11
 					}, void 0)
 				]
 			}, void 0, true, {
 				fileName: _jsxFileName,
-				lineNumber: 125,
+				lineNumber: 161,
 				columnNumber: 9
 			}, void 0);
 		}
@@ -2258,19 +2263,21 @@ var Checkout = ({ priceCode, onClose }) => {
 			children: isSlow ? "Your payment is still processing. You can close this and check back later." : "Confirming your payment…"
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 157,
+			lineNumber: 193,
 			columnNumber: 9
 		}, void 0);
-		const amountStep = isCustomAmount && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(AmountStep, {
+		const amountStep = price && isCustomAmount && /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(AmountStep, {
 			pounds,
 			isLocked: Boolean(checkout),
 			isStarting,
+			canContinue: isAmountInRange,
+			hint: formatPriceRange(price),
 			error: startError,
 			onPoundsChange: setPounds,
 			onContinue: () => handleStart(amountMinor)
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 163,
+			lineNumber: 199,
 			columnNumber: 7
 		}, void 0);
 		if (checkout) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(CheckoutElementsProvider, {
@@ -2281,17 +2288,31 @@ var Checkout = ({ priceCode, onClose }) => {
 				defaultValues: STRIPE_DEFAULT_VALUES
 			},
 			children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(PaymentStep, {
-				order: checkout.order,
 				onConfirmed: () => setIsConfirmed(true),
 				children: amountStep
 			}, void 0, false, {
 				fileName: _jsxFileName,
-				lineNumber: 182,
+				lineNumber: 220,
 				columnNumber: 11
 			}, void 0)
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 174,
+			lineNumber: 212,
+			columnNumber: 9
+		}, void 0);
+		if (!price) return priceError ? /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+			className: "payment-modal__error",
+			children: priceError
+		}, void 0, false, {
+			fileName: _jsxFileName,
+			lineNumber: 228,
+			columnNumber: 9
+		}, void 0) : /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
+			className: "payment-modal__status",
+			children: "Loading…"
+		}, void 0, false, {
+			fileName: _jsxFileName,
+			lineNumber: 230,
 			columnNumber: 9
 		}, void 0);
 		if (isCustomAmount) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [
@@ -2300,23 +2321,23 @@ var Checkout = ({ priceCode, onClose }) => {
 				children: expiredNotice
 			}, void 0, false, {
 				fileName: _jsxFileName,
-				lineNumber: 191,
+				lineNumber: 236,
 				columnNumber: 29
 			}, void 0),
-			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(OrderSummary, { total: formatMinorAmount(amountMinor ?? 0, "gbp") }, void 0, false, {
+			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(OrderSummary, { total: formatMinorAmount(amountMinor, price.currency) }, void 0, false, {
 				fileName: _jsxFileName,
-				lineNumber: 192,
+				lineNumber: 237,
 				columnNumber: 11
 			}, void 0),
 			/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("hr", { className: "payment-modal__divider" }, void 0, false, {
 				fileName: _jsxFileName,
-				lineNumber: 193,
+				lineNumber: 238,
 				columnNumber: 11
 			}, void 0),
 			amountStep
 		] }, void 0, true, {
 			fileName: _jsxFileName,
-			lineNumber: 190,
+			lineNumber: 235,
 			columnNumber: 9
 		}, void 0);
 		if (isStarting) return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -2324,7 +2345,7 @@ var Checkout = ({ priceCode, onClose }) => {
 			children: "Starting checkout…"
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 199,
+			lineNumber: 244,
 			columnNumber: 14
 		}, void 0);
 		return /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(import_jsx_dev_runtime.Fragment, { children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("p", {
@@ -2332,7 +2353,7 @@ var Checkout = ({ priceCode, onClose }) => {
 			children: expiredNotice ?? startError
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 203,
+			lineNumber: 248,
 			columnNumber: 9
 		}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 			type: "button",
@@ -2341,11 +2362,11 @@ var Checkout = ({ priceCode, onClose }) => {
 			children: "Try again"
 		}, void 0, false, {
 			fileName: _jsxFileName,
-			lineNumber: 204,
+			lineNumber: 249,
 			columnNumber: 9
 		}, void 0)] }, void 0, true, {
 			fileName: _jsxFileName,
-			lineNumber: 202,
+			lineNumber: 247,
 			columnNumber: 7
 		}, void 0);
 	};
@@ -2367,19 +2388,19 @@ var Checkout = ({ priceCode, onClose }) => {
 						className: "payment-modal__logo"
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 216,
+						lineNumber: 261,
 						columnNumber: 13
 					}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("span", {
 						className: "payment-modal__word",
 						children: "Coins"
 					}, void 0, false, {
 						fileName: _jsxFileName,
-						lineNumber: 217,
+						lineNumber: 262,
 						columnNumber: 13
 					}, void 0)]
 				}, void 0, true, {
 					fileName: _jsxFileName,
-					lineNumber: 215,
+					lineNumber: 260,
 					columnNumber: 11
 				}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("button", {
 					type: "button",
@@ -2389,29 +2410,29 @@ var Checkout = ({ priceCode, onClose }) => {
 					children: "×"
 				}, void 0, false, {
 					fileName: _jsxFileName,
-					lineNumber: 219,
+					lineNumber: 264,
 					columnNumber: 11
 				}, void 0)]
 			}, void 0, true, {
 				fileName: _jsxFileName,
-				lineNumber: 214,
+				lineNumber: 259,
 				columnNumber: 9
 			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 				className: "payment-modal__body",
 				children: renderBody()
 			}, void 0, false, {
 				fileName: _jsxFileName,
-				lineNumber: 224,
+				lineNumber: 269,
 				columnNumber: 9
 			}, void 0)]
 		}, void 0, true, {
 			fileName: _jsxFileName,
-			lineNumber: 213,
+			lineNumber: 258,
 			columnNumber: 7
 		}, void 0)
 	}, void 0, false, {
 		fileName: _jsxFileName,
-		lineNumber: 212,
+		lineNumber: 257,
 		columnNumber: 5
 	}, void 0);
 };

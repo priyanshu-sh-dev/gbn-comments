@@ -15902,7 +15902,7 @@ var defineElement = (tagName, loadWidget) => {
 //#region src/main.tsx
 loadStylesheet(FONT_URL);
 startAuth();
-defineElement(TAG_NAME.COMMENTS, () => Promise.all([import("./chunks/comments-D_lv3ZZo.js"), import("./chunks/comments-BlTUIgnG.js")]));
-defineElement(TAG_NAME.MESSAGE_BOX, () => Promise.all([import("./chunks/messageBox-BOVFubLx.js"), import("./chunks/messageBox-DWIw3xEk.js")]));
-defineElement(TAG_NAME.CHECKOUT, () => Promise.all([import("./chunks/coinsCheckout-DOAUiwQD.js"), import("./chunks/coinsCheckout-BuCgjGUj.js")]));
+defineElement(TAG_NAME.COMMENTS, () => Promise.all([import("./chunks/comments-JKYVMj0f.js"), import("./chunks/comments-BXqRXqvW.js")]));
+defineElement(TAG_NAME.MESSAGE_BOX, () => Promise.all([import("./chunks/messageBox-mZFziZt4.js"), import("./chunks/messageBox-DWIw3xEk.js")]));
+defineElement(TAG_NAME.CHECKOUT, () => Promise.all([import("./chunks/coinsCheckout-DEpvemOl.js"), import("./chunks/coinsCheckout-D768LW9E.js")]));
 //#endregion

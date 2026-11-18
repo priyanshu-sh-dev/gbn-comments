@@ -3880,6 +3880,12 @@ var formatMinorAmount = (amountMinor, currency) => new Intl.NumberFormat(LOCALE,
 	style: "currency",
 	currency
 }).format(Number(amountMinor) / 100);
+var formatPackPrice = (amountMinor, currency) => new Intl.NumberFormat(LOCALE, {
+	style: "currency",
+	currency,
+	trailingZeroDisplay: "stripIfInteger"
+}).format(Number(amountMinor) / 100);
+var formatPriceRange = ({ minAmountMinor, maxAmountMinor, currency }) => `${formatMinorAmount(minAmountMinor ?? 0, currency)} – ${formatMinorAmount(maxAmountMinor ?? 0, currency)}`;
 //#endregion
 //#region src/utils/string.ts
 var escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -3900,4 +3906,4 @@ var hashString = (input) => {
 var codeToEmoji = (code) => String.fromCodePoint(...code.split("-").map((part) => parseInt(part, 16)));
 var isWholePounds = (value) => /^[1-9]\d*$/.test(value);
 //#endregion
-export { idempotencyHeaders as C, getErrorStatus as S, axiosDelete as _, isWholePounds as a, axiosPost as b, formatDateTime as c, formatNextMonthStart as d, formatRelativeTime as f, startCheckout as g, fetchOrder as h, hashString as i, formatDuration as l, fetchMyPayments as m, escapeRegExp as n, formatCoins as o, fetchCoinCatalogue as p, getInitials as r, formatCountdown as s, codeToEmoji as t, formatMinorAmount as u, axiosGet as v, toErrorMessage as w, axiosPut as x, axiosPatch as y };
+export { axiosPut as C, toErrorMessage as E, axiosPost as S, idempotencyHeaders as T, fetchOrder as _, isWholePounds as a, axiosGet as b, formatDateTime as c, formatNextMonthStart as d, formatPackPrice as f, fetchMyPayments as g, fetchCoinCatalogue as h, hashString as i, formatDuration as l, formatRelativeTime as m, escapeRegExp as n, formatCoins as o, formatPriceRange as p, getInitials as r, formatCountdown as s, codeToEmoji as t, formatMinorAmount as u, startCheckout as v, getErrorStatus as w, axiosPatch as x, axiosDelete as y };
