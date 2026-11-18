@@ -15908,7 +15908,7 @@ loadStylesheet(FONT_URL);
 startAuth();
 defineElement(TAG_NAME.COMMENTS, () => Promise.all([import("./chunks/comments-C2bsmw5u.js"), import("./chunks/comments-BXqRXqvW.js")]));
 defineElement(TAG_NAME.MESSAGE_BOX, () => Promise.all([import("./chunks/messageBox-D19E_Sqb.js"), import("./chunks/messageBox-DWIw3xEk.js")]));
-defineElement(TAG_NAME.CHECKOUT, () => Promise.all([import("./chunks/coinsCheckout-C1AhR9bz.js"), import("./chunks/coinsCheckout-D768LW9E.js")]));
+defineElement(TAG_NAME.CHECKOUT, () => Promise.all([import("./chunks/coinsCheckout-w7LDwuKN.js"), import("./chunks/coinsCheckout-D768LW9E.js")]));
 var returnedOrderId = takeReturnedOrderId();
 if (returnedOrderId) {
 	resumeSuperChatDraft();

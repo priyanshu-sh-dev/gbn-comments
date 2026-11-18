@@ -1608,9 +1608,6 @@ var STRIPE_APPEARANCE = {
 		}
 	}
 };
-var TURNSTILE_SITE_KEY = "0x4AAAAAAENIKmtNa8QQHGTB";
-var TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
-var TURNSTILE_ACTION = "payment";
 var STRIPE_DEFAULT_VALUES = { billingAddress: { address: { country: "GB" } } };
 var ADDRESS_ELEMENT_OPTIONS = { display: { name: "split" } };
 var CARD_ELEMENT_OPTIONS = {
@@ -1665,41 +1662,6 @@ var getAttemptKey = (attemptId) => {
 var clearAttemptKey = (attemptId) => {
 	delete attempts[attemptId];
 	saveAttempts();
-};
-//#endregion
-//#region src/utils/turnstile.ts
-var scriptPromise = null;
-var loadTurnstile = () => {
-	scriptPromise ??= new Promise((resolve, reject) => {
-		const script = document.createElement("script");
-		script.src = TURNSTILE_SCRIPT_URL;
-		script.onload = () => window.turnstile ? resolve(window.turnstile) : reject(/* @__PURE__ */ new Error("Turnstile didn't load"));
-		script.onerror = () => {
-			scriptPromise = null;
-			reject(/* @__PURE__ */ new Error("Turnstile didn't load"));
-		};
-		document.head.append(script);
-	});
-	return scriptPromise;
-};
-var getTurnstileToken = async (container, siteKey) => {
-	if (!container) throw new Error("Turnstile has nowhere to render");
-	const turnstile = await loadTurnstile();
-	let widgetId = "";
-	try {
-		return await new Promise((resolve, reject) => {
-			widgetId = turnstile.render(container, {
-				sitekey: siteKey,
-				action: TURNSTILE_ACTION,
-				theme: "light",
-				size: "normal",
-				callback: resolve,
-				"error-callback": () => reject(/* @__PURE__ */ new Error("Turnstile challenge failed"))
-			});
-		});
-	} finally {
-		turnstile.remove(widgetId);
-	}
 };
 //#endregion
 //#region src/sections/coinsCheckout/amountStep/index.tsx
@@ -2105,20 +2067,19 @@ var Checkout = ({ priceCode, orderId, returnParams, onClose }) => {
 	const [paidOrder, setPaidOrder] = (0, import_react.useState)(null);
 	const [expiredNotice, setExpiredNotice] = (0, import_react.useState)(null);
 	const attemptIdRef = (0, import_react.useRef)("");
-	const turnstileBoxRef = (0, import_react.useRef)(null);
+	(0, import_react.useRef)(null);
 	const isCustomAmount = price?.pricing === PRICE_PRICING.CUSTOM;
 	const amountMinor = isWholePounds(pounds) ? Number(pounds) * 100 : 0;
 	const isAmountInRange = amountMinor >= Number(price?.minAmountMinor ?? 0) && amountMinor <= Number(price?.maxAmountMinor ?? 0);
 	const requestCheckout = async (code, customAmountMinor, isRetry = false) => {
 		attemptIdRef.current = `${code}:${customAmountMinor ?? ""}`;
 		try {
-			const turnstileToken = await getTurnstileToken(turnstileBoxRef.current, TURNSTILE_SITE_KEY);
 			setCheckout(await startCheckout({
 				priceCode: code,
 				idempotencyKey: getAttemptKey(attemptIdRef.current),
 				returnUrl: getCheckoutReturnUrl(returnParams),
 				amountMinor: customAmountMinor,
-				turnstileToken
+				turnstileToken: void 0
 			}));
 		} catch (error) {
 			const status = getErrorStatus(error);
@@ -2484,18 +2445,7 @@ var Checkout = ({ priceCode, orderId, returnParams, onClose }) => {
 				columnNumber: 9
 			}, void 0), /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", {
 				className: "payment-modal__body",
-				children: [/* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)(StripeSlot, {
-					name: "turnstile",
-					children: /* @__PURE__ */ (0, import_jsx_dev_runtime.jsxDEV)("div", { ref: turnstileBoxRef }, void 0, false, {
-						fileName: _jsxFileName,
-						lineNumber: 315,
-						columnNumber: 15
-					}, void 0)
-				}, void 0, false, {
-					fileName: _jsxFileName,
-					lineNumber: 314,
-					columnNumber: 13
-				}, void 0), renderBody()]
+				children: [void 0, renderBody()]
 			}, void 0, true, {
 				fileName: _jsxFileName,
 				lineNumber: 312,
